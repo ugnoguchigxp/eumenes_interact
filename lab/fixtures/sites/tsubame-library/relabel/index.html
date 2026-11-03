@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>つばめ図書館</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html" class="brand">つばめ図書館</a>
+			<nav><a href="guide.html" target="_blank">はじめての方へ</a></nav>
+		</header>
+		<main>
+			<h1>蔵書検索</h1>
+			<form action="results.html" method="get" role="search">
+				<label for="q">さがすことば</label>
+				<input id="q" name="q" type="search" />
+				<label for="branch">館</label>
+				<select id="branch" name="branch">
+					<option value="">すべての館</option>
+					<option value="central">中央館</option>
+					<option value="east">東分館</option>
+				</select>
+				<p><button type="submit">さがす</button></p>
+			</form>
+		</main>
+	</body>
+</html>

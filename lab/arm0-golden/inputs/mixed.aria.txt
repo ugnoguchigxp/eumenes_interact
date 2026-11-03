@@ -1,0 +1,9 @@
+- generic [ref=e1]:
+	- link "戻る" [ref=e2]:
+		- /url: /back
+
+	- paragraph [ref=e3]: |
+		first line
+		second line
+	- textbox "メール" [ref=e4]
+	- button "絵文字😀ボタン" [ref=e5]

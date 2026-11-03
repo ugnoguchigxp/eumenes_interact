@@ -1,0 +1,26 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Example Search" [ref=e3] [cursor=pointer]:
+      - /url: /
+    - search [ref=e4]:
+      - combobox "検索" [ref=e5]
+      - button "検索する" [ref=e6] [cursor=pointer]
+  - main [ref=e7]:
+    - heading "おすすめの商品" [level=2] [ref=e8]
+    - list [ref=e9]:
+      - listitem [ref=e10]:
+        - link "電気ケトル 1.0L" [ref=e11] [cursor=pointer]:
+          - /url: /items/kettle-10
+        - text: ¥3,980
+      - listitem [ref=e12]:
+        - link "ハンドドリップセット" [ref=e13] [cursor=pointer]:
+          - /url: /items/drip-set
+        - text: ¥5,400
+    - generic [ref=e14]:
+      - checkbox "在庫ありのみ" [ref=e15]
+      - combobox "並び順" [ref=e16]:
+        - option "おすすめ順" [selected]
+        - option "価格の安い順"
+  - contentinfo [ref=e17]:
+    - link "利用規約" [ref=e18] [cursor=pointer]:
+      - /url: /terms

@@ -1,0 +1,16 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y"],
+	"categories": {
+		"correctness": "error"
+	},
+	"rules": {
+		"unicorn/prefer-array-flat-map": "error"
+	},
+	"ignorePatterns": [
+		"node_modules/**",
+		"**/dist/**",
+		"lab/data/**",
+		".serena/**"
+	]
+}

@@ -1,0 +1,27 @@
+[install]
+peer = false
+minimumReleaseAge = 604800
+
+# `bun fmt` (scripts `format` / `format:check`). Kept identical to Eumenes' [fmt] (checked by `check:stack`).
+[fmt]
+useTabs = true
+tabWidth = 2
+printWidth = 80
+singleQuote = false
+jsxSingleQuote = false
+quoteProps = "as-needed"
+trailingComma = "all"
+semi = true
+arrowParens = "always"
+bracketSameLine = false
+bracketSpacing = true
+sortPackageJson = false
+ignorePatterns = [
+	"**/*.md",
+	"node_modules/**",
+	"**/dist/**",
+	"lab/data/**",
+	"lab/arm0-golden/golden/**",
+	".serena/**",
+	".claude/**",
+]

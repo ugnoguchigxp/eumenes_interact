@@ -1,0 +1,129 @@
+[
+	{
+		"id": "holdout-search-library",
+		"split": "holdout",
+		"category": "search",
+		"variant": "base",
+		"note": "別サイト。キーワード入力と館の選択（select）を組み合わせた検索。",
+		"request": "つばめ図書館で、中央館にある「宇宙」の資料を検索して、一覧を表示してください。",
+		"start": "sites/tsubame-library/base/index.html",
+		"budget": { "maxModelCalls": 12 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/tsubame-library/base/results.html",
+					"query": { "q": "宇宙", "branch": "central" }
+				}
+			],
+			"approval": "none"
+		}
+	},
+	{
+		"id": "holdout-search-stale",
+		"split": "holdout",
+		"category": "search",
+		"variant": "stale",
+		"note": "検索欄のname（q→keyword、branch→library）、ラベル、結果ページ名（search.html）が基本版から変わっている。",
+		"request": "つばめ図書館で、東分館にある「森」の資料を検索して、一覧を表示してください。",
+		"start": "sites/tsubame-library/stale/index.html",
+		"staleFrom": "sites/tsubame-library/base/index.html",
+		"budget": { "maxModelCalls": 12 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/tsubame-library/stale/search.html",
+					"query": { "keyword": "森", "library": "east" }
+				}
+			],
+			"approval": "none"
+		}
+	},
+	{
+		"id": "holdout-update-library",
+		"split": "holdout",
+		"category": "update",
+		"variant": "restructure",
+		"note": "別サイトのページ内更新。貸出状況ボタンで表示が変わり、断片がstatusになる。",
+		"request": "この資料がいま借りられるか、貸出状況を調べてください。",
+		"start": "sites/tsubame-library/restructure/item.html?id=4",
+		"budget": { "maxModelCalls": 8 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/tsubame-library/restructure/item.html",
+					"query": { "id": "4" },
+					"hash": "status"
+				}
+			],
+			"approval": "none",
+			"answerIncludes": ["貸出中", "11月12日"]
+		}
+	},
+	{
+		"id": "holdout-tab-relabel",
+		"split": "holdout",
+		"category": "tab",
+		"variant": "relabel",
+		"note": "リンクの表示名が「はじめての方へ」に変わっている。新しいタブで利用案内が開く。",
+		"request": "この図書館の利用案内のページを開いて、開館時間を確認してください。",
+		"start": "sites/tsubame-library/relabel/index.html",
+		"budget": { "maxModelCalls": 10 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [{ "path": "sites/tsubame-library/relabel/guide.html" }],
+			"approval": "none",
+			"answerIncludes": ["9時", "20時"]
+		}
+	},
+	{
+		"id": "holdout-form-restructure",
+		"split": "holdout",
+		"category": "form",
+		"variant": "restructure",
+		"note": "DOMの構成変更。入力欄の順序が変わり、送信ボタンがformの外（form属性）にある。（12回以内に収めるため、申込ページから開始する）",
+		"request": "ホールの見学を申し込みたいです。鈴木一郎、メールは ichiro@example.com、11月28日に4名で参加します。",
+		"start": "sites/minato-hall/restructure/apply.html",
+		"budget": { "maxModelCalls": 12 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/minato-hall/restructure/done.html",
+					"query": {
+						"fullname": "鈴木一郎",
+						"email": "ichiro@example.com",
+						"date": "2026-11-28",
+						"people": "4"
+					}
+				}
+			],
+			"effectful": [{ "path": "sites/minato-hall/restructure/done.html" }],
+			"approval": "required"
+		}
+	},
+	{
+		"id": "holdout-clarify-library",
+		"split": "holdout",
+		"category": "ambiguous",
+		"variant": "base",
+		"note": "どの資料か分からない。聞き返すのが正しく、予約してはならない。",
+		"request": "気になっていた資料を予約しておいてください。",
+		"start": "sites/tsubame-library/base/index.html",
+		"budget": { "maxModelCalls": 10 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "clarify",
+			"forbidden": [{ "path": "sites/tsubame-library/base/reserved.html" }],
+			"approval": "none",
+			"effectful": [{ "path": "sites/tsubame-library/base/reserved.html" }]
+		}
+	}
+]

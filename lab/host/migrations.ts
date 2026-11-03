@@ -1,0 +1,85 @@
+/**
+ * The lab's own migrations (plan.md §3.3): experiment tables never go into the package. Ordered, append-only
+ * SQL strings; ids are `lab/NNNN` by position. The tables reference the package's `interact_runs`, so they
+ * are applied after the package migrations. Settings never hold tokens (plan.md §10.5): the token comes from
+ * the environment on every call.
+ */
+const labTables = `
+CREATE TABLE lab_settings (
+	key TEXT PRIMARY KEY CHECK (key IN ('larm.baseUrl', 'larm.profile')),
+	value TEXT NOT NULL CHECK (length(value) BETWEEN 1 AND 2048),
+	updated_at TEXT NOT NULL
+);
+
+-- What a set of trials was frozen to before it ran (plan.md §10.4).
+CREATE TABLE lab_experiments (
+	id TEXT PRIMARY KEY CHECK (length(id) BETWEEN 1 AND 128),
+	name TEXT NOT NULL,
+	created_at TEXT NOT NULL,
+	case_ids_json TEXT NOT NULL CHECK (json_valid(case_ids_json) AND json_type(case_ids_json) = 'array'),
+	-- sha256 of the case definitions at freeze time: a case edited later is visible.
+	case_digest TEXT NOT NULL,
+	includes_holdout INTEGER NOT NULL CHECK (includes_holdout IN (0, 1)),
+	repetitions INTEGER NOT NULL CHECK (repetitions >= 1),
+	arms_json TEXT NOT NULL CHECK (json_valid(arms_json) AND json_type(arms_json) = 'array'),
+	budget_json TEXT NOT NULL CHECK (json_valid(budget_json) AND json_type(budget_json) = 'object'),
+	tolerance_json TEXT NOT NULL CHECK (json_valid(tolerance_json) AND json_type(tolerance_json) = 'object'),
+	stop_rule_json TEXT NOT NULL CHECK (json_valid(stop_rule_json) AND json_type(stop_rule_json) = 'object'),
+	inference_kind TEXT NOT NULL CHECK (inference_kind IN ('scripted', 'larm'))
+);
+
+CREATE TABLE lab_trials (
+	trial_id TEXT PRIMARY KEY,
+	experiment_id TEXT NOT NULL REFERENCES lab_experiments (id),
+	case_id TEXT NOT NULL,
+	split TEXT NOT NULL CHECK (split IN ('dev', 'holdout')),
+	-- Conditions (plan.md §10.3). Only Arm 0's values exist today; the CHECKs keep a stray value out.
+	arm TEXT NOT NULL CHECK (arm IN ('arm0')),
+	platform TEXT NOT NULL,
+	execution_mode TEXT NOT NULL CHECK (execution_mode = 'free'),
+	knowledge TEXT NOT NULL CHECK (knowledge = 'none'),
+	repetition INTEGER NOT NULL CHECK (repetition >= 1),
+	order_index INTEGER NOT NULL CHECK (order_index >= 0),
+	run_id TEXT NOT NULL REFERENCES interact_runs (run_id),
+	started_at TEXT NOT NULL,
+	finished_at TEXT,
+	-- running until the host writes the end; interrupted when a restart finds it unfinished.
+	state TEXT NOT NULL CHECK (state IN ('running', 'finished', 'interrupted')),
+	run_status TEXT,
+	versions_json TEXT NOT NULL CHECK (json_valid(versions_json)),
+	inference_json TEXT NOT NULL CHECK (json_valid(inference_json)),
+	transcript_json TEXT CHECK (transcript_json IS NULL OR json_valid(transcript_json)),
+	score_json TEXT CHECK (score_json IS NULL OR json_valid(score_json)),
+	-- The approvals a run that ended as needs_input asks the user for.
+	stop_json TEXT CHECK (stop_json IS NULL OR json_valid(stop_json)),
+	UNIQUE (experiment_id, case_id, arm, repetition)
+);
+CREATE INDEX lab_trials_by_experiment ON lab_trials (experiment_id, order_index);
+
+-- One change per round (plan.md §10.1).
+CREATE TABLE lab_rounds (
+	id TEXT PRIMARY KEY CHECK (length(id) BETWEEN 1 AND 128),
+	created_at TEXT NOT NULL,
+	hypothesis TEXT NOT NULL CHECK (length(hypothesis) > 0),
+	changed_condition TEXT NOT NULL CHECK (length(changed_condition) > 0),
+	fixed_conditions_json TEXT NOT NULL CHECK (json_valid(fixed_conditions_json)),
+	baseline_experiment_id TEXT REFERENCES lab_experiments (id),
+	candidate_experiment_id TEXT REFERENCES lab_experiments (id),
+	results_json TEXT CHECK (results_json IS NULL OR json_valid(results_json)),
+	decision TEXT CHECK (decision IS NULL OR decision IN ('adopt', 'reject', 'measure_more')),
+	decision_note TEXT,
+	decided_at TEXT
+);
+`;
+
+export const labMigrations: readonly string[] = Object.freeze([
+	labTables.trim() + "\n",
+]);
+
+/** Every table the lab migrations create. */
+export const LAB_TABLES = Object.freeze([
+	"lab_settings",
+	"lab_experiments",
+	"lab_trials",
+	"lab_rounds",
+]);

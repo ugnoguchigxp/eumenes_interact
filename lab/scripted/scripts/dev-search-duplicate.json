@@ -1,0 +1,43 @@
+{
+	"caseId": "dev-search-duplicate",
+	"steps": [
+		{
+			"tool": "browser.page.type",
+			"target": {
+				"role": "searchbox",
+				"name": "書名・著者",
+				"within": [
+					{
+						"role": "region",
+						"name": "蔵書検索"
+					}
+				]
+			},
+			"args": {
+				"value": "天野",
+				"quote": "天野",
+				"purpose": "検索語",
+				"submit": false
+			}
+		},
+		{
+			"tool": "browser.page.click",
+			"target": {
+				"role": "button",
+				"name": "検索",
+				"within": [
+					{
+						"role": "region",
+						"name": "蔵書検索"
+					}
+				]
+			},
+			"args": {
+				"effect": "navigate"
+			}
+		},
+		{
+			"finish": "「天野」の検索結果を表示しました。"
+		}
+	]
+}

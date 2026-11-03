@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>見学の申し込み完了 | みなと市民ホール</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html" class="brand">みなと市民ホール</a>
+			<nav aria-label="メイン">
+				<a href="index.html">ホーム</a>
+				<a href="apply.html">見学の申し込み</a>
+				<a href="mail.html">メールマガジン</a>
+			</nav>
+		</header>
+		<main>
+			<h1>見学の申し込みを受け付けました</h1>
+			<dl id="detail"></dl>
+			<p><a href="index.html">ホームへ戻る</a></p>
+		</main>
+		<script>
+			const p = new URLSearchParams(location.search);
+			const dl = document.getElementById("detail");
+			for (const [k, label] of [
+				["fullname", "お名前"],
+				["email", "メール"],
+				["date", "日付"],
+				["people", "人数"],
+			]) {
+				if (!p.has(k)) continue;
+				const dt = document.createElement("dt");
+				dt.textContent = label;
+				const dd = document.createElement("dd");
+				dd.textContent = p.get(k);
+				dl.append(dt, dd);
+			}
+		</script>
+	</body>
+</html>

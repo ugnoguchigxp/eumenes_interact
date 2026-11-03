@@ -1,0 +1,863 @@
+[
+	{
+		"name": "search-flow",
+		"start": {
+			"request": "電気ケトルを検索して",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "type a quoted value",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.type\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e5\", \"element\": \"検索 combobox\", \"value\": \"電気ケトル\", \"quote\": \"電気ケトル\", \"purpose\": \"検索語\", \"submit\": false}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "fenced output with a trailing comma (jsonrepair)",
+				"output": "```json\n{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2\", \"ref\": \"e6\", \"element\": \"検索する button\", \"effect\": \"navigate\"},}\n```",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa3-aaaa-4aaa-8aaa-aaaaaaaaaaa3",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "prose is rejected and repaired once",
+				"output": "了解しました。検索を続けます。"
+			},
+			{
+				"label": "observe again",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.observe\", \"arguments\": {}}",
+				"host": {
+					"kind": "observation",
+					"observation": {
+						"observationRef": "aaaaaaa4-aaaa-4aaa-8aaa-aaaaaaaaaaa4",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "finish with a cited and an unknown ref",
+				"output": "{\"action\": \"finish\", \"text\": \"電気ケトルの検索結果を開きました。\", \"refs\": [\"aaaaaaa4-aaaa-4aaa-8aaa-aaaaaaaaaaa4\", \"not-an-observation\"]}"
+			}
+		]
+	},
+	{
+		"name": "tool-refusals",
+		"start": {
+			"request": "検索結果を開いて",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 10,
+				"retries": {
+					"default": 3,
+					"browser.page.hover": 0
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "click with an observation that is not the latest",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa9-aaaa-4aaa-8aaa-aaaaaaaaaaa9\", \"ref\": \"e6\", \"element\": \"button\", \"effect\": \"navigate\"}}"
+			},
+			{
+				"label": "ref that is not in the observation",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e99\", \"element\": \"button\", \"effect\": \"navigate\"}}"
+			},
+			{
+				"label": "arguments without effect",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e6\", \"element\": \"button\"}}"
+			},
+			{
+				"label": "unknown tool",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.script\", \"arguments\": {}}"
+			},
+			{
+				"label": "type without value and quote",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.type\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e5\", \"element\": \"検索\", \"purpose\": \"x\", \"submit\": false}}"
+			},
+			{
+				"label": "submit without effect",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.type\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e5\", \"element\": \"検索 combobox\", \"value\": \"電気ケトル\", \"quote\": \"電気ケトル\", \"purpose\": \"検索語\", \"submit\": true}}"
+			},
+			{
+				"label": "hover refused once ends the task (retries 0)",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.hover\", \"arguments\": {\"observationRef\": \"aaaaaaa9-aaaa-4aaa-8aaa-aaaaaaaaaaa9\", \"ref\": \"e6\", \"element\": \"b\"}}"
+			}
+		]
+	},
+	{
+		"name": "no-target-tab",
+		"start": {
+			"request": "開いて",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": []
+		},
+		"steps": [
+			{
+				"label": "observe without a tab",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.observe\", \"arguments\": {}}"
+			},
+			{
+				"label": "navigate without a tab",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.navigate\", \"arguments\": {\"url\": \"https://example.com/\"}}"
+			},
+			{
+				"label": "tabs",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.tabs\", \"arguments\": {}}",
+				"host": {
+					"kind": "tabs",
+					"tabs": [
+						{
+							"tabRef": "11111111-1111-4111-8111-111111111111",
+							"title": "Example Search",
+							"url": "https://shop.example.com/search?q=secret-token",
+							"current": true
+						},
+						{
+							"tabRef": "22222222-2222-4222-8222-222222222222",
+							"title": "ドキュメント — 製品マニュアル",
+							"url": "https://docs.example.com/manual/index.html#intro",
+							"current": false
+						}
+					]
+				}
+			},
+			{
+				"label": "select a tab",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.tab_select\", \"arguments\": {\"tabRef\": \"22222222-2222-4222-8222-222222222222\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "22222222-2222-4222-8222-222222222222",
+						"snapshot": "mixed",
+						"url": "https://docs.example.com/manual/index.html",
+						"title": "製品マニュアル"
+					}
+				}
+			},
+			{
+				"label": "click on the selected tab",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2\", \"ref\": \"e2\", \"element\": \"戻る link\", \"effect\": \"navigate\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa3-aaaa-4aaa-8aaa-aaaaaaaaaaa3",
+						"tabRef": "22222222-2222-4222-8222-222222222222",
+						"snapshot": "mixed",
+						"url": "https://docs.example.com/manual/",
+						"title": "製品マニュアル"
+					}
+				}
+			},
+			{
+				"label": "finish",
+				"output": "{\"action\": \"finish\", \"text\": \"マニュアルを開きました。\", \"refs\": [\"aaaaaaa3-aaaa-4aaa-8aaa-aaaaaaaaaaa3\"]}"
+			}
+		]
+	},
+	{
+		"name": "operations",
+		"start": {
+			"request": "商品を絞り込んで",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "select",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.select\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e16\", \"element\": \"並び順 combobox\", \"values\": [\"価格の安い順\"]}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "hover",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.hover\", \"arguments\": {\"observationRef\": \"aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2\", \"ref\": \"e11\", \"element\": \"電気ケトル link\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa3-aaaa-4aaa-8aaa-aaaaaaaaaaa3",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "press",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.press\", \"arguments\": {\"key\": \"Escape\", \"effect\": \"navigate\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa4-aaaa-4aaa-8aaa-aaaaaaaaaaa4",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "wait",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.wait\", \"arguments\": {\"text\": \"在庫あり\", \"seconds\": 2}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa5-aaaa-4aaa-8aaa-aaaaaaaaaaa5",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "navigate",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.navigate\", \"arguments\": {\"url\": \"https://shop.example.com/items/kettle-10\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa6-aaaa-4aaa-8aaa-aaaaaaaaaaa6",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/items/kettle-10",
+						"title": "電気ケトル 1.0L"
+					},
+					"url": "https://shop.example.com/items/kettle-10"
+				}
+			},
+			{
+				"label": "back",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.back\", \"arguments\": {}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa7-aaaa-4aaa-8aaa-aaaaaaaaaaa7",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "wait without a condition",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.wait\", \"arguments\": {}}"
+			},
+			{
+				"label": "clarify",
+				"output": "{\"action\": \"clarify\", \"text\": \"どの商品を選びますか。\"}"
+			}
+		]
+	},
+	{
+		"name": "operation-failures",
+		"start": {
+			"request": "開いて",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 2
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "failed with a hinted code",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e6\", \"element\": \"button\", \"effect\": \"navigate\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "failed",
+					"code": "tab_busy"
+				}
+			},
+			{
+				"label": "failed without a code",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e6\", \"element\": \"button\", \"effect\": \"navigate\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "failed"
+				}
+			},
+			{
+				"label": "blocked destination",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.navigate\", \"arguments\": {\"url\": \"http://192.168.0.1/\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "failed",
+					"code": "navigation_private_blocked"
+				}
+			},
+			{
+				"label": "may have reached the page: no retry",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.click\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e6\", \"element\": \"button\", \"effect\": \"navigate\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "indeterminate",
+					"code": "browser_disconnected"
+				}
+			}
+		]
+	},
+	{
+		"name": "last-call",
+		"start": {
+			"request": "開いて",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 3,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "observe",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.observe\", \"arguments\": {}}",
+				"host": {
+					"kind": "observation",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "invalid output",
+				"output": "{\"action\":\"invoke\"}"
+			},
+			{
+				"label": "invoke on the last call",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.observe\", \"arguments\": {}}"
+			}
+		]
+	},
+	{
+		"name": "last-call-invalid",
+		"start": {
+			"request": "開いて",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 2,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "observe",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.observe\", \"arguments\": {}}",
+				"host": {
+					"kind": "observation",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "not json on the last call",
+				"output": "I give up"
+			}
+		]
+	},
+	{
+		"name": "repair-twice",
+		"start": {
+			"request": "開いて",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "finish with a tool",
+				"output": "{\"action\": \"finish\", \"text\": \"x\", \"tool\": \"browser.page.tabs\"}"
+			},
+			{
+				"label": "duplicate keys are not repaired",
+				"output": "{\"action\":\"finish\",\"action\":\"clarify\",\"text\":\"x\"}"
+			}
+		]
+	},
+	{
+		"name": "unconfirmed-page-value",
+		"start": {
+			"request": "検索して",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "value from the page, not from the request",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.type\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e5\", \"element\": \"検索 combobox\", \"value\": \"ハンドドリップセット\", \"quote\": \"検索して\", \"purpose\": \"検索語\", \"submit\": false}}"
+			}
+		]
+	},
+	{
+		"name": "unconfirmed-quote",
+		"start": {
+			"request": "検索して",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			}
+		},
+		"steps": [
+			{
+				"label": "quote that is not in the request",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.type\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e5\", \"element\": \"検索 combobox\", \"value\": \"春の新作\", \"quote\": \"新作を探して\", \"purpose\": \"検索語\", \"submit\": false}}"
+			}
+		]
+	},
+	{
+		"name": "reference-and-brief",
+		"start": {
+			"request": "このタブで電気ケトルを探して",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "deep",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			},
+			"brief": "電気ケトルを検索する",
+			"requestedUrl": "https://shop.example.com/",
+			"connection": {
+				"connectionId": "c1",
+				"state": "connected",
+				"availability": {
+					"available": true
+				}
+			}
+		},
+		"steps": [
+			{
+				"label": "observe",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.observe\", \"arguments\": {}}",
+				"host": {
+					"kind": "observation",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "refs",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "finish",
+				"output": "{\"action\": \"finish\", \"text\": \"確認しました。\"}"
+			}
+		]
+	},
+	{
+		"name": "tool-subset",
+		"start": {
+			"request": "検索して",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			},
+			"tools": [
+				"browser.page.observe",
+				"browser.page.click",
+				"browser.page.type",
+				"browser.page.tabs"
+			]
+		},
+		"steps": [
+			{
+				"label": "a tool that is not offered",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.navigate\", \"arguments\": {\"url\": \"https://example.com/\"}}"
+			},
+			{
+				"label": "observe",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.observe\", \"arguments\": {}}",
+				"host": {
+					"kind": "observation",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			}
+		]
+	},
+	{
+		"name": "approved-input",
+		"start": {
+			"request": "検索して",
+			"nowMs": 1793600000000,
+			"policy": {
+				"maxModelCalls": 8,
+				"retries": {
+					"default": 1
+				}
+			},
+			"tabs": [
+				{
+					"tabRef": "11111111-1111-4111-8111-111111111111",
+					"title": "Example Search",
+					"url": "https://shop.example.com/search?q=secret-token",
+					"current": true
+				},
+				{
+					"tabRef": "22222222-2222-4222-8222-222222222222",
+					"title": "ドキュメント — 製品マニュアル",
+					"url": "https://docs.example.com/manual/index.html#intro",
+					"current": false
+				}
+			],
+			"observation": {
+				"observationRef": "aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+				"tabRef": "11111111-1111-4111-8111-111111111111",
+				"snapshot": "small",
+				"url": "https://shop.example.com/search?q=secret-token",
+				"title": "Example Search"
+			},
+			"approved": [
+				{
+					"kind": "input_value",
+					"inputValueRef": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+					"origin": "https://shop.example.com",
+					"purpose": "検索語",
+					"summary": "検索語"
+				}
+			]
+		},
+		"steps": [
+			{
+				"label": "type an approved value by reference",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.type\", \"arguments\": {\"observationRef\": \"aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1\", \"ref\": \"e5\", \"element\": \"検索 combobox\", \"inputValueRef\": \"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb\", \"purpose\": \"検索語\", \"submit\": true, \"effect\": \"navigate\"}}",
+				"host": {
+					"kind": "operation",
+					"status": "confirmed",
+					"observation": {
+						"observationRef": "aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+						"tabRef": "11111111-1111-4111-8111-111111111111",
+						"snapshot": "small",
+						"url": "https://shop.example.com/search?q=secret-token",
+						"title": "Example Search"
+					}
+				}
+			},
+			{
+				"label": "reference together with a value",
+				"output": "{\"action\": \"invoke\", \"tool\": \"browser.page.type\", \"arguments\": {\"observationRef\": \"aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaa2\", \"ref\": \"e5\", \"element\": \"検索 combobox\", \"inputValueRef\": \"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb\", \"value\": \"x\", \"purpose\": \"検索語\", \"submit\": false}}"
+			}
+		]
+	}
+]

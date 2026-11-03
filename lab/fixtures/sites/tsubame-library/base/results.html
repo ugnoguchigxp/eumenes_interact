@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>検索結果 | つばめ図書館</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header><a href="index.html" class="brand">つばめ図書館</a></header>
+		<main>
+			<h1>検索結果</h1>
+			<p id="summary" aria-live="polite"></p>
+			<ul id="list"></ul>
+			<p><a href="index.html">蔵書検索へ戻る</a></p>
+		</main>
+		<script src="../library.js"></script>
+		<script>
+			const p = new URLSearchParams(location.search);
+			const hits = findItems(p.get("q"), p.get("branch"));
+			document.getElementById("summary").textContent = hits.length + "件";
+			document.getElementById("list").innerHTML = hits
+				.map(
+					(i) =>
+						'<li><a href="item.html?id=' +
+						i.id +
+						'">' +
+						i.title +
+						"</a> <span>" +
+						BRANCHES[i.branch] +
+						"</span></li>",
+				)
+				.join("");
+		</script>
+	</body>
+</html>

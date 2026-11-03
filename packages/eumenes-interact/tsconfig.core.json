@@ -1,0 +1,18 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"types": [],
+		"lib": ["ES2022"]
+	},
+	"include": [
+		"src/core",
+		"src/sqlite",
+		"src/contracts/common.ts",
+		"src/contracts/db.ts",
+		"src/contracts/observation.ts",
+		"src/contracts/operation.ts",
+		"src/contracts/core.ts",
+		"src/contracts/run.ts"
+	],
+	"exclude": ["**/*.test.ts", "**/node_modules", "**/dist"]
+}

@@ -1,0 +1,38 @@
+{
+	"caseId": "dev-select-delayed",
+	"steps": [
+		{
+			"tool": "browser.page.type",
+			"target": {
+				"role": "searchbox",
+				"name": "書名・著者"
+			},
+			"args": {
+				"value": "月影の図書館",
+				"quote": "月影の図書館 外伝",
+				"purpose": "検索語",
+				"submit": true,
+				"effect": "navigate"
+			}
+		},
+		{
+			"tool": "browser.page.wait",
+			"args": {
+				"text": "2件"
+			}
+		},
+		{
+			"tool": "browser.page.click",
+			"target": {
+				"role": "link",
+				"name": "月影の図書館 外伝"
+			},
+			"args": {
+				"effect": "navigate"
+			}
+		},
+		{
+			"finish": "『月影の図書館 外伝』のページを開きました。"
+		}
+	]
+}

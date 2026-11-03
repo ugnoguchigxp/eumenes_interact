@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>ホール見学の申し込み | みなと市民ホール</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html" class="brand">みなと市民ホール</a>
+			<nav aria-label="メイン">
+				<a href="index.html">ホーム</a>
+				<a href="apply.html">見学の申し込み</a>
+				<a href="mail.html">メールマガジン</a>
+			</nav>
+		</header>
+		<main>
+			<h1>ホール見学の申し込み</h1>
+			<form action="done.html" method="get">
+				<label for="fullname">お名前</label>
+				<input id="fullname" name="fullname" required />
+				<label for="email">メールアドレス</label>
+				<input id="email" name="email" type="email" required />
+				<label for="date">見学希望日</label>
+				<select id="date" name="date">
+					<option value="">選択してください</option>
+					<option value="2026-11-14">11月14日（土）</option>
+					<option value="2026-11-21">11月21日（土）</option>
+					<option value="2026-11-28">11月28日（土）</option>
+				</select>
+				<label for="people">人数</label>
+				<select id="people" name="people">
+					<option value="1">1名</option>
+					<option value="2">2名</option>
+					<option value="3">3名</option>
+					<option value="4">4名</option>
+					<option value="5">5名</option>
+					<option value="6">6名</option>
+				</select>
+				<label for="note">備考</label>
+				<textarea id="note" name="note" rows="3"></textarea>
+				<p id="loading">送信の準備中…</p>
+				<p id="buttons" hidden>
+					<button type="submit">申し込む</button>
+					<button type="reset">入力をクリア</button>
+				</p>
+			</form>
+		</main>
+		<script>
+			setTimeout(() => {
+				document.getElementById("loading").remove();
+				document.getElementById("buttons").hidden = false;
+			}, 2000);
+		</script>
+	</body>
+</html>

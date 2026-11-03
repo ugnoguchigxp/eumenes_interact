@@ -1,0 +1,70 @@
+{
+	"caseId": "dev-form-delayed",
+	"steps": [
+		{
+			"tool": "browser.page.type",
+			"target": {
+				"role": "textbox",
+				"name": "お名前"
+			},
+			"args": {
+				"value": "高橋次郎",
+				"quote": "高橋次郎",
+				"purpose": "お名前",
+				"submit": false
+			}
+		},
+		{
+			"tool": "browser.page.type",
+			"target": {
+				"role": "textbox",
+				"name": "メールアドレス"
+			},
+			"args": {
+				"value": "jiro@example.com",
+				"quote": "jiro@example.com",
+				"purpose": "メールアドレス",
+				"submit": false
+			}
+		},
+		{
+			"tool": "browser.page.select",
+			"target": {
+				"role": "combobox",
+				"name": "見学希望日"
+			},
+			"args": {
+				"values": ["11月28日（土）"]
+			}
+		},
+		{
+			"tool": "browser.page.select",
+			"target": {
+				"role": "combobox",
+				"name": "人数"
+			},
+			"args": {
+				"values": ["1名"]
+			}
+		},
+		{
+			"tool": "browser.page.wait",
+			"args": {
+				"textGone": "送信の準備中"
+			}
+		},
+		{
+			"tool": "browser.page.click",
+			"target": {
+				"role": "button",
+				"name": "申し込む"
+			},
+			"args": {
+				"effect": "commit"
+			}
+		},
+		{
+			"finish": "見学の申し込みを送信しました。"
+		}
+	]
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>星屑堂書店</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html" class="brand">星屑堂書店</a>
+			<nav aria-label="メイン">
+				<a href="index.html">ホーム</a>
+				<a href="guide.html" target="_blank">ご利用案内</a>
+				<button type="button" id="map-btn">店舗の地図</button>
+			</nav>
+			<form action="search.html" method="get" role="search">
+				<label for="kw">検索語</label>
+				<input id="kw" name="keyword" type="search" />
+				<button type="submit">検索</button>
+			</form>
+			<span id="cart-count">カート: 0冊</span>
+		</header>
+		<main>
+			<h1>星屑堂書店</h1>
+			<p>小さな町の本屋です。店頭の本をそのままご注文いただけます。</p>
+			<section>
+				<h2>新着の本</h2>
+				<ul>
+					<li><a href="book.html?id=1">月影の図書館</a></li>
+					<li><a href="book.html?id=3">星屑の地図帳</a></li>
+					<li><a href="book.html?id=4">潮風レシピ帖</a></li>
+					<li><a href="book.html?id=6">夜明けの天文学入門</a></li>
+				</ul>
+			</section>
+		</main>
+		<script>
+			document
+				.getElementById("map-btn")
+				.addEventListener("click", () => window.open("map.html"));
+		</script>
+	</body>
+</html>

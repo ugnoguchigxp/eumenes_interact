@@ -1,0 +1,28 @@
+{
+	"caseId": "dev-tab-restructure",
+	"steps": [
+		{
+			"tool": "browser.page.click",
+			"target": {
+				"role": "button",
+				"name": "店舗の地図"
+			},
+			"args": {
+				"effect": "navigate"
+			}
+		},
+		{
+			"tool": "browser.page.tabs",
+			"args": {}
+		},
+		{
+			"tool": "browser.page.tab_select",
+			"tab": {
+				"title": "店舗の地図"
+			}
+		},
+		{
+			"finish": "店舗の地図のページを開きました。"
+		}
+	]
+}

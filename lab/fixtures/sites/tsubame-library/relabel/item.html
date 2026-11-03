@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>資料 | つばめ図書館</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header><a href="index.html" class="brand">つばめ図書館</a></header>
+		<main>
+			<h1 id="title"></h1>
+			<p id="branch"></p>
+			<p>
+				<button type="button" id="status-btn">いま借りられるか調べる</button>
+			</p>
+			<p id="status" aria-live="polite"></p>
+			<form action="reserved.html" method="get">
+				<input type="hidden" id="item-id" name="id" />
+				<button type="submit">とりおきする</button>
+			</form>
+			<p><a href="index.html">蔵書検索へ戻る</a></p>
+		</main>
+		<script src="../library.js"></script>
+		<script>
+			const id = new URLSearchParams(location.search).get("id");
+			const i = window.ITEMS.find((x) => x.id === id);
+			if (i) {
+				document.getElementById("title").textContent = i.title;
+				document.title = i.title + " | つばめ図書館";
+				document.getElementById("branch").textContent = BRANCHES[i.branch];
+				document.getElementById("item-id").value = i.id;
+				document.getElementById("status-btn").addEventListener("click", () => {
+					document.getElementById("status").textContent =
+						"貸出状況: " + i.status;
+					location.hash = "status";
+				});
+			}
+		</script>
+	</body>
+</html>

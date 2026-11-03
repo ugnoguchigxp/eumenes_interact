@@ -1,0 +1,35 @@
+{
+	"name": "eumenes-interact",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"sideEffects": false,
+	"files": [
+		"dist",
+		"distribution-manifest.json"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./sqlite": {
+			"types": "./dist/sqlite.d.ts",
+			"default": "./dist/sqlite.js"
+		},
+		"./adapters/playwright-mcp": {
+			"types": "./dist/adapters/playwright-mcp.d.ts",
+			"default": "./dist/adapters/playwright-mcp.js"
+		},
+		"./package.json": "./package.json",
+		"./distribution-manifest.json": "./distribution-manifest.json"
+	},
+	"scripts": {
+		"build": "rm -rf dist && tsc -p tsconfig.build.json"
+	},
+	"dependencies": {
+		"jsonrepair": "3.15.0",
+		"zod": "4.4.3"
+	}
+}

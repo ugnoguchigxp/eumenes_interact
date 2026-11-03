@@ -1,0 +1,18 @@
+{
+	"caseId": "dev-update-base",
+	"steps": [
+		{
+			"tool": "browser.page.click",
+			"target": {
+				"role": "button",
+				"name": "在庫を確認する"
+			},
+			"args": {
+				"effect": "navigate"
+			}
+		},
+		{
+			"finish": "『潮風レシピ帖』の在庫は2冊です。"
+		}
+	]
+}

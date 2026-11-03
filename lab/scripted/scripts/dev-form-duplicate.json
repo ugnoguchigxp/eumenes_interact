@@ -1,0 +1,89 @@
+{
+	"caseId": "dev-form-duplicate",
+	"steps": [
+		{
+			"tool": "browser.page.type",
+			"target": {
+				"role": "textbox",
+				"name": "お名前",
+				"within": [
+					{
+						"role": "main"
+					}
+				]
+			},
+			"args": {
+				"value": "佐藤太郎",
+				"quote": "佐藤太郎",
+				"purpose": "お名前",
+				"submit": false
+			}
+		},
+		{
+			"tool": "browser.page.type",
+			"target": {
+				"role": "textbox",
+				"name": "メールアドレス",
+				"within": [
+					{
+						"role": "main"
+					}
+				]
+			},
+			"args": {
+				"value": "taro@example.com",
+				"quote": "taro@example.com",
+				"purpose": "メールアドレス",
+				"submit": false
+			}
+		},
+		{
+			"tool": "browser.page.select",
+			"target": {
+				"role": "combobox",
+				"name": "見学希望日",
+				"within": [
+					{
+						"role": "main"
+					}
+				]
+			},
+			"args": {
+				"values": ["11月14日（土）"]
+			}
+		},
+		{
+			"tool": "browser.page.select",
+			"target": {
+				"role": "combobox",
+				"name": "人数",
+				"within": [
+					{
+						"role": "main"
+					}
+				]
+			},
+			"args": {
+				"values": ["3名"]
+			}
+		},
+		{
+			"tool": "browser.page.click",
+			"target": {
+				"role": "button",
+				"name": "申し込む",
+				"within": [
+					{
+						"role": "main"
+					}
+				]
+			},
+			"args": {
+				"effect": "commit"
+			}
+		},
+		{
+			"finish": "見学の申し込みを送信しました。"
+		}
+	]
+}

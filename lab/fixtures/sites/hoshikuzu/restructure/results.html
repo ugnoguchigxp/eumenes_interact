@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>検索結果 | 星屑堂書店</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html" class="brand">星屑堂書店</a
+			><span id="cart-count">カート: 0冊</span>
+		</header>
+		<main>
+			<h1>検索結果</h1>
+			<p id="summary" aria-live="polite"></p>
+			<table>
+				<thead>
+					<tr>
+						<th>書名</th>
+						<th>著者</th>
+						<th>価格</th>
+					</tr>
+				</thead>
+				<tbody id="list"></tbody>
+			</table>
+			<p><a href="index.html">ホームへ戻る</a></p>
+		</main>
+		<script src="../shop.js"></script>
+		<script>
+			const q = new URLSearchParams(location.search).get("q") || "";
+			const summary = document.getElementById("summary");
+			const list = document.getElementById("list");
+			function show() {
+				const hits = findBooks(q);
+				summary.textContent = hits.length
+					? "「" + q + "」: " + hits.length + "件"
+					: "「" + q + "」に一致する本はありません";
+				list.innerHTML = hits
+					.map(
+						(b) =>
+							'<tr><td><a href="book.html?id=' +
+							b.id +
+							'">' +
+							b.title +
+							"</a></td><td>" +
+							b.author +
+							"</td><td>" +
+							b.price +
+							"円</td></tr>",
+					)
+					.join("");
+			}
+			show();
+		</script>
+	</body>
+</html>
