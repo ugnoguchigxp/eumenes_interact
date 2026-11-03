@@ -34,7 +34,8 @@ import { write } from "./db.ts";
 import { createExecutor } from "./executor.ts";
 import { InputGrants } from "./grants.ts";
 import type { LabLogger } from "./log.ts";
-import { fixturePolicy } from "./policy.ts";
+import { fixturePolicy, originPolicy } from "./policy.ts";
+import type { ObservationSink } from "./observations.ts";
 import { insertTrial, updateTrialVersions } from "./store.ts";
 import { TabRegistry } from "./tabs.ts";
 import { scoreAndStore, TrialRecorder } from "./trial.ts";
@@ -115,8 +116,16 @@ export type RunTrialInput = {
 	approver: Approver;
 	logger: LabLogger;
 	versions: TrialVersions;
-	/** The fixture server's base, ending in `/`. Case `start` is relative to it. */
-	fixtureBaseUrl: string;
+	/**
+	 * The fixture server's base, ending in `/`; case `start` is relative to it. Not used for a live case:
+	 * its base is its start origin, and `def.start` is absolute.
+	 */
+	fixtureBaseUrl?: string;
+	/**
+	 * Keeps every observation body (`--keep-observations`). Without it a live run stores none: not in the
+	 * transcript, and not in the saved core state, which holds the pages the model read (plan.md §14).
+	 */
+	observationSink?: ObservationSink;
 	owner?: string;
 	now?: () => number;
 	control?: RunControl;
@@ -155,11 +164,19 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const sessionId = randomUUID();
 	const control = input.control ?? new RunControl();
 	const policy = runPolicy(def);
+	// Where the trial's URLs are resolved from and what it may visit. A live case names its own origins.
+	const live = def.split === "live";
+	const baseUrl = live ? `${new URL(def.start).origin}/` : input.fixtureBaseUrl;
+	if (!baseUrl) throw new Error("fixture_base_url_missing");
+	const urlPolicy = live
+		? originPolicy(def.allowedOrigins ?? [])
+		: fixturePolicy(baseUrl);
+	const startUrl = live ? def.start : new URL(def.start, baseUrl).href;
 	const nowIso = () => new Date(now()).toISOString();
 	const deadlineMs = input.deadlineMs ?? policy.maxModelCalls * CALL_MS;
 	const startedAtMs = now();
 	const deadlineAtMs = startedAtMs + deadlineMs;
-	const recorder = new TrialRecorder(now);
+	const recorder = new TrialRecorder(now, live && !input.observationSink);
 	const tabs = new TabRegistry();
 	const grants = new InputGrants(now, randomUUID);
 	const log = (
@@ -226,8 +243,11 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const timer = setTimeout(() => control.cancel("deadline"), deadlineMs);
 
 	let revision = 0;
+	let kept = 0;
 	/** The state is stored after every step; a closed run (cancelled meanwhile) keeps what it had. */
 	const save = (state: CoreState) => {
+		// The state holds the observation bodies the model read: a live run keeps it only when asked to.
+		if (live && !input.observationSink) return;
 		try {
 			revision = write(db, () =>
 				saveCoreState(db, owner, runId, {
@@ -261,7 +281,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			runId,
 			sessionId,
 			adapter,
-			policy: fixturePolicy(input.fixtureBaseUrl),
+			policy: urlPolicy,
 			tabs,
 			grants,
 			approver: input.approver,
@@ -271,10 +291,14 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			now,
 			newId: randomUUID,
 			request: def.request,
+			scrub: live && !input.observationSink,
+			...(input.observationSink
+				? {
+						keepObservation: (o) => input.observationSink?.(trialId, ++kept, o),
+					}
+				: {}),
 		});
-		const first = await executor.start(
-			new URL(def.start, input.fixtureBaseUrl).href,
-		);
+		const first = await executor.start(startUrl);
 		const approved = (input.approvedValues ?? []).map((value) => {
 			const grant = grants.approve(value);
 			return {
@@ -463,7 +487,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		trialId,
 		caseId: def.id,
 		arm: input.arm,
-		fixtureBaseUrl: input.fixtureBaseUrl,
+		fixtureBaseUrl: baseUrl,
 	});
 	const score = scoreAndStore(db, def, transcript, {
 		runStatus: ending.status,

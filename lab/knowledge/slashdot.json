@@ -1,0 +1,74 @@
+{
+	"origins": ["https://slashdot.org"],
+	"pageProfiles": [
+		{
+			"name": "any",
+			"urlHint": "/",
+			"description": "どのページでも共通（検索欄がある）"
+		},
+		{
+			"name": "search_results",
+			"urlHint": "/index2.pl",
+			"description": "検索結果のページ"
+		}
+	],
+	"objects": [
+		{
+			"profile": "any",
+			"logicalName": "search.query",
+			"description": "サイト内を検索する欄（Enterで検索）",
+			"candidates": [
+				{
+					"kind": "role",
+					"fields": {
+						"role": "textbox",
+						"name": "Search"
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		},
+		{
+			"profile": "search_results",
+			"logicalName": "search.first_result",
+			"description": "検索結果の最初のストーリーの見出しリンク。押すとページ内のJavaScriptが要約本文をその場に展開する（記事ページへは移らない）。元記事の外部リンクは除く",
+			"candidates": [
+				{
+					"kind": "structure",
+					"fields": {
+						"role": "link",
+						"named": "true",
+						"urlIncludes": "/story/",
+						"urlExcludes": "#comments",
+						"nth": 0
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		},
+		{
+			"profile": "search_results",
+			"logicalName": "search.first_story",
+			"description": "検索結果の最初のストーリー。要約本文は見出しを押して展開するまで隠れている",
+			"candidates": [
+				{
+					"kind": "structure",
+					"fields": {
+						"role": "article",
+						"nth": 0
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		}
+	]
+}

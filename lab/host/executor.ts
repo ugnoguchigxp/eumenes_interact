@@ -11,7 +11,10 @@ import {
 	type InspectionResult,
 	type ObservationEnvelope,
 	type OperationRequest,
+	type ExtractedContent,
 	type PlatformAdapter,
+	type RawObservation,
+	type ShapedObservation,
 	type TabView,
 } from "eumenes-interact";
 import {
@@ -36,7 +39,7 @@ import {
 import { assertQuoted, type InputGrants } from "./grants.ts";
 import type { LabLogger } from "./log.ts";
 import type { UrlPolicy } from "./policy.ts";
-import type { TabRegistry } from "./tabs.ts";
+import { matchTabs, type TabEntry, type TabRegistry } from "./tabs.ts";
 import type { TrialRecorder } from "./trial.ts";
 import { Refusal, RunEnd, type RunEndStatus } from "./types.ts";
 
@@ -73,6 +76,26 @@ export type ExecutorDeps = {
 	newId: () => string;
 	/** The user's request: what a typed quotation is checked against. */
 	request: string;
+	/**
+	 * A work definition's difference from Eumenes: after one of this run's own operations on a tab is
+	 * confirmed, the next look at that tab may adopt the URL the page has settled on (a redirect or a
+	 * `replaceState` after the action returned), provided nothing else moved. Off for `runTrial`, which keeps
+	 * Eumenes' rule that a tab is only the same tab while its index and URL both match.
+	 */
+	followOwnNavigation?: boolean;
+	/**
+	 * `arm0` (default): the model sees the bounded snapshot and only its refs are actionable. `none`: a run
+	 * that feeds no model (a work definition) looks up refs in the whole snapshot.
+	 */
+	bounding?: "arm0" | "none";
+	/** Keeps page text (element names) out of the ledger and the transcript: a real site without `--keep-observations`. */
+	scrub?: boolean;
+	/** Gets every observation the model is shown, for a run that keeps them (plan.md §14). */
+	keepObservation?: (observation: {
+		url?: string;
+		title?: string;
+		body: string;
+	}) => void;
 };
 
 const sha256 = (text: string) =>
@@ -95,6 +118,24 @@ const clip = (text: string) => text.slice(0, SUMMARY_CHARS);
 const storable = (code: string | undefined, fallback: string) =>
 	code !== undefined && /^[a-z][a-z0-9_.]{0,63}$/.test(code) ? code : fallback;
 
+/** The command with its element name replaced (the name is page text). */
+const named = (command: AdapterCommand, element: string): AdapterCommand =>
+	"element" in command ? { ...command, element } : command;
+
+const REF = /\[ref=([A-Za-z0-9_-]+)\]/g;
+
+/** An observation shaped for a run without a model: the adapter's body as it is, every ref in it actionable. */
+function wholeObservation(raw: RawObservation): ShapedObservation {
+	const refs = [...raw.body.matchAll(REF)].map((m) => m[1]!);
+	return {
+		body: raw.body,
+		truncated: false,
+		truncationReasons: [],
+		refCount: refs.length,
+		refs,
+	};
+}
+
 const stableJson = (value: unknown) => JSON.stringify(value);
 
 export function createExecutor(deps: ExecutorDeps) {
@@ -104,6 +145,9 @@ export function createExecutor(deps: ExecutorDeps) {
 	/** Commands already requested, for `retryOf`. */
 	const requested = new Map<string, string>();
 	let halted: string | null = null;
+	/** The number of tabs the last look listed, and the tab whose next look may follow its own navigation. */
+	let lastCount = 0;
+	let followPending: { tabRef: string; count: number } | null = null;
 
 	const log = (
 		name: Parameters<LabLogger["lab"]>[0],
@@ -138,13 +182,52 @@ export function createExecutor(deps: ExecutorDeps) {
 	}
 
 	/**
+	 * The tab's page settled on another URL after its own operation (definition runs only). Adopted when the
+	 * tab count is as before, exactly one listed tab sits at the tab's index, every other tracked tab still
+	 * matches by index and URL, and the new URL passes the policy; a refused URL blocks the tab. Anything else
+	 * leaves the tab lost, as in Eumenes.
+	 */
+	function followNavigation(
+		tab: TabEntry,
+		list: readonly AdapterTarget[],
+		countBefore: number,
+	): boolean {
+		if (list.length !== countBefore) return false;
+		const atIndex = list.filter((t) => t.targetRef === tab.index);
+		if (atIndex.length !== 1) return false;
+		const others = tabs.open().filter((t) => t.tabRef !== tab.tabRef);
+		const rest = list.filter((t) => t.targetRef !== tab.index);
+		if (matchTabs(others, rest).size !== others.length) return false;
+		const moved = atIndex[0]!;
+		const verdict = deps.policy(moved.url ?? "");
+		if (!verdict.ok) {
+			tabs.block(tab.tabRef);
+			throw new Refusal(verdict.code, false);
+		}
+		tabs.patch(tab.tabRef, {
+			url: moved.url ?? "",
+			...(moved.title === undefined ? {} : { title: moved.title }),
+		});
+		// The page is not the one observed: its observations are void.
+		tabs.bump(tab.tabRef);
+		log("tab.navigation_followed", { code: "tab_url_settled" });
+		return true;
+	}
+
+	/**
 	 * Which listed tab is the tracked one, then makes it the current one (Eumenes `selectMatched`): the
 	 * (index, URL) pair must be present and unambiguous, and its page must be one the host may adopt.
 	 */
 	async function ensureCurrent(tabRef: string): Promise<AdapterTarget> {
 		const tab = tabs.require(tabRef);
+		// Taken once: only the first look after the operation may follow the page's own navigation.
+		const follow = followPending?.tabRef === tabRef ? followPending : null;
+		if (follow) followPending = null;
 		const find = (list: readonly AdapterTarget[]) => {
-			const hit = tabs.targetOf(tab, list);
+			lastCount = list.length;
+			let hit = tabs.targetOf(tab, list);
+			if (!hit && follow && followNavigation(tab, list, follow.count))
+				hit = tabs.targetOf(tab, list);
 			const blocked = verdicts(list);
 			adopt(list);
 			if (hit && !blocked.has(hit.targetRef)) return hit;
@@ -171,7 +254,10 @@ export function createExecutor(deps: ExecutorDeps) {
 			tabs.block(tabRef);
 			throw new Refusal(verdict.code, false);
 		}
-		const shaped = shapeObservation("arm0", raw);
+		const shaped =
+			deps.bounding === "none"
+				? wholeObservation(raw)
+				: shapeObservation("arm0", raw);
 		tabs.patch(tabRef, {
 			...(raw.url === undefined ? {} : { url: raw.url }),
 			...(raw.title === undefined ? {} : { title: raw.title }),
@@ -196,6 +282,11 @@ export function createExecutor(deps: ExecutorDeps) {
 			refCount: shaped.refCount,
 			missing: raw.missing,
 		};
+		deps.keepObservation?.({
+			...(raw.url === undefined ? {} : { url: raw.url }),
+			...(raw.title === undefined ? {} : { title: raw.title }),
+			body: shaped.body,
+		});
 		recorder.observation({
 			observationRef,
 			...(raw.url === undefined ? {} : { url: raw.url }),
@@ -235,6 +326,38 @@ export function createExecutor(deps: ExecutorDeps) {
 		const tab = tabs.open().find((t) => t.current) ?? tabs.open()[0];
 		if (!tab) throw new RunEnd("failed", "start_page_failed");
 		return { observation: await observeTab(tab.tabRef), tabs: tabs.views() };
+	}
+
+	/** The tab the session starts on (the browser's current one), for a run that does not open a start page. */
+	async function attach(): Promise<string> {
+		adopt(await readAdapter(() => adapter.listTargets(control.signal)));
+		const tab = tabs.open().find((t) => t.current) ?? tabs.open()[0];
+		if (!tab) throw new RunEnd("failed", "no_tab");
+		return tab.tabRef;
+	}
+
+	/**
+	 * `page.extract`: the main text of the tab's page by the adapter's fixed function. Read-only, so no ledger
+	 * row; the root must be a ref of the tab's latest observation, and the page it read must pass the policy.
+	 */
+	async function extract(
+		tabRef: string,
+		observationRef: string | undefined,
+		targetRef: string | null,
+		maxChars: number,
+	): Promise<ExtractedContent> {
+		if (targetRef !== null)
+			tabs.assertActionable(tabRef, observationRef, targetRef);
+		await ensureCurrent(tabRef);
+		const content = await readAdapter(() =>
+			adapter.extract(targetRef, maxChars, control.signal),
+		);
+		const verdict = deps.policy(content.url ?? tabs.require(tabRef).url);
+		if (!verdict.ok) {
+			tabs.block(tabRef);
+			throw new Refusal(verdict.code, false);
+		}
+		return content;
 	}
 
 	/** The element facts for the approval decision; reading never reaches the page's state. */
@@ -347,7 +470,7 @@ export function createExecutor(deps: ExecutorDeps) {
 			sessionId: deps.sessionId,
 			generation: tab.generation,
 			...(call.observationRef ? { observationRef: call.observationRef } : {}),
-			command,
+			command: deps.scrub ? named(command, "(redacted)") : command,
 			declaredEffect: call.declaredEffect,
 			...(approvalId ? { approvalRef: approvalId } : {}),
 		};
@@ -369,8 +492,14 @@ export function createExecutor(deps: ExecutorDeps) {
 		requested.set(key, operationId);
 		recorder.requested({
 			operationId,
-			command:
-				granted && command.action === "page.fill"
+			command: deps.scrub
+				? named(
+						granted && command.action === "page.fill"
+							? { ...command, text: "" }
+							: command,
+						"",
+					)
+				: granted && command.action === "page.fill"
 					? { ...command, text: "" }
 					: command,
 			declaredEffect: call.declaredEffect,
@@ -524,6 +653,7 @@ export function createExecutor(deps: ExecutorDeps) {
 		}
 		if (status !== "confirmed")
 			return { kind: "outcome", outcome: { kind: "operation", result } };
+		if (deps.followOwnNavigation) followPending = { tabRef, count: lastCount };
 		const observation = await observeAfter(tabRef);
 		if (control.signal.aborted) throw control.ended();
 		return {
@@ -647,5 +777,5 @@ export function createExecutor(deps: ExecutorDeps) {
 		}
 	}
 
-	return { execute, start };
+	return { execute, start, attach, extract };
 }

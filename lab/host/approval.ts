@@ -57,6 +57,19 @@ export class FixtureApprover implements Approver {
 	}
 }
 
+/**
+ * Unattended runs of work definitions: nothing is ever granted. The first prompt is kept, so the run can
+ * stop as `needs_input` and tell the caller what it would have done (plan.md §9).
+ */
+export class StopApprover implements Approver {
+	prompt: ApprovalPrompt | null = null;
+
+	decide(prompt: ApprovalPrompt): Promise<ApprovalDecision> {
+		this.prompt ??= prompt;
+		return Promise.resolve("deny");
+	}
+}
+
 /** Live runs: shows target, action and content on the terminal and waits for y/N. Anything else denies. */
 export class CliApprover implements Approver {
 	constructor(

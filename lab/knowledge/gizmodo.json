@@ -1,0 +1,55 @@
+{
+	"origins": ["https://www.gizmodo.jp"],
+	"pageProfiles": [
+		{
+			"name": "any",
+			"urlHint": "/",
+			"description": "どのページでも共通（検索欄がある）"
+		},
+		{
+			"name": "search_results",
+			"urlHint": "/search/",
+			"description": "検索結果のページ（Google CSEの結果がページ内に出る）"
+		}
+	],
+	"objects": [
+		{
+			"profile": "any",
+			"logicalName": "search.query",
+			"description": "サイト内を検索する欄（Enterで検索）",
+			"candidates": [
+				{
+					"kind": "role",
+					"fields": {
+						"role": "textbox",
+						"name": "キーワードを入力"
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		},
+		{
+			"profile": "search_results",
+			"logicalName": "search.first_result",
+			"description": "検索結果の最初の記事へのリンク（google.comへのリンクは除く）",
+			"candidates": [
+				{
+					"kind": "structure",
+					"fields": {
+						"role": "link",
+						"named": "true",
+						"urlIncludes": "https://www.gizmodo.jp/article/",
+						"nth": 0
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		}
+	]
+}

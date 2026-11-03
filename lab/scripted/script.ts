@@ -14,12 +14,39 @@ const ancestor = z.strictObject({
 	name: z.string().min(1).optional(),
 });
 
-/** An element as the page names it; `within` narrows to elements below such ancestors. */
-export const targetSchema = z.strictObject({
-	role: z.string().min(1),
-	name: z.string().min(1),
-	within: z.array(ancestor).optional(),
-});
+/**
+ * An element as the page names it, by `role` (or `roleAnyOf`, for a widget the sites expose as either) and by one of: an exact accessible `name`, any of several
+ * `nameAnyOf` (a live page may be in either language), and/or a `urlIncludes` text of the link's `/url:`.
+ * `within` narrows to elements below such ancestors. When several elements match, the step is ambiguous
+ * unless the script's author picks one with `nth` (0-based, in document order): the first is never taken
+ * silently.
+ */
+export const targetSchema = z
+	.strictObject({
+		role: z.string().min(1).optional(),
+		roleAnyOf: z.array(z.string().min(1)).min(1).optional(),
+		name: z.string().min(1).optional(),
+		nameAnyOf: z.array(z.string().min(1)).min(1).optional(),
+		urlIncludes: z.string().min(1).optional(),
+		nth: z.int().min(0).optional(),
+		within: z.array(ancestor).optional(),
+	})
+	.refine(
+		(t) => (t.role !== undefined) !== (t.roleAnyOf !== undefined),
+		"give role or roleAnyOf, exactly one",
+	)
+	.refine(
+		(t) =>
+			(t.name !== undefined ? 1 : 0) + (t.nameAnyOf !== undefined ? 1 : 0) <= 1,
+		"give name or nameAnyOf, not both",
+	)
+	.refine(
+		(t) =>
+			t.name !== undefined ||
+			t.nameAnyOf !== undefined ||
+			t.urlIncludes !== undefined,
+		"a target needs a name, nameAnyOf or urlIncludes",
+	);
 export type Target = z.infer<typeof targetSchema>;
 
 const invokeStep = z.strictObject({

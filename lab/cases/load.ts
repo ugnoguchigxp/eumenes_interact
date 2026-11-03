@@ -27,17 +27,24 @@ export function parseCases(json: unknown, split: CaseDef["split"]): CaseDef[] {
 
 export type LoadOptions = {
 	/**
+	 * Live cases visit real sites (plan.md §10.2): never loaded unless this is `true`, and a run of one is
+	 * the user's to start. Defaults to `false`.
+	 */
+	includeLive?: boolean;
+	/**
 	 * Required, no default. Holdout cases are for the take-back decision only (plan.md §10.2): pass
 	 * `true` only for a judging run, never while tuning.
 	 */
 	includeHoldout: boolean;
 };
 
-/** Loads the dev cases, and the holdout cases only when `includeHoldout` is true. */
+/** Loads the dev cases, the holdout cases only when `includeHoldout` is true, the live cases only when `includeLive` is. */
 export async function loadCases(options: LoadOptions): Promise<CaseDef[]> {
-	const splits: CaseDef["split"][] = options.includeHoldout
-		? ["dev", "holdout"]
-		: ["dev"];
+	const splits: CaseDef["split"][] = [
+		"dev",
+		...(options.includeHoldout ? (["holdout"] as const) : []),
+		...(options.includeLive === true ? (["live"] as const) : []),
+	];
 	const loaded = await Promise.all(
 		splits.map(async (split) =>
 			parseCases(JSON.parse(await readFile(caseFile(split), "utf8")), split),

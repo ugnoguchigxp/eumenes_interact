@@ -1,9 +1,9 @@
 import type { UrlPredicate } from "../cases/schema.ts";
 
-/** A browser URL resolved against the fixture root. */
+/** A browser URL resolved against the trial's base URL (the fixture server's, or a live case's start origin). */
 export type FixtureRef = { path: string; query: URLSearchParams; hash: string };
 
-/** `null` when the URL is not inside the fixture root (or is not a URL at all). */
+/** `null` when the URL is not inside the base (same origin and path prefix), or is not a URL at all. */
 export function toFixtureRef(url: string, baseUrl: string): FixtureRef | null {
 	try {
 		const u = new URL(url);
@@ -26,8 +26,10 @@ const normalize = (s: string): string =>
 	s.normalize("NFKC").trim().replace(/\s+/g, " ");
 
 export function matchesPredicate(p: UrlPredicate, ref: FixtureRef): boolean {
-	if (p.path !== ref.path) return false;
+	// Fixture paths have no leading slash, live paths do (`/watch`): the same page either way.
+	if (p.path.replace(/^\//, "") !== ref.path) return false;
 	if (p.hash !== undefined && p.hash !== ref.hash) return false;
+	if ((p.queryPresent ?? []).some((key) => !ref.query.has(key))) return false;
 	return Object.entries(p.query ?? {}).every(([key, expected]) => {
 		const actual = ref.query.get(key);
 		return actual !== null && normalize(actual) === normalize(expected);

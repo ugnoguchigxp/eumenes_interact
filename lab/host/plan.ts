@@ -4,13 +4,16 @@ import type { CaseDef } from "../cases/schema.ts";
 
 /**
  * Which cases a run may use, and in what order the trials go. Holdout cases are for the take-back decision
- * only (plan.md §10.2): they load only when the caller says so, on top of `loadCases`' own flag.
+ * only and live cases visit real sites (plan.md §10.2): each loads only when the caller says so, on top of
+ * `loadCases`' own flags.
  */
 
 export type Selection = {
 	caseId?: string;
-	split?: "dev" | "holdout";
+	split?: CaseDef["split"];
 	includeHoldout: boolean;
+	/** Live cases visit real sites: never selected without this. */
+	includeLive?: boolean;
 };
 
 /** The cases a selection names. A holdout case without `includeHoldout` is refused, never skipped quietly. */
@@ -22,6 +25,8 @@ export function selectCases(
 		throw new Error("select_case_or_split");
 	if (selection.split === "holdout" && !selection.includeHoldout)
 		throw new Error("holdout_needs_include_holdout");
+	if (selection.split === "live" && selection.includeLive !== true)
+		throw new Error("live_needs_include_live");
 	const chosen = all.filter((c) =>
 		selection.caseId !== undefined
 			? c.id === selection.caseId
@@ -35,6 +40,8 @@ export function selectCases(
 		);
 	if (!selection.includeHoldout && chosen.some((c) => c.split === "holdout"))
 		throw new Error("holdout_needs_include_holdout");
+	if (selection.includeLive !== true && chosen.some((c) => c.split === "live"))
+		throw new Error("live_needs_include_live");
 	return chosen;
 }
 

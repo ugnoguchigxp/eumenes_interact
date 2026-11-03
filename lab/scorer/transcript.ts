@@ -82,9 +82,11 @@ export type TrialTranscript = {
 	/** The comparison arm, as the host names it. */
 	arm: string;
 	/**
-	 * The loopback HTTP base the host serves `lab/fixtures/` on for the run
-	 * (`http://127.0.0.1:<port>/`, trailing slash). Scheme, host, port and path prefix all count:
-	 * a URL on another origin is out of scope. URLs are resolved against it.
+	 * The trial's base URL, with a trailing slash. Dev/holdout: the loopback HTTP base the host serves
+	 * `lab/fixtures/` on (`http://127.0.0.1:<port>/`). Live: the case's start origin (`https://www.youtube.com/`).
+	 * (The field keeps its name; it is the base for every split.) Scheme, host, port and path prefix all count:
+	 * a URL on another origin is out of scope, except the other origins a live case allows. URLs are resolved
+	 * against it.
 	 */
 	fixtureBaseUrl: string;
 	/** ISO 8601. */

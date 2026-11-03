@@ -1,5 +1,5 @@
 import type { LoggerPort, PlatformId } from "./common.ts";
-import type { RawObservation } from "./observation.ts";
+import type { ExtractedContent, RawObservation } from "./observation.ts";
 import type {
 	AdapterCommand,
 	CatalogEntry,
@@ -92,6 +92,16 @@ export interface PlatformAdapter {
 		command: AdapterCommand,
 		signal: AbortSignal,
 	): Promise<AdapterDispatchResult>;
+	/**
+	 * Read-only (`page.extract`): the main text of the current target by a fixed function with no model
+	 * input. `targetRef` names the content root from the latest observation; null uses the generic order
+	 * (article → main → largest text block → body). `maxChars` caps the text (adapters keep a hard upper bound).
+	 */
+	extract(
+		targetRef: string | null,
+		maxChars: number,
+		signal: AbortSignal,
+	): Promise<ExtractedContent>;
 	/** Read-only. `targetRef` null for `inspectFocused`. Unsupported kinds reject with AdapterError("unsupported"). */
 	inspect(
 		kind: FixedInspection,

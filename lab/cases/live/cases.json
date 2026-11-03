@@ -1,0 +1,22 @@
+[
+	{
+		"id": "live-youtube-ai-research",
+		"split": "live",
+		"category": "live",
+		"variant": "live",
+		"note": "実サイト。YouTubeで検索して動画を1本再生する。成功はURL（/watch?v=…）で判定する。再生状態そのものはURLからは分からないので、実行者が観測で確かめる。",
+		"request": "YouTubeで「AI research」を検索して、検索結果の動画を1本再生してください。",
+		"start": "https://www.youtube.com/",
+		"allowedOrigins": ["https://www.youtube.com"],
+		"budget": { "maxModelCalls": 12 },
+		"approvalScript": {
+			"decision": "grant",
+			"note": "利用者がこのシナリオの実行を明示的に許可している。無人で動かすため、Arm 0が単純なボタンのクリックで承認を求めても許可を返す。"
+		},
+		"expect": {
+			"kind": "reach",
+			"final": [{ "path": "/watch", "queryPresent": ["v"] }],
+			"approval": "none"
+		}
+	}
+]

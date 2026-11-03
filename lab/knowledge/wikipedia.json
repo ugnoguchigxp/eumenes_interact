@@ -1,0 +1,79 @@
+{
+	"origins": ["https://ja.wikipedia.org"],
+	"pageProfiles": [
+		{
+			"name": "any",
+			"urlHint": "/",
+			"description": "どのページでも共通（検索欄がある）"
+		},
+		{
+			"name": "search_results",
+			"urlHint": "/w/index.php",
+			"description": "検索結果のページ。題名が完全一致しない検索はここに来る"
+		},
+		{
+			"name": "article",
+			"urlHint": "/wiki/",
+			"description": "記事のページ"
+		}
+	],
+	"objects": [
+		{
+			"profile": "any",
+			"logicalName": "search.query",
+			"description": "全ページにある、Wikipedia内を検索する欄（Enterで検索）",
+			"candidates": [
+				{
+					"kind": "role",
+					"fields": {
+						"role": "searchbox",
+						"name": "Wikipedia内を検索"
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		},
+		{
+			"profile": "search_results",
+			"logicalName": "search.first_result",
+			"description": "検索結果の最初の記事へのリンク（ヘルプ・特別ページ・赤リンクを除く）",
+			"candidates": [
+				{
+					"kind": "structure",
+					"fields": {
+						"role": "link",
+						"withinRole": "main",
+						"named": "true",
+						"urlIncludes": "/wiki/",
+						"urlExcludes": "/wiki/Help:|/wiki/Special:|/wiki/特別:",
+						"nth": 0
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		},
+		{
+			"profile": "article",
+			"logicalName": "article.body",
+			"description": "記事の本文を含む領域",
+			"candidates": [
+				{
+					"kind": "role",
+					"fields": {
+						"role": "main"
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		}
+	]
+}

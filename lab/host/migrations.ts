@@ -72,8 +72,68 @@ CREATE TABLE lab_rounds (
 );
 `;
 
+/**
+ * Live cases (plan.md §10.2) are a third split. SQLite cannot change a CHECK, so `lab_trials` is rebuilt
+ * with the wider one (nothing references it); experiments learn whether they included live cases.
+ */
+const liveSplit = `
+ALTER TABLE lab_experiments
+	ADD COLUMN includes_live INTEGER NOT NULL DEFAULT 0 CHECK (includes_live IN (0, 1));
+
+CREATE TABLE lab_trials_next (
+	trial_id TEXT PRIMARY KEY,
+	experiment_id TEXT NOT NULL REFERENCES lab_experiments (id),
+	case_id TEXT NOT NULL,
+	split TEXT NOT NULL CHECK (split IN ('dev', 'holdout', 'live')),
+	arm TEXT NOT NULL CHECK (arm IN ('arm0')),
+	platform TEXT NOT NULL,
+	execution_mode TEXT NOT NULL CHECK (execution_mode = 'free'),
+	knowledge TEXT NOT NULL CHECK (knowledge = 'none'),
+	repetition INTEGER NOT NULL CHECK (repetition >= 1),
+	order_index INTEGER NOT NULL CHECK (order_index >= 0),
+	run_id TEXT NOT NULL REFERENCES interact_runs (run_id),
+	started_at TEXT NOT NULL,
+	finished_at TEXT,
+	state TEXT NOT NULL CHECK (state IN ('running', 'finished', 'interrupted')),
+	run_status TEXT,
+	versions_json TEXT NOT NULL CHECK (json_valid(versions_json)),
+	inference_json TEXT NOT NULL CHECK (json_valid(inference_json)),
+	transcript_json TEXT CHECK (transcript_json IS NULL OR json_valid(transcript_json)),
+	score_json TEXT CHECK (score_json IS NULL OR json_valid(score_json)),
+	stop_json TEXT CHECK (stop_json IS NULL OR json_valid(stop_json)),
+	UNIQUE (experiment_id, case_id, arm, repetition)
+);
+INSERT INTO lab_trials_next SELECT trial_id, experiment_id, case_id, split, arm, platform, execution_mode,
+	knowledge, repetition, order_index, run_id, started_at, finished_at, state, run_status, versions_json,
+	inference_json, transcript_json, score_json, stop_json FROM lab_trials;
+DROP TABLE lab_trials;
+ALTER TABLE lab_trials_next RENAME TO lab_trials;
+CREATE INDEX lab_trials_by_experiment ON lab_trials (experiment_id, order_index);
+`;
+
+/**
+ * Runs of work definitions (plan.md §6). The run itself is an `interact_runs` row; this adds what the lab
+ * knows about it. The inputs are never stored, only a digest of them (plan.md §14).
+ */
+const definitionRuns = `
+CREATE TABLE lab_definition_runs (
+	run_id TEXT PRIMARY KEY REFERENCES interact_runs (run_id),
+	definition_id TEXT NOT NULL,
+	revision INTEGER NOT NULL CHECK (revision >= 1),
+	definition_digest TEXT NOT NULL,
+	inputs_sha256 TEXT NOT NULL CHECK (length(inputs_sha256) = 64),
+	started_at TEXT NOT NULL,
+	finished_at TEXT,
+	status TEXT,
+	-- Step statuses and the final URL: no extracted text, no observation, no input.
+	summary_json TEXT CHECK (summary_json IS NULL OR json_valid(summary_json))
+);
+`;
+
 export const labMigrations: readonly string[] = Object.freeze([
 	labTables.trim() + "\n",
+	liveSplit.trim() + "\n",
+	definitionRuns.trim() + "\n",
 ]);
 
 /** Every table the lab migrations create. */
@@ -82,4 +142,5 @@ export const LAB_TABLES = Object.freeze([
 	"lab_experiments",
 	"lab_trials",
 	"lab_rounds",
+	"lab_definition_runs",
 ]);

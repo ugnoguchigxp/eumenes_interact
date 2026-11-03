@@ -1,0 +1,86 @@
+{
+	"formatVersion": 1,
+	"id": "wikipedia-article",
+	"revision": 1,
+	"title": "Wikipedia（日本語）でキーワードを検索し、記事本文を取得する",
+	"skillRef": "skill:interact.execute@1",
+	"catalogRef": "catalog:interact.actions@1",
+	"allowedOrigins": ["https://ja.wikipedia.org"],
+	"inputs": {
+		"type": "object",
+		"properties": {
+			"query": {
+				"type": "string",
+				"minLength": 1,
+				"maxLength": 100,
+				"description": "検索するキーワード"
+			}
+		},
+		"required": ["query"],
+		"additionalProperties": false
+	},
+	"steps": [
+		{
+			"id": "open",
+			"action": "browser.navigate",
+			"args": {
+				"url": "https://ja.wikipedia.org/"
+			},
+			"expectation": "サイトのトップページが表示されている"
+		},
+		{
+			"id": "query",
+			"action": "page.fill",
+			"targetObject": "search.query",
+			"args": {
+				"value": {
+					"$input": "query"
+				},
+				"submit": true
+			},
+			"expectation": "検索欄に今回のキーワードが入力され、検索が実行されている"
+		},
+		{
+			"id": "wait_results",
+			"action": "page.wait",
+			"args": {
+				"seconds": 2
+			},
+			"expectation": "検索結果が表示されるまで待っている"
+		},
+		{
+			"id": "look_results",
+			"action": "page.observe",
+			"expectation": "検索結果のページを観測できている"
+		},
+		{
+			"id": "pick",
+			"action": "page.click",
+			"targetObject": "search.first_result",
+			"expectation": "検索結果の最初の記事のページが開いている（題名が完全一致する場合は検索から記事へ直接移動するので、この手順は行わない）",
+			"optional": true
+		},
+		{
+			"id": "wait_page",
+			"action": "page.wait",
+			"args": {
+				"seconds": 2
+			},
+			"expectation": "開いたページの表示が落ち着くまで待っている"
+		},
+		{
+			"id": "look_page",
+			"action": "page.observe",
+			"expectation": "本文のページを観測できている"
+		},
+		{
+			"id": "read",
+			"action": "page.extract",
+			"args": {
+				"maxChars": 20000
+			},
+			"expectation": "記事の本文のテキストを取得できている",
+			"targetObject": "article.body"
+		}
+	]
+}

@@ -11,7 +11,8 @@ import type { Script, ScriptStep, Target } from "./script.ts";
 
 const clarify = (text: string) => JSON.stringify({ action: "clarify", text });
 
-const targetText = (t: Target) => `${t.role}「${t.name}」`;
+const targetText = (t: Target) =>
+	`${t.role ?? t.roleAnyOf?.join("/")}「${t.name ?? t.nameAnyOf?.join("/") ?? t.urlIncludes ?? ""}」`;
 
 function invoke(
 	step: Extract<ScriptStep, { tool: string }>,
@@ -31,7 +32,8 @@ function invoke(
 		Object.assign(args, {
 			observationRef: seen.observationRef,
 			ref: found.ref,
-			element: `${step.target.role} "${step.target.name}"`,
+			// The page's own name for it, as the model would copy it, cut to what the tool accepts.
+			element: `${found.role} "${found.name ?? ""}"`.slice(0, 200),
 		});
 	}
 	if (step.tab) {

@@ -11,21 +11,31 @@ export type AriaNode = {
 	role: string;
 	name: string | null;
 	ref: string | null;
+	/** The `- /url:` line under a link. */
+	url: string | null;
 	parents: AriaNode[];
 };
 
-const normalize = (s: string) =>
+export const normalize = (s: string) =>
 	s.normalize("NFKC").trim().replace(/\s+/g, " ");
 
 /** `- link "name" [ref=e3] [cursor=pointer]:` and `- main [ref=e7]:`; `- text:` and `- /url:` lines are no element. */
 const LINE =
 	/^(\s*)- ([A-Za-z][\w-]*)(?: "((?:[^"\\]|\\.)*)")?((?: \[[^\]]*\])*)(?::.*)?$/;
 const REF = /\[ref=([A-Za-z0-9_-]+)\]/;
+const URL_LINE = /^\s*- \/url:\s*(.*?)\s*$/;
 
 export function parseAria(body: string): AriaNode[] {
 	const nodes: AriaNode[] = [];
 	const stack: { indent: number; node: AriaNode }[] = [];
 	for (const raw of body.split("\n")) {
+		const link = URL_LINE.exec(raw);
+		if (link) {
+			// The destination of the link just above.
+			const owner = nodes.at(-1);
+			if (owner && owner.url === null) owner.url = link[1] ?? null;
+			continue;
+		}
 		const m = LINE.exec(raw.replace(/\t/g, "  "));
 		if (!m) continue;
 		// `- text:` is page text, not an element.
@@ -36,6 +46,7 @@ export function parseAria(body: string): AriaNode[] {
 			role: m[2]!,
 			name: m[3] === undefined ? null : normalize(m[3].replace(/\\(.)/g, "$1")),
 			ref: REF.exec(m[4] ?? "")?.[1] ?? null,
+			url: null,
 			parents: stack.map((s) => s.node),
 		};
 		nodes.push(node);
@@ -45,16 +56,26 @@ export function parseAria(body: string): AriaNode[] {
 }
 
 export type Resolved =
-	{ kind: "found"; ref: string } | { kind: "none" | "ambiguous" };
+	| { kind: "found"; ref: string; role: string; name: string | null }
+	| { kind: "none" | "ambiguous" };
 
-/** Exactly one element with that role and name (below the `within` ancestors) must carry a ref. */
+/**
+ * The element with that role, name and destination (below the `within` ancestors) that carries a ref. More
+ * than one is ambiguous unless `nth` names which; `nth` beyond the matches finds nothing.
+ */
 export function resolveTarget(body: string, target: Target): Resolved {
-	const name = normalize(target.name);
+	const names = (
+		target.name !== undefined ? [target.name] : (target.nameAnyOf ?? [])
+	).map(normalize);
+	const roles =
+		target.roleAnyOf ?? (target.role === undefined ? [] : [target.role]);
 	const hits = parseAria(body).filter(
 		(n) =>
 			n.ref !== null &&
-			n.role === target.role &&
-			n.name === name &&
+			roles.includes(n.role) &&
+			(names.length === 0 || (n.name !== null && names.includes(n.name))) &&
+			(target.urlIncludes === undefined ||
+				(n.url !== null && n.url.includes(target.urlIncludes))) &&
 			(target.within ?? []).every((a) =>
 				n.parents.some(
 					(p) =>
@@ -63,10 +84,10 @@ export function resolveTarget(body: string, target: Target): Resolved {
 				),
 			),
 	);
-	if (hits.length === 0) return { kind: "none" };
-	return hits.length === 1
-		? { kind: "found", ref: hits[0]!.ref! }
-		: { kind: "ambiguous" };
+	const pick = target.nth === undefined ? hits[0] : hits[target.nth];
+	if (!pick) return { kind: "none" };
+	if (target.nth === undefined && hits.length > 1) return { kind: "ambiguous" };
+	return { kind: "found", ref: pick.ref!, role: pick.role, name: pick.name };
 }
 
 export type SeenObservation = { observationRef: string; text: string };

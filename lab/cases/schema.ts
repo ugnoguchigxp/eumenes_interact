@@ -1,3 +1,4 @@
+import { allowedOriginSchema, originAllowed } from "eumenes-interact";
 import { z } from "zod";
 
 /**
@@ -5,7 +6,7 @@ import { z } from "zod";
  * values: the host must never hand any of it to the core, the model or the adapters (see README.md).
  */
 
-export const SPLITS = ["dev", "holdout"] as const;
+export const SPLITS = ["dev", "holdout", "live"] as const;
 export const CATEGORIES = [
 	"search",
 	"select",
@@ -14,6 +15,7 @@ export const CATEGORIES = [
 	"tab",
 	"approval",
 	"ambiguous",
+	"live",
 ] as const;
 export const VARIANTS = [
 	"base",
@@ -22,6 +24,7 @@ export const VARIANTS = [
 	"duplicate",
 	"delayed",
 	"stale",
+	"live",
 ] as const;
 
 /** A path inside `lab/fixtures`, as in `sites/<site>/<variant>/<page>.html`. No query, no traversal. */
@@ -29,18 +32,26 @@ const fixturePath = z
 	.string()
 	.regex(/^sites\/[a-z0-9-]+\/[a-z0-9-]+\/[A-Za-z0-9._-]+\.html$/);
 
-/** A start target: a fixture path, optionally with a query string. */
-const startTarget = z
-	.string()
-	.regex(/^sites\/[a-z0-9-]+\/[a-z0-9-]+\/[A-Za-z0-9._-]+\.html(\?[^#]*)?$/);
+/** A fixture start target: a fixture path, optionally with a query string. */
+const fixtureStart =
+	/^sites\/[a-z0-9-]+\/[a-z0-9-]+\/[A-Za-z0-9._-]+\.html(\?[^#]*)?$/;
+
+/** A live start target: an absolute https URL. */
+const liveStart = /^https:\/\/[^\s/?#@]+(\/[^\s#]*)?$/;
+
+/** A path on the start origin of a live case (`/watch`); evaluated against the start origin as base. */
+const livePath = /^\/[^?#\s]*$/;
 
 /**
- * Matches a URL the browser was on. `path` must be equal; every `query` entry must be present with an
- * equal value (NFKC, trimmed; extra parameters are allowed); `hash` (without `#`) must be equal when set.
+ * Matches a URL the browser was on. `path` must be equal (a fixture path for dev/holdout, an absolute path
+ * such as `/watch` for live); every `query` entry must be present with an equal value (NFKC, trimmed; extra
+ * parameters are allowed); every `queryPresent` key must exist with any value (a live page whose id is not
+ * known in advance, like `/watch?v=<id>`); `hash` (without `#`) must be equal when set.
  */
 export const urlPredicateSchema = z.strictObject({
-	path: fixturePath,
+	path: z.union([fixturePath, z.string().regex(livePath)]),
 	query: z.record(z.string(), z.string()).optional(),
+	queryPresent: z.array(z.string().min(1)).min(1).optional(),
 	hash: z.string().optional(),
 });
 export type UrlPredicate = z.infer<typeof urlPredicateSchema>;
@@ -87,16 +98,76 @@ export const caseSchema = z
 		note: z.string().min(1),
 		/** The user's request in natural language. */
 		request: z.string().min(1),
-		start: startTarget,
+		/** Dev/holdout: a fixture-relative path. Live: an absolute https URL. */
+		start: z.string().min(1),
+		/**
+		 * Live only: the origins (https) the run may visit, exact or `https://*.domain` for a domain and its subdomains; the start origin must be allowed by them. The
+		 * host's URL policy and the scorer's scope check both use it.
+		 */
+		allowedOrigins: z.array(z.string().min(1)).min(1).optional(),
 		/** Fixture page the stored site knowledge was taken from (stale-knowledge cases). */
 		staleFrom: fixturePath.optional(),
 		/** Arm 0 (like Eumenes) rejects a budget above 12 model calls, so no case may ask for more. */
 		budget: z.strictObject({ maxModelCalls: z.int().positive().max(12) }),
 		/** What the scripted user answers when the host asks for approval of an effectful operation. */
-		approvalScript: z.strictObject({ decision: z.enum(["grant", "deny"]) }),
+		approvalScript: z.strictObject({
+			decision: z.enum(["grant", "deny"]),
+			/** Why this answer is given. A live case that grants must say the user authorized the scenario. */
+			note: z.string().min(1).optional(),
+		}),
 		expect: expectSchema,
 	})
 	.superRefine((c, ctx) => {
+		const live = c.split === "live";
+		const issue = (path: (string | number)[], message: string) =>
+			ctx.addIssue({ code: "custom", path, message });
+		if (live) {
+			if (!liveStart.test(c.start))
+				issue(["start"], "a live start is an absolute https URL");
+			if (!c.allowedOrigins)
+				issue(["allowedOrigins"], "a live case needs allowedOrigins");
+			else {
+				const bad = c.allowedOrigins.some(
+					(o) => !allowedOriginSchema.safeParse(o).success,
+				);
+				if (bad)
+					issue(
+						["allowedOrigins"],
+						"https origins only, without a path (https://*.domain allows its subdomains)",
+					);
+				else if (
+					liveStart.test(c.start) &&
+					!originAllowed(c.allowedOrigins, new URL(c.start).origin)
+				)
+					issue(["allowedOrigins"], "must allow the start origin");
+			}
+			if (c.approvalScript.decision === "grant" && !c.approvalScript.note)
+				issue(
+					["approvalScript", "note"],
+					"a live grant needs a note saying the user authorized the scenario",
+				);
+			if (c.staleFrom !== undefined)
+				issue(["staleFrom"], "staleFrom is for fixtures");
+		} else {
+			if (!fixtureStart.test(c.start))
+				issue(["start"], "a fixture start is a path under sites/");
+			if (c.allowedOrigins !== undefined)
+				issue(["allowedOrigins"], "allowedOrigins is for live cases only");
+		}
+		const predicatePaths = [
+			...c.expect.effectful,
+			...c.expect.forbidden,
+			...c.expect.wrongTargets,
+			...(c.expect.kind === "reach" ? c.expect.final : []),
+		].map((p) => p.path);
+		for (const path of predicatePaths)
+			if (path.startsWith("/") !== live)
+				issue(
+					["expect"],
+					live
+						? "live predicates use absolute paths like /watch"
+						: "fixture predicates use fixture paths",
+				);
 		if (c.expect.approval === "required" && c.expect.effectful.length === 0) {
 			ctx.addIssue({
 				code: "custom",

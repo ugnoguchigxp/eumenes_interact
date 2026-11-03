@@ -4,6 +4,7 @@ import type { ArmId, InferencePort, PlatformAdapter } from "eumenes-interact";
 import type { CaseDef } from "../cases/schema.ts";
 import type { Approver } from "./approval.ts";
 import { RunControl } from "./control.ts";
+import type { ObservationSink } from "./observations.ts";
 import type { LabLogger } from "./log.ts";
 import { caseDigest, planTrials } from "./plan.ts";
 import {
@@ -40,10 +41,13 @@ export type ExperimentInput = {
 	name: string;
 	inferenceKind: "scripted" | "larm";
 	includesHoldout: boolean;
+	includesLive?: boolean;
 	factories: TrialFactories;
 	logger: LabLogger;
 	versions: TrialVersions;
-	fixtureBaseUrl: string;
+	/** Required unless every case is live. */
+	fixtureBaseUrl?: string;
+	observationSink?: ObservationSink;
 	now?: () => number;
 	/** Gives the caller the current trial's control (a signal handler cancels through it). */
 	onControl?: (control: RunControl) => void;
@@ -65,6 +69,7 @@ export async function runExperiment(input: ExperimentInput) {
 		caseIds: input.cases.map((c) => c.id),
 		caseDigest: caseDigest(input.cases),
 		includesHoldout: input.includesHoldout,
+		includesLive: input.includesLive === true,
 		repetitions: input.repetitions,
 		arms: input.arms,
 		budget: {
@@ -102,7 +107,12 @@ export async function runExperiment(input: ExperimentInput) {
 				approver: input.factories.approver(planned.def),
 				logger: input.logger,
 				versions: input.versions,
-				fixtureBaseUrl: input.fixtureBaseUrl,
+				...(input.fixtureBaseUrl
+					? { fixtureBaseUrl: input.fixtureBaseUrl }
+					: {}),
+				...(input.observationSink
+					? { observationSink: input.observationSink }
+					: {}),
 				now,
 				control,
 			});

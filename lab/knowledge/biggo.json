@@ -1,0 +1,51 @@
+{
+	"origins": ["https://biggo.jp"],
+	"pageProfiles": [
+		{
+			"name": "any",
+			"urlHint": "/",
+			"description": "結果ページの種類はまだ分かっていないので、サイト全体を一つの種類として扱う"
+		}
+	],
+	"objects": [
+		{
+			"profile": "any",
+			"logicalName": "search.query",
+			"description": "商品を検索する欄（Enterで検索）",
+			"candidates": [
+				{
+					"kind": "role",
+					"fields": {
+						"role": "textbox",
+						"name": "検索…"
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		},
+		{
+			"profile": "any",
+			"logicalName": "search.first_result",
+			"description": "検索結果の最初の商品ページへのリンク（/r/ の広告リンクは除く）",
+			"candidates": [
+				{
+					"kind": "structure",
+					"fields": {
+						"role": "link",
+						"named": "true",
+						"urlIncludes": "/gp/",
+						"urlExcludes": "#price|/compare",
+						"nth": 0
+					},
+					"source": {
+						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				}
+			]
+		}
+	]
+}

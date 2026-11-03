@@ -8,6 +8,9 @@ import {
 } from "../../../src/contracts/operation.ts";
 import {
 	ALLOWED_MCP_TOOLS,
+	EXTRACT_HARD_MAX_CHARS,
+	EXTRACT_PAGE_FUNCTION,
+	EXTRACT_TARGET_FUNCTION,
 	INSPECT_FOCUSED_FUNCTION,
 	INSPECT_LOCATOR_FUNCTION,
 	INSPECT_TARGET_FUNCTION,
@@ -214,6 +217,13 @@ test("the catalog marks scroll and capture unsupported and never claims physical
 		"page.capture",
 	]);
 	const byAction = Object.fromEntries(catalog.map((e) => [e.action, e]));
+	expect(byAction["page.extract"]).toEqual({
+		action: "page.extract",
+		platform: "playwright-mcp",
+		supported: true,
+		needsTargetRef: false,
+		physicalInput: false,
+	});
 	expect(byAction["page.click"]?.needsTargetRef).toBe(true);
 	expect(byAction["page.press"]?.needsTargetRef).toBe(false);
 	expect(byAction["browser.selectTab"]?.needsTargetRef).toBe(true);
@@ -772,6 +782,7 @@ test("only allowlisted tools are ever sent, and the unsafe code tool is not on t
 			"catalog",
 			"close",
 			"dispatch",
+			"extract",
 			"inspect",
 			"listTargets",
 			"newTarget",
@@ -892,4 +903,199 @@ test("a logger that throws cannot break the adapter", async () => {
 	expect(await noisy.dispatch(CLICK, NEVER)).toMatchObject({
 		status: "confirmed",
 	});
+});
+
+const extracted = (over: Record<string, unknown> = {}) =>
+	text(
+		`### Result\n${JSON.stringify(
+			{
+				url: "https://a.test/post",
+				title: "Post",
+				text: "Para one\n\nPara two",
+				charCount: 18,
+				root: "article",
+				...over,
+			},
+			null,
+			2,
+		)}`,
+	);
+
+test("extract runs one fixed function; a ref is validated and is the only variable", async () => {
+	const { adapter, fake } = await opened();
+	fake.onTool = () => extracted();
+	expect(await adapter.extract(null, 1000, NEVER)).toEqual({
+		url: "https://a.test/post",
+		title: "Post",
+		text: "Para one\n\nPara two",
+		charCount: 18,
+		truncated: false,
+		root: "article",
+	});
+	fake.onTool = () => extracted({ root: "target" });
+	expect((await adapter.extract("f1e7", 1000, NEVER)).root).toBe("target");
+	expect(
+		fake
+			.calls()
+			.filter((c) => c.name === "browser_evaluate")
+			.map((c) => c.arguments),
+	).toEqual([
+		{ function: EXTRACT_PAGE_FUNCTION },
+		{
+			function: EXTRACT_TARGET_FUNCTION,
+			target: "f1e7",
+			element: "extracted element",
+		},
+	]);
+	const before = fake.calls().length;
+	for (const ref of ["body > a", "", "E1", "e1; x"])
+		await expect(adapter.extract(ref, 1000, NEVER)).rejects.toMatchObject({
+			code: "invalid_ref",
+			dispatched: false,
+		});
+	expect(fake.calls().length).toBe(before);
+});
+
+test("extract caps the text at the smaller of the request and the hard bound", async () => {
+	const { adapter, fake } = await opened();
+	const long = "x".repeat(100);
+	fake.onTool = () => extracted({ text: long, charCount: 100 });
+	expect(await adapter.extract(null, 10, NEVER)).toMatchObject({
+		text: "x".repeat(10),
+		charCount: 100,
+		truncated: true,
+	});
+	expect(await adapter.extract(null, 100, NEVER)).toMatchObject({
+		text: long,
+		truncated: false,
+	});
+	// The function itself stops at the hard bound; the caller cannot ask for more.
+	const hard = "y".repeat(EXTRACT_HARD_MAX_CHARS);
+	fake.onTool = () =>
+		extracted({ text: hard, charCount: EXTRACT_HARD_MAX_CHARS + 500 });
+	const result = await adapter.extract(null, 10_000_000, NEVER);
+	expect(result.text).toHaveLength(EXTRACT_HARD_MAX_CHARS);
+	expect(result).toMatchObject({
+		charCount: EXTRACT_HARD_MAX_CHARS + 500,
+		truncated: true,
+	});
+	// A cut never leaves half of a surrogate pair.
+	fake.onTool = () => extracted({ text: "ab\u{1F600}cd", charCount: 6 });
+	expect((await adapter.extract(null, 3, NEVER)).text).toBe("ab");
+	// Empty title and url are left out.
+	fake.onTool = () => extracted({ url: "", title: "" });
+	const bare = await adapter.extract(null, 100, NEVER);
+	expect(bare).not.toHaveProperty("url");
+	expect(bare).not.toHaveProperty("title");
+	const before = fake.calls().length;
+	for (const max of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])
+		await expect(adapter.extract(null, max, NEVER)).rejects.toMatchObject({
+			code: "invalid_max_chars",
+			dispatched: false,
+		});
+	expect(fake.calls().length).toBe(before);
+});
+
+test("extract rejects responses that are not the expected shape", async () => {
+	const { adapter, fake } = await opened();
+	const bad: [string, Parameters<typeof extracted>[0] | string][] = [
+		["not json", "oops"],
+		["an array", "[]"],
+		["null", "null"],
+		["an unexpected key", { extra: "x" }],
+		["a missing text", { text: undefined }],
+		["a numeric text", { text: 5 }],
+		["a missing charCount", { charCount: undefined }],
+		["a charCount below the text", { charCount: 3 }],
+		["a fractional charCount", { charCount: 18.5 }],
+		["an unknown root", { root: "footer" }],
+		["a target root without a ref", { root: "target" }],
+		[
+			"a text above the hard bound",
+			{
+				text: "z".repeat(EXTRACT_HARD_MAX_CHARS + 1),
+				charCount: EXTRACT_HARD_MAX_CHARS + 1,
+			},
+		],
+		["a long title", { title: "t".repeat(501) }],
+		["a long url", { url: `https://a.test/${"u".repeat(9000)}` }],
+		["a non-string url", { url: 3 }],
+	];
+	for (const [label, response] of bad) {
+		fake.onTool = () =>
+			typeof response === "string"
+				? text(`### Result\n${response}`)
+				: extracted(response);
+		await expect(
+			adapter.extract(null, 100, NEVER),
+			label,
+		).rejects.toMatchObject({
+			code: "mcp_response_unrecognized",
+			dispatched: false,
+		});
+	}
+	// A target root is required when a ref was named.
+	fake.onTool = () => extracted({ root: "main" });
+	await expect(adapter.extract("e1", 100, NEVER)).rejects.toMatchObject({
+		code: "mcp_response_unrecognized",
+	});
+	// A platform error never reached the page.
+	fake.onTool = () => failure("Error: boom");
+	await expect(adapter.extract(null, 100, NEVER)).rejects.toMatchObject({
+		dispatched: false,
+	});
+});
+
+test("extract stops on abort and refuses when the session is not open", async () => {
+	const { adapter, fake } = await opened();
+	fake.onTool = hang;
+	const controller = new AbortController();
+	const pending = adapter.extract(null, 100, controller.signal);
+	await Bun.sleep(20);
+	controller.abort();
+	await expect(pending).rejects.toMatchObject({
+		code: "cancelled",
+		dispatched: false,
+	});
+	const before = fake.calls().length;
+	const early = new AbortController();
+	early.abort();
+	await expect(adapter.extract(null, 100, early.signal)).rejects.toMatchObject({
+		code: "cancelled",
+		dispatched: false,
+	});
+	expect(fake.calls().length).toBe(before);
+	await adapter.close();
+	await expect(adapter.extract(null, 100, NEVER)).rejects.toMatchObject({
+		code: "not_open",
+		dispatched: false,
+	});
+});
+
+test("extract logs the character count and codes, never the text or url", async () => {
+	const { adapter, fake, events } = await opened();
+	fake.onTool = () =>
+		extracted({
+			text: "SECRET-BODY",
+			charCount: 11,
+			url: "https://secret.test/",
+		});
+	await adapter.extract(null, 100, NEVER);
+	fake.onTool = () => extracted({ root: "nonsense" });
+	await adapter.extract(null, 100, NEVER).catch(() => {});
+	expect(events.slice(1)).toEqual([
+		[
+			"adapter.observed",
+			{ correlationId: "corr-1", count: 11, durationMs: expect.any(Number) },
+		],
+		[
+			"adapter.failed",
+			{
+				correlationId: "corr-1",
+				code: "mcp_response_unrecognized",
+				durationMs: expect.any(Number),
+			},
+		],
+	]);
+	expect(JSON.stringify(events)).not.toMatch(/SECRET/);
 });

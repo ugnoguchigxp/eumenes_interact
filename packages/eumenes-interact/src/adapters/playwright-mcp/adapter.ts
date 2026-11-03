@@ -21,6 +21,12 @@ import {
 	type CatalogEntry,
 } from "../../contracts/operation.ts";
 import {
+	EXTRACT_PAGE_FUNCTION,
+	EXTRACT_TARGET_FUNCTION,
+	extractCap,
+	parseExtraction,
+} from "./extract.ts";
+import {
 	INSPECT_FOCUSED_FUNCTION,
 	INSPECT_LOCATOR_FUNCTION,
 	INSPECT_TARGET_FUNCTION,
@@ -367,6 +373,30 @@ export function createPlaywrightMcpAdapter(
 		}
 	};
 
+	/** A read with its outcome logged (counts and codes only, never the content). */
+	const loggedRead = <T>(
+		run: () => Promise<T>,
+		count?: (value: T) => number,
+	): Promise<T> => {
+		const started = Date.now();
+		return readOnly(run).then(
+			(value) => {
+				log("adapter.observed", {
+					durationMs: Date.now() - started,
+					...(count ? { count: count(value) } : {}),
+				});
+				return value;
+			},
+			(error: AdapterError) => {
+				log("adapter.failed", {
+					code: error.code,
+					durationMs: Date.now() - started,
+				});
+				throw error;
+			},
+		);
+	};
+
 	const runDispatch = async (
 		command: AdapterCommand,
 		signal: AbortSignal,
@@ -464,9 +494,8 @@ export function createPlaywrightMcpAdapter(
 				await tabsCall({ action: "new", url: webUrl(url) }, signal),
 			);
 		},
-		observe(signal) {
-			const started = Date.now();
-			return readOnly(async (): Promise<RawObservation> => {
+		observe: (signal) =>
+			loggedRead(async (): Promise<RawObservation> => {
 				const parsed = await callTool("browser_snapshot", {}, signal, true);
 				const body =
 					parsed.snapshot?.kind === "inline"
@@ -485,20 +514,24 @@ export function createPlaywrightMcpAdapter(
 						...(title === undefined ? (["title"] as const) : []),
 					],
 				};
-			}).then(
-				(observation) => {
-					log("adapter.observed", { durationMs: Date.now() - started });
-					return observation;
+			}),
+		extract: (targetRef, maxChars, signal) =>
+			loggedRead(
+				async () => {
+					const cap = extractCap(maxChars);
+					const args =
+						targetRef === null
+							? { function: EXTRACT_PAGE_FUNCTION }
+							: {
+									function: EXTRACT_TARGET_FUNCTION,
+									target: refOf(targetRef),
+									element: "extracted element",
+								};
+					const { result } = await callTool("browser_evaluate", args, signal);
+					return parseExtraction(result, targetRef !== null, cap);
 				},
-				(error: AdapterError) => {
-					log("adapter.failed", {
-						code: error.code,
-						durationMs: Date.now() - started,
-					});
-					throw error;
-				},
-			);
-		},
+				(content) => content.charCount,
+			),
 		async dispatch(command, signal) {
 			const started = Date.now();
 			const result = await runDispatch(command, signal);

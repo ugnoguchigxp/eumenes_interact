@@ -12,7 +12,9 @@
 		"src/contracts/observation.ts",
 		"src/contracts/operation.ts",
 		"src/contracts/core.ts",
-		"src/contracts/run.ts"
+		"src/contracts/run.ts",
+		"src/contracts/definition.ts",
+		"src/definitions"
 	],
 	"exclude": ["**/*.test.ts", "**/node_modules", "**/dist"]
 }

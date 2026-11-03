@@ -1,4 +1,6 @@
 import type { Database } from "bun:sqlite";
+import { printable } from "../host/approval.ts";
+import type { TrialResult } from "../host/run.ts";
 import { aggregateScores } from "../scorer/aggregate.ts";
 import { getExperiment, listTrials } from "../host/store.ts";
 
@@ -55,4 +57,32 @@ export function report(db: Database, experimentId: string) {
 			}),
 		),
 	};
+}
+
+/** The URL the browser ended on: the last one it was observed at (the scorer's rule). */
+export function finalUrl(result: TrialResult): string | null {
+	let url: string | null = null;
+	for (const e of result.transcript.events)
+		if (e.type === "observation" && e.url !== null) url = e.url;
+		else if (e.type === "operation.result" && e.url !== undefined) url = e.url;
+	return url;
+}
+
+/**
+ * What a user wants to see at the end of a run: how it ended, whether it counts as a success, where the
+ * browser is and what the model told them. The text is the model's, so it is made safe to print.
+ */
+export function summaryLines(result: TrialResult): string[] {
+	let final: { kind: string; text?: string } | null = null;
+	for (const e of result.transcript.events)
+		if (e.type === "step.final")
+			final = {
+				kind: e.kind,
+				...(e.text === undefined ? {} : { text: e.text }),
+			};
+	return [
+		`trial\t${result.transcript.caseId}\t${result.status}${result.code ? `(${result.code})` : ""}\t${result.score.success ? "success" : "failure"}`,
+		`  final step: ${final?.kind ?? "none"}${final?.text ? ` ${printable(final.text, 300)}` : ""}`,
+		`  final url: ${printable(finalUrl(result) ?? "-", 300)}`,
+	];
 }

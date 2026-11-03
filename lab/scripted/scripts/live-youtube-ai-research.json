@@ -1,0 +1,53 @@
+{
+	"caseId": "live-youtube-ai-research",
+	"steps": [
+		{
+			"tool": "browser.page.type",
+			"target": {
+				"roleAnyOf": ["combobox", "searchbox"],
+				"nameAnyOf": ["検索", "Search"]
+			},
+			"args": {
+				"value": "AI research",
+				"quote": "AI research",
+				"purpose": "検索語",
+				"submit": true,
+				"effect": "navigate"
+			}
+		},
+		{
+			"tool": "browser.page.wait",
+			"args": {
+				"seconds": 3
+			}
+		},
+		{
+			"tool": "browser.page.observe",
+			"args": {}
+		},
+		{
+			"tool": "browser.page.click",
+			"target": {
+				"role": "link",
+				"urlIncludes": "/watch?v=",
+				"nth": 0
+			},
+			"args": {
+				"effect": "navigate"
+			}
+		},
+		{
+			"tool": "browser.page.wait",
+			"args": {
+				"seconds": 5
+			}
+		},
+		{
+			"tool": "browser.page.observe",
+			"args": {}
+		},
+		{
+			"finish": "「AI research」で検索し、検索結果の動画を1本開いて再生を始めました。"
+		}
+	]
+}

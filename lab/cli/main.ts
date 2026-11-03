@@ -8,13 +8,21 @@ import { LAB_OWNER } from "../host/run.ts";
 import { getSetting, setSetting } from "../host/store.ts";
 import { listLarmChatProfiles } from "../inference/index.ts";
 import { report, trialLines } from "./report.ts";
+import { knowledgeImport, knowledgeList } from "./knowledge-command.ts";
 import { runCommand } from "./run-command.ts";
+import { parseInputs, taskList, taskRun } from "./task-command.ts";
 
 const USAGE = `usage: bun lab/cli/main.ts <command> [options]
-  cases [--include-holdout]
-  run --case <id> | --split dev|holdout [--repeat n] [--inference scripted|larm]
-      [--approver fixture|cli] [--include-holdout] [--headed]
+  cases [--include-holdout] [--include-live]
+  run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm]
+      [--approver fixture|cli] [--include-holdout] [--include-live]
+      [--keep-observations] [--headed]
       [--browser <channel>] [--executable-path <path>]
+  task list
+  task run <definitionId> --input key=value ... [--json] [--approver stop|cli]
+      [--keep-observations] [--headed] [--browser <channel>] [--executable-path <path>]
+  knowledge import <seed.json>...
+  knowledge list [--origin <origin>]
   trials [--experiment <id>]
   report --experiment <id>
   larm profiles [--base-url <url>]
@@ -32,12 +40,17 @@ const { values, positionals } = parseArgs({
 		inference: { type: "string" },
 		approver: { type: "string" },
 		"include-holdout": { type: "boolean" },
+		"include-live": { type: "boolean" },
+		"keep-observations": { type: "boolean" },
 		headed: { type: "boolean" },
 		browser: { type: "string" },
 		"executable-path": { type: "string" },
 		experiment: { type: "string" },
 		"base-url": { type: "string" },
 		profile: { type: "string" },
+		input: { type: "string", multiple: true },
+		json: { type: "boolean" },
+		origin: { type: "string" },
 	},
 });
 
@@ -63,10 +76,11 @@ async function larmProfiles(baseUrl: string) {
 }
 
 async function main(): Promise<number> {
-	const [command, sub] = positionals;
+	const [command, sub, ...rest] = positionals;
 	if (command === "cases") {
 		for (const c of await loadCases({
 			includeHoldout: values["include-holdout"] === true,
+			includeLive: values["include-live"] === true,
 		}))
 			console.log(
 				[c.id, c.split, c.category, c.variant, c.budget.maxModelCalls].join(
@@ -75,13 +89,19 @@ async function main(): Promise<number> {
 			);
 		return 0;
 	}
-	if (!["run", "trials", "report", "larm"].includes(command ?? "")) {
+	if (
+		!["run", "task", "knowledge", "trials", "report", "larm"].includes(
+			command ?? "",
+		)
+	) {
 		console.error(USAGE);
 		return 2;
 	}
 	const dbPath = values.db ?? DEFAULT_DB_PATH;
-	// Only `run` takes the lock and reconciles: another process's run in progress must not be touched.
-	const lock = command === "run" ? acquireRunLock(`${dbPath}.run.lock`) : null;
+	// Only a command that runs a browser session takes the lock and reconciles: another process's run in
+	// progress must not be touched by a read-only command.
+	const runs = command === "run" || (command === "task" && sub === "run");
+	const lock = runs ? acquireRunLock(`${dbPath}.run.lock`) : null;
 	let db: ReturnType<typeof openLabDb>;
 	try {
 		db = openLabDb(dbPath);
@@ -89,15 +109,64 @@ async function main(): Promise<number> {
 		lock?.release();
 		throw error;
 	}
-	const logger = command === "run" ? createPinoLogger() : null;
+	const logger = runs ? createPinoLogger() : null;
 	try {
+		if (logger) {
+			const settled = reconcileOnStartup(db, LAB_OWNER, logger);
+			if (settled.indeterminateRuns.length || settled.abandonedRuns.length)
+				console.error(
+					`reconciled: ${settled.indeterminateRuns.length} indeterminate, ${settled.abandonedRuns.length} abandoned run(s); nothing was re-sent`,
+				);
+		}
 		switch (command) {
+			case "task": {
+				if (sub === "list") {
+					for (const line of await taskList()) console.log(line);
+					return 0;
+				}
+				const [definitionId] = rest;
+				if (sub !== "run" || !definitionId) {
+					console.error(USAGE);
+					return 2;
+				}
+				return await taskRun(
+					db,
+					{
+						definitionId,
+						inputs: parseInputs(values.input ?? []),
+						json: values.json === true,
+						keepObservations: values["keep-observations"] === true,
+						approver: oneOf<"stop" | "cli">(
+							"approver",
+							values.approver,
+							["stop", "cli"],
+							"stop",
+						),
+						headed: values.headed === true,
+						...(values.browser === undefined
+							? {}
+							: { browser: values.browser }),
+						...(values["executable-path"] === undefined
+							? {}
+							: { executablePath: values["executable-path"] }),
+					},
+					logger!,
+				);
+			}
+			case "knowledge": {
+				if (sub === "import") {
+					for (const line of await knowledgeImport(db, rest)) console.log(line);
+					return 0;
+				}
+				if (sub === "list") {
+					for (const line of knowledgeList(db, values.origin))
+						console.log(line);
+					return 0;
+				}
+				console.error(USAGE);
+				return 2;
+			}
 			case "run": {
-				const settled = reconcileOnStartup(db, LAB_OWNER, logger!);
-				if (settled.indeterminateRuns.length || settled.abandonedRuns.length)
-					console.error(
-						`reconciled: ${settled.indeterminateRuns.length} indeterminate, ${settled.abandonedRuns.length} abandoned run(s); nothing was re-sent`,
-					);
 				const repeat = Number(values.repeat ?? "1");
 				if (!Number.isInteger(repeat) || repeat < 1)
 					throw new Error("invalid_repeat");
@@ -110,14 +179,16 @@ async function main(): Promise<number> {
 						...(values.split === undefined
 							? {}
 							: {
-									split: oneOf<"dev" | "holdout">(
+									split: oneOf<"dev" | "holdout" | "live">(
 										"split",
 										values.split,
-										["dev", "holdout"],
+										["dev", "holdout", "live"],
 										"dev",
 									),
 								}),
 						includeHoldout: values["include-holdout"] === true,
+						includeLive: values["include-live"] === true,
+						keepObservations: values["keep-observations"] === true,
 						repeat,
 						inference: oneOf(
 							"inference",
@@ -125,12 +196,16 @@ async function main(): Promise<number> {
 							["scripted", "larm"],
 							"scripted",
 						),
-						approver: oneOf(
-							"approver",
-							values.approver,
-							["fixture", "cli"],
-							"fixture",
-						),
+						...(values.approver === undefined
+							? {}
+							: {
+									approver: oneOf<"fixture" | "cli">(
+										"approver",
+										values.approver,
+										["fixture", "cli"],
+										"fixture",
+									),
+								}),
 						headed: values.headed === true,
 						...(values.browser === undefined
 							? {}

@@ -6,6 +6,7 @@ import {
 	type AdapterState,
 	type AdapterTarget,
 	type CatalogEntry,
+	type ExtractedContent,
 	type FixedInspection,
 	type InspectionResult,
 	type PlatformAdapter,
@@ -28,6 +29,8 @@ export type PageDef = {
 	/** The element a filled field with `submit` presses. */
 	submitRef?: string;
 	info?: Record<string, InspectionResult>;
+	/** The page's main text, as `extract` returns it (default: its snapshot lines). */
+	text?: string;
 };
 
 type Tab = { url: string; title: string };
@@ -48,9 +51,125 @@ const PLAIN_BUTTON: InspectionResult = {
 const LINK: InspectionResult = { tag: "a", inForm: false, submits: false };
 
 /** The pages of the fake site, by path under `BASE`. */
+function wiki(url: URL, b: FakeBrowser): PageDef | null {
+	const at = (rest: string) => new URL(rest, url).href;
+	const search: PageDef["lines"] = [
+		"- banner [ref=e1]:",
+		'  - searchbox "Wikipedia内を検索" [ref=e2]',
+	];
+	const article = "/wiki/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92";
+	if (url.pathname === "/")
+		return {
+			title: "Wikipedia",
+			lines: [
+				...search,
+				"- main [ref=e3]:",
+				'  - heading "Wikipedia" [level=1] [ref=e4]',
+				'  - button "メニュー" [ref=e5]',
+			],
+			submitRef: "e2",
+			click: {
+				e5: () => at("/"),
+				e2: () =>
+					b.field("e2") === "機械学習"
+						? at(article)
+						: at(`/w/index.php?search=${encodeURIComponent(b.field("e2"))}`),
+			},
+			info: { e2: GET_SUBMIT, e5: PLAIN_BUTTON },
+		};
+	if (url.pathname === "/w/index.php")
+		return {
+			title: "検索結果 - Wikipedia",
+			lines: [
+				...search,
+				"- main [ref=e3]:",
+				'  - link "ヘルプ" [ref=e4]:',
+				"    - /url: /wiki/Help:%E6%A4%9C%E7%B4%A2",
+				'  - link "特別ページ" [ref=e5]:',
+				"    - /url: /wiki/%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2",
+				'  - link "赤リンク" [ref=e6]:',
+				"    - /url: /w/index.php?title=X&action=edit&redlink=1",
+				"  - link [ref=e7]:",
+				`    - /url: ${article}`,
+				'  - link "機械学習" [ref=e8]:',
+				`    - /url: ${article}`,
+				'  - link "人工知能" [ref=e9]:',
+				"    - /url: /wiki/%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD",
+			],
+			click: {
+				e8: () => at(article),
+				e9: () => at("/wiki/%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD"),
+			},
+			info: { e4: LINK, e8: LINK, e9: LINK },
+		};
+	if (url.pathname.startsWith("/wiki/"))
+		return {
+			title: "機械学習 - Wikipedia",
+			lines: [
+				...search,
+				"- main [ref=e3]:",
+				'  - heading "機械学習" [level=1] [ref=e4]',
+				"  - paragraph [ref=e5]: 機械学習は、データから学習するアルゴリズムの研究分野である。",
+			],
+			text: "機械学習は、データから学習するアルゴリズムの研究分野である。",
+			info: { e2: GET_SUBMIT },
+			submitRef: "e2",
+			click: { e2: () => at("/w/index.php?search=x") },
+		};
+	return null;
+}
+
 function site(url: URL, b: FakeBrowser): PageDef | null {
+	if (url.hostname.endsWith("wikipedia.org")) return wiki(url, b);
 	const path = url.pathname.slice(1);
+	// A video site in the shape of a live page: the origin is whatever the test navigates to.
+	const at = (rest: string) => new URL(rest, url).href;
 	switch (path) {
+		case "":
+			return {
+				title: "YouTube",
+				lines: [
+					"- banner [ref=e1]:",
+					'  - combobox "検索" [ref=e2]',
+					'  - button "検索" [ref=e3]',
+				],
+				submitRef: "e3",
+				click: {
+					e3: () =>
+						at(`/results?search_query=${encodeURIComponent(b.field("e2"))}`),
+				},
+				info: { e2: GET_SUBMIT, e3: GET_SUBMIT },
+			};
+		case "results":
+			return {
+				title: "AI research - YouTube",
+				lines: [
+					"- main [ref=e1]:",
+					'  - link "AI research のしくみ 12:34" [ref=e2]:',
+					"    - /url: /watch?v=abc123",
+					'  - link "AI research のしくみ" [ref=e3]:',
+					"    - /url: /watch?v=abc123",
+					'  - link "チャンネル" [ref=e4]:',
+					"    - /url: /@channel",
+					'  - link "別の動画" [ref=e5]:',
+					"    - /url: /watch?v=def456",
+				],
+				click: {
+					e2: () => at("/watch?v=abc123"),
+					e3: () => at("/watch?v=abc123"),
+					e5: () => at("/watch?v=def456"),
+				},
+				info: { e2: LINK, e3: LINK, e5: LINK },
+			};
+		case "watch":
+			return {
+				title: "AI research のしくみ - YouTube",
+				lines: [
+					"- main [ref=e1]:",
+					'  - heading "AI research のしくみ" [level=1] [ref=e2]',
+					'  - button "一時停止" [ref=e3]',
+				],
+			};
 		case "sites/hoshikuzu/base/index.html":
 			return {
 				title: "星屑堂書店",
@@ -220,6 +339,8 @@ export class FakeBrowser implements PlatformAdapter {
 				b: FakeBrowser,
 		  ) => AdapterDispatchResult | undefined)
 		| null = null;
+	/** The page's URL changes to this the next time the browser is looked at (a redirect after the action returned). */
+	settleTo: string | null = null;
 	/** URL a fresh `newTarget` or `openTab` lands on, to simulate a page leaving the scope. */
 	nextTabUrl: string | null = null;
 
@@ -300,8 +421,21 @@ export class FakeBrowser implements PlatformAdapter {
 		return this.tabs[this.current]?.url ?? "";
 	}
 
+	private applySettle() {
+		if (this.settleTo === null) return;
+		const tab = this.tabs[this.current]!;
+		tab.url = this.settleTo;
+		this.settleTo = null;
+	}
+
+	/** Moves another tab's page behind the host's back. */
+	setTabUrl(index: number, url: string) {
+		this.tabs[index]!.url = url;
+	}
+
 	listTargets(): Promise<AdapterTarget[]> {
 		this.calls.push("listTargets");
+		this.applySettle();
 		return Promise.resolve(this.targets());
 	}
 
@@ -319,6 +453,7 @@ export class FakeBrowser implements PlatformAdapter {
 
 	observe(): Promise<RawObservation> {
 		this.calls.push("observe");
+		this.applySettle();
 		if (this.observeError) return Promise.reject(this.observeError);
 		const tab = this.tabs[this.current]!;
 		const page = this.page();
@@ -376,6 +511,29 @@ export class FakeBrowser implements PlatformAdapter {
 			retryable: false,
 			url: tab.url,
 			title: tab.title,
+		});
+	}
+
+	/** Test hook: `extract` fails with this error. */
+	extractError: Error | null = null;
+	readonly extracted: { targetRef: string | null; maxChars: number }[] = [];
+
+	extract(
+		targetRef: string | null,
+		maxChars: number,
+	): Promise<ExtractedContent> {
+		this.calls.push("extract");
+		this.extracted.push({ targetRef, maxChars });
+		if (this.extractError) return Promise.reject(this.extractError);
+		const tab = this.tabs[this.current]!;
+		const text = this.page()?.text ?? this.page()?.lines.join("\n") ?? "";
+		return Promise.resolve({
+			url: tab.url,
+			title: tab.title,
+			text: text.slice(0, maxChars),
+			charCount: text.length,
+			truncated: text.length > maxChars,
+			root: targetRef ? "target" : "main",
 		});
 	}
 

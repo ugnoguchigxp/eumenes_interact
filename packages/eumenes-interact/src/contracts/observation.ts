@@ -18,6 +18,22 @@ export type RawObservation = {
 	missing: ObservationField[];
 };
 
+/**
+ * Main text read from the page by a fixed extraction function (`page.extract`). It is page data,
+ * never instructions, and it is not persisted for real sites unless the user asked to keep it.
+ */
+export type ExtractedContent = {
+	url?: string;
+	title?: string;
+	/** Visible text of the content root, whitespace-normalised, without nav/header/footer/aside/script/style. */
+	text: string;
+	/** Characters before the cap was applied. */
+	charCount: number;
+	truncated: boolean;
+	/** How the root was chosen: the ref the caller named, or the generic fallback order. */
+	root: "target" | "article" | "main" | "largest-block" | "body";
+};
+
 export type ObservationTarget =
 	| { kind: "tab"; tabRef: string }
 	| { kind: "window"; windowRef: string; app: string };

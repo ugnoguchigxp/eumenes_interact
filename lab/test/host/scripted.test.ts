@@ -21,17 +21,22 @@ import {
 } from "../../scripted/script.ts";
 
 const dev = await loadCases({ includeHoldout: false });
+const live = (
+	await loadCases({ includeHoldout: false, includeLive: true })
+).filter((c) => c.split === "live");
 const holdout = (await loadCases({ includeHoldout: true })).filter(
 	(c) => c.split === "holdout",
 );
 
 describe("scripts of the dev cases", () => {
-	test("every dev case has a script and there is no other", async () => {
+	test("every dev and live case has a script and there is no other", async () => {
 		const files = (await readdir(SCRIPTS_DIR)).filter((f) =>
 			f.endsWith(".json"),
 		);
-		expect(files.sort()).toEqual(dev.map((c) => `${c.id}.json`).sort());
-		for (const def of dev)
+		expect(files.sort()).toEqual(
+			[...dev, ...live].map((c) => `${c.id}.json`).sort(),
+		);
+		for (const def of [...dev, ...live])
 			expect((await loadScript(def.id)).caseId).toBe(def.id);
 	});
 
@@ -41,7 +46,7 @@ describe("scripts of the dev cases", () => {
 	});
 
 	test("a script only names Arm 0 tools, and never a ref", async () => {
-		for (const def of dev) {
+		for (const def of [...dev, ...live]) {
 			const text = await readFile(join(SCRIPTS_DIR, `${def.id}.json`), "utf8");
 			const script = scriptSchema.parse(JSON.parse(text));
 			for (const step of script.steps)
@@ -102,7 +107,7 @@ describe("scripts of the dev cases", () => {
 			for (const step of script.steps) {
 				if (!("tool" in step)) continue;
 				if (step.target) {
-					expect(html).toContain(step.target.name);
+					if (step.target.name) expect(html).toContain(step.target.name);
 					for (const a of step.target.within ?? [])
 						if (a.name) expect(html).toContain(a.name);
 				}
@@ -147,6 +152,8 @@ describe("resolving a target by role and name", () => {
 		expect(resolveTarget(BODY, { role: "link", name: "新着" })).toEqual({
 			kind: "found",
 			ref: "e8",
+			role: "link",
+			name: "新着",
 		});
 		expect(resolveTarget(BODY, { role: "link", name: "ない" })).toEqual({
 			kind: "none",
@@ -160,7 +167,7 @@ describe("resolving a target by role and name", () => {
 				name: "検索",
 				within: [{ role: "region", name: "蔵書検索" }],
 			}),
-		).toEqual({ kind: "found", ref: "e7" });
+		).toMatchObject({ kind: "found", ref: "e7" });
 	});
 
 	test("an element without a ref is not a target", () => {
@@ -308,5 +315,137 @@ describe("the scripted inference goes through the same parseStep as a model", ()
 			prepareStep(state).messages,
 		);
 		expect(JSON.parse(done).action).toBe("clarify");
+	});
+});
+
+const RESULTS = [
+	'- combobox "Search" [ref=e1]',
+	'- link "First video 12:34" [ref=e2]:',
+	"  - /url: /watch?v=aaa",
+	'- link "First video" [ref=e3]:',
+	"  - /url: /watch?v=aaa",
+	'- link "Channel" [ref=e4]:',
+	"  - /url: /@channel",
+	'- link "Second video" [ref=e5]:',
+	"  - /url: /watch?v=bbb",
+].join("\n");
+
+describe("selectors for live pages", () => {
+	test("the link's destination is read from the /url line under it", () => {
+		const nodes = parseAria(RESULTS);
+		expect(
+			nodes.filter((n) => n.url !== null).map((n) => [n.ref, n.url]),
+		).toEqual([
+			["e2", "/watch?v=aaa"],
+			["e3", "/watch?v=aaa"],
+			["e4", "/@channel"],
+			["e5", "/watch?v=bbb"],
+		]);
+	});
+
+	test("several matches are ambiguous unless the author gives nth; the first is never taken silently", () => {
+		const target = { role: "link", urlIncludes: "/watch?v=" };
+		expect(resolveTarget(RESULTS, target)).toEqual({ kind: "ambiguous" });
+		expect(resolveTarget(RESULTS, { ...target, nth: 0 })).toMatchObject({
+			kind: "found",
+			ref: "e2",
+		});
+		expect(resolveTarget(RESULTS, { ...target, nth: 2 })).toMatchObject({
+			kind: "found",
+			ref: "e5",
+		});
+		expect(resolveTarget(RESULTS, { ...target, nth: 3 })).toEqual({
+			kind: "none",
+		});
+		expect(
+			resolveTarget(RESULTS, { role: "link", urlIncludes: "/shorts/" }),
+		).toEqual({ kind: "none" });
+		expect(
+			resolveTarget(RESULTS, { role: "link", urlIncludes: "/@channel" }),
+		).toMatchObject({
+			kind: "found",
+			ref: "e4",
+		});
+	});
+
+	test("a name and a destination narrow together", () => {
+		expect(
+			resolveTarget(RESULTS, {
+				role: "link",
+				name: "First video",
+				urlIncludes: "/watch?v=",
+			}),
+		).toMatchObject({ kind: "found", ref: "e3" });
+	});
+
+	test("nameAnyOf finds the element in either language, roleAnyOf in either role", () => {
+		const ja = '- searchbox "検索" [ref=e9]';
+		const target = {
+			roleAnyOf: ["combobox", "searchbox"],
+			nameAnyOf: ["検索", "Search"],
+		};
+		expect(resolveTarget(RESULTS, target)).toMatchObject({
+			kind: "found",
+			ref: "e1",
+			role: "combobox",
+		});
+		expect(resolveTarget(ja, target)).toMatchObject({
+			kind: "found",
+			ref: "e9",
+			role: "searchbox",
+		});
+		expect(resolveTarget(`${ja}\n${RESULTS}`, target)).toEqual({
+			kind: "ambiguous",
+		});
+		expect(resolveTarget('- button "Search" [ref=e1]', target)).toEqual({
+			kind: "none",
+		});
+	});
+
+	test("the schema wants exactly one way to say the role and at most one way to say the name", () => {
+		const step = (target: object) => ({
+			caseId: "x",
+			steps: [{ tool: "browser.page.click", target }],
+		});
+		const ok = (target: object) => scriptSchema.safeParse(step(target)).success;
+		expect(ok({ role: "link", name: "a" })).toBe(true);
+		expect(ok({ role: "link", urlIncludes: "/a" })).toBe(true);
+		expect(ok({ roleAnyOf: ["a", "b"], nameAnyOf: ["x"], nth: 1 })).toBe(true);
+		expect(ok({ role: "link" })).toBe(false);
+		expect(ok({ role: "link", name: "a", nameAnyOf: ["b"] })).toBe(false);
+		expect(ok({ role: "link", roleAnyOf: ["link"], name: "a" })).toBe(false);
+		expect(ok({ name: "a" })).toBe(false);
+		expect(ok({ role: "link", name: "a", nth: -1 })).toBe(false);
+	});
+
+	test("the scripted inference clarifies on an ambiguity without nth and picks with it", () => {
+		const state = messagesFor(RESULTS);
+		const run = (target: object) =>
+			JSON.parse(
+				nextOutput(
+					scriptSchema.parse({
+						caseId: "x",
+						steps: [
+							{
+								tool: "browser.page.click",
+								target,
+								args: { effect: "navigate" },
+							},
+						],
+					}),
+					prepareStep(state).messages,
+				),
+			);
+		expect(run({ role: "link", urlIncludes: "/watch?v=" })).toMatchObject({
+			action: "clarify",
+		});
+		const picked = run({ role: "link", urlIncludes: "/watch?v=", nth: 0 });
+		expect(picked).toMatchObject({
+			action: "invoke",
+			tool: "browser.page.click",
+			arguments: { ref: "e2", effect: "navigate" },
+		});
+		expect(picked.arguments.element).toBe('link "First video 12:34"');
+		expect(parseStep(state, JSON.stringify(picked)).step.kind).toBe("call");
 	});
 });

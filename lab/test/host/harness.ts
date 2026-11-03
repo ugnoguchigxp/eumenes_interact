@@ -5,6 +5,7 @@ import type { CaseDef } from "../../cases/schema.ts";
 import { FixtureApprover, type Approver } from "../../host/approval.ts";
 import type { RunControl } from "../../host/control.ts";
 import { openLabDb } from "../../host/db.ts";
+import type { ObservationSink } from "../../host/observations.ts";
 import { silentLabLogger } from "../../host/log.ts";
 import { runTrial, type TrialResult } from "../../host/run.ts";
 import { createExperiment } from "../../host/store.ts";
@@ -62,6 +63,7 @@ export async function runScripted(
 		def?: CaseDef;
 		deadlineMs?: number;
 		now?: () => number;
+		observationSink?: ObservationSink;
 	} = {},
 ): Promise<Harness> {
 	const def = options.def ?? (await devCase(caseId));
@@ -85,6 +87,9 @@ export async function runScripted(
 		...(options.control ? { control: options.control } : {}),
 		...(options.deadlineMs ? { deadlineMs: options.deadlineMs } : {}),
 		...(options.now ? { now: options.now } : {}),
+		...(options.observationSink
+			? { observationSink: options.observationSink }
+			: {}),
 	});
 	return { db, def, adapter, result };
 }

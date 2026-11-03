@@ -1,0 +1,85 @@
+{
+	"formatVersion": 1,
+	"id": "slashdot-story",
+	"revision": 3,
+	"title": "Slashdotでキーワードを検索し、最初のストーリーの本文を取得する",
+	"skillRef": "skill:interact.execute@1",
+	"catalogRef": "catalog:interact.actions@1",
+	"allowedOrigins": ["https://*.slashdot.org"],
+	"inputs": {
+		"type": "object",
+		"properties": {
+			"query": {
+				"type": "string",
+				"minLength": 1,
+				"maxLength": 100,
+				"description": "検索するキーワード"
+			}
+		},
+		"required": ["query"],
+		"additionalProperties": false
+	},
+	"steps": [
+		{
+			"id": "open",
+			"action": "browser.navigate",
+			"args": {
+				"url": "https://slashdot.org/"
+			},
+			"expectation": "サイトのトップページが表示されている"
+		},
+		{
+			"id": "query",
+			"action": "page.fill",
+			"targetObject": "search.query",
+			"args": {
+				"value": {
+					"$input": "query"
+				},
+				"submit": true
+			},
+			"expectation": "検索欄に今回のキーワードが入力され、検索が実行されている"
+		},
+		{
+			"id": "wait_results",
+			"action": "page.wait",
+			"args": {
+				"seconds": 3
+			},
+			"expectation": "検索結果が表示されるまで待っている"
+		},
+		{
+			"id": "look_results",
+			"action": "page.observe",
+			"expectation": "検索結果のページを観測できている"
+		},
+		{
+			"id": "expand",
+			"action": "page.click",
+			"targetObject": "search.first_result",
+			"expectation": "検索結果の最初のストーリーの見出しを押し、要約本文がページ内に展開されている（記事ページへは移らない）"
+		},
+		{
+			"id": "wait_expand",
+			"action": "page.wait",
+			"args": {
+				"seconds": 2
+			},
+			"expectation": "展開された本文の表示が落ち着くまで待っている"
+		},
+		{
+			"id": "look_expanded",
+			"action": "page.observe",
+			"expectation": "展開後の検索結果ページを観測できている"
+		},
+		{
+			"id": "read",
+			"action": "page.extract",
+			"args": {
+				"maxChars": 20000
+			},
+			"expectation": "検索結果の最初のストーリー（見出しと本文）のテキストを取得できている",
+			"targetObject": "search.first_story"
+		}
+	]
+}

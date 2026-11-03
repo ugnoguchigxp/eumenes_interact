@@ -52,6 +52,23 @@ bun run lab report --experiment <実験id>
 - 試行中の宛先はfixtureの配信元と`about:blank`だけです。
 - 研究用DBとログは`lab/data/`（git管理外）に置きます。`run`は同時に一つだけ動きます。
 
+### 作業定義のサンプル（検索語を変数にして本文を取得）
+
+`lab/definitions/`の作業定義を、検索語を入力にして実行します。サイトごとの検索欄やリンクの見つけ方は、コードではなくサイト知識（`lab/knowledge/`、実行時に研究用DBへ取り込む）として持ちます。
+
+```sh
+bun run lab task list
+bun run lab task run wikipedia-article --input query=量子コンピュータ --json --browser chrome
+bun run lab task run gizmodo-article --input query=iPhone --json --browser chrome
+bun run lab task run slashdot-story --input query=rust --json --browser chrome
+bun run lab task run biggo-product --input query=マウス --headed --json --browser chrome
+```
+
+- `--json`で、最終URL・各手順の状態・取得した本文（`extracts`）をJSONで標準出力に出します。終了コードは0が成功、1が完了しなかった、2が実行前の拒否です。TypeScriptからは`lab/host/definition-run.ts`の`runDefinition()`で呼べます。
+- 承認が要る操作に当たると、既定では何も送らずに止まります（`--approver cli`で端末から答えられます）。
+- BigGoは、headlessの自動化ブラウザだとアクセスを拒否されるため`--headed`が必要です。
+- 詳しくは[lab/definitions/README.md](lab/definitions/README.md)を参照してください。
+
 LARMで実LLMを使う場合:
 
 ```sh

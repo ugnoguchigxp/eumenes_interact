@@ -1,5 +1,6 @@
 import type { Database } from "bun:sqlite";
 import type { RunStatus } from "eumenes-interact";
+import type { CaseDef } from "../cases/schema.ts";
 import type { TrialScore } from "../scorer/score.ts";
 import type { TrialTranscript } from "../scorer/transcript.ts";
 import { write } from "./db.ts";
@@ -39,6 +40,7 @@ export type ExperimentInput = {
 	caseIds: readonly string[];
 	caseDigest: string;
 	includesHoldout: boolean;
+	includesLive?: boolean;
 	repetitions: number;
 	arms: readonly string[];
 	budget: Record<string, unknown>;
@@ -48,7 +50,11 @@ export type ExperimentInput = {
 	nowIso: string;
 };
 
-export type ExperimentRecord = Omit<ExperimentInput, "nowIso"> & {
+export type ExperimentRecord = Omit<
+	ExperimentInput,
+	"nowIso" | "includesLive"
+> & {
+	includesLive: boolean;
 	tolerance: Record<string, unknown>;
 	stopRule: Record<string, unknown>;
 	createdAt: string;
@@ -59,8 +65,8 @@ export function createExperiment(db: Database, input: ExperimentInput): void {
 		db
 			.query(
 				`INSERT INTO lab_experiments (id, name, created_at, case_ids_json, case_digest, includes_holdout,
-					repetitions, arms_json, budget_json, tolerance_json, stop_rule_json, inference_kind)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+					includes_live, repetitions, arms_json, budget_json, tolerance_json, stop_rule_json, inference_kind)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			)
 			.run(
 				input.id,
@@ -69,6 +75,7 @@ export function createExperiment(db: Database, input: ExperimentInput): void {
 				JSON.stringify(input.caseIds),
 				input.caseDigest,
 				input.includesHoldout ? 1 : 0,
+				input.includesLive ? 1 : 0,
 				input.repetitions,
 				JSON.stringify(input.arms),
 				JSON.stringify(input.budget),
@@ -93,6 +100,7 @@ export function getExperiment(
 		caseIds: JSON.parse(String(row.case_ids_json)),
 		caseDigest: String(row.case_digest),
 		includesHoldout: row.includes_holdout === 1,
+		includesLive: row.includes_live === 1,
 		repetitions: Number(row.repetitions),
 		arms: JSON.parse(String(row.arms_json)),
 		budget: JSON.parse(String(row.budget_json)),
@@ -107,7 +115,7 @@ export type TrialStart = TrialConditions & {
 	trialId: string;
 	experimentId: string;
 	caseId: string;
-	split: "dev" | "holdout";
+	split: CaseDef["split"];
 	repetition: number;
 	orderIndex: number;
 	runId: string;
@@ -190,7 +198,7 @@ export type TrialRow = {
 	trialId: string;
 	experimentId: string;
 	caseId: string;
-	split: "dev" | "holdout";
+	split: CaseDef["split"];
 	arm: string;
 	repetition: number;
 	orderIndex: number;
@@ -223,7 +231,7 @@ export function listTrials(
 		trialId: String(row.trial_id),
 		experimentId: String(row.experiment_id),
 		caseId: String(row.case_id),
-		split: row.split as "dev" | "holdout",
+		split: row.split as CaseDef["split"],
 		arm: String(row.arm),
 		repetition: Number(row.repetition),
 		orderIndex: Number(row.order_index),
@@ -288,5 +296,49 @@ export function decideRound(
 				decision.nowIso,
 				id,
 			),
+	);
+}
+
+export type DefinitionRunStart = {
+	runId: string;
+	definitionId: string;
+	revision: number;
+	digest: string;
+	inputsSha256: string;
+	startedAt: string;
+};
+
+export function insertDefinitionRun(
+	db: Database,
+	run: DefinitionRunStart,
+): void {
+	write(db, () =>
+		db
+			.query(
+				`INSERT INTO lab_definition_runs (run_id, definition_id, revision, definition_digest,
+					inputs_sha256, started_at) VALUES (?, ?, ?, ?, ?, ?)`,
+			)
+			.run(
+				run.runId,
+				run.definitionId,
+				run.revision,
+				run.digest,
+				run.inputsSha256,
+				run.startedAt,
+			),
+	);
+}
+
+export function finishDefinitionRun(
+	db: Database,
+	runId: string,
+	end: { status: RunStatus; summary: unknown; nowIso: string },
+): void {
+	write(db, () =>
+		db
+			.query(
+				`UPDATE lab_definition_runs SET finished_at = ?, status = ?, summary_json = ? WHERE run_id = ?`,
+			)
+			.run(end.nowIso, end.status, JSON.stringify(end.summary), runId),
 	);
 }

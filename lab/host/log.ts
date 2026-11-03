@@ -28,7 +28,11 @@ export type LabEventName =
 	| "operation.settled"
 	| "approval.requested"
 	| "approval.answered"
-	| "reconcile.run";
+	| "reconcile.run"
+	| "definition.started"
+	| "definition.step"
+	| "definition.finished"
+	| "tab.navigation_followed";
 
 export interface LabLogger extends LoggerPort {
 	lab(name: LabEventName, fields: InteractLogFields): void;

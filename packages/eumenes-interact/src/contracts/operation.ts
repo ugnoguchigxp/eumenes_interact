@@ -16,6 +16,7 @@ export const COMMON_ACTIONS = [
 	"page.scroll",
 	"page.wait",
 	"page.capture",
+	"page.extract",
 	"browser.navigate",
 	"browser.back",
 	"browser.tabs",

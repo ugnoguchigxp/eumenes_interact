@@ -16,7 +16,7 @@ import { RunControl } from "../../host/control.ts";
 import { write } from "../../host/db.ts";
 import { createExecutor, type Executed } from "../../host/executor.ts";
 import { InputGrants } from "../../host/grants.ts";
-import { silentLabLogger } from "../../host/log.ts";
+import { silentLabLogger, type LabLogger } from "../../host/log.ts";
 import { fixturePolicy } from "../../host/policy.ts";
 import { LAB_OWNER } from "../../host/run.ts";
 import { TabRegistry } from "../../host/tabs.ts";
@@ -26,7 +26,14 @@ import { freshDb } from "./harness.ts";
 
 const INDEX = `${BASE}sites/hoshikuzu/base/index.html`;
 
-async function setup(options: { approver?: Approver; request?: string } = {}) {
+async function setup(
+	options: {
+		approver?: Approver;
+		request?: string;
+		follow?: boolean;
+		logger?: LabLogger;
+	} = {},
+) {
 	const db = freshDb();
 	const adapter = new FakeBrowser();
 	await adapter.open();
@@ -60,7 +67,8 @@ async function setup(options: { approver?: Approver; request?: string } = {}) {
 		grants,
 		approver: options.approver ?? new FixtureApprover({ decision: "grant" }),
 		recorder,
-		logger: silentLabLogger,
+		logger: options.logger ?? silentLabLogger,
+		...(options.follow ? { followOwnNavigation: true } : {}),
 		control,
 		now: Date.now,
 		newId: randomUUID,
@@ -439,5 +447,147 @@ describe("tabs", () => {
 			tabRef: s.tabRef,
 		});
 		expect(refused(result)).toBe("tab_lost");
+	});
+});
+
+describe("a page that settles on another URL after its own action", () => {
+	const SETTLED = `${BASE}sites/hoshikuzu/base/index.html?settled=1`;
+
+	/** A confirmed click whose result URL is the old one; the page then settles somewhere else. */
+	function redirecting(s: Awaited<ReturnType<typeof setup>>, to = SETTLED) {
+		s.adapter.onDispatch = (c, b) => {
+			if (c.action !== "page.click") return undefined;
+			b.settleTo = to;
+			return {
+				status: "confirmed",
+				retryable: false,
+				url: INDEX,
+				title: "星屑堂書店",
+			};
+		};
+	}
+	const click4 = (s: Awaited<ReturnType<typeof setup>>) =>
+		s.executor.execute(
+			s.operate(click("e4"), s.first.observation.observationRef),
+		);
+	const observed = (r: Executed) =>
+		r.kind === "outcome" && r.outcome.kind === "operation"
+			? r.outcome.observation
+			: undefined;
+
+	test("in a definition run the tab follows it: the observation after the action is of the settled page", async () => {
+		const events: unknown[] = [];
+		const logger: LabLogger = {
+			event() {},
+			lab: (name, fields) => void events.push({ name, ...fields }),
+			close() {},
+		};
+		const s = await setup({ follow: true, logger });
+		redirecting(s);
+		const first = s.first.observation;
+		const done = await click4(s);
+		const obs = observed(done);
+		expect(obs?.url).toBe(SETTLED);
+		// The page is not the one observed before: a new generation, and the old observation is void.
+		expect(obs!.generation).toBeGreaterThan(first.generation);
+		expect(events).toContainEqual({
+			name: "tab.navigation_followed",
+			correlationId: s.runId,
+			code: "tab_url_settled",
+		});
+		const again = await s.executor.execute({
+			kind: "observe",
+			tabRef: s.tabRef,
+		});
+		expect(again.kind === "outcome" && again.outcome.kind).toBe("observation");
+		expect(
+			refused(
+				await s.executor.execute(s.operate(click("e5"), first.observationRef)),
+			),
+		).toBe("observation_stale");
+	});
+
+	test("in the Arm 0 path the tab is lost, as in Eumenes", async () => {
+		const s = await setup();
+		redirecting(s);
+		const done = await click4(s);
+		expect(observed(done)).toBeUndefined();
+		expect(
+			refused(await s.executor.execute({ kind: "observe", tabRef: s.tabRef })),
+		).toBe("tab_lost");
+	});
+
+	test("only the first look after the action follows: a second change is lost again", async () => {
+		const s = await setup({ follow: true });
+		redirecting(s);
+		await click4(s);
+		s.adapter.setTabUrl(0, `${BASE}sites/hoshikuzu/base/guide.html`);
+		expect(
+			refused(await s.executor.execute({ kind: "observe", tabRef: s.tabRef })),
+		).toBe("tab_lost");
+	});
+
+	test("a change in the number of tabs is not followed", async () => {
+		const s = await setup({ follow: true });
+		s.adapter.onDispatch = (c, b) => {
+			if (c.action !== "page.click") return undefined;
+			b.setTabUrl(0, SETTLED);
+			b.openTab(`${BASE}sites/hoshikuzu/base/guide.html`);
+			return { status: "confirmed", retryable: false, url: INDEX };
+		};
+		const done = await click4(s);
+		expect(observed(done)).toBeUndefined();
+		expect(
+			refused(await s.executor.execute({ kind: "observe", tabRef: s.tabRef })),
+		).toBe("tab_lost");
+	});
+
+	test("another tracked tab that moved is not followed either", async () => {
+		const s = await setup({ follow: true });
+		const opened = await s.executor.execute({
+			kind: "tabs.new",
+			url: `${BASE}sites/hoshikuzu/base/guide.html`,
+		});
+		expect(opened.kind).toBe("outcome");
+		redirecting(s);
+		s.adapter.onDispatch = (c, b) => {
+			if (c.action !== "page.click") return undefined;
+			b.settleTo = SETTLED;
+			b.setTabUrl(1, `${BASE}sites/hoshikuzu/base/map.html`);
+			return { status: "confirmed", retryable: false, url: INDEX };
+		};
+		const done = await click4(s);
+		expect(observed(done)).toBeUndefined();
+		expect(
+			refused(await s.executor.execute({ kind: "observe", tabRef: s.tabRef })),
+		).toBe("tab_lost");
+	});
+
+	test("two other tabs that both still match let the tab follow", async () => {
+		const s = await setup({ follow: true });
+		await s.executor.execute({
+			kind: "tabs.new",
+			url: `${BASE}sites/hoshikuzu/base/guide.html`,
+		});
+		await s.executor.execute({
+			kind: "tabs.new",
+			url: `${BASE}sites/hoshikuzu/base/map.html`,
+		});
+		redirecting(s);
+		expect(observed(await click4(s))?.url).toBe(SETTLED);
+	});
+
+	test("a settled URL the policy refuses blocks the tab", async () => {
+		const s = await setup({ follow: true });
+		redirecting(s, "http://127.0.0.1:9/elsewhere");
+		const done = await click4(s);
+		expect(observed(done)).toBeUndefined();
+		expect(
+			refused(await s.executor.execute({ kind: "observe", tabRef: s.tabRef })),
+		).toBe("tab_blocked");
+		// Nothing of that page was adopted.
+		const listed = await s.executor.execute({ kind: "tabs.list" });
+		if (listed.kind === "outcome" && listed.outcome.kind === "tabs")
+			expect(listed.outcome.tabs).toEqual([]);
 	});
 });

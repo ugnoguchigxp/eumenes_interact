@@ -29,8 +29,13 @@ export class TrialRecorder {
 	private lastAt = 0;
 	adapterOpenMs: number | null = null;
 
+	/**
+	 * `scrub`: a real site's page text stays out of the record (plan.md §14). Titles and element names are
+	 * page text; URLs, refs and counts are what the scorer reads.
+	 */
 	constructor(
 		private readonly now: () => number,
+		private readonly scrub = false,
 		readonly startedAt: string = new Date(now()).toISOString(),
 	) {
 		this.origin = now();
@@ -87,7 +92,7 @@ export class TrialRecorder {
 			at: this.at(),
 			observationRef: o.observationRef,
 			url: o.url ?? null,
-			title: o.title ?? null,
+			title: this.scrub ? null : (o.title ?? null),
 			refCount: o.refCount,
 		});
 	}
@@ -122,7 +127,9 @@ export class TrialRecorder {
 			status: result.status,
 			...(result.code === undefined ? {} : { code: result.code }),
 			...(result.url === undefined ? {} : { url: result.url }),
-			...(result.title === undefined ? {} : { title: result.title }),
+			...(result.title === undefined || this.scrub
+				? {}
+				: { title: result.title }),
 			adopted,
 		});
 	}
