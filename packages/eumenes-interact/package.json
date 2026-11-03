@@ -7,7 +7,8 @@
 	"sideEffects": false,
 	"files": [
 		"dist",
-		"distribution-manifest.json"
+		"distribution-manifest.json",
+		"LICENSE"
 	],
 	"exports": {
 		".": {
