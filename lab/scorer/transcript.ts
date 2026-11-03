@@ -13,8 +13,16 @@ import type {
 export type ModelCallOutcome =
 	"ok" | "refused" | "empty" | "malformed" | "error";
 
-/** Token usage of one call. `null` means the provider did not report it (never 0). */
-export type TokenUsage = { input: number | null; output: number | null };
+/**
+ * Token usage of one call. `null` means the provider did not report it (never 0). The cache counters are
+ * additive: absent or null when the provider has no prompt cache or did not say.
+ */
+export type TokenUsage = {
+	input: number | null;
+	output: number | null;
+	cacheRead?: number | null;
+	cacheWrite?: number | null;
+};
 
 export type FinalKind = "finish" | "clarify" | "failed" | "stopped";
 
@@ -78,7 +86,16 @@ export type TranscriptEvent =
 	 * `text` is the finish text shown to the user (the model's answer); scored against the case's
 	 * `answerIncludes`. Required for `finish` when the case asks for information.
 	 */
-	| (At & { type: "step.final"; kind: FinalKind; text?: string });
+	| (At & {
+			type: "step.final";
+			kind: FinalKind;
+			text?: string;
+			/**
+			 * The length of the text when the text itself is not stored (a real site, plan.md §14): a
+			 * live run without kept observations records this and no text.
+			 */
+			textLength?: number;
+	  });
 
 export type TrialTranscript = {
 	trialId: string;

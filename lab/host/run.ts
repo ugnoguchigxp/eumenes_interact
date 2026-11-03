@@ -25,9 +25,8 @@ import {
 	saveCoreState,
 	transitionRun,
 } from "eumenes-interact/sqlite";
-import type { CaseDef } from "../cases/schema.ts";
 import type { TrialScore } from "../scorer/score.ts";
-import type { TrialTranscript } from "../scorer/transcript.ts";
+import type { TranscriptEvent, TrialTranscript } from "../scorer/transcript.ts";
 import type { Approver } from "./approval.ts";
 import { RunControl } from "./control.ts";
 import { write } from "./db.ts";
@@ -43,6 +42,7 @@ import {
 	RunEnd,
 	type InferenceInfo,
 	type RunEndStatus,
+	type TrialCase,
 	type TrialVersions,
 } from "./types.ts";
 
@@ -65,7 +65,7 @@ const sha256 = (text: string) =>
 	createHash("sha256").update(text).digest("hex");
 
 /** The case's budget as the run's frozen policy. A case Arm 0 cannot hold is refused, not clamped. */
-export function runPolicy(def: CaseDef): RunPolicy {
+export function runPolicy(def: TrialCase): RunPolicy {
 	if (def.budget.maxModelCalls > ARM0_MAX_MODEL_CALLS)
 		throw new Error(`case_budget_exceeds_arm0_limit:${def.id}`);
 	return { maxModelCalls: def.budget.maxModelCalls, retries: { default: 1 } };
@@ -105,7 +105,7 @@ export function offeredTools(adapter: PlatformAdapter): string[] {
 
 export type RunTrialInput = {
 	db: Database;
-	def: CaseDef;
+	def: TrialCase;
 	arm: ArmId;
 	experimentId: string;
 	repetition: number;
@@ -127,6 +127,12 @@ export type RunTrialInput = {
 	 */
 	observationSink?: ObservationSink;
 	owner?: string;
+	/** Fixed beforehand when the caller must know the run's id before it starts (`operate`). */
+	runId?: string;
+	/** Likewise for the trial (kept observations are filed under it). */
+	trialId?: string;
+	/** Every transcript event as it happens (a progress view). */
+	onEvent?: (event: TranscriptEvent) => void;
 	now?: () => number;
 	control?: RunControl;
 	/** Defaults to the budget's calls at `CALL_MS` each. */
@@ -141,7 +147,10 @@ export type TrialResult = {
 	status: RunStatus;
 	code: string | null;
 	transcript: TrialTranscript;
+	/** Counters and, when the case expects something, the verdict. */
 	score: TrialScore;
+	/** False for a free-form request: `score` then has counters only and nothing was judged. */
+	scored: boolean;
 };
 
 type Ending = {
@@ -159,8 +168,8 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const { db, def, adapter, logger } = input;
 	const now = input.now ?? Date.now;
 	const owner = input.owner ?? LAB_OWNER;
-	const trialId = randomUUID();
-	const runId = randomUUID();
+	const trialId = input.trialId ?? randomUUID();
+	const runId = input.runId ?? randomUUID();
 	const sessionId = randomUUID();
 	const control = input.control ?? new RunControl();
 	const policy = runPolicy(def);
@@ -176,7 +185,19 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const deadlineMs = input.deadlineMs ?? policy.maxModelCalls * CALL_MS;
 	const startedAtMs = now();
 	const deadlineAtMs = startedAtMs + deadlineMs;
-	const recorder = new TrialRecorder(now, live && !input.observationSink);
+	// A real site without kept observations stores no page-derived text (plan.md §14).
+	const scrub = live && !input.observationSink;
+	/** What is kept of a stop: the text and approvals go with the page's data, so only their size stays. */
+	const stopRecord = (
+		code: string,
+		text: string,
+		approvals: readonly unknown[],
+	) =>
+		scrub
+			? { code, textLength: text.length, approvals: approvals.length }
+			: { code, text, approvals };
+	const recorder = new TrialRecorder(now, scrub);
+	if (input.onEvent) recorder.onEvent = input.onEvent;
 	const tabs = new TabRegistry();
 	const grants = new InputGrants(now, randomUUID);
 	const log = (
@@ -291,7 +312,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			now,
 			newId: randomUUID,
 			request: def.request,
-			scrub: live && !input.observationSink,
+			scrub,
 			...(input.observationSink
 				? {
 						keepObservation: (o) => input.observationSink?.(trialId, ++kept, o),
@@ -390,11 +411,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 					return {
 						status: "needs_input",
 						code: step.code,
-						stop: {
-							code: step.code,
-							text: step.text,
-							approvals: step.approvals,
-						},
+						stop: stopRecord(step.code, step.text, step.approvals),
 					};
 				case "failed":
 					recorder.final("failed");
@@ -421,11 +438,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 						return {
 							status: "needs_input",
 							code: applied.step.code,
-							stop: {
-								code: applied.step.code,
-								text: applied.step.text,
-								approvals: [],
-							},
+							stop: stopRecord(applied.step.code, applied.step.text, []),
 						};
 					}
 					recorder.final("failed");
@@ -489,14 +502,14 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		arm: input.arm,
 		fixtureBaseUrl: baseUrl,
 	});
-	const score = scoreAndStore(db, def, transcript, {
+	const { score, scored } = scoreAndStore(db, def, transcript, {
 		runStatus: ending.status,
 		stop: ending.stop ?? null,
 		inference: input.inferenceInfo(),
 		nowIso: nowIso(),
 	});
 	log("trial.finished", {
-		code: score.success ? "success" : "failure",
+		code: !scored ? "unscored" : score.success ? "success" : "failure",
 		count: score.efficiency.modelCalls,
 		durationMs: now() - startedAtMs,
 	});
@@ -508,5 +521,6 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		code: ending.code,
 		transcript,
 		score,
+		scored,
 	};
 }

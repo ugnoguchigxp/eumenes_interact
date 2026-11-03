@@ -9,6 +9,7 @@ import { getSetting, setSetting } from "../host/store.ts";
 import { listLarmChatProfiles } from "../inference/index.ts";
 import { report, trialLines } from "./report.ts";
 import { DEFAULT_PLATFORM, parsePlatform } from "./platform.ts";
+import { operateCommand } from "./operate-command.ts";
 import { compareCommand } from "./compare-command.ts";
 import { knowledgeImport, knowledgeList } from "./knowledge-command.ts";
 import { runCommand } from "./run-command.ts";
@@ -16,8 +17,8 @@ import { parseInputs, taskList, taskRun } from "./task-command.ts";
 
 const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   cases [--include-holdout] [--include-live]
-  run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm]
-      [--approver fixture|cli] [--include-holdout] [--include-live]
+  run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude]
+      [--model <id>] [--effort low|medium|high|xhigh|max] [--approver fixture|cli] [--include-holdout] [--include-live]
       [--keep-observations] [--headed] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   task list
@@ -26,7 +27,10 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
       [--browser <channel>] [--executable-path <path>]
   compare [--platforms playwright-mcp] [--definitions <id,...|all|none>]
       [--inputs <file.json>] [--repeat n] [--headed] [--split dev] [--include-live] [--keep-observations]
-      [--approver stop|cli]
+      [--approver stop|cli] [--inference scripted|claude] [--model <id>] [--effort <e>]
+  operate --request "<text>" --start-url <https url> --allow-origin <origin> [--allow-origin ...]
+      [--inference claude|larm] [--model <id>] [--effort low|medium|high|xhigh|max] [--max-calls n]
+      [--approver stop|cli] [--headed] [--keep-observations] [--json]
   knowledge import <seed.json>...
   knowledge list [--origin <origin>]
   trials [--experiment <id>]
@@ -55,6 +59,12 @@ const { values, positionals } = parseArgs({
 		"base-url": { type: "string" },
 		profile: { type: "string" },
 		input: { type: "string", multiple: true },
+		request: { type: "string" },
+		"start-url": { type: "string" },
+		"allow-origin": { type: "string", multiple: true },
+		model: { type: "string" },
+		effort: { type: "string" },
+		"max-calls": { type: "string" },
 		json: { type: "boolean" },
 		origin: { type: "string" },
 		platform: { type: "string" },
@@ -99,6 +109,8 @@ async function main(): Promise<number> {
 			);
 		return 0;
 	}
+	if (command === "operate")
+		return operateCommand(values, values.json === true);
 	if (
 		![
 			"run",
@@ -200,6 +212,14 @@ async function main(): Promise<number> {
 							["stop", "cli"],
 							"stop",
 						),
+						inference: oneOf<"scripted" | "claude">(
+							"inference",
+							values.inference,
+							["scripted", "claude"],
+							"scripted",
+						),
+						...(values.model === undefined ? {} : { model: values.model }),
+						...(values.effort === undefined ? {} : { effort: values.effort }),
 					},
 					logger!,
 				);
@@ -244,9 +264,11 @@ async function main(): Promise<number> {
 						inference: oneOf(
 							"inference",
 							values.inference,
-							["scripted", "larm"],
+							["scripted", "larm", "claude"],
 							"scripted",
 						),
+						...(values.model === undefined ? {} : { model: values.model }),
+						...(values.effort === undefined ? {} : { effort: values.effort }),
 						...(values.approver === undefined
 							? {}
 							: {

@@ -16,7 +16,7 @@ import {
 	type TrialResult,
 } from "./run.ts";
 import { createExperiment } from "./store.ts";
-import type { InferenceInfo, TrialVersions } from "./types.ts";
+import type { InferenceInfo, InferenceKind, TrialVersions } from "./types.ts";
 
 /** What differs between a real run and a test: where the adapter, the inference and the approver come from. */
 export type TrialFactories = {
@@ -39,7 +39,9 @@ export type ExperimentInput = {
 	arms: readonly ArmId[];
 	repetitions: number;
 	name: string;
-	inferenceKind: "scripted" | "larm";
+	inferenceKind: InferenceKind;
+	/** The model and effort a Claude run was frozen to: recorded with the experiment's other conditions. */
+	frozenInference?: { model: string; effort: string };
 	includesHoldout: boolean;
 	includesLive?: boolean;
 	factories: TrialFactories;
@@ -79,6 +81,10 @@ export async function runExperiment(input: ExperimentInput) {
 			outputTokens: OUTPUT_TOKENS,
 			callMs: CALL_MS,
 			minCallMs: MIN_CALL_MS,
+			inference: {
+				kind: input.inferenceKind,
+				...input.frozenInference,
+			},
 		},
 		inferenceKind: input.inferenceKind,
 		nowIso: new Date(now()).toISOString(),

@@ -12,8 +12,9 @@ export function median(values: readonly number[]): number | null {
 const sum = (values: readonly number[]): number =>
 	values.reduce((a, b) => a + b, 0);
 
-const known = (values: readonly (number | null)[]): number[] =>
-	values.filter((v): v is number => v !== null);
+/** Rows stored before a field existed lack it (undefined): only numbers are values. */
+const known = (values: readonly (number | null | undefined)[]): number[] =>
+	values.filter((v): v is number => typeof v === "number");
 
 export type Aggregate = {
 	trials: number;
@@ -30,6 +31,9 @@ export type Aggregate = {
 		modelCalls: number | null;
 		inputTokens: number | null;
 		outputTokens: number | null;
+		cacheReadTokens: number | null;
+		cacheWriteTokens: number | null;
+		promptTokens: number | null;
 	};
 	/** Completed trials left out of the token medians because a call did not report usage. */
 	tokensUnknownTrials: { input: number; output: number };
@@ -89,6 +93,15 @@ export function aggregateScores(scores: readonly TrialScore[]): Aggregate {
 			modelCalls: med((s) => s.efficiency.modelCalls),
 			inputTokens: median(known(inputs)),
 			outputTokens: median(known(outputs)),
+			cacheReadTokens: median(
+				known(completed.map((s) => s.efficiency.cacheReadTokens)),
+			),
+			cacheWriteTokens: median(
+				known(completed.map((s) => s.efficiency.cacheWriteTokens)),
+			),
+			promptTokens: median(
+				known(completed.map((s) => s.efficiency.promptTokens)),
+			),
 		},
 		tokensUnknownTrials: {
 			input: inputs.length - known(inputs).length,

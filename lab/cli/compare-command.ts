@@ -10,6 +10,11 @@ import {
 	type Sample,
 } from "../host/compare.ts";
 import { CliApprover } from "../host/approval.ts";
+import {
+	claudeSettings,
+	ensureClaudeCredential,
+	startClaude,
+} from "../host/claude.ts";
 import { loadDefinitions } from "../host/definitions.ts";
 import { startFixtureServer } from "../host/fixture-server.ts";
 import type { LabLogger } from "../host/log.ts";
@@ -36,6 +41,10 @@ export type CompareOptions = {
 	keepObservations: boolean;
 	/** For definition runs: `stop` (default) never grants, `cli` asks on the terminal. */
 	approver?: "stop" | "cli";
+	/** What answers the fixture cases of `--split dev`: the scripted files (default) or Claude. */
+	inference?: "scripted" | "claude";
+	model?: string;
+	effort?: string;
 };
 
 /** The platforms of `--platforms a,b`, each valid and none twice. */
@@ -73,6 +82,12 @@ export async function compareCommand(
 	const inputs = await loadCompareInputs(options.inputsFile);
 	for (const id of wanted)
 		if (!inputs[id]) throw new Error(`no_inputs_for:${id}`);
+	if (options.inference !== "claude" && (options.model || options.effort))
+		throw new Error("model_and_effort_are_for_claude");
+	// Frozen for the whole comparison and checked before anything is opened.
+	const claude =
+		options.inference === "claude" ? claudeSettings(options) : null;
+	if (claude) ensureClaudeCredential();
 	const cases: CaseDef[] =
 		options.split === "dev" ? await loadCases({ includeHoldout: false }) : [];
 	const items = planCompare({
@@ -89,6 +104,10 @@ export async function compareCommand(
 	console.error(
 		"notice: compare drives real browsers on real sites; start it only when you have decided to (user-triggered, plan §10.2).",
 	);
+	if (claude)
+		console.error(
+			"notice: --inference claude calls the Claude API with the key in your .env and costs money (user-triggered, plan §10.5).",
+		);
 	const nowIso = new Date().toISOString();
 	for (const { seed } of await loadSeeds())
 		importSeed(db, LAB_OWNER, seed, nowIso);
@@ -111,6 +130,17 @@ export async function compareCommand(
 					logger,
 				),
 			commit: packageCommit(),
+			inferenceKind: claude ? "claude" : "scripted",
+			inferenceLabel: claude
+				? `claude:${claude.model}/${claude.effort}`
+				: "scripted",
+			...(claude ? { frozenInference: claude } : {}),
+			...(claude
+				? {
+						inference: async (def: CaseDef) =>
+							startClaude(claude, logger, def.id),
+					}
+				: {}),
 			...(options.approver === "cli"
 				? { approver: () => new CliApprover() }
 				: {}),
@@ -138,6 +168,9 @@ export async function compareCommand(
 				headed: options.headed,
 				definitions: wanted,
 				cases: cases.map((c) => c.id),
+				inference: claude
+					? `claude:${claude.model}/${claude.effort}`
+					: "scripted",
 			},
 			samples,
 			new Date().toISOString(),

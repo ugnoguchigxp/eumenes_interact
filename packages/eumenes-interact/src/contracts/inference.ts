@@ -15,6 +15,9 @@ export type InferenceUsage = {
 	/** null when the provider did not report it (never 0 for unknown). */
 	inputTokens: number | null;
 	outputTokens: number | null;
+	/** Prompt-cache reads and writes, when the provider reports them; otherwise absent or null. */
+	cacheReadInputTokens?: number | null;
+	cacheCreationInputTokens?: number | null;
 };
 
 /** Classified per call (plan.md §11 "出力の不正"). */

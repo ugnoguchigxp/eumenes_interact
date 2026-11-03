@@ -1,11 +1,10 @@
 import type { Database } from "bun:sqlite";
-import { randomUUID } from "node:crypto";
 import { loadCases } from "../cases/load.ts";
 import type { CaseDef } from "../cases/schema.ts";
 import { CliApprover, FixtureApprover } from "../host/approval.ts";
+import { larmFactory } from "../host/larm.ts";
 import { runExperiment, type TrialFactories } from "../host/experiment.ts";
 import { startFixtureServer } from "../host/fixture-server.ts";
-import { createLarmInference } from "../inference/index.ts";
 import type { LabLogger } from "../host/log.ts";
 import {
 	DEFAULT_OBSERVATIONS_DIR,
@@ -14,11 +13,15 @@ import {
 } from "../host/observations.ts";
 import { selectCases } from "../host/plan.ts";
 import type { TrialResult } from "../host/run.ts";
-import { getSetting } from "../host/store.ts";
 import { collectVersions } from "../host/versions.ts";
 import { createScriptedInference } from "../scripted/inference.ts";
 import { loadScript } from "../scripted/script.ts";
 import type { BrowserPlatform } from "./platform.ts";
+import {
+	claudeSettings,
+	ensureClaudeCredential,
+	startClaude,
+} from "../host/claude.ts";
 import { createSession } from "./session.ts";
 import { summaryLines } from "./report.ts";
 
@@ -28,7 +31,10 @@ export type RunOptions = {
 	includeHoldout: boolean;
 	includeLive: boolean;
 	repeat: number;
-	inference: "scripted" | "larm";
+	inference: "scripted" | "larm" | "claude";
+	/** `--inference claude`: the model (default `claude-haiku-5-5`) and effort (default `low`). */
+	model?: string;
+	effort?: string;
 	/** Default: the fixture user for fixtures, the terminal for live cases. */
 	approver?: "fixture" | "cli";
 	/** Keep every observation body under `lab/data/observations/` (at most 7 days). */
@@ -54,6 +60,11 @@ export function notices(
 		...(options.inference === "larm"
 			? [
 					"notice: --inference larm calls the real LARM; start it only when you have decided to (user-triggered, plan §10.5).",
+				]
+			: []),
+		...(options.inference === "claude"
+			? [
+					"notice: --inference claude calls the Claude API with the key in your .env and costs money; start it only when you have decided to (user-triggered, plan §10.5).",
 				]
 			: []),
 		...(live
@@ -86,26 +97,14 @@ function inferenceFactory(
 			info: () => ({ kind: "scripted" }),
 			dispose: async () => {},
 		});
-	const baseUrl = getSetting(db, "larm.baseUrl");
-	const profile = getSetting(db, "larm.profile");
-	const token = process.env.LARM_API_TOKEN;
-	if (!baseUrl || !profile)
-		throw new Error("larm_not_configured: run `larm set` first");
-	if (!token) throw new Error("larm_token_missing: set LARM_API_TOKEN");
-	return async (def) => {
-		const inference = createLarmInference({
-			settings: { baseUrl, profile },
-			token,
-			clientId: randomUUID(),
-			logger,
-			correlationId: def.id,
-		});
-		return {
-			port: inference,
-			info: () => ({ kind: "larm", ...inference.describe() }),
-			dispose: () => inference.close(),
-		};
-	};
+	if (options.inference === "claude") {
+		// Frozen for the whole run, and checked before anything is opened.
+		const settings = claudeSettings(options);
+		ensureClaudeCredential();
+		return async (def) => startClaude(settings, logger, def.id);
+	}
+	const start = larmFactory(db, logger);
+	return async (def) => start(def.id);
 }
 
 export async function runCommand(
@@ -113,6 +112,8 @@ export async function runCommand(
 	options: RunOptions,
 	logger: LabLogger,
 ) {
+	if (options.inference !== "claude" && (options.model || options.effort))
+		throw new Error("model_and_effort_are_for_claude");
 	const all = await loadCases({
 		includeHoldout: options.includeHoldout,
 		includeLive: options.includeLive,
@@ -156,6 +157,9 @@ export async function runCommand(
 			repetitions: options.repeat,
 			name: options.caseId ?? options.split ?? "run",
 			inferenceKind: options.inference,
+			...(options.inference === "claude"
+				? { frozenInference: claudeSettings(options) }
+				: {}),
 			includesHoldout: holdout,
 			includesLive: live,
 			logger,

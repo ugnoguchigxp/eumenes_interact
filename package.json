@@ -18,7 +18,8 @@
 		"build": "cd packages/eumenes-interact && bun run build",
 		"check:stack": "bun scripts/check-stack.ts",
 		"check:dist": "bun run build && node lab/scripts/check-dist-node.mjs",
-		"lab": "bun lab/cli/main.ts"
+		"lab": "bun lab/cli/main.ts",
+		"mcp": "bun lab/mcp/server.ts"
 	},
 	"devDependencies": {
 		"@types/bun": "1.3.14",

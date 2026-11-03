@@ -3,3 +3,6 @@ dist/
 *.tgz
 lab/data/
 .serena/
+.env
+.env.*
+!.env.example

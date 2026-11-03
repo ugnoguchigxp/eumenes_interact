@@ -5,6 +5,8 @@ import type { CaseDef } from "../../cases/schema.ts";
 import { FixtureApprover, type Approver } from "../../host/approval.ts";
 import type { RunControl } from "../../host/control.ts";
 import { openLabDb } from "../../host/db.ts";
+import type { TranscriptEvent } from "../../scorer/transcript.ts";
+import type { InferenceInfo } from "../../host/types.ts";
 import type { ObservationSink } from "../../host/observations.ts";
 import { silentLabLogger } from "../../host/log.ts";
 import { runTrial, type TrialResult } from "../../host/run.ts";
@@ -59,11 +61,13 @@ export async function runScripted(
 		adapter?: FakeBrowser;
 		approver?: Approver;
 		inference?: InferencePort;
+		inferenceInfo?: InferenceInfo;
 		control?: RunControl;
 		def?: CaseDef;
 		deadlineMs?: number;
 		now?: () => number;
 		observationSink?: ObservationSink;
+		onEvent?: (event: TranscriptEvent) => void;
 	} = {},
 ): Promise<Harness> {
 	const def = options.def ?? (await devCase(caseId));
@@ -79,7 +83,7 @@ export async function runScripted(
 		adapter,
 		inference:
 			options.inference ?? createScriptedInference(await loadScript(caseId)),
-		inferenceInfo: () => ({ kind: "scripted" }),
+		inferenceInfo: () => options.inferenceInfo ?? { kind: "scripted" },
 		approver: options.approver ?? new FixtureApprover(def.approvalScript),
 		logger: silentLabLogger,
 		versions: VERSIONS,
@@ -87,6 +91,7 @@ export async function runScripted(
 		...(options.control ? { control: options.control } : {}),
 		...(options.deadlineMs ? { deadlineMs: options.deadlineMs } : {}),
 		...(options.now ? { now: options.now } : {}),
+		...(options.onEvent ? { onEvent: options.onEvent } : {}),
 		...(options.observationSink
 			? { observationSink: options.observationSink }
 			: {}),

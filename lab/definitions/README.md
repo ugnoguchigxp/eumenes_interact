@@ -164,3 +164,7 @@ bun lab/cli/main.ts compare --split dev --definitions none
 - 定義は実サイトを開くので`--include-live`が要る。`--split dev`で、スクリプト推論のArm 0のdevケースも各プラットフォームで動かす。`--definitions`は`all`（既定）、`none`、またはidのカンマ区切り。
 - `lab/data/reports/compare-<時刻>.json`と`.md`に、プラットフォーム×定義（ケース）ごとの成功率、所要時間の中央値と合計、スナップショットのバイト数とrefの中央値、抽出文字数、失敗の分類、「クリックしたのにURLが変わらなかった」回数を出す。所要時間にはブラウザの起動を含み、中央値は成功した実行だけで取る。
 - 抽出した本文はレポートに載せない（文字数と先頭80文字だけ、ページのデータとして）。キーワードはユーザーが選んだサンプル入力なので載る。ログには入らない。
+
+## モデル（Claude）での比較
+
+`compare --split dev --definitions none --inference claude [--model <id>] [--effort <e>]`で、devケースを実際のClaude（既定はHaiku 5.5、effort `low`）で測れる。鍵とトークン・費用の見方は[../README.md](../README.md)。作業定義はモデルを使わないので、トークンは出ない。

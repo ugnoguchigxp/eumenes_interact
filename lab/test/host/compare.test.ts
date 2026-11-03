@@ -169,6 +169,8 @@ const sample = (over: Partial<Sample>): Sample => ({
 	urlUnchanged: 0,
 	tool: null,
 	preview: null,
+	inference: null,
+	usage: null,
 	...over,
 });
 

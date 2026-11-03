@@ -65,12 +65,22 @@ export function applyMigrations(db: Database, nowIso: string): string[] {
 			if (recorded !== digest) throw new LabDbError("migration_changed", id);
 			continue;
 		}
-		db.transaction(() => {
-			db.exec(sql);
-			db.query(
-				"INSERT INTO lab_migrations (id, sha256, applied_at) VALUES (?, ?, ?)",
-			).run(id, digest, nowIso);
-		})();
+		// A lab migration may rebuild a table other tables point at: foreign keys are off while it runs
+		// (they cannot be switched inside a transaction) and every row is checked before they are back on.
+		const lab = id.startsWith("lab/");
+		if (lab) db.exec("PRAGMA foreign_keys = OFF");
+		try {
+			db.transaction(() => {
+				db.exec(sql);
+				db.query(
+					"INSERT INTO lab_migrations (id, sha256, applied_at) VALUES (?, ?, ?)",
+				).run(id, digest, nowIso);
+				if (lab && db.query("PRAGMA foreign_key_check").all().length > 0)
+					throw new LabDbError("schema_missing", `${id}:foreign_key_check`);
+			})();
+		} finally {
+			if (lab) db.exec("PRAGMA foreign_keys = ON");
+		}
 		done.push(id);
 	}
 	assertInteractSchema(db);

@@ -4,7 +4,12 @@ import type { CaseDef } from "../cases/schema.ts";
 import type { TrialScore } from "../scorer/score.ts";
 import type { TrialTranscript } from "../scorer/transcript.ts";
 import { write } from "./db.ts";
-import type { InferenceInfo, TrialConditions, TrialVersions } from "./types.ts";
+import type {
+	InferenceInfo,
+	InferenceKind,
+	TrialConditions,
+	TrialVersions,
+} from "./types.ts";
 
 /** Typed access to the lab's own tables. Every writer is one committed transaction. */
 
@@ -46,7 +51,7 @@ export type ExperimentInput = {
 	budget: Record<string, unknown>;
 	tolerance?: Record<string, unknown>;
 	stopRule?: Record<string, unknown>;
-	inferenceKind: "scripted" | "larm";
+	inferenceKind: InferenceKind;
 	nowIso: string;
 };
 
@@ -106,7 +111,7 @@ export function getExperiment(
 		budget: JSON.parse(String(row.budget_json)),
 		tolerance: JSON.parse(String(row.tolerance_json)),
 		stopRule: JSON.parse(String(row.stop_rule_json)),
-		inferenceKind: row.inference_kind as "scripted" | "larm",
+		inferenceKind: row.inference_kind as InferenceKind,
 		createdAt: String(row.created_at),
 	};
 }
@@ -170,7 +175,8 @@ export function finishTrial(
 	end: {
 		runStatus: RunStatus;
 		transcript: TrialTranscript;
-		score: TrialScore;
+		/** Null for a free-form request: nothing was judged. */
+		score: TrialScore | null;
 		stop: unknown;
 		nowIso: string;
 		inference: InferenceInfo;
@@ -186,7 +192,7 @@ export function finishTrial(
 				end.nowIso,
 				end.runStatus,
 				JSON.stringify(end.transcript),
-				JSON.stringify(end.score),
+				end.score === null ? null : JSON.stringify(end.score),
 				end.stop === null ? null : JSON.stringify(end.stop),
 				JSON.stringify(end.inference),
 				trialId,
@@ -200,6 +206,7 @@ export type TrialRow = {
 	caseId: string;
 	split: CaseDef["split"];
 	arm: string;
+	platform: string;
 	repetition: number;
 	orderIndex: number;
 	runId: string;
@@ -208,6 +215,7 @@ export type TrialRow = {
 	score: TrialScore | null;
 	transcript: TrialTranscript | null;
 	versions: TrialVersions;
+	inference: InferenceInfo;
 };
 
 export function listTrials(
@@ -233,6 +241,7 @@ export function listTrials(
 		caseId: String(row.case_id),
 		split: row.split as CaseDef["split"],
 		arm: String(row.arm),
+		platform: String(row.platform),
 		repetition: Number(row.repetition),
 		orderIndex: Number(row.order_index),
 		runId: String(row.run_id),
@@ -241,6 +250,7 @@ export function listTrials(
 		score: json(row.score_json),
 		transcript: json(row.transcript_json),
 		versions: json(row.versions_json),
+		inference: json(row.inference_json),
 	}));
 }
 

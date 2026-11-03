@@ -3,13 +3,27 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { PlatformAdapter, WorkDefinition } from "eumenes-interact";
+import type {
+	InferencePort,
+	PlatformAdapter,
+	WorkDefinition,
+} from "eumenes-interact";
 import { z } from "zod";
 import type { CaseDef } from "../cases/schema.ts";
 import { median } from "../scorer/aggregate.ts";
 import { loadScript } from "../scripted/script.ts";
 import { createScriptedInference } from "../scripted/inference.ts";
 import { FixtureApprover, printable, type Approver } from "./approval.ts";
+import {
+	aggregateUsage,
+	inferenceLabel,
+	noCalls,
+	trialUsage,
+	UNKNOWN_USAGE,
+	type TrialUsage,
+	type UsageRow,
+} from "./usage.ts";
+import type { InferenceInfo, InferenceKind } from "./types.ts";
 import { RunControl } from "./control.ts";
 import { runDefinition } from "./definition-run.ts";
 import type { LabLogger } from "./log.ts";
@@ -149,6 +163,9 @@ export type Sample = {
 	tool: { name: string; version: string | null } | null;
 	/** The length of the first extract and a short head of it, which is page data and nothing more. */
 	preview: { charCount: number; head: string } | null;
+	/** What answered a case (`scripted`, `claude:<model>/<effort>`…) and what its model calls took; null for a definition. */
+	inference: string | null;
+	usage: TrialUsage | null;
 };
 
 const PREVIEW_CHARS = 80;
@@ -170,6 +187,8 @@ const blank = (): Omit<
 	urlUnchanged: 0,
 	tool: null,
 	preview: null,
+	inference: null,
+	usage: null,
 });
 
 export type RunCompareOptions = {
@@ -182,6 +201,18 @@ export type RunCompareOptions = {
 	createSession(
 		platform: string,
 	): Promise<{ adapter: PlatformAdapter; dispose(): Promise<void> }>;
+	/** The kind of inference answering the cases (frozen into each platform's experiment); default `scripted`. */
+	inferenceKind?: InferenceKind;
+	/** The model and effort a Claude comparison is frozen to. */
+	frozenInference?: { model: string; effort: string };
+	/** The label of what answers the cases (`scripted`, `claude:<model>/<effort>`), known before any run. */
+	inferenceLabel?: string;
+	/** What answers a case's model calls; default: the scripted inference. Definitions use no model. */
+	inference?: (def: CaseDef) => Promise<{
+		port: InferencePort;
+		info: () => InferenceInfo;
+		dispose(): Promise<void>;
+	}>;
 	/** The approver of a definition run; default: one that never grants (`StopApprover`). */
 	approver?: () => Approver;
 	/** The repository's commit for the trial records (null when unknown). */
@@ -214,14 +245,20 @@ export async function runCompare(
 				includesHoldout: false,
 				repetitions: 1,
 				arms: ["arm0"],
-				budget: {},
-				inferenceKind: "scripted",
+				budget: {
+					inference: {
+						kind: options.inferenceKind ?? "scripted",
+						...options.frozenInference,
+					},
+				},
+				inferenceKind: options.inferenceKind ?? "scripted",
 				nowIso: new Date(now()).toISOString(),
 			});
 			experiments.set(platform, id);
 		}
 		return id;
 	};
+	const label = options.inferenceLabel ?? "scripted";
 	let order = 0;
 	for (const item of options.items) {
 		if (options.signal?.aborted) break;
@@ -248,6 +285,13 @@ export async function runCompare(
 					status: "error",
 					code: "session_unavailable",
 					failures: ["session_unavailable"],
+					// A case that never started made no model call: it counts as a failed trial, at no cost.
+					...(item.kind === "case"
+						? {
+								inference: label,
+								usage: noCalls(label.startsWith("claude:")),
+							}
+						: {}),
 				};
 				samples.push(sample);
 				options.onSample?.(sample);
@@ -358,31 +402,43 @@ async function caseSample(
 	const now = options.now ?? Date.now;
 	const def = options.cases.get(item.target);
 	if (!def) throw new Error(`case_not_found:${item.target}`);
-	const result = await runTrial({
-		db: options.db,
-		def,
-		arm: "arm0",
-		experimentId,
-		repetition: item.repetition,
-		orderIndex: base.order,
-		adapter,
-		inference: createScriptedInference(await loadScript(def.id)),
-		inferenceInfo: () => ({ kind: "scripted" }),
-		approver: new FixtureApprover(def.approvalScript),
-		logger: options.logger,
-		versions: collectVersions({
-			browser: { channel: null, customExecutable: false, headless: true },
-			commit: options.commit ?? null,
-		}),
-		...(options.fixtureBaseUrl
-			? { fixtureBaseUrl: options.fixtureBaseUrl }
-			: {}),
-		...(options.observationSink
-			? { observationSink: options.observationSink }
-			: {}),
-		control,
-		...(options.now ? { now: options.now } : {}),
-	});
+	const inference = options.inference
+		? await options.inference(def)
+		: {
+				port: createScriptedInference(await loadScript(def.id)),
+				info: (): InferenceInfo => ({ kind: "scripted" }),
+				dispose: async () => {},
+			};
+	let result: Awaited<ReturnType<typeof runTrial>>;
+	try {
+		result = await runTrial({
+			db: options.db,
+			def,
+			arm: "arm0",
+			experimentId,
+			repetition: item.repetition,
+			orderIndex: base.order,
+			adapter,
+			inference: inference.port,
+			inferenceInfo: inference.info,
+			approver: new FixtureApprover(def.approvalScript),
+			logger: options.logger,
+			versions: collectVersions({
+				browser: { channel: null, customExecutable: false, headless: true },
+				commit: options.commit ?? null,
+			}),
+			...(options.fixtureBaseUrl
+				? { fixtureBaseUrl: options.fixtureBaseUrl }
+				: {}),
+			...(options.observationSink
+				? { observationSink: options.observationSink }
+				: {}),
+			control,
+			...(options.now ? { now: options.now } : {}),
+		});
+	} finally {
+		await inference.dispose();
+	}
 	const observed = result.transcript.events.flatMap((e) =>
 		e.type === "observation" ? [e] : [],
 	);
@@ -402,6 +458,8 @@ async function caseSample(
 			e.shapedBytes === undefined ? [] : [e.shapedBytes],
 		),
 		tool: adapter.toolInfo(),
+		inference: inferenceLabel(inference.info()),
+		usage: trialUsage(result.transcript, inference.info()),
 	};
 }
 
@@ -422,6 +480,9 @@ export type Row = {
 	medianExtractChars: number | null;
 	failureCodes: Record<string, number>;
 	urlUnchanged: number;
+	/** What answered the cases, and their tokens, model calls and estimated cost; null when no case ran. */
+	inference: string | null;
+	usage: UsageRow | null;
 };
 
 function row(
@@ -450,7 +511,22 @@ function row(
 		medianExtractChars: median(ran.flatMap((s) => s.extractChars)),
 		failureCodes,
 		urlUnchanged: ran.reduce((sum, s) => sum + s.urlUnchanged, 0),
+		inference: ran.find((s) => s.inference !== null)?.inference ?? null,
+		usage: usageOf(ran),
 	};
+}
+
+/**
+ * The usage of the cases that ran, every one of them in the denominator, so the success rate here is the
+ * main table's. A definition uses no model and has no usage.
+ */
+function usageOf(ran: readonly Sample[]): UsageRow | null {
+	const cases = ran.filter((s) => s.kind === "case");
+	return cases.length === 0
+		? null
+		: aggregateUsage(
+				cases.map((s) => ({ success: s.ok, usage: s.usage ?? UNKNOWN_USAGE })),
+			);
 }
 
 export type Aggregate = { perTarget: Row[]; perPlatform: Row[] };
@@ -480,6 +556,8 @@ export type CompareReport = {
 	generatedAt: string;
 	options: {
 		platforms: readonly string[];
+		/** What answered the cases: `scripted`, or `claude:<model>/<effort>`. */
+		inference?: string;
 		repeat: number;
 		headed: boolean;
 		definitions: readonly string[];
@@ -531,6 +609,27 @@ function table(rows: readonly Row[], first: "platform" | "target"): string[] {
 	];
 }
 
+const stat = (s: { total: number | null; median: number | null }) =>
+	`${fmt(s.total)} / ${fmt(s.median)}`;
+const usd = (n: number | null) => (n === null ? "-" : `$${n.toFixed(4)}`);
+
+/** Tokens, model calls and the estimated cost, for the rows that ran a case with a model's answers. */
+function usageTable(rows: readonly Row[]): string[] {
+	const head =
+		"| platform | target | inference | case trials | ok rate | model calls (total / median) | uncached input tokens (total / median) | output tokens | cache read tokens | cache write tokens | prompt total (input + cache) | cost estimate total | per trial | per successful trial |";
+	return [
+		head,
+		head.replace(/[^|]/g, "-"),
+		...rows.flatMap((r) =>
+			r.usage === null
+				? []
+				: [
+						`| ${cell(r.platform)} | ${cell(r.target)} | ${cell(r.inference ?? "-")} | ${r.usage.trials} | ${pct(r.usage.successRate)} | ${stat(r.usage.modelCalls)} | ${stat(r.usage.tokens.input)} | ${stat(r.usage.tokens.output)} | ${stat(r.usage.tokens.cacheRead)} | ${stat(r.usage.tokens.cacheWrite)} | ${stat(r.usage.tokens.promptTotal)} | ${usd(r.usage.costUsdEstimate.total)} | ${usd(r.usage.costUsdEstimate.perTrial)} | ${usd(r.usage.costUsdEstimate.perSuccess)} |`,
+					],
+		),
+	];
+}
+
 /** The report for a person. Queries are the user's own sample inputs; the extract appears as a length and a short head only. */
 export function markdown(report: CompareReport): string {
 	const { options, summary, samples } = report;
@@ -538,7 +637,7 @@ export function markdown(report: CompareReport): string {
 		`# Platform comparison ${report.generatedAt}`,
 		"",
 		`- platforms: ${options.platforms.map((p) => `${p} (${report.tools[p] ? `${report.tools[p]!.name} ${report.tools[p]!.version ?? "?"}` : "tool unknown"})`).join(", ")}`,
-		`- repeat: ${options.repeat}, headed: ${options.headed}`,
+		`- repeat: ${options.repeat}, headed: ${options.headed}${options.inference ? `, inference: ${options.inference}` : ""}`,
 		`- definitions: ${options.definitions.join(", ") || "-"}; cases: ${options.cases.join(", ") || "-"}`,
 		"- the platform that goes first alternates from run to run (plan §10.4); the browser's cold start is in every duration",
 		"",
@@ -550,6 +649,18 @@ export function markdown(report: CompareReport): string {
 		"",
 		...table(summary.perTarget, "target"),
 	];
+	const withUsage = [...summary.perPlatform, ...summary.perTarget].filter(
+		(r) => r.usage !== null,
+	);
+	if (withUsage.length)
+		lines.push(
+			"",
+			"## Tokens and estimated cost",
+			"",
+			"Input tokens are the uncached part of the prompt (Claude counts the cache apart); the prompt total adds the cache reads and writes and is the number to compare across providers. The cost is an estimate from list prices, not a bill; a total is `-` when any trial did not report its tokens (unknown, never 0). Medians are over the trials that worked; the success rate is over all trials.",
+			"",
+			...usageTable(withUsage),
+		);
 	const skipped = samples.filter((s) => s.skipped !== null);
 	if (skipped.length) {
 		const reasons = new Map<string, number>();

@@ -3,6 +3,7 @@ import type {
 	AdapterCommand,
 	DeclaredEffect,
 	InferenceOutcome,
+	InferenceUsage,
 	OperationResult,
 	RunStatus,
 } from "eumenes-interact";
@@ -15,7 +16,7 @@ import type {
 	TrialTranscript,
 } from "../scorer/transcript.ts";
 import { finishTrial } from "./store.ts";
-import type { InferenceInfo } from "./types.ts";
+import type { InferenceInfo, TrialCase } from "./types.ts";
 
 /**
  * Records one trial as the scorer's `TrialTranscript` (lab/cases/README.md "ホストが記録に入れること"):
@@ -24,6 +25,8 @@ import type { InferenceInfo } from "./types.ts";
  */
 export class TrialRecorder {
 	readonly events: TranscriptEvent[] = [];
+	/** Called with every event as it is recorded (a progress view); a failing listener changes nothing. */
+	onEvent: ((event: TranscriptEvent) => void) | null = null;
 	private readonly origin: number;
 	private firstCallAt: number | null = null;
 	private lastAt = 0;
@@ -39,6 +42,16 @@ export class TrialRecorder {
 		readonly startedAt: string = new Date(now()).toISOString(),
 	) {
 		this.origin = now();
+	}
+
+	/** `stored` is what the record keeps; the listener may be given the event as it really was. */
+	private add(event: TranscriptEvent, seen: TranscriptEvent = event) {
+		this.events.push(event);
+		try {
+			this.onEvent?.(seen);
+		} catch {
+			// A progress view must not change the record.
+		}
 	}
 
 	private at(): number {
@@ -59,21 +72,26 @@ export class TrialRecorder {
 				: outcome.kind === "text"
 					? "ok"
 					: outcome.kind;
-		const usage =
+		const usage: InferenceUsage =
 			outcome === "error"
 				? { inputTokens: null, outputTokens: null }
 				: outcome.usage;
-		this.events.push({
+		this.add({
 			type: "model.call",
 			at,
 			durationMs,
 			outcome: kind,
-			tokens: { input: usage.inputTokens, output: usage.outputTokens },
+			tokens: {
+				input: usage.inputTokens,
+				output: usage.outputTokens,
+				cacheRead: usage.cacheReadInputTokens ?? null,
+				cacheWrite: usage.cacheCreationInputTokens ?? null,
+			},
 		});
 	}
 
 	parse(accepted: boolean, reason?: string) {
-		this.events.push({
+		this.add({
 			type: "step.parse",
 			at: this.at(),
 			accepted,
@@ -89,7 +107,7 @@ export class TrialRecorder {
 		bodyBytes?: number;
 		shapedBytes?: number;
 	}) {
-		this.events.push({
+		this.add({
 			type: "observation",
 			at: this.at(),
 			observationRef: o.observationRef,
@@ -108,11 +126,11 @@ export class TrialRecorder {
 		requiresApproval: boolean;
 		retryOf?: string;
 	}) {
-		this.events.push({ type: "operation.requested", at: this.at(), ...o });
+		this.add({ type: "operation.requested", at: this.at(), ...o });
 	}
 
 	dispatched(operationId: string) {
-		this.events.push({
+		this.add({
 			type: "operation.dispatched",
 			at: this.at(),
 			operationId,
@@ -124,7 +142,7 @@ export class TrialRecorder {
 		result: Pick<OperationResult, "status" | "code" | "url" | "title">,
 		adopted: boolean,
 	) {
-		this.events.push({
+		this.add({
 			type: "operation.result",
 			at: this.at(),
 			operationId,
@@ -139,7 +157,7 @@ export class TrialRecorder {
 	}
 
 	approvalRequested(approvalId: string, operationId: string) {
-		this.events.push({
+		this.add({
 			type: "approval.requested",
 			at: this.at(),
 			approvalId,
@@ -148,7 +166,7 @@ export class TrialRecorder {
 	}
 
 	approvalAnswered(approvalId: string, decision: "grant" | "deny") {
-		this.events.push({
+		this.add({
 			type: "approval.answered",
 			at: this.at(),
 			approvalId,
@@ -157,17 +175,28 @@ export class TrialRecorder {
 	}
 
 	cancelled(reason: "cancel" | "deadline") {
-		this.events.push({ type: "run.cancelled", at: this.at(), reason });
+		this.add({ type: "run.cancelled", at: this.at(), reason });
 	}
 
-	/** `text` is the finish or clarify text the model wrote (for answer checks); other kinds have none. */
+	/**
+	 * `text` is the finish or clarify text the model wrote (for answer checks); other kinds have none. On a real
+	 * site without kept observations the text summarises page content, so the record keeps its length only
+	 * (plan.md §14); a caller listening through `onEvent` still sees the text as it was.
+	 */
 	final(kind: FinalKind, text?: string) {
-		this.events.push({
+		const at = this.at();
+		const seen: TranscriptEvent = {
 			type: "step.final",
-			at: this.at(),
+			at,
 			kind,
 			...(text === undefined ? {} : { text }),
-		});
+		};
+		this.add(
+			this.scrub && text !== undefined
+				? { type: "step.final", at, kind, textLength: text.length }
+				: seen,
+			seen,
+		);
 	}
 
 	build(input: {
@@ -191,10 +220,23 @@ export class TrialRecorder {
 	}
 }
 
-/** Scores the finished transcript and stores both. The score never goes back to the run. */
+/** What a free-form request is scored against: nothing is expected, so only the counters mean anything. */
+const NEUTRAL: CaseDef["expect"] = {
+	kind: "clarify",
+	effectful: [],
+	forbidden: [],
+	wrongTargets: [],
+	approval: "none",
+};
+
+/**
+ * Scores the finished transcript and stores both. The score never goes back to the run. A trial without
+ * `expect` (free-form request) is stored unscored: its counters are returned for the caller's own use, and
+ * `score_json` stays empty so no one reads a success into it.
+ */
 export function scoreAndStore(
 	db: Database,
-	def: CaseDef,
+	def: TrialCase,
 	transcript: TrialTranscript,
 	end: {
 		runStatus: RunStatus;
@@ -202,8 +244,16 @@ export function scoreAndStore(
 		inference: InferenceInfo;
 		nowIso: string;
 	},
-): TrialScore {
-	const score = scoreTrial(def, transcript);
-	finishTrial(db, transcript.trialId, { ...end, transcript, score });
-	return score;
+): { score: TrialScore; scored: boolean } {
+	const scored = def.expect !== undefined;
+	const score = scoreTrial(
+		{ ...def, expect: def.expect ?? NEUTRAL } as CaseDef,
+		transcript,
+	);
+	finishTrial(db, transcript.trialId, {
+		...end,
+		transcript,
+		score: scored ? score : null,
+	});
+	return { score, scored };
 }

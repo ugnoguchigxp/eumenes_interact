@@ -81,7 +81,9 @@ describe("the live split migration", () => {
 		db.exec(
 			"CREATE TABLE lab_migrations (id TEXT PRIMARY KEY, sha256 TEXT NOT NULL, applied_at TEXT NOT NULL)",
 		);
-		const before = plannedMigrations().filter((m) => m.id !== "lab/0002");
+		const before = plannedMigrations().filter(
+			(m) => !m.id.startsWith("lab/") || m.id === "lab/0001",
+		);
 		for (const m of before) {
 			db.exec(m.sql);
 			db.query("INSERT INTO lab_migrations VALUES (?, ?, ?)").run(
@@ -107,7 +109,21 @@ describe("the live split migration", () => {
 				.run(id, split, NOW);
 		trial("old", "dev");
 		expect(() => trial("live-too-early", "live")).toThrow();
-		expect(applyMigrations(db, NOW)).toEqual(["lab/0002"]);
+		const applied = applyMigrations(db, NOW);
+		expect(applied[0]).toBe("lab/0002");
+		// The experiments table was rebuilt under a trial that points at it: the row survives, the keys hold,
+		// and the Claude inference is now a valid kind.
+		expect(applied).toContain("lab/0005");
+		expect(db.query("PRAGMA foreign_key_check").all()).toEqual([]);
+		expect(db.query("PRAGMA foreign_keys").get()).toEqual({ foreign_keys: 1 });
+		db.exec(`INSERT INTO lab_experiments (id, name, created_at, case_ids_json, case_digest, includes_holdout,
+			repetitions, arms_json, budget_json, tolerance_json, stop_rule_json, inference_kind)
+			VALUES ('c', 'n', '${NOW}', '[]', 'd', 0, 1, '[]', '{}', '{}', '{}', 'claude')`);
+		expect(() =>
+			db.exec(`INSERT INTO lab_experiments (id, name, created_at, case_ids_json, case_digest, includes_holdout,
+			repetitions, arms_json, budget_json, tolerance_json, stop_rule_json, inference_kind)
+			VALUES ('x', 'n', '${NOW}', '[]', 'd', 0, 1, '[]', '{}', '{}', '{}', 'other')`),
+		).toThrow();
 		expect(db.query("SELECT trial_id FROM lab_trials").all()).toEqual([
 			{ trial_id: "old" },
 		]);

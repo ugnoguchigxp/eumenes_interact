@@ -58,6 +58,14 @@ export type TrialScore = {
 		/** Null when any call did not report it (unknown, not 0). */
 		inputTokens: number | null;
 		outputTokens: number | null;
+		/** Prompt-cache reads and writes; null when any call did not report them (no cache, or unknown). */
+		cacheReadTokens: number | null;
+		cacheWriteTokens: number | null;
+		/**
+		 * The whole prompt: input plus cache reads and writes. Claude's `inputTokens` is the uncached part
+		 * only, so this is the number to compare across providers.
+		 */
+		promptTokens: number | null;
 	};
 	outputFaults: {
 		parseRejections: number;
@@ -167,6 +175,9 @@ export function scoreTrial(
 	const tokens = {
 		input: [] as (number | null)[],
 		output: [] as (number | null)[],
+		cacheRead: [] as (number | null)[],
+		cacheWrite: [] as (number | null)[],
+		prompt: [] as (number | null)[],
 	};
 
 	/** `observed` false: the browser was only sent there (a navigate command), not seen there. */
@@ -202,6 +213,16 @@ export function scoreTrial(
 				counts.modelCalls++;
 				tokens.input.push(e.tokens.input);
 				tokens.output.push(e.tokens.output);
+				tokens.cacheRead.push(e.tokens.cacheRead ?? null);
+				tokens.cacheWrite.push(e.tokens.cacheWrite ?? null);
+				// An unreported cache counter counts as no cache use, as the cost estimate does.
+				tokens.prompt.push(
+					e.tokens.input === null
+						? null
+						: e.tokens.input +
+								(e.tokens.cacheRead ?? 0) +
+								(e.tokens.cacheWrite ?? 0),
+				);
 				if (e.outcome === "refused") counts.refused++;
 				else if (e.outcome === "empty") counts.empty++;
 				else if (e.outcome === "malformed") counts.malformed++;
@@ -359,6 +380,9 @@ export function scoreTrial(
 			modelCalls: counts.modelCalls,
 			inputTokens: sumKnown(tokens.input),
 			outputTokens: sumKnown(tokens.output),
+			cacheReadTokens: sumKnown(tokens.cacheRead),
+			cacheWriteTokens: sumKnown(tokens.cacheWrite),
+			promptTokens: sumKnown(tokens.prompt),
 		},
 		outputFaults: {
 			parseRejections: counts.parseRejections,

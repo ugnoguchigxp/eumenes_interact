@@ -20,6 +20,7 @@ const SHARED_DEPENDENCIES = [
 	"@types/node",
 	"@playwright/mcp",
 	"pino",
+	"@anthropic-ai/sdk",
 ] as const;
 const COMPILER_OPTIONS = [
 	"target",
