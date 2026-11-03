@@ -23,10 +23,6 @@
 			"types": "./dist/adapters/playwright-mcp.d.ts",
 			"default": "./dist/adapters/playwright-mcp.js"
 		},
-		"./adapters/agent-browser": {
-			"types": "./dist/adapters/agent-browser.d.ts",
-			"default": "./dist/adapters/agent-browser.js"
-		},
 		"./package.json": "./package.json",
 		"./distribution-manifest.json": "./distribution-manifest.json"
 	},

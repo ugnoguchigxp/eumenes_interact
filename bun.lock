@@ -15,7 +15,6 @@
       "name": "eumenes-interact-lab",
       "dependencies": {
         "@playwright/mcp": "0.0.83",
-        "agent-browser": "0.39.4",
         "eumenes-interact": "workspace:*",
         "pino": "10.3.1",
         "zod": "4.4.3",
@@ -116,8 +115,6 @@
     "@typescript/typescript-win32-arm64": ["@typescript/typescript-win32-arm64@7.0.2", "", { "os": "win32", "cpu": "arm64" }, "sha512-Gyl1Vy6OsWesLzmq+EP0Fb7b4Nid5232AvcA2SFcdYreldpNtYFFofPjnt62y9hQy7VTaZp65ICJjuAQRaVcIQ=="],
 
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
-
-    "agent-browser": ["agent-browser@0.39.4", "", { "hasInstallScript": true, "bin": { "agent-browser": "./bin/agent-browser.js" } }, "sha512-R0ue5CWlpkGtbcXeq3ZKM96zLrCXkNKEGyttgWhi0eSNKoNSvxglvv1/D9NhKxe+MI+djiCFepPd4PYOM0H2Rg=="],
 
     "atomic-sleep": ["atomic-sleep@1.0.0", "", {}, "sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ=="],
 

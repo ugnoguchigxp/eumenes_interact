@@ -7,7 +7,7 @@ import type {
 import { McpTransportError } from "./session.ts";
 
 /**
- * Pieces the MCP-based adapters (Playwright MCP, Agent Browser) share: the raw tool result type,
+ * Pieces the MCP-based adapters share: the raw tool result type,
  * the mapping of transport failures, ref and URL validation and the launch guard.
  */
 
@@ -16,12 +16,6 @@ export type McpContent =
 	| { type: "image"; data: string; mimeType: string };
 
 export type McpToolResult = { content?: McpContent[]; isError?: boolean };
-
-/** The first text block of a tool result ("" when there is none). */
-export function textOf(raw: McpToolResult): string {
-	const first = raw.content?.[0];
-	return first?.type === "text" ? first.text : "";
-}
 
 /** Transport failures keep the real dispatch state: a request that was written may have been acted on. */
 export function fromTransport(error: unknown): AdapterError {

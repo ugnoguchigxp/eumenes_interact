@@ -63,25 +63,12 @@ export function commitGuard(
 	}
 }
 
-/**
- * The platform cannot read the element's facts (Agent Browser has no tool that runs a function on a ref).
- * What an operation would do is then not limited, so it needs approval (plan.md §9: an effect that cannot
- * be limited waits for the user), except where the snapshot alone settles it: see `LINK_FACTS`.
- */
-export const UNJUDGEABLE = "unjudgeable" as const;
-export type Inspected = InspectionResult | typeof UNJUDGEABLE | null;
-
-/** What the inspection reads of an `<a>`: it submits no form, so a link click is judged as in Eumenes. */
-export const LINK_FACTS: InspectionResult = {
-	tag: "a",
-	inForm: false,
-	submits: false,
-};
-
 /** The decision, given what the inspection read (only asked when the guard is not already declared). */
-export const approvalNeeded = (guard: CommitGuard, info: Inspected) =>
+export const approvalNeeded = (
+	guard: CommitGuard,
+	info: InspectionResult | null,
+) =>
 	guard.declared ||
-	info === UNJUDGEABLE ||
 	(info !== null &&
 		(needsApproval(info) ||
 			(guard.action === "click" && needsButtonClickApproval(info))));

@@ -52,8 +52,6 @@ export class FakeSession implements McpSession {
 	initializeResult: unknown = {
 		serverInfo: { name: "Playwright", version: "0.0.83" },
 	};
-	/** `tools/list` answers, one page per entry (names only). */
-	toolPages: string[][] = [[]];
 	/** Set to make `request` answer with a rejected transport error. */
 	transportError: McpTransportError | null = null;
 	private hasExited = false;
@@ -88,16 +86,6 @@ export class FakeSession implements McpSession {
 		this.maxActive = Math.max(this.maxActive, this.active);
 		try {
 			if (method === "initialize") return this.initializeResult;
-			if (method === "tools/list") {
-				const cursor = (params as { cursor?: string }).cursor;
-				const index = cursor === undefined ? 0 : Number(cursor);
-				return {
-					tools: (this.toolPages[index] ?? []).map((name) => ({ name })),
-					...(index + 1 < this.toolPages.length
-						? { nextCursor: String(index + 1) }
-						: {}),
-				};
-			}
 			const call = params as {
 				name: string;
 				arguments: Record<string, unknown>;

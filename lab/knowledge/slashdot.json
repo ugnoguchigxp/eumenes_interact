@@ -50,20 +50,6 @@
 						"adapter": "playwright-mcp",
 						"via": "snapshot"
 					}
-				},
-				{
-					"kind": "structure",
-					"fields": {
-						"role": "link",
-						"named": "true",
-						"urlIncludes": "/story/",
-						"urlExcludes": "#comments|sbsrc=",
-						"nth": 0
-					},
-					"source": {
-						"adapter": "agent-browser",
-						"via": "snapshot"
-					}
 				}
 			]
 		},

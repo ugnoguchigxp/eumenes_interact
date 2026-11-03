@@ -21,7 +21,8 @@ import { importSeed, loadSeeds } from "../../knowledge/seed.ts";
 import { BASE, FakeBrowser } from "./fake-adapter.ts";
 import { freshDb } from "./harness.ts";
 
-const platforms = ["playwright-mcp", "agent-browser"];
+/** Two configurations to compare; the plan and the report take any labels. */
+const platforms = ["alpha", "beta"];
 const def = (id: string, inputs: number, needsHeaded = false) => ({
 	id,
 	needsHeaded,
@@ -44,23 +45,23 @@ describe("planning", () => {
 		});
 		expect(order(items)).toEqual([
 			// repetition 1: units a/q0, a/q1, c; the first platform alternates unit by unit
-			"p:a/q0/1",
 			"a:a/q0/1",
+			"b:a/q0/1",
+			"b:a/q1/1",
 			"a:a/q1/1",
-			"p:a/q1/1",
-			"p:c/1",
 			"a:c/1",
+			"b:c/1",
 			// repetition 2 starts with the other platform
+			"b:a/q0/2",
 			"a:a/q0/2",
-			"p:a/q0/2",
-			"p:a/q1/2",
 			"a:a/q1/2",
+			"b:a/q1/2",
+			"b:c/2",
 			"a:c/2",
-			"p:c/2",
 		]);
 		const firsts = items.filter((_, i) => i % 2 === 0).map((i) => i.platform);
-		expect(firsts.filter((p) => p === "playwright-mcp")).toHaveLength(3);
-		expect(firsts.filter((p) => p === "agent-browser")).toHaveLength(3);
+		expect(firsts.filter((p) => p === "alpha")).toHaveLength(3);
+		expect(firsts.filter((p) => p === "beta")).toHaveLength(3);
 	});
 
 	test("more platforms rotate too, and one platform just repeats", () => {
@@ -92,10 +93,10 @@ describe("planning", () => {
 		};
 		const headless = planCompare({ ...plan, headed: false });
 		expect(order(headless)).toEqual([
-			"p:a/q0/1",
 			"a:a/q0/1",
+			"b:a/q0/1",
+			"b:b/q0/1!",
 			"a:b/q0/1!",
-			"p:b/q0/1!",
 		]);
 		const skip = headless.find((i) => i.kind === "definition" && i.skip);
 		expect(skip && "skip" in skip ? skip.skip : null).toBe(
@@ -150,7 +151,7 @@ describe("planning", () => {
 
 const sample = (over: Partial<Sample>): Sample => ({
 	order: 0,
-	platform: "playwright-mcp",
+	platform: "alpha",
 	kind: "definition",
 	target: "a",
 	input: { query: "q" },
@@ -199,14 +200,14 @@ describe("aggregation", () => {
 			durationMs: 0,
 		}),
 		sample({
-			platform: "agent-browser",
+			platform: "beta",
 			durationMs: 500,
 			observationBytes: [1000],
 			observationRefs: [30],
 			extractChars: [900],
 		}),
 		sample({
-			platform: "agent-browser",
+			platform: "beta",
 			target: "c",
 			kind: "case",
 			input: null,
@@ -220,7 +221,7 @@ describe("aggregation", () => {
 		perTarget.find((r) => r.platform === platform && r.target === target)!;
 
 	test("per platform and target: ok rate over what ran, medians over what worked, totals over all, skipped counted apart", () => {
-		expect(find("playwright-mcp", "a")).toMatchObject({
+		expect(find("alpha", "a")).toMatchObject({
 			runs: 3,
 			skipped: 1,
 			ok: 2,
@@ -232,14 +233,14 @@ describe("aggregation", () => {
 			failureCodes: { target_not_found: 1 },
 			urlUnchanged: 1,
 		});
-		expect(find("playwright-mcp", "a").okRate).toBeCloseTo(2 / 3);
-		expect(find("agent-browser", "a")).toMatchObject({
+		expect(find("alpha", "a").okRate).toBeCloseTo(2 / 3);
+		expect(find("beta", "a")).toMatchObject({
 			runs: 1,
 			ok: 1,
 			medianMs: 500,
 			medianObservationBytes: 1000,
 		});
-		expect(find("agent-browser", "c")).toMatchObject({
+		expect(find("beta", "c")).toMatchObject({
 			runs: 1,
 			ok: 0,
 			okRate: 0,
@@ -249,8 +250,8 @@ describe("aggregation", () => {
 	});
 
 	test("per platform over everything it ran", () => {
-		const pw = perPlatform.find((r) => r.platform === "playwright-mcp")!;
-		const ab = perPlatform.find((r) => r.platform === "agent-browser")!;
+		const pw = perPlatform.find((r) => r.platform === "alpha")!;
+		const ab = perPlatform.find((r) => r.platform === "beta")!;
 		expect(pw).toMatchObject({
 			target: "ALL",
 			runs: 3,
@@ -303,8 +304,8 @@ describe("the report", () => {
 				observationRefs: [12],
 			}),
 			sample({
-				platform: "agent-browser",
-				tool: { name: "agent-browser", version: "0.39.4" },
+				platform: "beta",
+				tool: { name: "other-tool", version: "1.2.3" },
 				observationBytes: [321],
 			}),
 			sample({
@@ -330,7 +331,7 @@ describe("the report", () => {
 		expect(existsSync(paths.md) && existsSync(paths.json)).toBe(true);
 		expect(JSON.parse(readFileSync(paths.json, "utf8"))).toMatchObject({
 			options: { platforms },
-			tools: { "agent-browser": { version: "0.39.4" } },
+			tools: { beta: { version: "1.2.3" } },
 			summary: { perPlatform: expect.any(Array), perTarget: expect.any(Array) },
 		});
 	});
@@ -339,10 +340,10 @@ describe("the report", () => {
 		const md = markdown(report);
 		expect(md).toContain("# Platform comparison 2026-11-03T01:02:03.456Z");
 		expect(md).toContain("@playwright/mcp 0.0.83");
-		expect(md).toContain("agent-browser 0.39.4");
+		expect(md).toContain("other-tool 1.2.3");
 		expect(md).toContain("## Summary per platform");
 		expect(md).toContain("## Per definition or case");
-		expect(md).toContain("| playwright-mcp | ALL |");
+		expect(md).toContain("| alpha | ALL |");
 		expect(md).toContain("biggo: skipped: needs --headed (1 runs)");
 		expect(md).toContain("target_ambiguous");
 		expect(md).toContain("alternates");
@@ -383,12 +384,10 @@ describe("running a plan on fakes", () => {
 			disposed: boolean;
 		}[] = [];
 		const createSession = async (platform: string) => {
+			// Two configurations: the page in Playwright's spelling, and in the inline one.
 			const adapter =
-				platform === "agent-browser"
-					? new FakeBrowser({
-							platform: "agent-browser",
-							format: "agent-browser",
-						})
+				platform === "beta"
+					? new FakeBrowser({ format: "inline" })
 					: new FakeBrowser();
 			const entry = { platform, adapter, disposed: false };
 			sessions.push(entry);
@@ -397,7 +396,7 @@ describe("running a plan on fakes", () => {
 		return { db, definitions, sessions, createSession };
 	}
 
-	test("a definition on both platforms: both work, the order alternates, and the same page weighs less in Agent Browser's shape", async () => {
+	test("a definition on both configurations: both work, the order alternates, and the same page weighs less in the compact spelling", async () => {
 		const p = await prepare();
 		const items = planCompare({
 			platforms,
@@ -422,20 +421,20 @@ describe("running a plan on fakes", () => {
 		expect(samples).toHaveLength(8);
 		expect(samples.every((s) => s.ok)).toBe(true);
 		expect(seen.slice(0, 4)).toEqual([
-			"playwright-mcp:1",
-			"agent-browser:1",
-			"agent-browser:1",
-			"playwright-mcp:1",
+			"alpha:1",
+			"beta:1",
+			"beta:1",
+			"alpha:1",
 		]);
 		expect(p.sessions.every((s) => s.disposed)).toBe(true);
 		const { perTarget } = aggregate(samples);
-		const pw = perTarget.find((r) => r.platform === "playwright-mcp")!;
-		const ab = perTarget.find((r) => r.platform === "agent-browser")!;
+		const pw = perTarget.find((r) => r.platform === "alpha")!;
+		const ab = perTarget.find((r) => r.platform === "beta")!;
 		expect(pw.okRate).toBe(1);
 		expect(ab.medianObservationBytes!).toBeLessThan(pw.medianObservationBytes!);
 		expect(ab.medianExtractChars).toBe(pw.medianExtractChars);
-		expect(samples.find((s) => s.platform === "agent-browser")!.tool).toEqual({
-			name: "fake-agent-browser",
+		expect(samples.find((s) => s.platform === "beta")!.tool).toEqual({
+			name: "fake-playwright",
 			version: "0.0.0",
 		});
 		// The extract is a length and a head, and the head is page data.
@@ -443,16 +442,60 @@ describe("running a plan on fakes", () => {
 			charCount: 30,
 			head: "機械学習は、データから学習するアルゴリズムの研究分野である。",
 		});
-		// One database row per run, on the platform it ran on.
+		// One database row per run, with the platform the adapter reported.
 		const rows = p.db
 			.query(
-				"SELECT platform, COUNT(*) AS n FROM lab_definition_runs GROUP BY platform ORDER BY platform",
+				"SELECT platform, COUNT(*) AS n FROM lab_definition_runs GROUP BY platform",
 			)
 			.all();
-		expect(rows).toEqual([
-			{ platform: "agent-browser", n: 4 },
-			{ platform: "playwright-mcp", n: 4 },
+		expect(rows).toEqual([{ platform: "playwright-mcp", n: 8 }]);
+	});
+
+	test("one platform is plain repeated measurement: the same unit again, in order, and a report", async () => {
+		const p = await prepare();
+		const items = planCompare({
+			platforms: ["playwright-mcp"],
+			definitions: [
+				{
+					id: "wikipedia-article",
+					needsHeaded: false,
+					inputs: [{ query: "機械学習" }],
+				},
+			],
+			caseIds: [],
+			repeat: 3,
+			headed: false,
+		});
+		const samples = await runCompare({
+			db: p.db,
+			logger: silentLabLogger,
+			items,
+			definitions: p.definitions,
+			cases: new Map(),
+			createSession: p.createSession,
+		});
+		expect(samples.map((s) => [s.platform, s.repetition, s.ok])).toEqual([
+			["playwright-mcp", 1, true],
+			["playwright-mcp", 2, true],
+			["playwright-mcp", 3, true],
 		]);
+		const { perPlatform, perTarget } = aggregate(samples);
+		expect(perPlatform).toHaveLength(1);
+		expect(perTarget[0]).toMatchObject({ runs: 3, ok: 3, okRate: 1 });
+		const md = markdown(
+			buildReport(
+				{
+					platforms: ["playwright-mcp"],
+					repeat: 3,
+					headed: false,
+					definitions: ["wikipedia-article"],
+					cases: [],
+				},
+				samples,
+				"2026-11-03T00:00:00.000Z",
+			),
+		);
+		expect(md).toContain("| playwright-mcp | ALL | 3 | 3 | 100% |");
 	});
 
 	test("a skipped site is reported and never opens a session", async () => {
@@ -490,7 +533,7 @@ describe("running a plan on fakes", () => {
 		});
 	});
 
-	test("a scripted Arm 0 case on both platforms, with the snapshot and shaped sizes", async () => {
+	test("a scripted Arm 0 case on both configurations, with the snapshot and shaped sizes", async () => {
 		const p = await prepare();
 		const cases = (await loadCases({ includeHoldout: false })).filter(
 			(c) => c.id === "dev-search-base",
@@ -511,8 +554,8 @@ describe("running a plan on fakes", () => {
 			fixtureBaseUrl: BASE,
 		});
 		expect(samples.map((s) => [s.platform, s.kind, s.ok])).toEqual([
-			["playwright-mcp", "case", true],
-			["agent-browser", "case", true],
+			["alpha", "case", true],
+			["beta", "case", true],
 		]);
 		for (const s of samples) {
 			expect(s.observationBytes.length).toBeGreaterThan(0);
@@ -530,7 +573,7 @@ describe("running a plan on fakes", () => {
 			.query("SELECT platform FROM lab_trials ORDER BY platform")
 			.all();
 		expect(platformsOfTrials).toEqual([
-			{ platform: "agent-browser" },
+			{ platform: "playwright-mcp" },
 			{ platform: "playwright-mcp" },
 		]);
 	});
@@ -558,7 +601,7 @@ describe("running a plan on fakes", () => {
 			definitions: p.definitions,
 			cases: new Map(),
 			createSession: (platform) =>
-				platform === "agent-browser"
+				platform === "beta"
 					? Promise.reject(new Error("module missing"))
 					: p.createSession(platform),
 			signal: abort.signal,
@@ -567,9 +610,9 @@ describe("running a plan on fakes", () => {
 			},
 		});
 		expect(samples.map((s) => [s.platform, s.ok, s.code])).toEqual([
-			["playwright-mcp", true, null],
-			["agent-browser", false, "session_unavailable"],
-			["agent-browser", false, "session_unavailable"],
+			["alpha", true, null],
+			["beta", false, "session_unavailable"],
+			["beta", false, "session_unavailable"],
 		]);
 	});
 

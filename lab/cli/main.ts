@@ -8,7 +8,7 @@ import { LAB_OWNER } from "../host/run.ts";
 import { getSetting, setSetting } from "../host/store.ts";
 import { listLarmChatProfiles } from "../inference/index.ts";
 import { report, trialLines } from "./report.ts";
-import { assertBrowserOptions, parsePlatform } from "./platform.ts";
+import { DEFAULT_PLATFORM, parsePlatform } from "./platform.ts";
 import { compareCommand } from "./compare-command.ts";
 import { knowledgeImport, knowledgeList } from "./knowledge-command.ts";
 import { runCommand } from "./run-command.ts";
@@ -18,13 +18,13 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   cases [--include-holdout] [--include-live]
   run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm]
       [--approver fixture|cli] [--include-holdout] [--include-live]
-      [--keep-observations] [--headed] [--platform playwright-mcp|agent-browser]
-      [--browser <channel>] [--executable-path <path>]   (--browser/--executable-path: playwright-mcp only)
+      [--keep-observations] [--headed] [--platform playwright-mcp]
+      [--browser <channel>] [--executable-path <path>]
   task list
   task run <definitionId> --input key=value ... [--json] [--approver stop|cli]
-      [--keep-observations] [--headed] [--platform playwright-mcp|agent-browser]
+      [--keep-observations] [--headed] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
-  compare --platforms playwright-mcp,agent-browser [--definitions <id,...|all|none>]
+  compare [--platforms playwright-mcp] [--definitions <id,...|all|none>]
       [--inputs <file.json>] [--repeat n] [--headed] [--split dev] [--include-live] [--keep-observations]
       [--approver stop|cli]
   knowledge import <seed.json>...
@@ -115,10 +115,6 @@ async function main(): Promise<number> {
 	}
 	// Refused before a lock or a database is touched.
 	const platform = parsePlatform(values.platform);
-	assertBrowserOptions(platform, {
-		browser: values.browser,
-		executablePath: values["executable-path"],
-	});
 	const dbPath = values.db ?? DEFAULT_DB_PATH;
 	// Only a command that runs a browser session takes the lock and reconciles: another process's run in
 	// progress must not be touched by a read-only command.
@@ -183,12 +179,10 @@ async function main(): Promise<number> {
 				const repeat = Number(values.repeat ?? "1");
 				if (!Number.isInteger(repeat) || repeat < 1)
 					throw new Error("invalid_repeat");
-				if (values.platforms === undefined)
-					throw new Error("compare_needs_platforms");
 				return await compareCommand(
 					db,
 					{
-						platforms: values.platforms,
+						platforms: values.platforms ?? DEFAULT_PLATFORM,
 						...(values.definitions === undefined
 							? {}
 							: { definitions: values.definitions }),

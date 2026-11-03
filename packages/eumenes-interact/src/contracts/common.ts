@@ -3,6 +3,11 @@
  * Owned by the supervisor; workers do not edit files under `src/contracts/`.
  */
 
+/**
+ * Platform identifiers. `agent-browser` was compared and not adopted (plan.md §12.1, 2026-11-03); its
+ * adapter is removed, and the id stays only so recorded comparison trials and the frozen schema keep
+ * their meaning.
+ */
 export const PLATFORM_IDS = [
 	"playwright-mcp",
 	"agent-browser",

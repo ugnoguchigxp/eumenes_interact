@@ -8,10 +8,10 @@ import { silentLabLogger } from "../../host/log.ts";
 import { importSeed, readSeed } from "../../knowledge/seed.ts";
 import { LAB_OWNER } from "../../host/run.ts";
 import { listOperations } from "eumenes-interact/sqlite";
-import { FakeBrowser, toAgentBrowser } from "./fake-adapter.ts";
+import { FakeBrowser, toInlineAttributes } from "./fake-adapter.ts";
 import { freshDb, runScripted, devCase } from "./harness.ts";
 
-/** The same page in both spellings. */
+/** The same page in both spellings the parser reads. */
 const PLAYWRIGHT = [
 	"- banner [ref=e1]:",
 	'  - searchbox "Wikipedia内を検索" [ref=e2]',
@@ -34,8 +34,8 @@ const PLAYWRIGHT = [
 	"    - /url: /wiki/Terms",
 ].join("\n");
 
-/** Agent Browser's: one bracket, the destination inline, no child url lines. */
-const AGENT = [
+/** The inline spelling: one bracket of attributes, the destination inside it, no child url lines. */
+const INLINE = [
 	"- banner [ref=e1]",
 	'  - searchbox "Wikipedia内を検索" [ref=e2]',
 	'  - link "ホーム" [ref=e3, url=/wiki/Main]',
@@ -50,16 +50,16 @@ const AGENT = [
 	'  - link "規約" [ref=e12, url=/wiki/Terms]',
 ].join("\n");
 
-const BODIES = { playwright: PLAYWRIGHT, "agent-browser": AGENT } as const;
+const BODIES = { playwright: PLAYWRIGHT, inline: INLINE } as const;
 type Fields = Record<string, string | number | boolean>;
 const refOf = (body: string, kind: string, fields: Fields) => {
 	const r = resolveCandidate(body, { kind: kind as never, fields });
 	return r.kind === "found" ? r.match.ref : r.kind;
 };
 
-describe("the two snapshot formats", () => {
-	test("the converter used by the tests gives the shape Agent Browser has", () => {
-		expect(toAgentBrowser(PLAYWRIGHT)).toBe(AGENT);
+describe("the two snapshot spellings", () => {
+	test("the converter used by the tests gives the inline spelling", () => {
+		expect(toInlineAttributes(PLAYWRIGHT)).toBe(INLINE);
 	});
 
 	test("refs, names, roles, ancestry and destinations read the same from both", () => {
@@ -71,9 +71,9 @@ describe("the two snapshot formats", () => {
 				n.url,
 				n.parents.map((p) => p.role),
 			]);
-		expect(nodes(AGENT)).toEqual(nodes(PLAYWRIGHT));
-		expect(refsOf(AGENT)).toEqual(refsOf(PLAYWRIGHT));
-		expect(refsOf(AGENT)).toEqual([
+		expect(nodes(INLINE)).toEqual(nodes(PLAYWRIGHT));
+		expect(refsOf(INLINE)).toEqual(refsOf(PLAYWRIGHT));
+		expect(refsOf(INLINE)).toEqual([
 			"e1",
 			"e2",
 			"e3",
@@ -89,7 +89,7 @@ describe("the two snapshot formats", () => {
 		]);
 	});
 
-	test("an Agent Browser attribute list: ref anywhere in it, a URL with commas, an escaped quote in a name", () => {
+	test("an inline attribute list: ref anywhere in it, a URL with commas, an escaped quote in a name", () => {
 		const body = [
 			'- radio "小" [checked=false, ref=e322]',
 			'- link "寄付" [ref=e27, url=https://donate.wikimedia.org/?a=1,2&b=3]',
@@ -114,7 +114,7 @@ describe("the two snapshot formats", () => {
 		expect(refsOf("- text: see ref=e9 and [x]")).toEqual([]);
 	});
 
-	describe.each(["playwright", "agent-browser"] as const)(
+	describe.each(["playwright", "inline"] as const)(
 		"candidate fields on a %s body",
 		(format) => {
 			const body = BODIES[format];
@@ -264,7 +264,7 @@ describe("the two snapshot formats", () => {
 	);
 
 	test("the scripted inference reads the latest observation from messages in either format", () => {
-		for (const body of [PLAYWRIGHT, AGENT]) {
+		for (const body of [PLAYWRIGHT, INLINE]) {
 			const messages = [
 				{ role: "system" as const, content: "s" },
 				{
@@ -280,18 +280,17 @@ describe("the two snapshot formats", () => {
 	});
 });
 
-describe("a run on an Agent Browser-shaped page", () => {
+describe("a run on a page in the inline spelling", () => {
 	const wiki = readDefinition(
 		`${import.meta.dir}/../../definitions/wikipedia-article.json`,
 	);
 	const seed = readSeed(`${import.meta.dir}/../../knowledge/wikipedia.json`);
-	const agent = () =>
-		new FakeBrowser({ platform: "agent-browser", format: "agent-browser" });
+	const inline = () => new FakeBrowser({ format: "inline" });
 
 	test("the Wikipedia definition runs end to end, and the result names the platform and the tool", async () => {
 		const db = freshDb();
 		importSeed(db, LAB_OWNER, await seed, "2026-11-03T00:00:00.000Z");
-		const adapter = agent();
+		const adapter = inline();
 		const r = await runDefinition({
 			db,
 			definition: await wiki,
@@ -300,8 +299,8 @@ describe("a run on an Agent Browser-shaped page", () => {
 			logger: silentLabLogger,
 		});
 		expect(r.status).toBe("completed");
-		expect(r.platform).toBe("agent-browser");
-		expect(r.tool).toEqual({ name: "fake-agent-browser", version: "0.0.0" });
+		expect(r.platform).toBe("playwright-mcp");
+		expect(r.tool).toEqual({ name: "fake-playwright", version: "0.0.0" });
 		// The first named /wiki/ link of the results is the right one in this spelling too.
 		expect(
 			adapter.dispatched.find((c) => c.action === "page.click"),
@@ -310,9 +309,9 @@ describe("a run on an Agent Browser-shaped page", () => {
 		const row = db
 			.query("SELECT platform, tool_json FROM lab_definition_runs")
 			.get() as { platform: string; tool_json: string };
-		expect(row.platform).toBe("agent-browser");
+		expect(row.platform).toBe("playwright-mcp");
 		expect(JSON.parse(row.tool_json)).toEqual({
-			name: "fake-agent-browser",
+			name: "fake-playwright",
 			version: "0.0.0",
 		});
 		expect(
@@ -322,57 +321,9 @@ describe("a run on an Agent Browser-shaped page", () => {
 		).toBe(true);
 	});
 
-	test("where the platform cannot read elements, the search waits for approval and an unattended run stops there", async () => {
-		const db = freshDb();
-		importSeed(db, LAB_OWNER, await seed, "2026-11-03T00:00:00.000Z");
-		const blind = () =>
-			new FakeBrowser({
-				platform: "agent-browser",
-				format: "agent-browser",
-				inspectSupported: false,
-			});
-		const stopped = blind();
-		const r = await runDefinition({
-			db,
-			definition: await wiki,
-			inputs: { query: "人工知能" },
-			adapter: stopped,
-			logger: silentLabLogger,
-		});
-		expect(r.status).toBe("needs_input");
-		expect(r.code).toBe("approval_required");
-		expect(r.steps.find((s) => s.id === "query")?.status).toBe("needs_input");
-		expect(r.approval?.summary).toContain("確認が必要");
-		expect(stopped.dispatched.map((c) => c.action)).toEqual([
-			"browser.navigate",
-		]);
-		// A caller who answers the approval gets the whole run, links included without asking.
-		const asked: string[] = [];
-		const granted = await runDefinition({
-			db,
-			definition: await wiki,
-			inputs: { query: "人工知能" },
-			adapter: blind(),
-			logger: silentLabLogger,
-			approver: {
-				decide: (p) => {
-					asked.push(p.action);
-					return Promise.resolve("grant");
-				},
-			},
-		});
-		expect(granted.status).toBe("completed");
-		expect(asked).toEqual(["type"]);
-	});
-
 	test("an Arm 0 case runs on it too: the scripted flow, the core and the scorer", async () => {
 		const def = await devCase("dev-search-base");
-		const { result, adapter } = await runScripted(def.id, {
-			adapter: new FakeBrowser({
-				platform: "agent-browser",
-				format: "agent-browser",
-			}),
-		});
+		const { result } = await runScripted(def.id, { adapter: inline() });
 		expect(result.status).toBe("completed");
 		expect(result.score.success).toBe(true);
 		const observed = result.transcript.events.flatMap((e) =>
@@ -385,6 +336,5 @@ describe("a run on an Agent Browser-shaped page", () => {
 			expect(e.shapedBytes).toBeLessThanOrEqual(e.bodyBytes!);
 			expect(e.refCount).toBeGreaterThan(0);
 		}
-		expect(adapter.platform).toBe("agent-browser");
 	});
 });

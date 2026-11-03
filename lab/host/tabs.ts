@@ -21,13 +21,7 @@ export type TabEntry = {
 	observationRef: string | null;
 };
 
-type Observed = {
-	tabRef: string;
-	generation: number;
-	refs: readonly string[];
-	/** The role of each ref as the snapshot showed it. */
-	roles: ReadonlyMap<string, string>;
-};
+type Observed = { tabRef: string; generation: number; refs: readonly string[] };
 
 const numeric = (index: string) => Number.parseInt(index, 10);
 
@@ -172,27 +166,14 @@ export class TabRegistry {
 		tab.observationRef = null;
 	}
 
-	record(
-		tabRef: string,
-		observationRef: string,
-		refs: readonly string[],
-		roles: ReadonlyMap<string, string> = new Map(),
-	) {
+	record(tabRef: string, observationRef: string, refs: readonly string[]) {
 		const tab = this.require(tabRef);
 		tab.observationRef = observationRef;
 		this.observations.set(observationRef, {
 			tabRef,
 			generation: tab.generation,
 			refs,
-			roles,
 		});
-	}
-
-	/** The role an observation showed for a ref, or undefined. */
-	roleOf(observationRef: string | undefined, ref: string): string | undefined {
-		return observationRef === undefined
-			? undefined
-			: this.observations.get(observationRef)?.roles.get(ref);
 	}
 
 	/** An element ref is actionable only for the tab's latest observation of its current generation. */

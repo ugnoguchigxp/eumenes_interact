@@ -318,10 +318,10 @@ function site(url: URL, b: FakeBrowser): PageDef | null {
 }
 
 /**
- * A Playwright-shaped snapshot in Agent Browser's: one bracket of attributes with the ref (and a link's
- * destination) inline, no `- /url:` child lines, no paragraph text.
+ * A Playwright-shaped snapshot in the other spelling `lab/aria.ts` reads: one bracket of attributes with the
+ * ref (and a link's destination) inline, no `- /url:` child lines, no paragraph text.
  */
-export function toAgentBrowser(body: string): string {
+export function toInlineAttributes(body: string): string {
 	const out: string[] = [];
 	for (const line of body.split("\n")) {
 		const dest = /^\s*- \/url:\s*(.*)$/.exec(line);
@@ -345,24 +345,17 @@ export function toAgentBrowser(body: string): string {
 }
 
 export type FakeOptions = {
-	platform?: "playwright-mcp" | "agent-browser";
-	/** The shape of the snapshot the browser returns. */
-	format?: "playwright" | "agent-browser";
-	/** Agent Browser cannot read an element's facts: `inspect` then rejects as unsupported. */
-	inspectSupported?: boolean;
+	/** The spelling of the snapshot the browser returns. */
+	format?: "playwright" | "inline";
 };
 
 export class FakeBrowser implements PlatformAdapter {
-	readonly platform: "playwright-mcp" | "agent-browser";
-	private readonly format: "playwright" | "agent-browser";
+	readonly platform = "playwright-mcp" as const;
+	private readonly format: "playwright" | "inline";
 
 	constructor(options: FakeOptions = {}) {
-		this.platform = options.platform ?? "playwright-mcp";
 		this.format = options.format ?? "playwright";
-		this.inspectSupported = options.inspectSupported ?? true;
 	}
-
-	private readonly inspectSupported: boolean;
 
 	private status: AdapterState = "closed";
 	private tabs: Tab[] = [];
@@ -390,13 +383,7 @@ export class FakeBrowser implements PlatformAdapter {
 	nextTabUrl: string | null = null;
 
 	toolInfo() {
-		return {
-			name:
-				this.platform === "agent-browser"
-					? "fake-agent-browser"
-					: "fake-playwright",
-			version: "0.0.0",
-		};
+		return { name: "fake-playwright", version: "0.0.0" };
 	}
 
 	catalog(): readonly CatalogEntry[] {
@@ -510,8 +497,10 @@ export class FakeBrowser implements PlatformAdapter {
 		const page = this.page();
 		return Promise.resolve({
 			body:
-				this.format === "agent-browser"
-					? toAgentBrowser(page ? page.lines.join("\n") : "- generic [ref=e1]")
+				this.format === "inline"
+					? toInlineAttributes(
+							page ? page.lines.join("\n") : "- generic [ref=e1]",
+						)
 					: page
 						? page.lines.join("\n")
 						: "- generic [ref=e1]",
@@ -598,8 +587,6 @@ export class FakeBrowser implements PlatformAdapter {
 		targetRef: string | null,
 	): Promise<InspectionResult> {
 		this.calls.push("inspect");
-		if (!this.inspectSupported)
-			return Promise.reject(new AdapterError("unsupported", false));
 		const info = targetRef ? this.page()?.info?.[targetRef] : undefined;
 		return Promise.resolve(info ?? PLAIN_BUTTON);
 	}

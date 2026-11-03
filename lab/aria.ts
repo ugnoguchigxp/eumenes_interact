@@ -3,8 +3,9 @@
  * spelling. Two shapes are understood:
  * - Playwright MCP: `- link "name" [cursor=pointer] [ref=e3]:` with the destination on a child line
  *   `- /url: /path`;
- * - Agent Browser: `- link "name" [ref=e27, url=https://…]`, attributes in one bracket and the destination
- *   inline, a compact tree of landmarks and interactive elements.
+ * - the inline spelling: `- link "name" [ref=e27, url=https://…]`, attributes in one bracket and the
+ *   destination inside it, a compact tree without paragraph text. No adopted platform writes it today; the
+ *   parser keeps reading it so a future platform's snapshot needs no change here.
  * Both are indented by two spaces per level, and an element is addressed by its `ref` (opaque; only the
  * observation that showed it can use it).
  */

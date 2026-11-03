@@ -1,6 +1,6 @@
 import type { Database } from "bun:sqlite";
 import { createHash } from "node:crypto";
-import { parseAria, refsOf } from "../aria.ts";
+import { refsOf } from "../aria.ts";
 import {
 	AdapterError,
 	shapeObservation,
@@ -9,6 +9,7 @@ import {
 	type AdapterTarget,
 	type HostCall,
 	type HostOutcome,
+	type InspectionResult,
 	type ObservationEnvelope,
 	type OperationRequest,
 	type ExtractedContent,
@@ -33,9 +34,6 @@ import { write } from "./db.ts";
 import {
 	approvalNeeded,
 	commitGuard,
-	LINK_FACTS,
-	UNJUDGEABLE,
-	type Inspected,
 	type ApprovalAction,
 	type CommitGuard,
 } from "./gate.ts";
@@ -266,14 +264,7 @@ export function createExecutor(deps: ExecutorDeps) {
 			...(raw.title === undefined ? {} : { title: raw.title }),
 		});
 		const observationRef = deps.newId();
-		tabs.record(
-			tabRef,
-			observationRef,
-			shaped.refs,
-			new Map(
-				parseAria(raw.body).flatMap((n) => (n.ref ? [[n.ref, n.role]] : [])),
-			),
-		);
+		tabs.record(tabRef, observationRef, shaped.refs);
 		const envelope: ObservationEnvelope = {
 			observationRef,
 			platform: adapter.platform,
@@ -373,10 +364,7 @@ export function createExecutor(deps: ExecutorDeps) {
 	}
 
 	/** The element facts for the approval decision; reading never reaches the page's state. */
-	async function inspect(
-		guard: CommitGuard,
-		observationRef: string | undefined,
-	): Promise<Inspected> {
+	async function inspect(guard: CommitGuard): Promise<InspectionResult | null> {
 		if (guard.declared) return null;
 		try {
 			return guard.probe === "focused"
@@ -388,13 +376,6 @@ export function createExecutor(deps: ExecutorDeps) {
 					);
 		} catch (error) {
 			if (control.signal.aborted) throw control.ended();
-			if (error instanceof AdapterError && error.code === "unsupported") {
-				// The platform cannot read the element: only what the snapshot itself shows can settle it.
-				return guard.probe !== "focused" &&
-					tabs.roleOf(observationRef, guard.probe.ref) === "link"
-					? LINK_FACTS
-					: UNJUDGEABLE;
-			}
 			if (error instanceof AdapterError) throw new Refusal(error.code);
 			throw error;
 		}
@@ -481,8 +462,9 @@ export function createExecutor(deps: ExecutorDeps) {
 		await ensureCurrent(tabRef);
 		const tab = tabs.require(tabRef);
 		const guard = commitGuard(command, call.declaredEffect);
-		const inspected = guard ? await inspect(guard, call.observationRef) : null;
-		const needsApproval = guard ? approvalNeeded(guard, inspected) : false;
+		const needsApproval = guard
+			? approvalNeeded(guard, await inspect(guard))
+			: false;
 		// 3. The intent is recorded; the transcript shows the command as the user would, not a granted value.
 		const operationId = deps.newId();
 		const approvalId = needsApproval ? deps.newId() : undefined;
@@ -542,12 +524,7 @@ export function createExecutor(deps: ExecutorDeps) {
 							page: binding.page,
 							action: guard.action,
 							element: binding.element,
-							summary: clip(
-								summaryOf(guard.action, command) +
-									(inspected === UNJUDGEABLE
-										? "（プラットフォームが要素の性質を読めないため確認が必要）"
-										: ""),
-							),
+							summary: clip(summaryOf(guard.action, command)),
 							...(command.action === "page.fill"
 								? { content: command.text }
 								: {}),
