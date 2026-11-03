@@ -103,8 +103,9 @@ describe("scoreTrial: captures", () => {
 	test("no capture, or only another range, is capture_missing", async () => {
 		expect((await trial(() => {})).failures).toEqual(["capture_missing"]);
 		writeFileSync(join(dir, "a.png"), png(800, 600));
+		// dev-capture-results allows the view or the whole page, not one element.
 		const other = await trial((b) =>
-			b.capture({ fileName: "a.png", range: "full" }),
+			b.capture({ fileName: "a.png", range: "item" }),
 		);
 		expect(other.failures).toEqual(["capture_missing"]);
 	});
@@ -207,6 +208,28 @@ describe("scoreTrial: captures", () => {
 			);
 		expect(t("item").success).toBe(true);
 		expect(t("viewport").failures).toEqual(["capture_missing"]);
+	});
+
+	test("a request that allows several ranges counts any of them, and only those", async () => {
+		writeFileSync(join(dir, "a.png"), png(800, 600));
+		const def = await devCase("dev-capture-results");
+		const t = (range: "viewport" | "full" | "item") =>
+			scoreTrial(
+				def,
+				new TranscriptBuilder()
+					.call()
+					.step(
+						"op1",
+						click("e1"),
+						fixtureUrl("sites/kaede-shop/base/results.html?q=麻"),
+					)
+					.capture({ fileName: "a.png", range })
+					.final("finish")
+					.build(def.id, "t", dir),
+			);
+		expect(t("viewport").success).toBe(true);
+		expect(t("full").success).toBe(true);
+		expect(t("item").failures).toEqual(["capture_missing"]);
 	});
 
 	test("an element capture counts only when it is of the expected element", async () => {

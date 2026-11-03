@@ -20,7 +20,7 @@ describe("screenshot cases", () => {
 		const ranges = new Set(
 			split("dev")
 				.filter((c) => c.category === "screenshot")
-				.map((c) => reach(c)?.captures?.range),
+				.flatMap((c) => reach(c)?.captures?.range ?? []),
 		);
 		expect([...ranges].sort()).toEqual(["full", "item", "viewport"]);
 		expect(split("holdout").some((c) => c.category === "screenshot")).toBe(

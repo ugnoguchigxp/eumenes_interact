@@ -123,15 +123,19 @@ export type CaptureCheck = {
 export function checkCaptures(
 	events: readonly CaptureEvent[],
 	captureDir: string | undefined,
-	range: CaptureRange | undefined,
+	range: CaptureRange | readonly CaptureRange[] | undefined,
 	target?: { role: string; name: string },
 ): CaptureCheck {
+	const ranges: readonly CaptureRange[] | undefined =
+		range === undefined || Array.isArray(range)
+			? range
+			: [range as CaptureRange];
 	const hash =
 		target === undefined ? undefined : captureTargetHash(target.name);
 	return {
 		matching: events.filter(
 			(e) =>
-				(range === undefined || e.range === range) &&
+				(ranges === undefined || ranges.includes(e.range)) &&
 				(target === undefined ||
 					(e.target?.role === target.role && e.target.nameHash === hash)),
 		).length,

@@ -93,7 +93,13 @@ export const expectSchema = z.discriminatedUnion("kind", [
 		captures: z
 			.strictObject({
 				min: z.int().positive(),
-				range: z.enum(CAPTURE_RANGES).optional(),
+				/** The range asked for; several when the request allows any of them (a "page" may be the view or all of it). */
+				range: z
+					.union([
+						z.enum(CAPTURE_RANGES),
+						z.array(z.enum(CAPTURE_RANGES)).min(1),
+					])
+					.optional(),
 				/**
 				 * An element capture must be of this element (role and accessible name). The transcript holds only a
 				 * digest of the name, so a capture of a neighbouring element does not count.

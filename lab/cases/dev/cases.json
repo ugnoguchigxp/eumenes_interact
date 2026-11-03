@@ -317,7 +317,7 @@
 			"final": [
 				{ "path": "sites/kaede-shop/base/results.html", "query": { "q": "麻" } }
 			],
-			"captures": { "min": 1, "range": "viewport" },
+			"captures": { "min": 1, "range": ["viewport", "full"] },
 			"approval": "none"
 		}
 	},

@@ -735,6 +735,62 @@ describe("what the transcript keeps of a part", () => {
 });
 
 describe("review fixes (S2b)", () => {
+	test("a select takes the one option that contains the request's words, and only a choice the request makes", async () => {
+		const s = await setup({ start: ORDER, request: orderRequest });
+		const form = await s.result(call("form.inspect", { form: null }));
+		const item = form.form!.fields.find((f) => f.label === "商品")!.item;
+		// 「スプーン」 is in the request and in one option only.
+		const one = await s.result(
+			call("form.fill", { fields: [{ item, value: "スプーン" }] }),
+		);
+		expect(one.status).toBe("completed");
+		expect(s.adapter.dispatched.at(-1)).toMatchObject({
+			action: "page.select",
+			values: ["木のスプーン"],
+		});
+		// An option the request never names is not chosen on the model's word.
+		const other = await s.result(
+			call("form.fill", { fields: [{ item, value: "陶器の小皿" }] }),
+		);
+		expect(other.fill?.[0]).toMatchObject({
+			status: "needs_input",
+			code: "value_source",
+		});
+	});
+
+	test("a GET form's submit button opened by item.open asks first, as form.submit does", async () => {
+		const s = await setup({
+			start: `${BASE}sites/minato-hall/base/mail.html`,
+			approver: new FixtureApprover({ decision: "deny" }),
+		});
+		const executed = await s.run(
+			call("item.open", {
+				item: idOf(s.summary.items, "button", "配信を停止する"),
+			}),
+		);
+		expect(executed).toMatchObject({
+			kind: "outcome",
+			outcome: { kind: "stop", code: "approval_denied" },
+		});
+		expect(s.adapter.dispatched.map((c) => c.action)).toEqual([
+			"browser.navigate",
+		]);
+		expect(s.adapter.url).toContain("mail.html");
+	});
+
+	test("a field is not opened: item.open leaves it to form.fill", async () => {
+		const s = await setup({ start: ORDER, request: orderRequest });
+		const form = await s.result(call("form.inspect", { form: null }));
+		const gift = form.form!.fields.find(
+			(f) => f.label === "ギフト包装にする",
+		)!.item;
+		const r = await s.result(call("item.open", { item: gift }));
+		expect(codes(r)).toEqual(["failed", "item_not_openable"]);
+		expect(
+			s.adapter.dispatched.filter((c) => c.action === "page.click"),
+		).toHaveLength(0);
+	});
+
 	test("an id issued before the content moved keeps naming its element; the next batch gets a new page id", async () => {
 		let banner = false;
 		const shifted = (body: string) =>

@@ -71,6 +71,19 @@ const OFF_WORDS = new Set([
 const MENTION_CHARS = 4;
 const sameKey = (text: string) => text.normalize("NFKC").trim().toLowerCase();
 
+/**
+ * What `item.open` may click, with the effect the part declares. In Arm 1 the part, not the model, declares the
+ * effect: a link opens a page, and a button is a submission, as `form.submit` is, so it always asks first (the
+ * ported gate alone lets a GET form's submit button through, which in Arm 0 the model declares as a submit).
+ * Fields are for `form.fill` (its value rules), and content blocks are for reading and capturing.
+ */
+const OPENABLE: Readonly<Record<string, "navigation" | "submit">> = {
+	link: "navigation",
+	menuitem: "navigation",
+	tab: "navigation",
+	button: "submit",
+};
+
 /** Fields a person types into; a combobox with options is chosen from instead. */
 const TEXT_ROLES = new Set(["textbox", "searchbox", "combobox", "spinbutton"]);
 
@@ -529,7 +542,9 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	async function itemOpen(itemId: string): Promise<Body> {
 		const observation = await observeFresh();
 		const target = resolve(itemId, observation);
-		const after = await click(target, observation, "navigation");
+		const effect = OPENABLE[target.record.role];
+		if (effect === undefined) throw new PartFail("item_not_openable");
+		const after = await click(target, observation, effect);
 		return { status: "completed", page: summarize(after) };
 	}
 
@@ -685,6 +700,16 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		return ref === null ? null : { kind: "grant", inputValueRef: ref };
 	}
 
+	/** Whether the text is a passage of the request (the rule for a typed value). */
+	function quoted(text: string): boolean {
+		try {
+			assertQuoted(text, text, deps.request);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
 	/**
 	 * Whether the request mentions a choice: a run of its label's characters appears in the request. Whether the
 	 * user wants it on or off is the model's to say (on or off); the host only refuses a choice the request never
@@ -747,9 +772,22 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		let command: Parameters<typeof operate>[0];
 		let provenance: InputProvenance | undefined;
 		if (options.length > 0) {
-			const option = options.find((o) => sameText(o, field.value));
+			// The option is the page's; the choice must be the user's. The value may be the request's own words for
+			// it (「11月21日」 for 「11月21日（土）」): the one option that contains them is chosen, never one of several.
+			const exact = options.find((o) => sameText(o, field.value));
+			const wanted = sameKey(field.value);
+			const containing =
+				wanted === "" ? [] : options.filter((o) => sameKey(o).includes(wanted));
+			const option =
+				exact ?? (containing.length === 1 ? containing[0] : undefined);
 			if (option === undefined)
-				return { result: refused("option_not_found"), observation };
+				return {
+					result: refused(
+						containing.length > 1 ? "option_ambiguous" : "option_not_found",
+					),
+					observation,
+				};
+			if (!quoted(field.value) && !mentioned(option)) return needsInput();
 			command = {
 				action: "page.select",
 				targetRef: target.ref,
