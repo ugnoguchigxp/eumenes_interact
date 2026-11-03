@@ -1,0 +1,21 @@
+{
+	"caseId": "dev-read-table",
+	"steps": [
+		{
+			"part": "item.open",
+			"target": {
+				"role": "link",
+				"name": "お手入れガイド"
+			}
+		},
+		{
+			"part": "page.read",
+			"args": {
+				"maxChars": 2000
+			}
+		},
+		{
+			"done": "麻のふきんは手洗いで、洗うときの水温の上限は30度です。"
+		}
+	]
+}

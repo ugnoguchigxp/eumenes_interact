@@ -8,6 +8,7 @@ import { LAB_OWNER } from "../host/run.ts";
 import { getSetting, setSetting } from "../host/store.ts";
 import { listLarmChatProfiles } from "../inference/index.ts";
 import { report, trialLines } from "./report.ts";
+import { parseArm } from "./arm.ts";
 import { DEFAULT_PLATFORM, parsePlatform } from "./platform.ts";
 import { operateCommand } from "./operate-command.ts";
 import { compareCommand } from "./compare-command.ts";
@@ -18,18 +19,21 @@ import { parseInputs, taskList, taskRun } from "./task-command.ts";
 const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   cases [--include-holdout] [--include-live]
   run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude]
-      [--model <id>] [--effort low|medium|high|xhigh|max] [--approver fixture|cli] [--include-holdout] [--include-live]
+      [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--approver fixture|cli] [--include-holdout] [--include-live]
+      [--arm arm0|arm1] [--capture-dir <abs dir>]
       [--keep-observations] [--headed] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   task list
-  task run <definitionId> --input key=value ... [--json] [--approver stop|cli]
+  task run <definitionId> --input key=value ... [--json] [--approver stop|cli] [--capture-dir <abs dir>]
       [--keep-observations] [--headed] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   compare [--platforms playwright-mcp] [--definitions <id,...|all|none>]
       [--inputs <file.json>] [--repeat n] [--headed] [--split dev] [--include-live] [--keep-observations]
-      [--approver stop|cli] [--inference scripted|claude] [--model <id>] [--effort <e>]
+      [--approver stop|cli] [--inference scripted|claude] [--model <id>] [--effort <e>] [--max-tokens <n>]
+      [--arm arm0|arm1] [--capture-dir <abs dir>]
   operate --request "<text>" --start-url <https url> --allow-origin <origin> [--allow-origin ...]
-      [--inference claude|larm] [--model <id>] [--effort low|medium|high|xhigh|max] [--max-calls n]
+      [--inference claude|larm] [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--max-calls n]
+      [--arm arm1|arm0] [--capture-dir <abs dir>]
       [--approver stop|cli] [--headed] [--keep-observations] [--json]
   knowledge import <seed.json>...
   knowledge list [--origin <origin>]
@@ -64,6 +68,9 @@ const { values, positionals } = parseArgs({
 		"allow-origin": { type: "string", multiple: true },
 		model: { type: "string" },
 		effort: { type: "string" },
+		"max-tokens": { type: "string" },
+		arm: { type: "string" },
+		"capture-dir": { type: "string" },
 		"max-calls": { type: "string" },
 		json: { type: "boolean" },
 		origin: { type: "string" },
@@ -177,6 +184,9 @@ async function main(): Promise<number> {
 						),
 						headed: values.headed === true,
 						platform,
+						...(values["capture-dir"] === undefined
+							? {}
+							: { captureDir: values["capture-dir"] }),
 						...(values.browser === undefined
 							? {}
 							: { browser: values.browser }),
@@ -220,6 +230,13 @@ async function main(): Promise<number> {
 						),
 						...(values.model === undefined ? {} : { model: values.model }),
 						...(values.effort === undefined ? {} : { effort: values.effort }),
+						...(values["max-tokens"] === undefined
+							? {}
+							: { maxTokens: values["max-tokens"] }),
+						arm: parseArm(values.arm, "arm0"),
+						...(values["capture-dir"] === undefined
+							? {}
+							: { captureDir: values["capture-dir"] }),
 					},
 					logger!,
 				);
@@ -269,6 +286,13 @@ async function main(): Promise<number> {
 						),
 						...(values.model === undefined ? {} : { model: values.model }),
 						...(values.effort === undefined ? {} : { effort: values.effort }),
+						...(values["max-tokens"] === undefined
+							? {}
+							: { maxTokens: values["max-tokens"] }),
+						arm: parseArm(values.arm, "arm0"),
+						...(values["capture-dir"] === undefined
+							? {}
+							: { captureDir: values["capture-dir"] }),
 						...(values.approver === undefined
 							? {}
 							: {

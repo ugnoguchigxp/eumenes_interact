@@ -1,0 +1,21 @@
+{
+	"caseId": "dev-capture-full",
+	"steps": [
+		{
+			"part": "item.open",
+			"target": {
+				"role": "link",
+				"name": "全商品"
+			}
+		},
+		{
+			"part": "page.capture",
+			"args": {
+				"range": "full"
+			}
+		},
+		{
+			"done": "全商品のページ全体を撮影しました。"
+		}
+	]
+}

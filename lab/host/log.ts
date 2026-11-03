@@ -32,7 +32,9 @@ export type LabEventName =
 	| "definition.started"
 	| "definition.step"
 	| "definition.finished"
-	| "tab.navigation_followed";
+	| "tab.navigation_followed"
+	| "part.executed"
+	| "capture.saved";
 
 export interface LabLogger extends LoggerPort {
 	lab(name: LabEventName, fields: InteractLogFields): void;

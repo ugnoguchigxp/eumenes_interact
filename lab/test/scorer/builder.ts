@@ -1,6 +1,6 @@
 import type { AdapterCommand, DeclaredEffect } from "eumenes-interact";
 import { loadCases } from "../../cases/load.ts";
-import type { CaseDef } from "../../cases/schema.ts";
+import type { CaptureRange, CaseDef } from "../../cases/schema.ts";
 import type {
 	FinalKind,
 	ModelCallOutcome,
@@ -145,6 +145,29 @@ export class TranscriptBuilder {
 			.result(operationId, { url });
 	}
 
+	capture(options: {
+		fileName: string;
+		width?: number;
+		height?: number;
+		range?: CaptureRange;
+		mediaType?: "image/png" | "image/jpeg";
+		target?: { role: string; nameHash: string };
+	}): this {
+		this.events.push({
+			type: "capture.saved",
+			at: this.tick(),
+			captureId: `cap-${this.events.length}`,
+			fileName: options.fileName,
+			width: options.width ?? 800,
+			height: options.height ?? 600,
+			bytes: 1000,
+			mediaType: options.mediaType ?? "image/png",
+			range: options.range ?? "viewport",
+			...(options.target ? { target: options.target } : {}),
+		});
+		return this;
+	}
+
 	cancel(): this {
 		this.events.push({
 			type: "run.cancelled",
@@ -164,7 +187,11 @@ export class TranscriptBuilder {
 		return this;
 	}
 
-	build(caseId: string, trialId = "trial-1"): TrialTranscript {
+	build(
+		caseId: string,
+		trialId = "trial-1",
+		captureDir?: string,
+	): TrialTranscript {
 		return {
 			trialId,
 			caseId,
@@ -172,6 +199,7 @@ export class TranscriptBuilder {
 			fixtureBaseUrl: BASE_URL,
 			startedAt: "2026-11-03T00:00:00.000Z",
 			timings: { adapterOpenMs: null, totalMs: this.clock },
+			...(captureDir === undefined ? {} : { captureDir }),
 			events: this.events,
 		};
 	}

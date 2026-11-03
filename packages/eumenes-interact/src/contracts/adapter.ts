@@ -54,6 +54,14 @@ export type InspectionResult = Readonly<
 	Record<string, string | boolean | number | null>
 >;
 
+/** A screenshot as an adapter returns it; dimensions are read from the image header. */
+export type CapturedImage = {
+	mediaType: "image/png" | "image/jpeg";
+	bytes: Uint8Array;
+	width: number;
+	height: number;
+};
+
 /** An adapter result. `operationId` is filled in by the host; adapters return the rest. */
 export type AdapterDispatchResult = Omit<OperationResult, "operationId">;
 
@@ -102,6 +110,15 @@ export interface PlatformAdapter {
 		maxChars: number,
 		signal: AbortSignal,
 	): Promise<ExtractedContent>;
+	/**
+	 * Read-only screenshot of the current target (plan.md §6.4): the viewport, the full page, or the element
+	 * of an observed ref. Returns the image bytes; saving them and handing them to an AI are the host's job.
+	 */
+	capture(
+		range: "viewport" | "full" | "item",
+		targetRef: string | null,
+		signal: AbortSignal,
+	): Promise<CapturedImage>;
 	/** Read-only. `targetRef` null for `inspectFocused`. Unsupported kinds reject with AdapterError("unsupported"). */
 	inspect(
 		kind: FixedInspection,

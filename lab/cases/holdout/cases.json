@@ -125,5 +125,86 @@
 			"approval": "none",
 			"effectful": [{ "path": "sites/tsubame-library/base/reserved.html" }]
 		}
+	},
+	{
+		"id": "holdout-capture-item-library",
+		"split": "holdout",
+		"category": "screenshot",
+		"variant": "base",
+		"note": "別サイトで資料ページの資料の部分だけを撮影する（item）。「宇宙」の候補が複数ある。",
+		"request": "つばめ図書館で『宇宙と時間』の資料ページを開いて、その資料の情報の部分だけを撮影してください。",
+		"start": "sites/tsubame-library/base/index.html",
+		"budget": { "maxModelCalls": 12 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/tsubame-library/base/item.html",
+					"query": { "id": "4" }
+				}
+			],
+			"captures": {
+				"min": 1,
+				"range": "item",
+				"target": { "role": "article", "name": "資料の詳細" }
+			},
+			"wrongTargets": [
+				{
+					"path": "sites/tsubame-library/base/item.html",
+					"query": { "id": "1" }
+				},
+				{
+					"path": "sites/tsubame-library/base/item.html",
+					"query": { "id": "2" }
+				}
+			],
+			"approval": "none"
+		}
+	},
+	{
+		"id": "holdout-form-register-library",
+		"split": "holdout",
+		"category": "form",
+		"variant": "base",
+		"note": "別サイトの五項目フォーム。カードの種類は必須のラジオ。送信は承認必須。",
+		"request": "つばめ図書館の利用者登録をお願いします。お名前は森田健、メールアドレスは ken@example.com、よく使う館は東分館、メールでの新着案内は受け取ります。カードはアプリでお願いします。",
+		"start": "sites/tsubame-library/base/register.html",
+		"budget": { "maxModelCalls": 12 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/tsubame-library/base/registered.html",
+					"query": {
+						"fullname": "森田健",
+						"email": "ken@example.com",
+						"home": "east",
+						"notify": "1",
+						"card": "app"
+					}
+				}
+			],
+			"effectful": [{ "path": "sites/tsubame-library/base/registered.html" }],
+			"approval": "required"
+		}
+	},
+	{
+		"id": "holdout-read-table-library",
+		"split": "holdout",
+		"category": "read",
+		"variant": "base",
+		"note": "事実は表の中にだけある。会員区分から該当の行を選んで答えさせる。",
+		"request": "つばめ図書館の貸出のきまりを見て、高校生が一度に借りられる冊数と、貸出期間を教えてください。",
+		"start": "sites/tsubame-library/base/index.html",
+		"budget": { "maxModelCalls": 8 },
+		"approvalScript": { "decision": "grant" },
+		"expect": {
+			"kind": "reach",
+			"final": [{ "path": "sites/tsubame-library/base/rules.html" }],
+			"answerIncludes": ["6冊", "21日"],
+			"approval": "none"
+		}
 	}
 ]

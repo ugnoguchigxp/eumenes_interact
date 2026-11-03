@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type {
+	ArmId,
 	InferencePort,
 	PlatformAdapter,
 	WorkDefinition,
@@ -11,6 +12,10 @@ import type {
 import { z } from "zod";
 import type { CaseDef } from "../cases/schema.ts";
 import { median } from "../scorer/aggregate.ts";
+import {
+	createArm1ScriptedInference,
+	loadArm1Script,
+} from "../scripted/arm1.ts";
 import { loadScript } from "../scripted/script.ts";
 import { createScriptedInference } from "../scripted/inference.ts";
 import { FixtureApprover, printable, type Approver } from "./approval.ts";
@@ -204,11 +209,20 @@ export type RunCompareOptions = {
 	/** The kind of inference answering the cases (frozen into each platform's experiment); default `scripted`. */
 	inferenceKind?: InferenceKind;
 	/** The model and effort a Claude comparison is frozen to. */
-	frozenInference?: { model: string; effort: string };
+	frozenInference?: { model: string; effort: string; maxTokens?: number };
 	/** The label of what answers the cases (`scripted`, `claude:<model>/<effort>`), known before any run. */
 	inferenceLabel?: string;
+	/** `arm0` (default) or `arm1` (registered parts); frozen into each platform's experiment. */
+	arm?: ArmId;
+	/** Arm 1: an existing absolute directory the cases' screenshots go to; default: the lab's area per run. */
+	captureDir?: string;
+	/** Where the default capture directories are made (tests). */
+	captureRoot?: string;
 	/** What answers a case's model calls; default: the scripted inference. Definitions use no model. */
-	inference?: (def: CaseDef) => Promise<{
+	inference?: (
+		def: CaseDef,
+		arm: ArmId,
+	) => Promise<{
 		port: InferencePort;
 		info: () => InferenceInfo;
 		dispose(): Promise<void>;
@@ -244,7 +258,7 @@ export async function runCompare(
 				caseDigest: "compare",
 				includesHoldout: false,
 				repetitions: 1,
-				arms: ["arm0"],
+				arms: [options.arm ?? "arm0"],
 				budget: {
 					inference: {
 						kind: options.inferenceKind ?? "scripted",
@@ -402,10 +416,14 @@ async function caseSample(
 	const now = options.now ?? Date.now;
 	const def = options.cases.get(item.target);
 	if (!def) throw new Error(`case_not_found:${item.target}`);
+	const arm = options.arm ?? "arm0";
 	const inference = options.inference
-		? await options.inference(def)
+		? await options.inference(def, arm)
 		: {
-				port: createScriptedInference(await loadScript(def.id)),
+				port:
+					arm === "arm1"
+						? createArm1ScriptedInference(await loadArm1Script(def.id))
+						: createScriptedInference(await loadScript(def.id)),
 				info: (): InferenceInfo => ({ kind: "scripted" }),
 				dispose: async () => {},
 			};
@@ -414,7 +432,7 @@ async function caseSample(
 		result = await runTrial({
 			db: options.db,
 			def,
-			arm: "arm0",
+			arm,
 			experimentId,
 			repetition: item.repetition,
 			orderIndex: base.order,
@@ -433,6 +451,8 @@ async function caseSample(
 			...(options.observationSink
 				? { observationSink: options.observationSink }
 				: {}),
+			...(options.captureDir ? { captureDir: options.captureDir } : {}),
+			...(options.captureRoot ? { captureRoot: options.captureRoot } : {}),
 			control,
 			...(options.now ? { now: options.now } : {}),
 		});
@@ -558,6 +578,8 @@ export type CompareReport = {
 		platforms: readonly string[];
 		/** What answered the cases: `scripted`, or `claude:<model>/<effort>`. */
 		inference?: string;
+		/** The arm the fixture cases ran on (`arm0` baseline, `arm1` registered parts). */
+		arm?: ArmId;
 		repeat: number;
 		headed: boolean;
 		definitions: readonly string[];
@@ -637,7 +659,7 @@ export function markdown(report: CompareReport): string {
 		`# Platform comparison ${report.generatedAt}`,
 		"",
 		`- platforms: ${options.platforms.map((p) => `${p} (${report.tools[p] ? `${report.tools[p]!.name} ${report.tools[p]!.version ?? "?"}` : "tool unknown"})`).join(", ")}`,
-		`- repeat: ${options.repeat}, headed: ${options.headed}${options.inference ? `, inference: ${options.inference}` : ""}`,
+		`- repeat: ${options.repeat}, headed: ${options.headed}${options.arm ? `, arm: ${options.arm}` : ""}${options.inference ? `, inference: ${options.inference}` : ""}`,
 		`- definitions: ${options.definitions.join(", ") || "-"}; cases: ${options.cases.join(", ") || "-"}`,
 		"- the platform that goes first alternates from run to run (plan §10.4); the browser's cold start is in every duration",
 		"",

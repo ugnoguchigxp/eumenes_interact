@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>ご注文 | 楓雑貨店</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html" class="brand">楓雑貨店</a>
+			<nav aria-label="メイン">
+				<a href="index.html">ホーム</a>
+				<a href="catalog.html">全商品</a>
+				<a href="care.html">お手入れガイド</a>
+				<a href="order.html">ご注文フォーム</a>
+			</nav>
+		</header>
+		<main>
+			<h1>ご注文フォーム</h1>
+			<form action="ordered.html" method="get">
+				<label for="fullname">お名前</label>
+				<input id="fullname" name="fullname" required />
+				<label for="email">メールアドレス</label>
+				<input id="email" name="email" type="email" required />
+				<label for="item">商品</label>
+				<select id="item" name="item">
+					<option value="">選択してください</option>
+					<option value="cloth">麻のふきん</option>
+					<option value="spoon">木のスプーン</option>
+					<option value="plate">陶器の小皿</option>
+				</select>
+				<p>
+					<label
+						><input type="checkbox" name="gift" value="1" />
+						ギフト包装にする</label
+					>
+				</p>
+				<fieldset>
+					<legend>お届け方法（必須）</legend>
+					<label
+						><input type="radio" name="delivery" value="normal" required />
+						通常便</label
+					>
+					<label
+						><input type="radio" name="delivery" value="express" required />
+						お急ぎ便</label
+					>
+				</fieldset>
+				<p><button type="submit">注文する</button></p>
+			</form>
+		</main>
+	</body>
+</html>

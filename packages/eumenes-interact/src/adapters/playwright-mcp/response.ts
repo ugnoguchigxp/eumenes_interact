@@ -28,6 +28,8 @@ export type ParsedToolResult = {
 	/** `title` is absent when the page has none: MCP omits the line then. */
 	page?: { url: string; title?: string };
 	snapshot?: McpSnapshotBody;
+	/** Image content, base64 as MCP sends it. */
+	images: { mimeType: string; data: string }[];
 };
 
 function parseSections(text: string): Map<string, string> {
@@ -104,6 +106,11 @@ export function parseToolResult(raw: McpToolResult): ParsedToolResult {
 		result: sections.get("Result"),
 		page: parsePage(sections.get("Page")),
 		snapshot,
+		images: content.flatMap((item) =>
+			item.type === "image"
+				? [{ mimeType: item.mimeType, data: item.data }]
+				: [],
+		),
 	};
 }
 

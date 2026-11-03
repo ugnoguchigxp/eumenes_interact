@@ -5,6 +5,7 @@ import type {
 	InferenceOutcome,
 	InferenceUsage,
 	OperationResult,
+	PartStatus,
 	RunStatus,
 } from "eumenes-interact";
 import type { CaseDef } from "../cases/schema.ts";
@@ -174,6 +175,36 @@ export class TrialRecorder {
 		});
 	}
 
+	/** Arm 1: a part the model called. Argument names only: the values are the user's or the page's. */
+	partCall(part: string, args: readonly string[]) {
+		this.add({ type: "part.call", at: this.at(), part, args: [...args] });
+	}
+
+	/** Arm 1: how the part ended. `code` is the fixed classification when it did not complete. */
+	partResult(part: string, status: PartStatus, code?: string) {
+		this.add({
+			type: "part.result",
+			at: this.at(),
+			part,
+			status,
+			...(code === undefined ? {} : { code }),
+		});
+	}
+
+	/** A screenshot saved to the run's capture directory. The file name is the host's; no path, no image. */
+	captureSaved(saved: {
+		captureId: string;
+		fileName: string;
+		width: number;
+		height: number;
+		bytes: number;
+		mediaType: "image/png" | "image/jpeg";
+		range: "viewport" | "full" | "item";
+		target?: { role: string; nameHash: string };
+	}) {
+		this.add({ type: "capture.saved", at: this.at(), ...saved });
+	}
+
 	cancelled(reason: "cancel" | "deadline") {
 		this.add({ type: "run.cancelled", at: this.at(), reason });
 	}
@@ -204,6 +235,8 @@ export class TrialRecorder {
 		caseId: string;
 		arm: string;
 		fixtureBaseUrl: string;
+		/** Where this run's screenshots are (absolute); in the transcript only, never in a log. */
+		captureDir?: string;
 	}): TrialTranscript {
 		return {
 			...input,

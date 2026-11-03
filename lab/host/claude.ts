@@ -32,13 +32,29 @@ export function parseModel(value: string | undefined): string {
 	throw new Error("invalid_model");
 }
 
+/** `--max-tokens`: the output bound of one call (Claude only); recorded with the run's other conditions. */
+export function parseMaxTokens(
+	value: string | number | undefined,
+): number | undefined {
+	if (value === undefined) return undefined;
+	const n = typeof value === "number" ? value : Number(value);
+	if (!Number.isInteger(n) || n < 256 || n > 64_000)
+		throw new Error("invalid_max_tokens (256 to 64000)");
+	return n;
+}
+
 export const claudeSettings = (flags: {
 	model?: string | undefined;
 	effort?: string | undefined;
-}): ClaudeSettings => ({
-	model: parseModel(flags.model),
-	effort: parseEffort(flags.effort),
-});
+	maxTokens?: string | number | undefined;
+}): ClaudeSettings => {
+	const maxTokens = parseMaxTokens(flags.maxTokens);
+	return {
+		model: parseModel(flags.model),
+		effort: parseEffort(flags.effort),
+		...(maxTokens === undefined ? {} : { maxTokens }),
+	};
+};
 
 const KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"] as const;
 
@@ -98,7 +114,13 @@ export function startClaude(
 	const inference = createClaudeInference({ settings, logger, correlationId });
 	return {
 		port: inference,
-		info: () => ({ kind: "claude", ...inference.describe() }),
+		info: () => ({
+			kind: "claude",
+			...inference.describe(),
+			...(settings.maxTokens === undefined
+				? {}
+				: { maxTokens: settings.maxTokens }),
+		}),
 		dispose: async () => {},
 	};
 }

@@ -1,0 +1,14 @@
+{
+	"caseId": "dev-search-base",
+	"steps": [
+		{
+			"part": "site.search",
+			"args": {
+				"query": "白波"
+			}
+		},
+		{
+			"done": "「白波」の検索結果の一覧を表示しました。"
+		}
+	]
+}

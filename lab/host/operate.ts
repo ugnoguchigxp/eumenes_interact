@@ -1,8 +1,10 @@
 import { createHash, randomUUID } from "node:crypto";
+import { join } from "node:path";
 import type { Database } from "bun:sqlite";
 import {
 	allowedOriginSchema,
 	originAllowed,
+	type ArmId,
 	type PlatformAdapter,
 	type RunStatus,
 } from "eumenes-interact";
@@ -35,6 +37,7 @@ import {
 	createObservationSink,
 	pruneObservations,
 } from "./observations.ts";
+import { DEFAULT_CAPTURES_DIR, resolveCaptureDir } from "./parts/capture.ts";
 import { reconcileOnStartup } from "./reconcile.ts";
 import { ARM0_MAX_MODEL_CALLS, LAB_OWNER, runTrial } from "./run.ts";
 import { createExperiment } from "./store.ts";
@@ -63,6 +66,18 @@ export type OperateOptions = {
 	model?: string;
 	/** `claude` only; default `low`. */
 	effort?: ClaudeEffort;
+	/** `claude` only: the output bound of one call, recorded with the run's conditions. */
+	maxTokens?: number;
+	/**
+	 * `arm1` (default): the model composes registered parts (plan.md §6.4), the way to read, search, fill forms
+	 * and take screenshots. `arm0`: Eumenes' page operator port, the baseline. Arm 1 needs `claude`.
+	 */
+	arm?: ArmId;
+	/**
+	 * Arm 1: an existing absolute directory the screenshots go to (the caller chooses it; the model never does).
+	 * Absent: `lab/data/captures/<runId>/`, kept at most 7 days.
+	 */
+	captureDir?: string;
 	/** At most 12 (Arm 0's limit); default 12. */
 	maxModelCalls?: number;
 	headed?: boolean;
@@ -86,6 +101,14 @@ export type OperateSnapshot = {
 	finalUrl?: string;
 	modelCalls: number;
 	operations: number;
+	/** The arm the run used. */
+	arm?: ArmId;
+	/** Arm 1: the parts called, in order, each with how it ended unless it completed. */
+	parts?: readonly string[];
+	/** Where the screenshots are (absolute); absent for Arm 0. */
+	captureDir?: string;
+	/** The files saved there, by the host's names (never a path). */
+	captures?: readonly string[];
 	/** Null when a call did not report it (unknown, never 0). */
 	tokens: {
 		input: number | null;
@@ -123,6 +146,8 @@ export type OperateDeps = {
 	commit?: string | null;
 	/** Where kept observations go. */
 	observationsDir?: string;
+	/** Where the default capture directories are made; default `lab/data/captures`. */
+	capturesRoot?: string;
 };
 
 const MAX_REQUEST_CHARS = 8000;
@@ -137,7 +162,17 @@ async function attempt(step: () => unknown): Promise<void> {
 }
 
 /** Everything about the request that can be wrong, before anything is opened or locked. */
-export function validateOperate(o: OperateOptions): { maxModelCalls: number } {
+export function validateOperate(o: OperateOptions): {
+	maxModelCalls: number;
+	arm: ArmId;
+	captureDir: string | undefined;
+} {
+	const arm = o.arm ?? "arm1";
+	if (arm !== "arm0" && arm !== "arm1") throw new Error("invalid_arm");
+	if (arm === "arm1" && o.inference === "larm")
+		throw new Error("arm1_needs_structured_output (use claude)");
+	const captureDir =
+		o.captureDir === undefined ? undefined : resolveCaptureDir(o.captureDir);
 	if (o.request.trim() === "" || o.request.length > MAX_REQUEST_CHARS)
 		throw new Error("invalid_request");
 	if (o.allowedOrigins.length === 0)
@@ -158,7 +193,7 @@ export function validateOperate(o: OperateOptions): { maxModelCalls: number } {
 	const max = o.maxModelCalls ?? ARM0_MAX_MODEL_CALLS;
 	if (!Number.isInteger(max) || max < 1 || max > ARM0_MAX_MODEL_CALLS)
 		throw new Error(`invalid_max_calls (1 to ${ARM0_MAX_MODEL_CALLS})`);
-	return { maxModelCalls: max };
+	return { maxModelCalls: max, arm, captureDir };
 }
 
 /** Token sums where one unknown call makes the sum unknown. */
@@ -178,7 +213,8 @@ export function startOperate(
 	o: OperateOptions,
 	deps: OperateDeps = {},
 ): OperateHandle {
-	const { maxModelCalls } = validateOperate(o);
+	const { maxModelCalls, arm, captureDir } = validateOperate(o);
+	const capturesRoot = deps.capturesRoot ?? DEFAULT_CAPTURES_DIR;
 	// Frozen for the run, and a missing key is found before a lock is taken or a browser opened.
 	const claude = o.inference === "claude" ? claudeSettings(o) : null;
 	if (claude && !deps.inference)
@@ -207,6 +243,8 @@ export function startOperate(
 	let final: OperateSnapshot["final"];
 	let operations = 0;
 	let modelCalls = 0;
+	const parts: string[] = [];
+	const captures: string[] = [];
 	let approval: OperateSnapshot["approval"];
 	let inferenceInfo: InferenceInfo | undefined;
 	const tokens = {
@@ -245,6 +283,14 @@ export function startOperate(
 			case "operation.result":
 				if (e.url !== undefined) finalUrl = e.url;
 				return;
+			case "part.result":
+				parts.push(
+					e.status === "completed" ? e.part : `${e.part}(${e.status})`,
+				);
+				return;
+			case "capture.saved":
+				captures.push(e.fileName);
+				return;
 			case "step.final":
 				final = {
 					kind: e.kind,
@@ -264,6 +310,7 @@ export function startOperate(
 		}
 		return {
 			runId,
+			arm,
 			status,
 			startedAt,
 			...(finishedAt === undefined ? {} : { finishedAt }),
@@ -271,6 +318,11 @@ export function startOperate(
 			...(finalUrl === undefined ? {} : { finalUrl }),
 			modelCalls,
 			operations,
+			parts: [...parts],
+			...(arm === "arm1"
+				? { captureDir: captureDir ?? join(capturesRoot, runId) }
+				: {}),
+			captures: [...captures],
 			tokens: {
 				input: tokens.input.value,
 				output: tokens.output.value,
@@ -313,8 +365,11 @@ export function startOperate(
 				includesHoldout: false,
 				includesLive: true,
 				repetitions: 1,
-				arms: ["arm0"],
-				budget: { maxModelCalls },
+				arms: [arm],
+				budget: {
+					maxModelCalls,
+					inference: { kind: o.inference, ...claude },
+				},
 				inferenceKind: o.inference,
 				nowIso: startedAt,
 			});
@@ -322,6 +377,7 @@ export function startOperate(
 				deps.observationsDir ?? DEFAULT_OBSERVATIONS_DIR,
 				now(),
 			);
+			await pruneObservations(capturesRoot, now());
 			inference =
 				deps.inference?.() ??
 				(claude
@@ -347,7 +403,7 @@ export function startOperate(
 			const result = await runTrial({
 				db,
 				def,
-				arm: "arm0",
+				arm,
 				experimentId: caseId,
 				repetition: 1,
 				orderIndex: 0,
@@ -369,6 +425,8 @@ export function startOperate(
 				trialId: runId,
 				onEvent,
 				control,
+				...(captureDir ? { captureDir } : {}),
+				captureRoot: capturesRoot,
 				...(o.keepObservations
 					? {
 							observationSink: createObservationSink(

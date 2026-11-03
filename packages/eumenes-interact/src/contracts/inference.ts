@@ -9,6 +9,11 @@ export type InferenceRequest = {
 	messages: ChatMessage[];
 	maxOutputTokens: number;
 	signal: AbortSignal;
+	/**
+	 * JSON Schema the output must follow (from `PreparedStep.outputSchema`). A port that cannot enforce it
+	 * must say so (`error` with code `output_schema_unsupported`), never ignore it silently.
+	 */
+	outputSchema?: Record<string, unknown>;
 };
 
 export type InferenceUsage = {

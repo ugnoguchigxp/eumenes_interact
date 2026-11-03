@@ -130,7 +130,7 @@ describe("startRun", () => {
 	});
 
 	test("unknown arm, unknown tools and out-of-bound policies are errors", () => {
-		expect(() => start({ arm: "arm1" as "arm0" })).toThrow("unknown_arm");
+		expect(() => start({ arm: "arm2" as "arm0" })).toThrow("unknown_arm");
 		expect(() => start({ tools: ["browser.page.script"] })).toThrow(
 			"unknown_tool",
 		);

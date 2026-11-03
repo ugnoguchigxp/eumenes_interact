@@ -69,7 +69,27 @@ handle.cancel();     // 取り消し
 await handle.done;   // 終わったときのスナップショット
 ```
 
-別のrunnerが動いていると`RunnerActiveError`を投げる。
+別のrunnerが動いていると`RunnerActiveError`を投げる。`arm`（既定`"arm1"`）、`captureDir`、`maxTokens`も渡せる。スナップショットには`arm`、呼んだ部品の列`parts`、撮影先`captureDir`と保存したファイル名`captures`が入る。
+
+## 部品で動かす（Arm 1）
+
+plan.md §6.4。モデルは、登録された部品（`page.open`・`site.search`・`item.open`・`page.read`・`page.capture`・`form.fill`・`form.submit`など）とその引数のJSONを1回に1つだけ選ぶ。ref・Playwright MCPのツール・待ち方・新しいタブへの追従は、`lab/host/parts/`の部品の実装に閉じる。
+
+```
+bun lab/cli/main.ts run --case dev-capture-results --arm arm1 --inference scripted
+bun lab/cli/main.ts run --split dev --arm arm1 --inference claude --max-tokens 4000 --capture-dir /abs/dir
+bun lab/cli/main.ts operate --request "..." --start-url ... --allow-origin ... --arm arm1 --capture-dir /abs/dir
+```
+
+- `--arm arm0|arm1`は`run`・`compare`・`operate`にある（`run`と`compare`の既定は`arm0`、`operate`は`arm1`）。実験・試行・レポートに記録され、実験に凍結される（`report`の`experiment.frozenArms`、利用量表の`arm`）。Arm 1は構造化出力が要るので`--inference larm`とは組み合わせられない（実行前に拒否）。
+- `--max-tokens n`（256〜64000、`--inference claude`のみ）は、1回の呼出しの出力の上限。モデル・effortと同じく実験に凍結され、試行の推論情報にも入る。
+- 部品の中の各操作は、Arm 0と同じ検査を通る（URL方針、承認の判定、台帳の`dispatched`、古いrefの拒否、結果不明の再送禁止）。結果不明の操作が出たら部品も`indeterminate`で終わり、runが止まる。承認が要る操作は送らずに止まる。`form.submit`は宣言された送信なので、必ず承認を聞く。検索ボタンなど確定でないものは`item.open`で開く。
+- 項目IDは`p<ページ>.i<番号>`。要約・一覧・フォームは同じページなら同じIDを共有する。クリック・ナビゲーション・待機のあとは新しいページIDになり、古いIDは`item_expired`（要約つき）になる。IDが最新の観測で1つに引き直せなければ、推測せず`target_not_found`か`target_ambiguous`と候補を返す。ホストの発行していないIDは`item_unknown`。
+- `item.open`・`form.submit`でクリックが新しいタブを開いたら、タブの一覧を前後で比べて、新しいタブへ切り替えて要約する（Arm 1だけ。Arm 0はEumenesどおり）。
+- `form.fill`の値の出所はArm 0と同じ。依頼文の引用か、利用者が承認した値（`reference.approved`）だけ。それ以外は`needs_input`で、入力しない。selectは選択肢の表示名で選び、チェックボックス・ラジオは依頼文にある根拠（モデルが書いた語句か、選択肢のラベル）があるときだけクリックする（外すのは根拠が要らないが、ラジオは外せない）。`site.search`の語は、各語が依頼文の一部であること。
+- スクリーンショット（`page.capture`）は、呼出し元が実行ごとに決めた**撮影先**に保存する（`--capture-dir <絶対パス>`、`startOperate`・`runDefinition`の`captureDir`）。実在する絶対パスのディレクトリだけで、symlinkをたどった実体を検査し、その外へは書かない。既存のファイルは上書きしない（排他的に作る）。ファイル名はホストが`<runの先頭8文字>-<番号>-<範囲>.png|jpg`と付け、モデルは撮影先もファイル名も決められない。指定が無ければ`lab/data/captures/<runId>/`に置き、7日を過ぎたものは次の実行の開始時に消す。結果としてモデルに返すのは画像のID・大きさ・ファイル名だけ。画像をAIに渡す処理はEumenes側の責務。
+- 記録: `part.call`（部品名と引数の名前だけ。値は入れない）、`part.result`（部品名・状態・コード）、`capture.saved`（IDとファイル名・大きさ・バイト数・形式・範囲）。転写の`captureDir`には撮影先の絶対パスが入る（転写だけ。ログには出さない）。画像もパスもログには出ない。
+- Arm 1の固定応答（`--inference scripted`）は`lab/scripted/scripts-arm1/<caseId>.json`。モデルがするのと同じ部品の呼出しJSONを、最新の結果の要約から役割・名前・領域で項目を選んで作る。選べない・複数あるときは聞き返す。Arm 0には撮影の道具が無いので、撮影のケースはArm 0では失敗する（仕様）。`run`の終わりと`operate`は、呼んだ部品の列と保存した撮影を表示する。
 
 ## そのほかのコマンド
 

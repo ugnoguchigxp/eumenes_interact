@@ -1,3 +1,4 @@
+import { parseCaptureDir } from "./arm.ts";
 import type { Database } from "bun:sqlite";
 import { StopApprover, CliApprover, printable } from "../host/approval.ts";
 import { RunControl } from "../host/control.ts";
@@ -46,6 +47,8 @@ export type TaskRunOptions = BrowserOptions & {
 	json: boolean;
 	keepObservations: boolean;
 	approver: "stop" | "cli";
+	/** An existing absolute directory for screenshots (refused before anything starts when it is not one). */
+	captureDir?: string;
 };
 
 /** What a person reads when `--json` is not given. The text is a page's, so it is made safe to print. */
@@ -92,6 +95,8 @@ export async function taskRun(
 		({ definition }) => definition.id === options.definitionId,
 	);
 	if (!found) throw new Error(`definition_not_found:${options.definitionId}`);
+	// Refused before a browser is started.
+	const captureDir = parseCaptureDir(options.captureDir);
 	console.error(
 		"notice: task run visits the real sites its definition allows; start it only when you have decided to (user-triggered, plan §10.2).",
 	);
@@ -114,6 +119,7 @@ export async function taskRun(
 				options.approver === "cli" ? new CliApprover() : new StopApprover(),
 			logger,
 			control,
+			...(captureDir ? { captureDir } : {}),
 			...(options.keepObservations
 				? { observationSink: createObservationSink(DEFAULT_OBSERVATIONS_DIR) }
 				: {}),

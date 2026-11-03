@@ -1,0 +1,21 @@
+{
+	"caseId": "dev-select-stale",
+	"steps": [
+		{
+			"part": "site.search",
+			"args": {
+				"query": "潮風"
+			}
+		},
+		{
+			"part": "item.open",
+			"target": {
+				"role": "link",
+				"name": "潮風と灯台"
+			}
+		},
+		{
+			"done": "『潮風と灯台』の詳細ページを開きました。"
+		}
+	]
+}

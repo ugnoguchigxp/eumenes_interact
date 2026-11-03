@@ -218,7 +218,9 @@ describe("the operate flags", () => {
 		expect(bad({ inference: "larm", model: "m" })).toThrow(
 			"model_and_effort_are_for_claude",
 		);
-		expect(bad({ inference: "larm" })).not.toThrow();
+		// Arm 1 (the default of operate) needs a model that follows a schema; LARM does not yet.
+		expect(bad({ inference: "larm" })).toThrow("arm1_needs_structured_output");
+		expect(bad({ inference: "larm", arm: "arm0" })).not.toThrow();
 	});
 
 	test("the CLI refuses a bad request before it starts anything", () => {

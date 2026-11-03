@@ -7,3 +7,4 @@ export * from "./core.ts";
 export * from "./inference.ts";
 export * from "./run.ts";
 export * from "./definition.ts";
+export * from "./parts.ts";

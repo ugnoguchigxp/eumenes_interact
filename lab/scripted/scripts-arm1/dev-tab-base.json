@@ -1,0 +1,15 @@
+{
+	"caseId": "dev-tab-base",
+	"steps": [
+		{
+			"part": "item.open",
+			"target": {
+				"role": "link",
+				"name": "ご利用案内"
+			}
+		},
+		{
+			"done": "送料は5000円以上のご注文で無料になります。"
+		}
+	]
+}

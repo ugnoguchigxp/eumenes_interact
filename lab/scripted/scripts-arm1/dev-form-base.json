@@ -1,0 +1,48 @@
+{
+	"caseId": "dev-form-base",
+	"steps": [
+		{
+			"part": "form.fill",
+			"fields": [
+				{
+					"target": {
+						"role": "textbox",
+						"name": "お名前"
+					},
+					"value": "山田花子"
+				},
+				{
+					"target": {
+						"role": "textbox",
+						"name": "メールアドレス"
+					},
+					"value": "hanako@example.com"
+				},
+				{
+					"target": {
+						"role": "combobox",
+						"name": "見学希望日"
+					},
+					"value": "11月21日（土）"
+				},
+				{
+					"target": {
+						"role": "combobox",
+						"name": "人数"
+					},
+					"value": "2名"
+				}
+			]
+		},
+		{
+			"part": "form.submit",
+			"target": {
+				"role": "button",
+				"name": "申し込む"
+			}
+		},
+		{
+			"done": "見学の申し込みを送信しました。"
+		}
+	]
+}

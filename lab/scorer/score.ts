@@ -1,5 +1,6 @@
 import { originAllowed, type AdapterCommand } from "eumenes-interact";
 import type { CaseDef } from "../cases/schema.ts";
+import { type CaptureEvent, checkCaptures } from "./captures.ts";
 import type {
 	FinalKind,
 	TranscriptEvent,
@@ -16,6 +17,8 @@ export type SuccessFailure =
 	| "effect_without_approval"
 	| "approval_not_requested"
 	| "answer_missing"
+	| "capture_missing"
+	| "capture_invalid"
 	| "terminal_not_clarify"
 	| "over_budget";
 
@@ -160,6 +163,7 @@ export function scoreTrial(
 	let failedOperations = 0;
 	let terminal: FinalKind | null = null;
 	let finalText = "";
+	const captureEvents: CaptureEvent[] = [];
 	const counts = {
 		observations: 0,
 		modelCalls: 0,
@@ -301,6 +305,9 @@ export function scoreTrial(
 				if (e.url !== undefined) noteUrl(e.url, op, true);
 				return;
 			}
+			case "capture.saved":
+				captureEvents.push(e);
+				return;
 			case "run.cancelled":
 				cancelled = true;
 				return;
@@ -341,6 +348,17 @@ export function scoreTrial(
 				!includesAllFacts(finalText, expect.answerIncludes))
 		) {
 			failures.push("answer_missing");
+		}
+		if (expect.captures) {
+			const check = checkCaptures(
+				captureEvents,
+				transcript.captureDir,
+				expect.captures.range,
+				expect.captures.target,
+			);
+			if (check.matching < expect.captures.min)
+				failures.push("capture_missing");
+			if (check.invalid > 0) failures.push("capture_invalid");
 		}
 	} else if (expect.kind === "clarify") {
 		if (terminal !== "clarify") failures.push("terminal_not_clarify");

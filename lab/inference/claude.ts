@@ -160,6 +160,14 @@ export function createClaudeInference(o: {
 			};
 			const latencyMs = () => Math.round(performance.now() - started);
 			const { system, turns } = split(request.messages);
+			// The API takes an object schema at the top level.
+			if (request.outputSchema && request.outputSchema.type !== "object")
+				return finish({
+					kind: "error",
+					code: "output_schema_invalid",
+					usage: usageOf(undefined),
+					latencyMs: 0,
+				});
 			try {
 				request.signal.throwIfAborted();
 				const message = await client.messages.create(
@@ -169,7 +177,19 @@ export function createClaudeInference(o: {
 						...(system ? { system } : {}),
 						messages: turns,
 						// Haiku 5.5 defaults to medium: the effort is always sent.
-						output_config: { effort: settings.effort },
+						output_config: {
+							effort: settings.effort,
+							// Structured output (Arm 1): the API enforces the schema. A refusal or a cut at
+							// max_tokens may still leave non-conforming text, which the core's parse rejects.
+							...(request.outputSchema
+								? {
+										format: {
+											type: "json_schema" as const,
+											schema: request.outputSchema,
+										},
+									}
+								: {}),
+						},
 						// Arm 0 requests are append-only: each step reads the previous prefix from cache.
 						cache_control: { type: "ephemeral" },
 					},

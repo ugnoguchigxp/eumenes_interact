@@ -1,3 +1,4 @@
+import type { CaptureRange } from "../cases/schema.ts";
 import type {
 	AdapterCommand,
 	DeclaredEffect,
@@ -80,6 +81,32 @@ export type TranscriptEvent =
 			approvalId: string;
 			decision: "grant" | "deny";
 	  })
+	/**
+	 * The host saved a capture (`page.capture`). `fileName` is relative to the transcript's `captureDir`;
+	 * the scorer opens the file and checks its magic bytes and header size against these fields.
+	 */
+	| (At & {
+			type: "capture.saved";
+			captureId: string;
+			fileName: string;
+			width: number;
+			height: number;
+			bytes: number;
+			mediaType: "image/png" | "image/jpeg";
+			range: CaptureRange;
+			/** An element capture's target: its role and the digest of its name (`captureTargetHash`), never the name. */
+			target?: { role: string; nameHash: string };
+	  })
+	/** Arm 1: a part the core asked the host to run; argument names only, never values. */
+	| (At & { type: "part.call"; part: string; args: string[] })
+	/** Arm 1: how that part ended (plan.md §6.4 part statuses). */
+	| (At & {
+			type: "part.result";
+			part: string;
+			status:
+				"completed" | "partial" | "failed" | "needs_approval" | "indeterminate";
+			code?: string;
+	  })
 	/** The run was cancelled or its deadline passed: no new send and no result adoption after this. */
 	| (At & { type: "run.cancelled"; reason: "cancel" | "deadline" })
 	/**
@@ -118,5 +145,10 @@ export type TrialTranscript = {
 		/** First model call to final step, without the cold start. */
 		totalMs: number;
 	};
+	/**
+	 * Absolute path of the run's capture folder (the host's, never the model's). Required to score a
+	 * case with `expect.captures`; without it every saved capture counts as invalid.
+	 */
+	captureDir?: string;
 	events: TranscriptEvent[];
 };

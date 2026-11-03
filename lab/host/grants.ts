@@ -68,6 +68,23 @@ export class InputGrants {
 	}
 
 	/**
+	 * The ref of a live grant for exactly this value on this page's site, or null. Arm 1's `form.fill` carries
+	 * the value itself, so what the user approved is found by its value; the value is then used through the
+	 * ref like any other (`use` checks the site and the time again).
+	 */
+	find(value: string, pageUrl: string): string | null {
+		const origin = grantOrigin(pageUrl);
+		for (const [ref, grant] of this.grants)
+			if (
+				grant.value === value &&
+				grant.origin === origin &&
+				grant.until > this.now()
+			)
+				return ref;
+		return null;
+	}
+
+	/**
 	 * The value of one use. The core's call carries no purpose, so the site is the binding checked here
 	 * (Eumenes also checks the purpose it was granted for).
 	 */

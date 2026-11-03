@@ -1,0 +1,27 @@
+{
+	"caseId": "dev-select-delayed",
+	"steps": [
+		{
+			"part": "site.search",
+			"args": {
+				"query": "月影の図書館"
+			}
+		},
+		{
+			"part": "page.wait",
+			"args": {
+				"text": "2件"
+			}
+		},
+		{
+			"part": "item.open",
+			"target": {
+				"role": "link",
+				"name": "月影の図書館 外伝"
+			}
+		},
+		{
+			"done": "『月影の図書館 外伝』のページを開きました。"
+		}
+	]
+}

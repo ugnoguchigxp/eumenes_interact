@@ -1,4 +1,11 @@
-import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import {
+	mkdir,
+	readdir,
+	readFile,
+	rm,
+	stat,
+	writeFile,
+} from "node:fs/promises";
 import { join } from "node:path";
 import { AdapterError } from "../../contracts/adapter.ts";
 import type {
@@ -7,6 +14,7 @@ import type {
 	AdapterOptions,
 	AdapterState,
 	AdapterTarget,
+	CapturedImage,
 	FixedInspection,
 	PlatformAdapter,
 } from "../../contracts/adapter.ts";
@@ -31,6 +39,7 @@ import {
 } from "../mcp/inspect.ts";
 import {
 	classifyToolError,
+	linkFileName,
 	parseTabList,
 	parseToolResult,
 	type McpTab,
@@ -42,6 +51,7 @@ import {
 	type McpSession,
 	type McpSessionLaunch,
 } from "../mcp/session.ts";
+import { IMAGE_MAX_BYTES, imageInfo, withinBounds } from "../mcp/image.ts";
 import {
 	createLog,
 	fromTransport,
@@ -54,6 +64,7 @@ import {
 	type McpToolResult,
 } from "../mcp/common.ts";
 import {
+	captureArgs,
 	commandCall,
 	isAllowedTool,
 	tabIndexOf,
@@ -107,7 +118,7 @@ const RETRYABLE_CODES: ReadonlySet<string> = new Set([
 const CATALOG: readonly CatalogEntry[] = COMMON_ACTIONS.map((action) => ({
 	action,
 	platform: "playwright-mcp",
-	supported: action !== "page.scroll" && action !== "page.capture",
+	supported: action !== "page.scroll",
 	needsTargetRef:
 		action === "page.click" ||
 		action === "page.hover" ||
@@ -296,8 +307,10 @@ export function createPlaywrightMcpAdapter(
 		name: McpToolName,
 		args: Record<string, unknown>,
 		signal?: AbortSignal,
-		readSnapshotFile = false,
-	): Promise<ParsedToolResult & { snapshotText?: string }> => {
+		read?: "snapshot" | "screenshot",
+	): Promise<
+		ParsedToolResult & { snapshotText?: string; screenshotFile?: Uint8Array }
+	> => {
 		if (!isAllowedTool(name)) throw new AdapterError("tool_not_allowed", false);
 		const child = session;
 		if (!child || state !== "open") throw new AdapterError("not_open", false);
@@ -320,10 +333,21 @@ export function createPlaywrightMcpAdapter(
 				throw new ReportedError(failure.code, failure.dispatched);
 			}
 			const snapshotText =
-				readSnapshotFile && parsed.snapshot?.kind === "file"
+				read === "snapshot" && parsed.snapshot?.kind === "file"
 					? await readOutputFile(outputDir, parsed.snapshot.name)
 					: undefined;
-			return { ...parsed, snapshotText };
+			// MCP always writes the screenshot to its output dir; when it sent no image content (image
+			// responses off), the file named in the result is the image. It is deleted below either way.
+			const link =
+				read === "screenshot" && parsed.images.length === 0
+					? SCREENSHOT_LINK.exec(parsed.result ?? "")?.[1]
+					: undefined;
+			const fileName = link === undefined ? undefined : linkFileName(link);
+			const screenshotFile =
+				fileName === undefined
+					? undefined
+					: await readOutputBytes(outputDir, fileName);
+			return { ...parsed, snapshotText, screenshotFile };
 		} catch (error) {
 			if (
 				error instanceof AdapterError &&
@@ -339,8 +363,8 @@ export function createPlaywrightMcpAdapter(
 		name: McpToolName,
 		args: Record<string, unknown>,
 		signal?: AbortSignal,
-		readSnapshotFile = false,
-	) => serial(signal, () => callToolNow(name, args, signal, readSnapshotFile));
+		read?: "snapshot" | "screenshot",
+	) => serial(signal, () => callToolNow(name, args, signal, read));
 
 	const tabsCall = async (
 		args: Record<string, unknown>,
@@ -452,7 +476,12 @@ export function createPlaywrightMcpAdapter(
 		},
 		observe: (signal) =>
 			loggedRead(log, async (): Promise<RawObservation> => {
-				const parsed = await callTool("browser_snapshot", {}, signal, true);
+				const parsed = await callTool(
+					"browser_snapshot",
+					{},
+					signal,
+					"snapshot",
+				);
 				const body =
 					parsed.snapshot?.kind === "inline"
 						? parsed.snapshot.text
@@ -488,6 +517,21 @@ export function createPlaywrightMcpAdapter(
 					return parseExtraction(result, targetRef !== null, cap);
 				},
 				(content) => content.charCount,
+			),
+		capture: (range, targetRef, signal) =>
+			loggedRead(
+				log,
+				async (): Promise<CapturedImage> => {
+					const args = captureArgs(range, targetRef);
+					const parsed = await callTool(
+						"browser_take_screenshot",
+						args,
+						signal,
+						"screenshot",
+					);
+					return imageFrom(parsed);
+				},
+				(image) => image.bytes.length,
 			),
 		async dispatch(command, signal) {
 			const started = Date.now();
@@ -555,6 +599,62 @@ function toTargets(tabs: McpTab[]): AdapterTarget[] {
 		url: tab.url,
 		title: tab.title,
 	}));
+}
+
+/**
+ * The image of a screenshot result, checked by its own header: PNG or JPEG (and the declared type,
+ * when MCP sent one, must agree), dimensions present and within the bound, size within the bound.
+ */
+function imageFrom(parsed: {
+	images: { mimeType: string; data: string }[];
+	screenshotFile?: Uint8Array;
+}): CapturedImage {
+	const bad = () => new AdapterError("mcp_response_unrecognized", false);
+	const sent = parsed.images.find((image) =>
+		["image/png", "image/jpeg"].includes(image.mimeType),
+	);
+	// Base64 is a third larger than its bytes: refuse before decoding what could never fit.
+	if (sent && sent.data.length > Math.ceil((IMAGE_MAX_BYTES * 4) / 3) + 4)
+		throw bad();
+	const bytes = sent
+		? new Uint8Array(Buffer.from(sent.data, "base64"))
+		: parsed.screenshotFile;
+	if (
+		bytes === undefined ||
+		bytes.length === 0 ||
+		bytes.length > IMAGE_MAX_BYTES
+	)
+		throw bad();
+	const info = imageInfo(bytes);
+	if (
+		info === undefined ||
+		!withinBounds(info) ||
+		(sent !== undefined && sent.mimeType !== info.mediaType)
+	)
+		throw bad();
+	return {
+		mediaType: info.mediaType,
+		bytes,
+		width: info.width,
+		height: info.height,
+	};
+}
+
+/** The file link of a screenshot result: `- [Screenshot of viewport](./page-….png)`. */
+const SCREENSHOT_LINK = /\[Screenshot[^\]\n]*\]\(([^)\n]+)\)/;
+
+/** An output file as bytes, within the image size bound. */
+async function readOutputBytes(directory: string, name: string) {
+	try {
+		const path = join(directory, name);
+		if ((await stat(path)).size > IMAGE_MAX_BYTES)
+			throw new AdapterError("mcp_response_unrecognized", false);
+		return new Uint8Array(await readFile(path));
+	} catch (error) {
+		throw error instanceof AdapterError
+			? error
+			: new AdapterError("screenshot_file_missing", false);
+	}
 }
 
 /** Links are relative to MCP's workspace or absolute; only the base name is looked up. */

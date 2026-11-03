@@ -1,4 +1,5 @@
 import type { Database } from "bun:sqlite";
+import type { ArmId } from "eumenes-interact";
 import { loadCases } from "../cases/load.ts";
 import type { CaseDef } from "../cases/schema.ts";
 import {
@@ -23,10 +24,12 @@ import {
 	createObservationSink,
 	pruneObservations,
 } from "../host/observations.ts";
+import { DEFAULT_CAPTURES_DIR } from "../host/parts/capture.ts";
 import { LAB_OWNER } from "../host/run.ts";
 import { packageCommit } from "../host/versions.ts";
 import { importSeed, loadSeeds } from "../knowledge/seed.ts";
 import { parsePlatform, type BrowserPlatform } from "./platform.ts";
+import { checkArmInference, parseCaptureDir } from "./arm.ts";
 import { createSession } from "./session.ts";
 
 export type CompareOptions = {
@@ -45,6 +48,11 @@ export type CompareOptions = {
 	inference?: "scripted" | "claude";
 	model?: string;
 	effort?: string;
+	maxTokens?: string;
+	/** `arm0` (default) or `arm1` (registered parts), for the fixture cases. */
+	arm?: ArmId;
+	/** Arm 1: where the cases' screenshots go (an existing absolute directory); default: `lab/data/captures/<runId>/`. */
+	captureDir?: string;
 };
 
 /** The platforms of `--platforms a,b`, each valid and none twice. */
@@ -82,8 +90,14 @@ export async function compareCommand(
 	const inputs = await loadCompareInputs(options.inputsFile);
 	for (const id of wanted)
 		if (!inputs[id]) throw new Error(`no_inputs_for:${id}`);
-	if (options.inference !== "claude" && (options.model || options.effort))
+	if (
+		options.inference !== "claude" &&
+		(options.model || options.effort || options.maxTokens)
+	)
 		throw new Error("model_and_effort_are_for_claude");
+	const arm = options.arm ?? "arm0";
+	checkArmInference(arm, options.inference ?? "scripted");
+	const captureDir = parseCaptureDir(options.captureDir);
 	// Frozen for the whole comparison and checked before anything is opened.
 	const claude =
 		options.inference === "claude" ? claudeSettings(options) : null;
@@ -113,6 +127,7 @@ export async function compareCommand(
 		importSeed(db, LAB_OWNER, seed, nowIso);
 	// Observation bodies of earlier runs that outlived their week go first (plan.md §14).
 	await pruneObservations(DEFAULT_OBSERVATIONS_DIR, Date.now());
+	await pruneObservations(DEFAULT_CAPTURES_DIR, Date.now());
 	const abort = new AbortController();
 	const onSigint = () => abort.abort();
 	process.on("SIGINT", onSigint);
@@ -135,6 +150,8 @@ export async function compareCommand(
 				? `claude:${claude.model}/${claude.effort}`
 				: "scripted",
 			...(claude ? { frozenInference: claude } : {}),
+			arm,
+			...(captureDir ? { captureDir } : {}),
 			...(claude
 				? {
 						inference: async (def: CaseDef) =>
@@ -168,6 +185,7 @@ export async function compareCommand(
 				headed: options.headed,
 				definitions: wanted,
 				cases: cases.map((c) => c.id),
+				arm,
 				inference: claude
 					? `claude:${claude.model}/${claude.effort}`
 					: "scripted",

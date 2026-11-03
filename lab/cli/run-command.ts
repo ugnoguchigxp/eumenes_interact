@@ -1,4 +1,5 @@
 import type { Database } from "bun:sqlite";
+import type { ArmId } from "eumenes-interact";
 import { loadCases } from "../cases/load.ts";
 import type { CaseDef } from "../cases/schema.ts";
 import { CliApprover, FixtureApprover } from "../host/approval.ts";
@@ -14,6 +15,11 @@ import {
 import { selectCases } from "../host/plan.ts";
 import type { TrialResult } from "../host/run.ts";
 import { collectVersions } from "../host/versions.ts";
+import {
+	createArm1ScriptedInference,
+	loadArm1Script,
+} from "../scripted/arm1.ts";
+import { DEFAULT_CAPTURES_DIR } from "../host/parts/capture.ts";
 import { createScriptedInference } from "../scripted/inference.ts";
 import { loadScript } from "../scripted/script.ts";
 import type { BrowserPlatform } from "./platform.ts";
@@ -22,6 +28,7 @@ import {
 	ensureClaudeCredential,
 	startClaude,
 } from "../host/claude.ts";
+import { checkArmInference, parseCaptureDir } from "./arm.ts";
 import { createSession } from "./session.ts";
 import { summaryLines } from "./report.ts";
 
@@ -35,6 +42,12 @@ export type RunOptions = {
 	/** `--inference claude`: the model (default `claude-haiku-5-5`) and effort (default `low`). */
 	model?: string;
 	effort?: string;
+	/** `--inference claude`: the output bound of one call, recorded with the run's conditions. */
+	maxTokens?: string;
+	/** `arm0` (default, Eumenes' port) or `arm1` (registered parts). */
+	arm?: ArmId;
+	/** Arm 1: an existing absolute directory the screenshots go to; default: `lab/data/captures/<runId>/`. */
+	captureDir?: string;
 	/** Default: the fixture user for fixtures, the terminal for live cases. */
 	approver?: "fixture" | "cli";
 	/** Keep every observation body under `lab/data/observations/` (at most 7 days). */
@@ -92,8 +105,11 @@ function inferenceFactory(
 	logger: LabLogger,
 ): TrialFactories["inference"] {
 	if (options.inference === "scripted")
-		return async (def) => ({
-			port: createScriptedInference(await loadScript(def.id)),
+		return async (def, arm) => ({
+			port:
+				arm === "arm1"
+					? createArm1ScriptedInference(await loadArm1Script(def.id))
+					: createScriptedInference(await loadScript(def.id)),
 			info: () => ({ kind: "scripted" }),
 			dispose: async () => {},
 		});
@@ -112,8 +128,15 @@ export async function runCommand(
 	options: RunOptions,
 	logger: LabLogger,
 ) {
-	if (options.inference !== "claude" && (options.model || options.effort))
+	if (
+		options.inference !== "claude" &&
+		(options.model || options.effort || options.maxTokens)
+	)
 		throw new Error("model_and_effort_are_for_claude");
+	const arm = options.arm ?? "arm0";
+	checkArmInference(arm, options.inference);
+	// Refused before anything is opened.
+	const captureDir = parseCaptureDir(options.captureDir);
 	const all = await loadCases({
 		includeHoldout: options.includeHoldout,
 		includeLive: options.includeLive,
@@ -126,7 +149,9 @@ export async function runCommand(
 	const approver = options.approver ?? (live ? "cli" : "fixture");
 	// A missing script is found before anything starts.
 	if (options.inference === "scripted")
-		for (const def of cases) await loadScript(def.id);
+		for (const def of cases)
+			if (arm === "arm1") await loadArm1Script(def.id);
+			else await loadScript(def.id);
 	const approvalNotes = cases.flatMap((c) =>
 		c.approvalScript.note ? [c.approvalScript.note] : [],
 	);
@@ -139,6 +164,7 @@ export async function runCommand(
 		console.error(line);
 	// Observation bodies of earlier runs that outlived their week go first (plan.md §14).
 	await pruneObservations(DEFAULT_OBSERVATIONS_DIR, Date.now());
+	await pruneObservations(DEFAULT_CAPTURES_DIR, Date.now());
 	const inference = inferenceFactory(db, options, logger);
 	// A live run needs no fixture server: it goes to the real site, within the case's allowed origins.
 	const server = live ? null : startFixtureServer();
@@ -153,7 +179,8 @@ export async function runCommand(
 		const done = await runExperiment({
 			db,
 			cases,
-			arms: ["arm0"],
+			arms: [arm],
+			...(captureDir ? { captureDir } : {}),
 			repetitions: options.repeat,
 			name: options.caseId ?? options.split ?? "run",
 			inferenceKind: options.inference,

@@ -20,7 +20,11 @@ import {
 	scriptSchema,
 } from "../../scripted/script.ts";
 
-const dev = await loadCases({ includeHoldout: false });
+const allDev = await loadCases({ includeHoldout: false });
+/** Arm 0 has no capture tool: a screenshot case has an Arm 1 script only (see `arm1-scripts.test.ts`). */
+const dev = allDev.filter(
+	(c) => c.expect.kind !== "reach" || c.expect.captures === undefined,
+);
 const live = (
 	await loadCases({ includeHoldout: false, includeLive: true })
 ).filter((c) => c.split === "live");

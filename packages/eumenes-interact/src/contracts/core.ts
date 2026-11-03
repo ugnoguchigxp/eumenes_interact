@@ -1,4 +1,5 @@
 import type { ObservationEnvelope, RawObservation } from "./observation.ts";
+import type { PartCall, PartResult } from "./parts.ts";
 import type {
 	AdapterCommand,
 	DeclaredEffect,
@@ -20,7 +21,8 @@ import type {
  *   parseCoreState(value: unknown): CoreState | null
  */
 
-export type ArmId = "arm0";
+/** `arm0`: Eumenes' page operator port (baseline). `arm1`: registered parts (plan.md §6.4). */
+export type ArmId = "arm0" | "arm1";
 
 export type ChatMessage = {
 	role: "system" | "user" | "assistant";
@@ -61,6 +63,11 @@ export type StartRunInput = {
 export type PreparedStep = {
 	messages: ChatMessage[];
 	callsLeft: number;
+	/**
+	 * When set, the inference port must constrain the output to this JSON Schema (Claude structured
+	 * outputs). Arm 1 sets it; Arm 0 does not (Eumenes sends no output control).
+	 */
+	outputSchema?: Record<string, unknown>;
 };
 
 /** Why `parseStep` rejected an output (plan.md §4, §11 "出力の不正"; counted per call). */
@@ -69,6 +76,8 @@ export type ParseRejectionCode =
 	| "schema_violation"
 	| "action_fields"
 	| "unknown_tool"
+	/** Arm 1: an item id or result id the core never showed (or one of an older page). */
+	| "unknown_reference"
 	| "invoke_on_last_call";
 
 /** Facts about one parsed call, for trial records. Never carries the raw output. */
@@ -84,6 +93,8 @@ export type InputProvenance =
 
 /** What the host must do for a validated tool call. Tab refs are the host's stable refs. */
 export type HostCall =
+	/** Arm 1: run one registered part (plan.md §6.4); the host's part executor implements it. */
+	| { kind: "part"; part: PartCall }
 	| { kind: "observe"; tabRef?: string }
 	| { kind: "tabs.list" }
 	| { kind: "tabs.select"; tabRef: string }
@@ -140,6 +151,8 @@ export type TabView = {
 
 /** What the host learned by executing a `HostCall`. */
 export type HostOutcome =
+	/** Arm 1: what a part did. A part stopped for approval comes back as `stop`. */
+	| { kind: "part"; result: PartResult }
 	| { kind: "observation"; observation: ObservationEnvelope }
 	| {
 			kind: "operation";

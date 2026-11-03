@@ -1,5 +1,8 @@
 import type { Database } from "bun:sqlite";
-import type { InferencePort } from "eumenes-interact";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import type { ArmId, InferencePort } from "eumenes-interact";
 import { loadCases } from "../../cases/load.ts";
 import type { CaseDef } from "../../cases/schema.ts";
 import { FixtureApprover, type Approver } from "../../host/approval.ts";
@@ -13,8 +16,23 @@ import { runTrial, type TrialResult } from "../../host/run.ts";
 import { createExperiment } from "../../host/store.ts";
 import { collectVersions } from "../../host/versions.ts";
 import { createScriptedInference } from "../../scripted/inference.ts";
+import {
+	createArm1ScriptedInference,
+	loadArm1Script,
+} from "../../scripted/arm1.ts";
 import { loadScript } from "../../scripted/script.ts";
 import { BASE, FakeBrowser } from "./fake-adapter.ts";
+
+let captureRoot: string | null = null;
+/** Where a test's default capture directories go (removed when the process ends): never the repository. */
+export function testCaptureRoot(): string {
+	if (captureRoot === null) {
+		const root = mkdtempSync(join(tmpdir(), "interact-captures-test-"));
+		captureRoot = root;
+		process.on("exit", () => rmSync(root, { recursive: true, force: true }));
+	}
+	return captureRoot;
+}
 
 export async function devCase(id: string): Promise<CaseDef> {
 	const found = (await loadCases({ includeHoldout: false })).find(
@@ -68,26 +86,35 @@ export async function runScripted(
 		now?: () => number;
 		observationSink?: ObservationSink;
 		onEvent?: (event: TranscriptEvent) => void;
+		arm?: ArmId;
+		captureDir?: string;
+		captureRoot?: string;
 	} = {},
 ): Promise<Harness> {
 	const def = options.def ?? (await devCase(caseId));
 	const db = options.db ?? freshDb();
 	const adapter = options.adapter ?? new FakeBrowser();
+	const arm = options.arm ?? "arm0";
 	const result = await runTrial({
 		db,
 		def,
-		arm: "arm0",
+		arm,
 		experimentId: "exp-1",
 		repetition: 1,
 		orderIndex: 0,
 		adapter,
 		inference:
-			options.inference ?? createScriptedInference(await loadScript(caseId)),
+			options.inference ??
+			(arm === "arm1"
+				? createArm1ScriptedInference(await loadArm1Script(caseId))
+				: createScriptedInference(await loadScript(caseId))),
 		inferenceInfo: () => options.inferenceInfo ?? { kind: "scripted" },
 		approver: options.approver ?? new FixtureApprover(def.approvalScript),
 		logger: silentLabLogger,
 		versions: VERSIONS,
 		fixtureBaseUrl: BASE,
+		captureRoot: options.captureRoot ?? testCaptureRoot(),
+		...(options.captureDir ? { captureDir: options.captureDir } : {}),
 		...(options.control ? { control: options.control } : {}),
 		...(options.deadlineMs ? { deadlineMs: options.deadlineMs } : {}),
 		...(options.now ? { now: options.now } : {}),

@@ -210,7 +210,7 @@ test("a second open does not start another child", async () => {
 	expect(ctx.launches).toHaveLength(1);
 });
 
-test("the catalog marks scroll and capture unsupported and never claims physical input", () => {
+test("the catalog marks only scroll unsupported and never claims physical input", () => {
 	const { adapter } = setup();
 	const catalog = adapter.catalog();
 	expect(catalog.map((e) => e.action)).toEqual([...COMMON_ACTIONS]);
@@ -218,9 +218,15 @@ test("the catalog marks scroll and capture unsupported and never claims physical
 	expect(catalog.some((e) => e.physicalInput)).toBe(false);
 	expect(catalog.filter((e) => !e.supported).map((e) => e.action)).toEqual([
 		"page.scroll",
-		"page.capture",
 	]);
 	const byAction = Object.fromEntries(catalog.map((e) => [e.action, e]));
+	expect(byAction["page.capture"]).toEqual({
+		action: "page.capture",
+		platform: "playwright-mcp",
+		supported: true,
+		needsTargetRef: false,
+		physicalInput: false,
+	});
 	expect(byAction["page.extract"]).toEqual({
 		action: "page.extract",
 		platform: "playwright-mcp",
@@ -309,7 +315,7 @@ test("a result without a page section falls back to the tab list, then to no pag
 	});
 });
 
-test("scroll and capture are unsupported: nothing is sent and no key stands in", async () => {
+test("scroll is unsupported, and capture is not a dispatch command: nothing is sent and no key stands in", async () => {
 	const { adapter, fake } = await opened();
 	const before = fake.calls().length;
 	for (const command of [
@@ -776,13 +782,14 @@ test("only allowlisted tools are ever sent, and the unsafe code tool is not on t
 		await adapter.dispatch(command, NEVER);
 	await adapter.inspect("inspectTarget", "e1", NEVER);
 	await adapter.inspect("inspectFocused", null, NEVER);
+	// The screenshot tool is reached through `capture` alone (the answer here is not an image).
+	await adapter.capture("viewport", null, NEVER).catch(() => {});
 	const sent = new Set(fake.toolNames());
 	for (const name of sent) expect(isAllowedTool(name)).toBe(true);
-	expect([...sent].sort()).toEqual(
-		ALLOWED_MCP_TOOLS.filter((n) => n !== "browser_take_screenshot").sort(),
-	);
+	expect([...sent].sort()).toEqual([...ALLOWED_MCP_TOOLS].sort());
 	expect(Object.keys(adapter).sort()).toEqual(
 		[
+			"capture",
 			"catalog",
 			"close",
 			"dispatch",

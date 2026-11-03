@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>商品 | 楓雑貨店</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html" class="brand">楓雑貨店</a>
+			<nav aria-label="メイン">
+				<a href="index.html">ホーム</a>
+				<a href="catalog.html">全商品</a>
+				<a href="care.html">お手入れガイド</a>
+				<a href="order.html">ご注文フォーム</a>
+			</nav>
+		</header>
+		<main>
+			<article class="card" aria-label="商品の詳細">
+				<h1 id="title"></h1>
+				<div class="photo" role="img" aria-label="商品の写真"></div>
+				<p id="price"></p>
+				<p id="material"></p>
+				<p>
+					ひとつずつ手づくりのため、色合いや大きさに少しずつ違いがあります。
+				</p>
+			</article>
+			<aside aria-label="おすすめ">
+				<h2>こちらもどうぞ</h2>
+				<ul>
+					<li><a href="product.html?id=3">陶器の小皿</a></li>
+					<li><a href="product.html?id=6">木のまな板</a></li>
+				</ul>
+			</aside>
+		</main>
+		<script src="../kaede.js"></script>
+		<script>
+			const p = getProduct(new URLSearchParams(location.search).get("id"));
+			if (p) {
+				document.getElementById("title").textContent = p.name;
+				document.title = p.name + " | 楓雑貨店";
+				document.getElementById("price").textContent =
+					"価格: " + p.price + "円";
+				document.getElementById("material").textContent = "素材: " + p.material;
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+{
+	"caseId": "dev-tab-restructure",
+	"steps": [
+		{
+			"part": "item.open",
+			"target": {
+				"role": "button",
+				"name": "店舗の地図"
+			}
+		},
+		{
+			"done": "店舗の地図のページを開きました。"
+		}
+	]
+}

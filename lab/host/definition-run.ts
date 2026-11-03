@@ -30,6 +30,7 @@ import {
 	type Approver,
 } from "./approval.ts";
 import { lookupObject, resolveObject } from "./candidates.ts";
+import { resolveCaptureDir } from "./parts/capture.ts";
 import { RunControl } from "./control.ts";
 import { write } from "./db.ts";
 import { createExecutor, type Executed } from "./executor.ts";
@@ -147,6 +148,8 @@ export type DefinitionRunResult = {
 	approval?: Pick<ApprovalPrompt, "action" | "page" | "element" | "summary">;
 	/** Set when `status` is `rejected`. */
 	issues?: DefinitionIssue[];
+	/** The files saved in `captureDir`, by the host's names; empty while no step can capture. */
+	captures?: readonly string[];
 };
 
 export type RunDefinitionOptions = {
@@ -164,6 +167,12 @@ export type RunDefinitionOptions = {
 	deadlineMs?: number;
 	/** Keeps every observation and extract (`--keep-observations`); without it a real site's text is kept nowhere. */
 	observationSink?: ObservationSink;
+	/**
+	 * Where screenshots would go: an existing absolute directory, refused before anything starts when it is not
+	 * one. A work definition's steps (plan.md §6.1) have no screenshot action yet, so nothing is written here
+	 * today; the option is the contract `task run` and the MCP server already pass.
+	 */
+	captureDir?: string;
 };
 
 type Ending = { status: RunStatus; code: string | null };
@@ -172,6 +181,7 @@ export async function runDefinition(
 	options: RunDefinitionOptions,
 ): Promise<DefinitionRunResult> {
 	const { db, definition, inputs, adapter, logger } = options;
+	if (options.captureDir !== undefined) resolveCaptureDir(options.captureDir);
 	const now = options.now ?? Date.now;
 	const owner = options.owner ?? LAB_OWNER;
 	const digest = definitionDigest(definition);
@@ -365,6 +375,9 @@ export async function runDefinition(
 				return { status: "needs_input", code: "approval_required" };
 			case "tabs":
 				return { status: "confirmed" };
+			case "part":
+				// A definition's steps are operations; a part result never comes back to it.
+				return { status: "failed", code: "unexpected_part" };
 		}
 	}
 

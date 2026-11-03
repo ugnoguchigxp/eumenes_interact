@@ -128,6 +128,62 @@ describe("request", () => {
 		});
 	});
 
+	test("an outputSchema is sent as a json_schema format beside the effort", async () => {
+		const schema = {
+			type: "object",
+			properties: { a: { type: "string" } },
+			required: ["a"],
+			additionalProperties: false,
+		};
+		const { port, requests } = setup();
+		const outcome = await port.complete({
+			messages,
+			maxOutputTokens: 1024,
+			signal: new AbortController().signal,
+			outputSchema: schema,
+		});
+		expect(outcome.kind).toBe("text");
+		expect(requests[0]?.params.output_config).toEqual({
+			effort: "low",
+			format: { type: "json_schema", schema },
+		});
+		// Everything else is unchanged.
+		expect(requests[0]?.params).toMatchObject({
+			cache_control: { type: "ephemeral" },
+			max_tokens: 16_000,
+		});
+	});
+
+	test("without an outputSchema there is no format", async () => {
+		const { complete, requests } = setup();
+		await complete();
+		expect(requests[0]?.params.output_config).toEqual({ effort: "low" });
+	});
+
+	test("a schema whose top level is not an object is refused before sending", async () => {
+		const { port, requests } = setup();
+		expect(
+			await port.complete({
+				messages,
+				maxOutputTokens: 10,
+				signal: new AbortController().signal,
+				outputSchema: { type: "array" },
+			}),
+		).toMatchObject({ kind: "error", code: "output_schema_invalid" });
+		expect(requests).toHaveLength(0);
+	});
+
+	test("maxTokens is the exact max_tokens, above or below the default", async () => {
+		for (const maxTokens of [2000, 32_000]) {
+			const { complete, requests } = setup(() => message(), {
+				...DEFAULT_CLAUDE_SETTINGS,
+				maxTokens,
+			});
+			await complete({ maxOutputTokens: 1024 });
+			expect(requests[0]?.params.max_tokens).toBe(maxTokens);
+		}
+	});
+
 	test("no system message means no system field", async () => {
 		const { port, requests } = setup();
 		await port.complete({

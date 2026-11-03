@@ -43,7 +43,7 @@ export function usageReport(trials: readonly TrialRow[]) {
 	const judged = trials.filter(isCaseTrial);
 	const groups = new Map<string, TrialRow[]>();
 	for (const t of judged) {
-		const key = `${t.platform}\u0000${inferenceLabel(t.inference)}`;
+		const key = `${t.arm}\u0000${t.platform}\u0000${inferenceLabel(t.inference)}`;
 		groups.set(key, [...(groups.get(key) ?? []), t]);
 	}
 	const input = (t: TrialRow) => ({
@@ -51,13 +51,18 @@ export function usageReport(trials: readonly TrialRow[]) {
 		usage: t.transcript ? trialUsage(t.transcript, t.inference) : UNKNOWN_USAGE,
 	});
 	return [...groups.entries()].map(([key, rows]) => {
-		const [platform, inference] = key.split("\u0000") as [string, string];
+		const [arm, platform, inference] = key.split("\u0000") as [
+			string,
+			string,
+			string,
+		];
 		const perCase: Record<string, UsageRow> = {};
 		for (const id of [...new Set(rows.map((t) => t.caseId))].sort())
 			perCase[id] = aggregateUsage(
 				rows.filter((t) => t.caseId === id).map(input),
 			);
 		return {
+			arm,
 			platform,
 			inference,
 			overall: aggregateUsage(rows.map(input)),
@@ -77,6 +82,8 @@ export function report(db: Database, experimentId: string) {
 			id: experiment.id,
 			caseCount: experiment.caseIds.length,
 			repetitions: experiment.repetitions,
+			/** The arms the experiment was frozen to (`arm0` baseline, `arm1` registered parts). */
+			frozenArms: experiment.arms,
 			inference: experiment.inferenceKind,
 			/** What the experiment was frozen to (model and effort for Claude). */
 			inferenceFrozen:
@@ -135,5 +142,29 @@ export function summaryLines(result: TrialResult): string[] {
 		`trial\t${result.transcript.caseId}\t${result.status}${result.code ? `(${result.code})` : ""}\t${result.score.success ? "success" : "failure"}`,
 		`  final step: ${final?.kind ?? "none"}${final?.text ? ` ${printable(final.text, 300)}` : ""}`,
 		`  final url: ${printable(finalUrl(result) ?? "-", 300)}`,
+		...partLines(result),
+	];
+}
+
+/** Arm 1: the parts the model called, in order with how each ended, and the screenshots saved. */
+export function partLines(result: TrialResult): string[] {
+	const parts = result.transcript.events.flatMap((e) =>
+		e.type === "part.result"
+			? [
+					`${e.part}${e.status === "completed" ? "" : `(${e.status}${e.code ? `:${e.code}` : ""})`}`,
+				]
+			: [],
+	);
+	const saved = result.transcript.events.flatMap((e) =>
+		e.type === "capture.saved" ? [e.fileName] : [],
+	);
+	return [
+		...(parts.length ? [`  parts: ${parts.join(" > ")}`] : []),
+		...(saved.length
+			? [
+					`  captures: ${saved.length} in ${printable(result.captureDir, 300)}`,
+					...saved.map((name) => `    ${printable(name, 120)}`),
+				]
+			: []),
 	];
 }

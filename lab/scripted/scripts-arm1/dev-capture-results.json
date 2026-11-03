@@ -1,0 +1,20 @@
+{
+	"caseId": "dev-capture-results",
+	"steps": [
+		{
+			"part": "site.search",
+			"args": {
+				"query": "麻"
+			}
+		},
+		{
+			"part": "page.capture",
+			"args": {
+				"range": "viewport"
+			}
+		},
+		{
+			"done": "「麻」の検索結果ページを撮影しました。"
+		}
+	]
+}

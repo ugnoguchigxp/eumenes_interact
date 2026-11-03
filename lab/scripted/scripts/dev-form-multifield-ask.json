@@ -1,0 +1,8 @@
+{
+	"caseId": "dev-form-multifield-ask",
+	"steps": [
+		{
+			"clarify": "お届け方法は通常便とお急ぎ便のどちらにしますか。"
+		}
+	]
+}

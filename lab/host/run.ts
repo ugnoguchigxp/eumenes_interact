@@ -31,6 +31,8 @@ import type { Approver } from "./approval.ts";
 import { RunControl } from "./control.ts";
 import { write } from "./db.ts";
 import { createExecutor } from "./executor.ts";
+import { CaptureStore } from "./parts/capture.ts";
+import { createPartExecutor } from "./parts/executor.ts";
 import { InputGrants } from "./grants.ts";
 import type { LabLogger } from "./log.ts";
 import { fixturePolicy, originPolicy } from "./policy.ts";
@@ -60,6 +62,7 @@ export const ARM0_MAX_MODEL_CALLS = 12;
 
 export const LAB_OWNER = "lab";
 const SKILL_REF = "arm0:browser.page-operator@5";
+const ARM1_SKILL_REF = "arm1:parts@1";
 
 const sha256 = (text: string) =>
 	createHash("sha256").update(text).digest("hex");
@@ -139,6 +142,13 @@ export type RunTrialInput = {
 	deadlineMs?: number;
 	/** Values the user allowed beforehand; they reach the core as `reference.approved`. */
 	approvedValues?: { value: string; origin: string; purpose: string }[];
+	/**
+	 * Arm 1: an existing absolute directory the run's screenshots go to (the caller chooses it per run; the
+	 * model never does). Absent: `<captureRoot>/<runId>/`.
+	 */
+	captureDir?: string;
+	/** Where the default capture directories are made; default `lab/data/captures`. */
+	captureRoot?: string;
 };
 
 export type TrialResult = {
@@ -151,6 +161,8 @@ export type TrialResult = {
 	score: TrialScore;
 	/** False for a free-form request: `score` then has counters only and nothing was judged. */
 	scored: boolean;
+	/** Where this run's screenshots are (absolute); the files named by its `capture.saved` events. */
+	captureDir: string;
 };
 
 type Ending = {
@@ -173,6 +185,15 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const sessionId = randomUUID();
 	const control = input.control ?? new RunControl();
 	const policy = runPolicy(def);
+	const arm1 = input.arm === "arm1";
+	// A bad capture directory is refused before the run or anything else is created.
+	const captures = new CaptureStore({
+		runId,
+		...(input.captureDir === undefined ? {} : { dir: input.captureDir }),
+		...(input.captureRoot === undefined
+			? {}
+			: { defaultRoot: input.captureRoot }),
+	});
 	// Where the trial's URLs are resolved from and what it may visit. A live case names its own origins.
 	const live = def.split === "live";
 	const baseUrl = live ? `${new URL(def.start).origin}/` : input.fixtureBaseUrl;
@@ -209,8 +230,8 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	write(db, () => {
 		createRun(db, owner, {
 			runId,
-			skillRef: SKILL_REF,
-			skillDigest: `arm0-source:${ARM0_SOURCE_COMMIT}`,
+			skillRef: arm1 ? ARM1_SKILL_REF : SKILL_REF,
+			skillDigest: arm1 ? "arm1-parts:1" : `arm0-source:${ARM0_SOURCE_COMMIT}`,
 			catalogRef: `catalog:${adapter.platform}`,
 			catalogDigest: `sha256:${sha256(JSON.stringify(adapter.catalog()))}`,
 			platform: adapter.platform,
@@ -313,6 +334,8 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			newId: randomUUID,
 			request: def.request,
 			scrub,
+			// Arm 1 reads the whole snapshot (the model sees summaries) and follows its own page's navigation.
+			...(arm1 ? { bounding: "none" as const, followOwnNavigation: true } : {}),
 			...(input.observationSink
 				? {
 						keepObservation: (o) => input.observationSink?.(trialId, ++kept, o),
@@ -331,18 +354,38 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				summary: `${grant.purpose}（${grant.origin}）`.slice(0, 160),
 			};
 		});
+		const parts = arm1
+			? createPartExecutor({
+					db,
+					owner,
+					executor,
+					tabs,
+					recorder,
+					control,
+					captures,
+					grants,
+					request: def.request,
+					logger,
+					runId,
+				})
+			: null;
 		let state = startRun({
 			arm: input.arm,
 			request: def.request,
-			reference: {
-				connection: { connectionId: sessionId, state: "connected" },
-				tabs: first.tabs,
-				observation: first.observation,
-				...(approved.length ? { approved } : {}),
-			},
+			reference: parts
+				? {
+						connection: { connectionId: sessionId, state: "connected" },
+						page: parts.begin(first),
+					}
+				: {
+						connection: { connectionId: sessionId, state: "connected" },
+						tabs: first.tabs,
+						observation: first.observation,
+						...(approved.length ? { approved } : {}),
+					},
 			policy,
 			nowMs: now(),
-			tools: offeredTools(adapter),
+			...(arm1 ? {} : { tools: offeredTools(adapter) }),
 		});
 		save(state);
 		for (;;) {
@@ -359,6 +402,9 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				outcome = await input.inference.complete({
 					messages: prepared.messages,
 					maxOutputTokens: OUTPUT_TOKENS,
+					...(prepared.outputSchema
+						? { outputSchema: prepared.outputSchema }
+						: {}),
 					signal: AbortSignal.any([
 						control.signal,
 						AbortSignal.timeout(callMs),
@@ -417,7 +463,10 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 					recorder.final("failed");
 					return { status: "failed", code: step.code };
 				case "call": {
-					const executed = await executor.execute(step.call);
+					const executed =
+						step.call.kind === "part" && parts
+							? await parts.run(step.call.part)
+							: await executor.execute(step.call);
 					if (executed.kind === "end") {
 						if (
 							executed.status === "cancelled" ||
@@ -501,6 +550,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		caseId: def.id,
 		arm: input.arm,
 		fixtureBaseUrl: baseUrl,
+		...(arm1 ? { captureDir: captures.dir } : {}),
 	});
 	const { score, scored } = scoreAndStore(db, def, transcript, {
 		runStatus: ending.status,
@@ -522,5 +572,6 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		transcript,
 		score,
 		scored,
+		captureDir: captures.dir,
 	};
 }

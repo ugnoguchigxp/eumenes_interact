@@ -1,5 +1,6 @@
 import { printable } from "../host/approval.ts";
-import { parseEffort } from "../host/claude.ts";
+import { parseEffort, parseMaxTokens } from "../host/claude.ts";
+import { parseArm } from "./arm.ts";
 import {
 	startOperate,
 	validateOperate,
@@ -14,6 +15,9 @@ export type OperateFlags = {
 	inference?: string | undefined;
 	model?: string | undefined;
 	effort?: string | undefined;
+	"max-tokens"?: string | undefined;
+	arm?: string | undefined;
+	"capture-dir"?: string | undefined;
 	"max-calls"?: string | undefined;
 	approver?: string | undefined;
 	headed?: boolean | undefined;
@@ -39,12 +43,21 @@ export function parseOperateFlags(flags: OperateFlags): OperateOptions {
 		throw new Error(`invalid_approver:${approver} (stop or cli)`);
 	if (
 		inference === "larm" &&
-		(flags.model !== undefined || flags.effort !== undefined)
+		(flags.model !== undefined ||
+			flags.effort !== undefined ||
+			flags["max-tokens"] !== undefined)
 	)
 		throw new Error("model_and_effort_are_for_claude");
 	const maxCalls =
 		flags["max-calls"] === undefined ? undefined : Number(flags["max-calls"]);
+	const arm = parseArm(flags.arm, "arm1");
+	const maxTokens = parseMaxTokens(flags["max-tokens"]);
 	const options: OperateOptions = {
+		arm,
+		...(maxTokens === undefined ? {} : { maxTokens }),
+		...(flags["capture-dir"] === undefined
+			? {}
+			: { captureDir: flags["capture-dir"] }),
 		request: flags.request,
 		startUrl: flags["start-url"],
 		allowedOrigins,
@@ -78,6 +91,13 @@ export function operateSummary(s: OperateSnapshot): string[] {
 		`final\t${s.final?.kind ?? "-"}${s.final?.text ? `\t${printable(s.final.text, 500)}` : ""}`,
 		`final url\t${printable(s.finalUrl ?? "-", 300)}`,
 		`model calls\t${s.modelCalls}\toperations\t${s.operations}`,
+		...(s.parts?.length ? [`parts\t${s.parts.join(" > ")}`] : []),
+		...(s.captures?.length
+			? [
+					`captures\t${s.captures.length}\t${printable(s.captureDir ?? "-", 300)}`,
+					...s.captures.map((name) => `  ${printable(name, 120)}`),
+				]
+			: []),
 		`tokens\tuncached input ${n(s.tokens.input)}\toutput ${n(s.tokens.output)}\tcache read ${n(s.tokens.cacheRead)}\tcache write ${n(s.tokens.cacheWrite)}\tprompt total ${n(promptTotal(s))}`,
 		`cost estimate (list prices, not a bill)\t${s.costUsdEstimate === null ? "-" : `$${s.costUsdEstimate.toFixed(4)}`}`,
 		...(s.inference ? [`inference\t${JSON.stringify(s.inference)}`] : []),

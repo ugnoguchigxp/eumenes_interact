@@ -277,6 +277,21 @@ describe("connection lifecycle", () => {
 	});
 });
 
+describe("outputSchema", () => {
+	test("is refused as unsupported, never ignored or sent", async () => {
+		const { fake, complete, events } = setup();
+		expect(await complete({ outputSchema: { type: "object" } })).toMatchObject({
+			kind: "error",
+			code: "output_schema_unsupported",
+		});
+		expect(fake.calls).toHaveLength(0);
+		expect(events.at(-1)).toMatchObject({
+			name: "inference.failed",
+			code: "output_schema_unsupported",
+		});
+	});
+});
+
 describe("max_tokens", () => {
 	test("a legacy claim caps the output at its reserve", async () => {
 		const { fake, complete } = setup((f) => {

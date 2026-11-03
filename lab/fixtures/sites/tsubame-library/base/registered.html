@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>登録完了 | つばめ図書館</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header><a href="index.html" class="brand">つばめ図書館</a></header>
+		<main>
+			<h1>利用者登録を受け付けました</h1>
+			<dl id="detail"></dl>
+			<p><a href="index.html">蔵書検索へ戻る</a></p>
+		</main>
+		<script>
+			const p = new URLSearchParams(location.search);
+			const dl = document.getElementById("detail");
+			for (const k of ["fullname", "email", "home", "notify", "card"]) {
+				if (!p.has(k)) continue;
+				const dt = document.createElement("dt");
+				dt.textContent = k;
+				const dd = document.createElement("dd");
+				dd.textContent = p.get(k);
+				dl.append(dt, dd);
+			}
+		</script>
+	</body>
+</html>

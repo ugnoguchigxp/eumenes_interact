@@ -32,9 +32,9 @@ describe("case files", () => {
 		const dev = all.filter((c) => c.split === "dev");
 		const holdout = all.filter((c) => c.split === "holdout");
 		expect(dev.length).toBeGreaterThanOrEqual(10);
-		expect(dev.length).toBeLessThanOrEqual(14);
+		expect(dev.length).toBeLessThanOrEqual(20);
 		expect(holdout.length).toBeGreaterThanOrEqual(4);
-		expect(holdout.length).toBeLessThanOrEqual(6);
+		expect(holdout.length).toBeLessThanOrEqual(9);
 		expect(new Set(all.map((c) => c.id)).size).toBe(all.length);
 	});
 

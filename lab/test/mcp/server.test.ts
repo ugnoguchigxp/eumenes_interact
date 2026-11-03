@@ -1,4 +1,14 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
+import {
+	mkdirSync,
+	mkdtempSync,
+	realpathSync,
+	rmSync,
+	symlinkSync,
+	writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { DefinitionRunResult } from "../../host/definition-run.ts";
@@ -7,6 +17,7 @@ import { RunnerActiveError } from "../../host/lock.ts";
 import {
 	DefinitionNotFoundError,
 	createInteractMcpServer,
+	parseCaptureRoots,
 	parseOriginAllowlist,
 	type InteractDeps,
 	type OperateHandle,
@@ -589,5 +600,158 @@ describe("the operator's origin allowlist", () => {
 		expect(() => parseOriginAllowlist("https://*.com")).toThrow();
 		expect(() => parseOriginAllowlist("http://example.org")).toThrow();
 		expect(() => parseOriginAllowlist("https://example.org/path")).toThrow();
+	});
+});
+
+describe("arm and capture folders", () => {
+	const base = mkdtempSync(join(tmpdir(), "interact-mcp-capture-"));
+	afterAll(() => rmSync(base, { recursive: true, force: true }));
+	const root = join(base, "root");
+	const inside = join(root, "shots");
+	const outside = join(base, "outside");
+	for (const dir of [inside, outside]) mkdirSync(dir, { recursive: true });
+	symlinkSync(outside, join(root, "escape"));
+	writeFileSync(join(root, "file.txt"), "");
+	const realInside = realpathSync(inside);
+	const withRoots = () =>
+		connect({ captureRoots: parseCaptureRoots(root) as string[] });
+
+	test("arm is passed through when given and left to the host's default when not", async () => {
+		const { call, fakes } = await connect();
+		await call("interact_operate_start", { ...START, arm: "arm0" });
+		expect(fakes.started[0]).toMatchObject({ arm: "arm0" });
+		const other = await connect();
+		await other.call("interact_operate_start", START);
+		expect(other.fakes.started[0]).not.toHaveProperty("arm");
+		expect(other.fakes.started[0]).not.toHaveProperty("captureDir");
+	});
+
+	test.each([
+		["an unknown arm", { arm: "arm2" }],
+		["a relative captureDir", { captureDir: "shots" }],
+		["a non-string captureDir", { captureDir: 5 }],
+	])("refuses %s", async (_name, over) => {
+		const { call, fakes } = await withRoots();
+		const r = await call("interact_operate_start", { ...START, ...over });
+		expect(r.body.error.code).toBe("invalid_input");
+		expect(fakes.started).toHaveLength(0);
+	});
+
+	test("a directory inside a root is passed on, resolved", async () => {
+		const { call, fakes } = await withRoots();
+		const r = await call("interact_operate_start", {
+			...START,
+			captureDir: inside,
+		});
+		expect(r.isError).toBe(false);
+		expect(fakes.started[0]).toMatchObject({ captureDir: realInside });
+		const def = await withRoots();
+		await def.call("interact_run_definition", {
+			definitionId: "wikipedia-article",
+			inputs: { query: "q" },
+			captureDir: root,
+		});
+		expect(def.fakes.definitionCalls[0]).toMatchObject({
+			captureDir: realpathSync(root),
+		});
+	});
+
+	test.each([
+		["outside the roots", () => outside],
+		["a symlink that escapes", () => join(root, "escape")],
+		["a dot-dot walk out", () => join(root, "..", "outside")],
+		["a missing directory", () => join(root, "missing")],
+		["a file", () => join(root, "file.txt")],
+	])("refuses %s before anything starts", async (_name, dir) => {
+		const { call, fakes } = await withRoots();
+		for (const [tool, args] of [
+			["interact_operate_start", START],
+			[
+				"interact_run_definition",
+				{ definitionId: "wikipedia-article", inputs: { query: "q" } },
+			],
+		] as const) {
+			const r = await call(tool, { ...args, captureDir: dir() });
+			expect(r.isError).toBe(true);
+			expect(r.body.error.code).toBe("capture_dir_not_permitted");
+		}
+		expect(fakes.started).toHaveLength(0);
+		expect(fakes.definitionCalls).toHaveLength(0);
+	});
+
+	test("with no roots set, captureDir is refused entirely", async () => {
+		const { call, fakes } = await connect();
+		const r = await call("interact_operate_start", {
+			...START,
+			captureDir: inside,
+		});
+		expect(r.body.error.code).toBe("capture_dir_not_permitted");
+		expect(r.body.error.message).toContain("INTERACT_MCP_CAPTURE_ROOTS");
+		expect(fakes.started).toHaveLength(0);
+	});
+
+	test("the roots env value must be absolute existing directories", () => {
+		expect(parseCaptureRoots(undefined)).toBeUndefined();
+		expect(parseCaptureRoots(`${root}, ${outside}`)).toEqual([
+			realpathSync(root),
+			realpathSync(outside),
+		]);
+		expect(() => parseCaptureRoots("relative/dir")).toThrow();
+		expect(() => parseCaptureRoots(join(base, "nope"))).toThrow();
+		expect(() => parseCaptureRoots(join(root, "file.txt"))).toThrow();
+	});
+
+	test("saved file names come back as base names with a note", async () => {
+		const run = fakeRun();
+		const withShots = {
+			...run.handle,
+			snapshot: () => ({
+				...run.handle.snapshot(),
+				captureDir: "/srv/lab/data/captures/run-1",
+				captures: ["/abs/dir/shot-001.png", "shot-002.png"],
+			}),
+		};
+		const given = await connect({
+			startOperate: () => withShots,
+			captureRoots: parseCaptureRoots(root) as string[],
+		});
+		await given.call("interact_operate_start", {
+			...START,
+			captureDir: inside,
+		});
+		const r = await given.call("interact_operate_status", { runId: "run-1" });
+		expect(r.body.captures).toEqual(["shot-001.png", "shot-002.png"]);
+		expect(r.body.captureNote).toMatch(/hand to an AI/);
+		expect(r.body).not.toHaveProperty("captureDir");
+		expect(r.text).not.toContain("/abs/dir");
+		expect(r.text).not.toContain("/srv/lab");
+		// No captureDir given: the server's own folder is not shown, and the note says so.
+		const kept = await connect({ startOperate: () => withShots });
+		await kept.call("interact_operate_start", START);
+		const k = await kept.call("interact_operate_status", { runId: "run-1" });
+		expect(k.body.captureNote).toMatch(/no captureDir was given/);
+		expect(k.text).not.toContain("/srv/lab");
+		const plain = await connect();
+		await plain.call("interact_operate_start", START);
+		const none = await plain.call("interact_operate_status", {
+			runId: "run-1",
+		});
+		expect(none.body).not.toHaveProperty("captures");
+		expect(none.body).not.toHaveProperty("captureNote");
+	});
+
+	test("a definition result carries its capture names too", async () => {
+		const { call } = await connect({
+			runDefinition: async () => ({
+				...extractResult(),
+				captures: ["/x/y/a.png"],
+			}),
+		});
+		const r = await call("interact_run_definition", {
+			definitionId: "wikipedia-article",
+			inputs: { query: "q" },
+		});
+		expect(r.body.captures).toEqual(["a.png"]);
+		expect(r.body.captureNote).toBeTruthy();
 	});
 });

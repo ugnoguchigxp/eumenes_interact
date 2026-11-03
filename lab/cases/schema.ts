@@ -15,6 +15,8 @@ export const CATEGORIES = [
 	"tab",
 	"approval",
 	"ambiguous",
+	"screenshot",
+	"read",
 	"live",
 ] as const;
 export const VARIANTS = [
@@ -26,6 +28,10 @@ export const VARIANTS = [
 	"stale",
 	"live",
 ] as const;
+
+/** Capture ranges of `page.capture` (plan.md §6.4). */
+export const CAPTURE_RANGES = ["viewport", "full", "item"] as const;
+export type CaptureRange = (typeof CAPTURE_RANGES)[number];
 
 /** A path inside `lab/fixtures`, as in `sites/<site>/<variant>/<page>.html`. No query, no traversal. */
 const fixturePath = z
@@ -79,6 +85,24 @@ export const expectSchema = z.discriminatedUnion("kind", [
 		 * ignored), for requests that ask for information. The claim alone is never trusted.
 		 */
 		answerIncludes: z.array(z.string().min(1)).default([]),
+		/**
+		 * Screenshot requests: at least `min` saved captures (of `range` when given), each a valid PNG/JPEG
+		 * under the run's capture folder whose header size matches what the host recorded. What the image
+		 * shows is not judged here (plan.md §6.4: recognition is measured on the Eumenes side).
+		 */
+		captures: z
+			.strictObject({
+				min: z.int().positive(),
+				range: z.enum(CAPTURE_RANGES).optional(),
+				/**
+				 * An element capture must be of this element (role and accessible name). The transcript holds only a
+				 * digest of the name, so a capture of a neighbouring element does not count.
+				 */
+				target: z
+					.strictObject({ role: z.string().min(1), name: z.string().min(1) })
+					.optional(),
+			})
+			.optional(),
 		...expectBase,
 	}),
 	/** The request cannot be done without asking: the correct outcome is a clarify, with no effect. */

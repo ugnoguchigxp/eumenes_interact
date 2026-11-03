@@ -22,7 +22,14 @@ export type TrialVersions = {
 export type InferenceInfo =
 	| { kind: "scripted" }
 	| { kind: "larm"; profile: string; model: string | null }
-	| { kind: "claude"; provider: "anthropic"; model: string; effort: string };
+	| {
+			kind: "claude";
+			provider: "anthropic";
+			model: string;
+			effort: string;
+			/** The output bound per call, when the run set one (`--max-tokens`). */
+			maxTokens?: number;
+	  };
 
 /** An operate run's case id starts with this: it is a free-form request, not a trial of a case. */
 export const OPERATE_CASE_PREFIX = "operate-";

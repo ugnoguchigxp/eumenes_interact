@@ -4,6 +4,7 @@ import {
 	mkdirSync,
 	mkdtempSync,
 	readdirSync,
+	realpathSync,
 	rmSync,
 	utimesSync,
 	writeFileSync,
@@ -22,6 +23,7 @@ import {
 	type OperateOptions,
 } from "../../host/operate.ts";
 import type { InferenceInfo } from "../../host/types.ts";
+import { createArm1ScriptedInference } from "../../scripted/arm1.ts";
 import { createScriptedInference } from "../../scripted/inference.ts";
 import { FakeBrowser } from "./fake-adapter.ts";
 
@@ -90,6 +92,8 @@ const options = (over: Partial<OperateOptions> = {}): OperateOptions => ({
 	startUrl: "https://ja.wikipedia.org/",
 	allowedOrigins: ["https://ja.wikipedia.org"],
 	inference: "claude",
+	// Arm 0: the gated model and the scripted answers below speak its tools. Arm 1 has its own tests.
+	arm: "arm0",
 	approver: "stop",
 	dbPath: join(dir, "interact.sqlite"),
 	...over,
@@ -344,10 +348,15 @@ describe("startOperate", () => {
 		bad({ maxModelCalls: 0 }, "invalid_max_calls");
 		bad({ request: " " }, "invalid_request");
 		bad({ effort: "extreme" as never }, "invalid_effort");
-		expect(validateOperate(options({ maxModelCalls: 12 }))).toEqual({
+		expect(validateOperate(options({ maxModelCalls: 12 }))).toMatchObject({
 			maxModelCalls: 12,
 		});
-		expect(validateOperate(options())).toEqual({ maxModelCalls: 12 });
+		expect(validateOperate(options())).toMatchObject({
+			maxModelCalls: 12,
+			arm: "arm0",
+		});
+		const { arm: _arm, ...unspecified } = options();
+		expect(validateOperate(unspecified)).toMatchObject({ arm: "arm1" });
 		expect(
 			validateOperate(
 				options({
@@ -355,7 +364,7 @@ describe("startOperate", () => {
 					allowedOrigins: ["https://*.slashdot.org"],
 				}),
 			),
-		).toEqual({ maxModelCalls: 12 });
+		).toMatchObject({ maxModelCalls: 12 });
 	});
 
 	test("the budget is the run's: one call allowed leaves no call for a tool and ends the run as failed", async () => {
@@ -460,5 +469,118 @@ describe("startOperate", () => {
 		expect(
 			readdirSync(join(observationsDir, handle.runId)).length,
 		).toBeGreaterThan(0);
+	});
+});
+
+describe("startOperate with Arm 1 (registered parts)", () => {
+	const steps = [
+		{ part: "page.capture" as const, args: { range: "viewport" } },
+		{ done: "撮影しました。" },
+	];
+	const arm1 = (over: Partial<OperateOptions> = {}) =>
+		options({ arm: "arm1", ...over });
+	const partsDeps = (capturesRoot: string, over: Partial<OperateDeps> = {}) =>
+		deps(createArm1ScriptedInference({ caseId: "op", steps }), {
+			capturesRoot,
+			...over,
+		});
+
+	test("Arm 1 is the default; a screenshot lands in the run's own directory and the snapshot names it", async () => {
+		const capturesRoot = join(dir, "captures");
+		const { arm: _arm, ...unspecified } = options();
+		const handle = startOperate(unspecified, partsDeps(capturesRoot));
+		const last = await handle.done;
+		expect(last).toMatchObject({
+			status: "completed",
+			arm: "arm1",
+			parts: ["page.capture"],
+			captureDir: join(capturesRoot, handle.runId),
+			final: { kind: "finish", text: "撮影しました。" },
+		});
+		expect(last.captures).toHaveLength(1);
+		expect(last.captures![0]).toMatch(/^[0-9a-f]{8}-1-viewport\.png$/);
+		expect(existsSync(join(last.captureDir!, last.captures![0]!))).toBe(true);
+	});
+
+	test("the caller's directory is used, and the arm is frozen with the run", async () => {
+		const out = join(dir, "out");
+		mkdirSync(out);
+		const handle = startOperate(
+			arm1({ captureDir: out, maxTokens: 4000 }),
+			partsDeps(join(dir, "captures")),
+		);
+		const last = await handle.done;
+		expect(last.captureDir).toBe(realpathSync(out));
+		expect(readdirSync(out)).toEqual([...(last.captures ?? [])]);
+		const db = openLabDb(options().dbPath);
+		try {
+			const trial = db
+				.query("SELECT arm, transcript_json FROM lab_trials")
+				.get() as {
+				arm: string;
+				transcript_json: string;
+			};
+			expect(trial.arm).toBe("arm1");
+			expect(JSON.parse(trial.transcript_json).captureDir).toBe(
+				realpathSync(out),
+			);
+			const experiment = db
+				.query("SELECT arms_json, budget_json FROM lab_experiments")
+				.get() as { arms_json: string; budget_json: string };
+			expect(JSON.parse(experiment.arms_json)).toEqual(["arm1"]);
+			expect(JSON.parse(experiment.budget_json).inference).toEqual({
+				kind: "claude",
+				model: "claude-haiku-5-5",
+				effort: "low",
+				maxTokens: 4000,
+			});
+		} finally {
+			db.close();
+		}
+	});
+
+	test("a bad capture directory is refused before a lock or a database is touched", () => {
+		for (const [captureDir, code] of [
+			["relative", "capture_dir_not_absolute"],
+			[join(dir, "missing"), "capture_dir_missing"],
+		] as const)
+			expect(() => startOperate(arm1({ captureDir }), partsDeps(dir))).toThrow(
+				code,
+			);
+		expect(existsSync(`${options().dbPath}.run.lock`)).toBe(false);
+		expect(existsSync(options().dbPath!)).toBe(false);
+	});
+
+	test("Arm 1 needs a model that follows a schema: LARM is refused up front", () => {
+		expect(() =>
+			startOperate(arm1({ inference: "larm" }), partsDeps(dir)),
+		).toThrow("arm1_needs_structured_output");
+	});
+
+	test("what the run keeps holds the part names and file names, not the page's text", async () => {
+		const handle = startOperate(arm1(), partsDeps(join(dir, "captures")));
+		await handle.done;
+		const db = openLabDb(options().dbPath);
+		try {
+			const row = db.query("SELECT transcript_json FROM lab_trials").get() as {
+				transcript_json: string;
+			};
+			expect(row.transcript_json).toContain('"part":"page.capture"');
+			expect(row.transcript_json).not.toContain("メニュー");
+			expect(row.transcript_json).not.toContain("撮影しました");
+		} finally {
+			db.close();
+		}
+	});
+
+	test("old capture directories of the default area are removed at the start", async () => {
+		const capturesRoot = join(dir, "captures");
+		mkdirSync(join(capturesRoot, "stale-run"), { recursive: true });
+		writeFileSync(join(capturesRoot, "stale-run", "x.png"), "x");
+		const old = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
+		utimesSync(join(capturesRoot, "stale-run"), old, old);
+		const handle = startOperate(arm1(), partsDeps(capturesRoot));
+		await handle.done;
+		expect(readdirSync(capturesRoot)).toEqual([handle.runId]);
 	});
 });

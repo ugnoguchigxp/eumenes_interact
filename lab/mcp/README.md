@@ -41,17 +41,32 @@ claude mcp add eumenes-interact --env INTERACT_MCP_ALLOWED_ORIGINS=https://ja.wi
 - 未設定のときは、形式が正しければどのoriginも指定できる。ただし`*.`の後ろが2ラベル未満のワイルドカード（`https://*.uk`、`https://*.com`）は`invalid_input`で拒否する。`https://*.co.uk`のような広い指定は通るので、公開して使うなら許可リストを設定する。
 - 実サイトの範囲が決まっているなら、常に設定しておくことを勧める。
 
+## スクリーンショットの保存先（運用者向け）
+
+`captureDir`を渡すと、run は撮ったスクリーンショットをそのフォルダに保存する（ファイル名はホストが付け、上書きしない）。呼び出し側が任意の場所へ書けないよう、運用者が環境変数`INTERACT_MCP_CAPTURE_ROOTS`で許可するフォルダを決める。起動時に読む。
+
+```
+claude mcp add eumenes-interact --env INTERACT_MCP_CAPTURE_ROOTS=/Users/y.noguchi/shots -- bun --cwd /Users/y.noguchi/Code/eumenes_interact lab/mcp/server.ts
+```
+
+- カンマ区切りの絶対パスで、存在するフォルダだけ。相対パスや存在しないものがあるとサーバーは起動しない。
+- `captureDir`は絶対パスで、シンボリックリンクを解決（realpath）した結果がいずれかのルートの中のフォルダでなければならない。外、リンクでの脱出、存在しない、ファイル、のいずれも`capture_dir_not_permitted`で、何も始まらない。run には解決後のパスを渡す。
+- **未設定のときは`captureDir`をすべて拒否する**（`capture_dir_not_permitted`）。省略すれば、ラボの既定の保存先が使われる。
+- 結果とstatusには、保存されたファイルの**ファイル名（base name）**が`captures`に入り、`captureNote`が付く（ホストのsnapshotが報告したときだけ）。パスや画像のデータは返さない。
+- 責任の分担: 画像を読んで説明させる（AIに渡す）のは呼び出し側（Eumenes）の仕事。このサーバーは画像を読まず、解釈もしない。
+
 ## ツール
 
 | ツール | 入力 | 返すもの |
 | --- | --- | --- |
 | `interact_list_definitions` | なし | 定義ごとの`id`、`revision`、`title`、`allowedOrigins`、`inputs`（`properties`と`required`）。読み取りのみ |
-| `interact_run_definition` | `definitionId`（文字列）、`inputs`（文字列→文字列）、`headed?`（真偽） | `task run --json`と同じ結果。同期で、1分ほどかかることがある |
-| `interact_operate_start` | `request`（1〜4000文字）、`startUrl`（http(s)）、`allowedOrigins`（1〜10件）、`maxModelCalls?`（1〜12の整数）、`headed?` | `{ runId, status }`。受付であって完了ではない |
+| `interact_run_definition` | `definitionId`（文字列）、`inputs`（文字列→文字列）、`headed?`（真偽）、`captureDir?`（絶対パス） | `task run --json`と同じ結果。同期で、1分ほどかかることがある |
+| `interact_operate_start` | `request`（1〜4000文字）、`startUrl`（http(s)）、`allowedOrigins`（1〜10件）、`maxModelCalls?`（1〜12の整数）、`headed?`、`arm?`（`arm0`か`arm1`、既定`arm1`）、`captureDir?`（絶対パス） | `{ runId, status }`。受付であって完了ではない |
 | `interact_operate_status` | `runId` | 最新の`OperateSnapshot`（status、final、modelCalls、operations、tokens、costUsdEstimate、approval） |
 | `interact_operate_cancel` | `runId` | 取り消して、その時点のsnapshot（終了を最大5秒待つ） |
 
 - `allowedOrigins`の各要素は`https://host[:port]`か`https://*.domain`。`startUrl`はその範囲に入っている必要がある（外なら`start_url_not_allowed`）。
+- `arm`は`arm1`（既定。登録済みの部品を使える）か`arm0`（モデルだけ）。未指定ならホストの既定に任せる。
 - `interact_operate_start`は`inference: "claude"`（モデルと effort は`lab/host/operate.ts`と`lab/inference/claude.ts`の既定）、approver `stop`で始める。進み具合は`interact_operate_status`で確かめる。
 - `interact_operate_status`と`interact_operate_cancel`が扱えるのは、このサーバープロセスが始めた run だけ。
 - `interact_run_definition`の結果は`task run --json`に次の差がある。抽出した本文は`extracts.<stepId>.pageText`（ページ由来のデータ）で、`text`ではない。`durationMs`と、ページ由来の欄を示す`pageDataNotice`が付く。定義や入力が拒否されたときは、エラーではなく`status: "rejected"`の結果で返る。
@@ -68,6 +83,7 @@ claude mcp add eumenes-interact --env INTERACT_MCP_ALLOWED_ORIGINS=https://ja.wi
 | `definition_not_found` | その`id`の定義が無い |
 | `start_url_not_allowed` | `startUrl`が`allowedOrigins`の外 |
 | `origin_not_permitted` | `allowedOrigins`が運用者の許可リストの外 |
+| `capture_dir_not_permitted` | `captureDir`が運用者のルートの外、または未設定で無効 |
 | `shutting_down` | 終了処理中 |
 | `internal_error` | 想定外の失敗（詳細は標準エラー） |
 | その他 | `lab/host/operate.ts`が返す固定コード（例: キー未設定） |

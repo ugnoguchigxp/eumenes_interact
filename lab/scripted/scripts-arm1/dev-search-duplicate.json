@@ -1,0 +1,29 @@
+{
+	"caseId": "dev-search-duplicate",
+	"steps": [
+		{
+			"part": "form.fill",
+			"fields": [
+				{
+					"target": {
+						"role": "searchbox",
+						"name": "書名・著者",
+						"region": "search"
+					},
+					"value": "天野"
+				}
+			]
+		},
+		{
+			"part": "item.open",
+			"target": {
+				"role": "button",
+				"name": "検索",
+				"region": "search"
+			}
+		},
+		{
+			"done": "「天野」の検索結果を表示しました。"
+		}
+	]
+}

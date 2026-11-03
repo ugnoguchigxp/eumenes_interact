@@ -255,7 +255,7 @@ function outcomeResult(
 	work: Work,
 	tool: string,
 	pendingTab: string | undefined,
-	outcome: Exclude<HostOutcome, { kind: "stop" }>,
+	outcome: Exclude<HostOutcome, { kind: "stop" | "part" }>,
 ): { work: Work; result: TaskToolResult; observed: boolean } {
 	switch (outcome.kind) {
 		case "observation":
@@ -341,6 +341,8 @@ export function applyResult(
 	const current = liveStateOf(state);
 	const pending = current.work.pending;
 	if (!pending) throw new Error("core_state_invalid");
+	// A part result belongs to Arm 1.
+	if (outcome.kind === "part") throw new Error("unsupported_outcome");
 	if (outcome.kind === "stop")
 		return {
 			state: {

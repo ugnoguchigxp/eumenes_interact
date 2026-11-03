@@ -1,0 +1,31 @@
+{
+	"caseId": "dev-capture-item",
+	"steps": [
+		{
+			"part": "site.search",
+			"args": {
+				"query": "木のスプーン"
+			}
+		},
+		{
+			"part": "item.open",
+			"target": {
+				"role": "link",
+				"name": "木のスプーン"
+			}
+		},
+		{
+			"part": "page.capture",
+			"args": {
+				"range": "item"
+			},
+			"target": {
+				"role": "article",
+				"name": "商品の詳細"
+			}
+		},
+		{
+			"done": "『木のスプーン』の商品の部分を撮影しました。"
+		}
+	]
+}

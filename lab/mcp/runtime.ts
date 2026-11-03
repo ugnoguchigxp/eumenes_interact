@@ -11,8 +11,10 @@ import { reconcileOnStartup } from "../host/reconcile.ts";
 import { LAB_OWNER } from "../host/run.ts";
 import { importSeed, loadSeeds } from "../knowledge/seed.ts";
 import {
+	CAPTURE_ROOTS_ENV,
 	DefinitionNotFoundError,
 	ORIGIN_ALLOWLIST_ENV,
+	parseCaptureRoots,
 	parseOriginAllowlist,
 	type InteractDeps,
 } from "./interact-server.ts";
@@ -60,6 +62,7 @@ async function runLocked(
 				approver: new StopApprover(),
 				logger,
 				control,
+				...(request.captureDir ? { captureDir: request.captureDir } : {}),
 			});
 		} finally {
 			request.signal.removeEventListener("abort", cancel);
@@ -72,11 +75,16 @@ async function runLocked(
 	}
 }
 
-const originLimit = () => {
+/** The operator's limits, read once at start; a bad value stops the server. */
+const operatorLimits = () => {
 	const originAllowlist = parseOriginAllowlist(
 		process.env[ORIGIN_ALLOWLIST_ENV],
 	);
-	return originAllowlist ? { originAllowlist } : {};
+	const captureRoots = parseCaptureRoots(process.env[CAPTURE_ROOTS_ENV]);
+	return {
+		...(originAllowlist ? { originAllowlist } : {}),
+		...(captureRoots ? { captureRoots } : {}),
+	};
 };
 
 export function realDeps(dbPath: string = DEFAULT_DB_PATH): InteractDeps {
@@ -96,6 +104,6 @@ export function realDeps(dbPath: string = DEFAULT_DB_PATH): InteractDeps {
 		runDefinition: (request) => runLocked(request, dbPath),
 		startOperate: (options) => startOperate({ ...options, dbPath }),
 		now: Date.now,
-		...originLimit(),
+		...operatorLimits(),
 	};
 }

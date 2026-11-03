@@ -1,0 +1,22 @@
+{
+	"caseId": "dev-approval-deny",
+	"steps": [
+		{
+			"part": "item.open",
+			"target": {
+				"role": "link",
+				"name": "メールマガジン"
+			}
+		},
+		{
+			"part": "form.submit",
+			"target": {
+				"role": "button",
+				"name": "配信を停止する"
+			}
+		},
+		{
+			"done": "配信の停止を行いました。"
+		}
+	]
+}

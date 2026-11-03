@@ -217,6 +217,15 @@ export function createLarmInference(o: {
 					usage: { inputTokens: null, outputTokens: null },
 					latencyMs: Math.round(performance.now() - (sent.at ?? started)),
 				});
+			// Eumenes' LARM path enforces a schema with `response_format: json_schema` (strict); that is
+			// not ported yet, so the schema is refused rather than ignored.
+			if (request.outputSchema)
+				return finish({
+					kind: "error",
+					code: "output_schema_unsupported",
+					usage: { inputTokens: null, outputTokens: null },
+					latencyMs: 0,
+				});
 			try {
 				return await exclusive(scoped, async () => {
 					let response: Response;

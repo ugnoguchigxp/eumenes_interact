@@ -71,7 +71,7 @@ export function boundSnapshot(
 }
 
 /** ARIA node boundaries for bounding. */
-function snapshotNodes(snapshot: string) {
+export function snapshotNodes(snapshot: string) {
 	const nodes: { level: number; lines: string[] }[] = [];
 	for (const raw of snapshot.split("\n")) {
 		const line = raw.replace(/\r$/, "").replace(/\t/g, "  ");

@@ -9,14 +9,16 @@
 	<body>
 		<header><a href="index.html" class="brand">つばめ図書館</a></header>
 		<main>
-			<h1 id="title"></h1>
-			<p id="branch"></p>
-			<p><button type="button" id="status-btn">貸出状況を調べる</button></p>
-			<p id="status" aria-live="polite"></p>
-			<form action="reserved.html" method="get">
-				<input type="hidden" id="item-id" name="id" />
-				<button type="submit">この資料を予約する</button>
-			</form>
+			<article aria-label="資料の詳細">
+				<h1 id="title"></h1>
+				<p id="branch"></p>
+				<p><button type="button" id="status-btn">貸出状況を調べる</button></p>
+				<p id="status" aria-live="polite"></p>
+				<form action="reserved.html" method="get">
+					<input type="hidden" id="item-id" name="id" />
+					<button type="submit">この資料を予約する</button>
+				</form>
+			</article>
 			<p><a href="index.html">蔵書検索へ戻る</a></p>
 		</main>
 		<script src="../library.js"></script>

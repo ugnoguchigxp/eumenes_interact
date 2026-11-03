@@ -6,8 +6,7 @@ import { refOf, webUrl } from "../mcp/common.ts";
  * The closed list of `@playwright/mcp` tools the adapter may call, and the mapping of adapter
  * commands onto them. `browser_evaluate` is reached only through the fixed functions of
  * `mcp/inspect.ts`. `browser_run_code_unsafe` (arbitrary code in the server process) is not on the
- * list (plan.md §5.2). `browser_take_screenshot` is listed for the later capture operation; no
- * command reaches it yet.
+ * list (plan.md §5.2). `browser_take_screenshot` is reached only through `capture`.
  */
 export const ALLOWED_MCP_TOOLS = [
 	"browser_tabs",
@@ -94,5 +93,27 @@ export function commandCall(
 		}
 		default:
 			throw new AdapterError("unsupported", false);
+	}
+}
+
+/**
+ * The arguments of a screenshot, always PNG in CSS pixels (consistent across devices, smaller). The
+ * output file MCP writes goes to its output dir (no `filename`), which the adapter empties. `item`
+ * needs the ref of an observed element and the other ranges must not have one.
+ */
+export function captureArgs(
+	range: "viewport" | "full" | "item",
+	targetRef: string | null,
+): Record<string, unknown> {
+	const base = { type: "png", scale: "css" };
+	switch (range) {
+		case "viewport":
+		case "full":
+			if (targetRef !== null) throw new AdapterError("invalid_ref", false);
+			return range === "full" ? { ...base, fullPage: true } : base;
+		case "item":
+			return { ...base, target: refOf(targetRef), element: "captured element" };
+		default:
+			throw new AdapterError("invalid_range", false);
 	}
 }

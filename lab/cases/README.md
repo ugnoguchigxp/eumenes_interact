@@ -35,6 +35,7 @@ holdoutを調整に使った場合は、そのケースをdevへ移して新し�
 - `staleFrom`: 古い知識を作るために観測する基本版のページ（古い知識のケースだけ）。
 - `expect.kind`
   - `reach`: 最終URLが`final`のどれかに一致すること。情報を求める依頼では、さらに完了文（`step.final.text`）が`answerIncludes`の事実をすべて含むこと（NFKC・小文字・空白無視・桁区切りのカンマ無視で比較）。URLだけ、または申告だけでは成功にならない。
+  - `reach`に`captures: { min, range? }`（`range`は`viewport`・`full`・`item`）を付けると、スクリーンショットの依頼になる。`capture.saved`が`min`件以上（`range`があればその範囲で）あり、すべての撮影のファイルが`captureDir`の下に実在し（`..`・絶対パス・symlinkで外へ出るものは無効）、PNG/JPEGのmagic bytesで、ヘッダーの大きさが記録と一致して0でないことが、URL述語に加えた成功の条件になる。足りなければ`capture_missing`、1件でも無効なら`capture_invalid`。画像に何が写っているかは採点しない（plan.md §6.4。認識の質はEumenes側で測る）。
   - `clarify`: 聞き返して終えること（効果・禁止ページなし）。
   - `refuse`: 承認が拒否され、効果が起きないこと。
 - `expect.effectful`: 到達したら外部効果が起きたとみなすページ（fileではPOSTできないため、`done.html?…`への遷移で代用する）。
@@ -57,6 +58,7 @@ URL述語は、`path`が一致し（dev/holdoutはfixture相対パス、liveは`
 `TrialTranscript`（`../scorer/transcript.ts`）の要点。
 
 - `fixtureBaseUrl`: 試行の基準URL（末尾`/`付き）。dev/holdoutは`lab/fixtures/`を配信しているループバックHTTPの基準URL、liveはケースの開始origin（`https://www.youtube.com/`）。フィールド名は全splitで同じ。URLの比較の基準。
+- `capture.saved`（撮影のたびに）: `captureId`、`fileName`（`captureDir`からの相対名）、`width`、`height`、`bytes`、`mediaType`（`image/png` / `image/jpeg`）、`range`。`TrialTranscript.captureDir`には、その実行の撮影先の絶対パスを入れる（`captures`のあるケースの採点に必須。無ければ撮影はすべて無効）。採点器はファイルを読む（`scoreTrial`は同期のまま、`node:fs`を使う）ので、採点は撮影先が残っているうちに行う。
 - `step.final.text`: 完了時にモデルが利用者へ示した文。`answerIncludes`のあるケースの採点に使う。
 - `operation.requested`に`requiresApproval`（ホストの承認判定）と、再送のときは`retryOf`を入れる。
 - `operation.dispatched`は、adapterを待つ前に書く。結果が不明（`indeterminate`）になった操作と同じ内容の送出は、再送違反として数える。
@@ -99,7 +101,11 @@ fixtureは`file://`では動かさない（Playwright MCPが`file:`を既定で�
 | 同上 | `relabel` | 「はじめての方へ」など表示名の変更。holdout専用 |
 | 同上 | `stale` | `keyword`・`library`・`search.html`への変更。holdout専用 |
 
-holdoutのケースは、devのケースが使わないvariant（`tsubame-library`の全部と`minato-hall/restructure`）だけを使う。テストで検査する。
+| `kaede-shop`（楓雑貨店） | `base` | dev専用。商品検索（`results.html`）、商品ページ（`<article aria-label="商品の詳細">`と別商品の欄）、縦に長い全商品ページ（`catalog.html`）、お手入れガイド（本文＋表。洗い方・水温は表の中だけ）、五項目の注文フォーム（テキスト・メール・select・チェックボックス・ラジオ。お届け方法は必須で初期選択なし）→`ordered.html?…`（効果あり） |
+
+`tsubame-library/base`は、holdout用に次を持つ。資料ページの`<article aria-label="資料の詳細">`、五項目の利用者登録（`register.html`→`registered.html?…`、効果あり）、貸出のきまり（`rules.html`、本文＋表。冊数・期間は表の中だけ）。
+
+holdoutのケースは、devのケースが使わないvariant（`tsubame-library`の全部と`minato-hall/restructure`。`kaede-shop`はdev専用）だけを使う。テストで検査する。
 
 ## 範囲外・今後
 

@@ -25,7 +25,10 @@ export type TrialFactories = {
 		adapter: PlatformAdapter;
 		dispose(): Promise<void>;
 	}>;
-	inference(def: CaseDef): Promise<{
+	inference(
+		def: CaseDef,
+		arm: ArmId,
+	): Promise<{
 		port: InferencePort;
 		info: () => InferenceInfo;
 		dispose(): Promise<void>;
@@ -41,7 +44,7 @@ export type ExperimentInput = {
 	name: string;
 	inferenceKind: InferenceKind;
 	/** The model and effort a Claude run was frozen to: recorded with the experiment's other conditions. */
-	frozenInference?: { model: string; effort: string };
+	frozenInference?: { model: string; effort: string; maxTokens?: number };
 	includesHoldout: boolean;
 	includesLive?: boolean;
 	factories: TrialFactories;
@@ -50,6 +53,10 @@ export type ExperimentInput = {
 	/** Required unless every case is live. */
 	fixtureBaseUrl?: string;
 	observationSink?: ObservationSink;
+	/** Arm 1: an existing absolute directory every trial's screenshots go to; default: the lab's area per run. */
+	captureDir?: string;
+	/** Where the default capture directories are made (tests). */
+	captureRoot?: string;
 	now?: () => number;
 	/** Gives the caller the current trial's control (a signal handler cancels through it). */
 	onControl?: (control: RunControl) => void;
@@ -98,7 +105,7 @@ export async function runExperiment(input: ExperimentInput) {
 		const control = new RunControl();
 		input.onControl?.(control);
 		const session = await input.factories.adapter(planned.def);
-		const inference = await input.factories.inference(planned.def);
+		const inference = await input.factories.inference(planned.def, planned.arm);
 		try {
 			const result = await runTrial({
 				db: input.db,
@@ -119,6 +126,8 @@ export async function runExperiment(input: ExperimentInput) {
 				...(input.observationSink
 					? { observationSink: input.observationSink }
 					: {}),
+				...(input.captureDir ? { captureDir: input.captureDir } : {}),
+				...(input.captureRoot ? { captureRoot: input.captureRoot } : {}),
 				now,
 				control,
 			});

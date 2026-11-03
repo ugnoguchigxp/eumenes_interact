@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>利用者登録 | つばめ図書館</title>
+		<link rel="stylesheet" href="../site.css" />
+	</head>
+	<body>
+		<header><a href="index.html" class="brand">つばめ図書館</a></header>
+		<main>
+			<h1>利用者登録</h1>
+			<form action="registered.html" method="get">
+				<label for="fullname">お名前</label>
+				<input id="fullname" name="fullname" required />
+				<label for="email">メールアドレス</label>
+				<input id="email" name="email" type="email" required />
+				<label for="home">よく使う館</label>
+				<select id="home" name="home">
+					<option value="central">中央館</option>
+					<option value="east">東分館</option>
+				</select>
+				<p>
+					<label
+						><input type="checkbox" name="notify" value="1" />
+						メールで新着案内を受け取る</label
+					>
+				</p>
+				<fieldset>
+					<legend>カードの種類（必須）</legend>
+					<label
+						><input type="radio" name="card" value="paper" required />
+						紙のカード</label
+					>
+					<label
+						><input type="radio" name="card" value="app" required />
+						アプリのカード</label
+					>
+				</fieldset>
+				<p><button type="submit">登録する</button></p>
+			</form>
+		</main>
+	</body>
+</html>

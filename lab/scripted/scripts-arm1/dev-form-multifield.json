@@ -1,0 +1,55 @@
+{
+	"caseId": "dev-form-multifield",
+	"steps": [
+		{
+			"part": "form.fill",
+			"fields": [
+				{
+					"target": {
+						"role": "textbox",
+						"name": "お名前"
+					},
+					"value": "中村美咲"
+				},
+				{
+					"target": {
+						"role": "textbox",
+						"name": "メールアドレス"
+					},
+					"value": "misaki@example.com"
+				},
+				{
+					"target": {
+						"role": "combobox",
+						"name": "商品"
+					},
+					"value": "木のスプーン"
+				},
+				{
+					"target": {
+						"role": "checkbox",
+						"name": "ギフト包装にする"
+					},
+					"value": "on"
+				},
+				{
+					"target": {
+						"role": "radio",
+						"name": "お急ぎ便"
+					},
+					"value": "on"
+				}
+			]
+		},
+		{
+			"part": "form.submit",
+			"target": {
+				"role": "button",
+				"name": "注文する"
+			}
+		},
+		{
+			"done": "ご注文を送信しました。"
+		}
+	]
+}

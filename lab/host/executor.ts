@@ -7,6 +7,7 @@ import {
 	type AdapterCommand,
 	type AdapterDispatchResult,
 	type AdapterTarget,
+	type CapturedImage,
 	type HostCall,
 	type HostOutcome,
 	type InspectionResult,
@@ -59,6 +60,15 @@ import { Refusal, RunEnd, type RunEndStatus } from "./types.ts";
 export type Executed =
 	| { kind: "outcome"; outcome: HostOutcome }
 	| { kind: "end"; status: RunEndStatus; code: string };
+
+/** What only the host's own callers (the part executor) may set; a model's call never carries it. */
+export type ExecuteOptions = {
+	/**
+	 * The typed value was already checked against the request by the caller (a search query is a few words the
+	 * request supplies, not one quotation). Without it a `page.fill` needs an input provenance.
+	 */
+	valueChecked?: boolean;
+};
 
 export type ExecutorDeps = {
 	db: Database;
@@ -138,6 +148,8 @@ function wholeObservation(raw: RawObservation): ShapedObservation {
 }
 
 const stableJson = (value: unknown) => JSON.stringify(value);
+
+export type Executor = ReturnType<typeof createExecutor>;
 
 export function createExecutor(deps: ExecutorDeps) {
 	const { db, owner, runId, adapter, tabs, recorder, control, logger } = deps;
@@ -426,6 +438,7 @@ export function createExecutor(deps: ExecutorDeps) {
 
 	async function operate(
 		call: Extract<HostCall, { kind: "operate" }>,
+		options: ExecuteOptions = {},
 	): Promise<Executed> {
 		const { tabRef } = call;
 		if (!tabRef) throw new Refusal("no_target_tab");
@@ -443,8 +456,11 @@ export function createExecutor(deps: ExecutorDeps) {
 		let granted = false;
 		if (command.action === "page.fill") {
 			const provenance = call.inputProvenance;
-			if (!provenance) throw new Refusal("value_source");
-			if (provenance.kind === "request_quote")
+			if (!provenance && !options.valueChecked)
+				throw new Refusal("value_source");
+			if (!provenance) {
+				// Checked by the host's own caller.
+			} else if (provenance.kind === "request_quote")
 				assertQuoted(command.text, provenance.quote, deps.request);
 			else {
 				command = {
@@ -732,8 +748,45 @@ export function createExecutor(deps: ExecutorDeps) {
 		};
 	}
 
+	/**
+	 * `page.capture`: the screenshot of the tab's page by the adapter's fixed function. Read-only, so no ledger
+	 * row; an element capture needs a ref of the tab's latest observation, and the page as it is after the
+	 * capture must pass the policy (or the image is never handed back). Saving the image is the caller's job.
+	 */
+	async function capture(
+		tabRef: string,
+		observationRef: string | undefined,
+		range: "viewport" | "full" | "item",
+		targetRef: string | null,
+	): Promise<CapturedImage> {
+		if (range === "item") {
+			if (targetRef === null) throw new Refusal("item_required", false);
+			tabs.assertActionable(tabRef, observationRef, targetRef);
+		}
+		await ensureCurrent(tabRef);
+		const image = await readAdapter(() =>
+			adapter.capture(
+				range,
+				range === "item" ? targetRef : null,
+				control.signal,
+			),
+		);
+		// The page may have moved while the image was taken: the tab list is read again (refusing a tab whose
+		// page left the policy) and the tab's URL now is what is checked, not the one before the capture.
+		await ensureCurrent(tabRef);
+		const verdict = deps.policy(tabs.require(tabRef).url);
+		if (!verdict.ok) {
+			tabs.block(tabRef);
+			throw new Refusal(verdict.code, false);
+		}
+		return image;
+	}
+
 	/** Executes one call. A refusal comes back as data for the model; the end of the run comes back as `end`. */
-	async function execute(call: HostCall): Promise<Executed> {
+	async function execute(
+		call: HostCall,
+		options: ExecuteOptions = {},
+	): Promise<Executed> {
 		try {
 			if (control.signal.aborted) throw control.ended();
 			if (halted !== null) throw new RunEnd("indeterminate", halted);
@@ -762,7 +815,10 @@ export function createExecutor(deps: ExecutorDeps) {
 					};
 				}
 				case "operate":
-					return await operate(call);
+					return await operate(call, options);
+				case "part":
+					// A part is run by the part executor, which calls this one for each inner operation.
+					throw new Refusal("not_a_host_call", false);
 			}
 		} catch (error) {
 			if (error instanceof Refusal)
@@ -780,5 +836,5 @@ export function createExecutor(deps: ExecutorDeps) {
 		}
 	}
 
-	return { execute, start, attach, extract };
+	return { execute, start, attach, extract, capture };
 }
