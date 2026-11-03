@@ -34,19 +34,34 @@
 		{
 			"profile": "search_results",
 			"logicalName": "search.first_result",
-			"description": "検索結果の最初のストーリーの見出しリンク。押すとページ内のJavaScriptが要約本文をその場に展開する（記事ページへは移らない）。元記事の外部リンクは除く",
+			"description": "検索結果の最初のストーリーの見出しリンク。押すとページ内のJavaScriptが要約本文をその場に展開する。サイドバーの「Most Discussed」等のリンク（?sbsrc=）とコメントへのリンク、元記事の外部リンクは除く",
 			"candidates": [
 				{
 					"kind": "structure",
 					"fields": {
 						"role": "link",
 						"named": "true",
+						"withinRole": "article",
 						"urlIncludes": "/story/",
-						"urlExcludes": "#comments",
+						"urlExcludes": "#comments|sbsrc=",
 						"nth": 0
 					},
 					"source": {
 						"adapter": "playwright-mcp",
+						"via": "snapshot"
+					}
+				},
+				{
+					"kind": "structure",
+					"fields": {
+						"role": "link",
+						"named": "true",
+						"urlIncludes": "/story/",
+						"urlExcludes": "#comments|sbsrc=",
+						"nth": 0
+					},
+					"source": {
+						"adapter": "agent-browser",
 						"via": "snapshot"
 					}
 				}

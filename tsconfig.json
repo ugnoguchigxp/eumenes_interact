@@ -17,6 +17,9 @@
 		"paths": {
 			"eumenes-interact": ["./packages/eumenes-interact/src/index.ts"],
 			"eumenes-interact/sqlite": ["./packages/eumenes-interact/src/sqlite.ts"],
+			"eumenes-interact/adapters/agent-browser": [
+				"./packages/eumenes-interact/src/adapters/agent-browser.ts"
+			],
 			"eumenes-interact/adapters/playwright-mcp": [
 				"./packages/eumenes-interact/src/adapters/playwright-mcp.ts"
 			]

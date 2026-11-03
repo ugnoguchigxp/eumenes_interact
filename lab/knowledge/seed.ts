@@ -3,6 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { PLATFORM_IDS } from "eumenes-interact";
 import {
 	findSiteObjects,
 	getSiteScope,
@@ -49,7 +50,8 @@ const candidateSchema = z
 		kind: z.enum(["role", "structure"]),
 		fields: z.record(z.string(), fieldValue),
 		source: z.strictObject({
-			adapter: z.literal("playwright-mcp"),
+			/** The platform whose snapshot the candidate was written from (plan §5.4: provenance per platform). */
+			adapter: z.enum(PLATFORM_IDS),
 			via: z.literal("snapshot"),
 		}),
 	})

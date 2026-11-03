@@ -32,10 +32,11 @@ async function setup(
 		request?: string;
 		follow?: boolean;
 		logger?: LabLogger;
+		adapter?: FakeBrowser;
 	} = {},
 ) {
 	const db = freshDb();
-	const adapter = new FakeBrowser();
+	const adapter = options.adapter ?? new FakeBrowser();
 	await adapter.open();
 	const runId = randomUUID();
 	const nowIso = new Date().toISOString();
@@ -108,6 +109,11 @@ const click = (targetRef: string): AdapterCommand => ({
 	element: "element",
 });
 
+const observedRef = (r: Executed) =>
+	r.kind === "outcome" && r.outcome.kind === "operation"
+		? r.outcome.observation?.observationRef
+		: undefined;
+
 const refused = (r: Executed) =>
 	r.kind === "outcome" && r.outcome.kind === "refused" ? r.outcome.code : null;
 
@@ -146,6 +152,99 @@ describe("observations and generations", () => {
 		const s = await setup();
 		expect(s.first.observation.truncated).toBe(false);
 		expect(s.first.observation.generation).toBe(0);
+	});
+});
+
+describe("observations of Agent Browser's shape", () => {
+	const agent = () =>
+		new FakeBrowser({ platform: "agent-browser", format: "agent-browser" });
+
+	test("their refs are the actionable ones, and the old observation is stale after an action", async () => {
+		const s = await setup({ adapter: agent() });
+		expect(s.first.observation.body).toContain("[ref=e4]");
+		expect(s.first.observation.body).not.toContain("/url:");
+		expect(s.first.observation.refCount).toBeGreaterThan(5);
+		const old = s.first.observation.observationRef;
+		const moved = await s.executor.execute(s.operate(click("e4"), old));
+		expect(moved.kind === "outcome" && moved.outcome.kind).toBe("operation");
+		expect(refused(await s.executor.execute(s.operate(click("e5"), old)))).toBe(
+			"observation_stale",
+		);
+		expect(
+			refused(
+				await s.executor.execute(s.operate(click("e99"), observedRef(moved))),
+			),
+		).toBe("ref_not_actionable");
+	});
+});
+
+describe("a platform that cannot read an element's facts", () => {
+	const blind = () =>
+		new FakeBrowser({
+			platform: "agent-browser",
+			format: "agent-browser",
+			inspectSupported: false,
+		});
+	const asking = () => {
+		const asked: ApprovalPrompt[] = [];
+		const approver: Approver = {
+			decide: (prompt) => {
+				asked.push(prompt);
+				return Promise.resolve("deny");
+			},
+		};
+		return { asked, approver };
+	};
+
+	test("a link click is judged from the snapshot, as in Eumenes: no approval", async () => {
+		const { asked, approver } = asking();
+		const s = await setup({ adapter: blind(), approver });
+		const done = await s.executor.execute(
+			s.operate(click("e4"), s.first.observation.observationRef),
+		);
+		expect(done.kind === "outcome" && done.outcome.kind).toBe("operation");
+		expect(asked).toHaveLength(0);
+	});
+
+	test("a button click, a submitted fill and a pressed Enter cannot be limited, so they wait for approval", async () => {
+		const { asked, approver } = asking();
+		const s = await setup({ adapter: blind(), approver });
+		const observationRef = s.first.observation.observationRef;
+		const fill: AdapterCommand = {
+			action: "page.fill",
+			targetRef: "e8",
+			element: "searchbox",
+			text: "",
+			submit: true,
+		};
+		const sent = [
+			await s.executor.execute(s.operate(click("e6"), observationRef)),
+			await s.executor.execute(
+				s.operate(fill, observationRef, {
+					inputProvenance: { kind: "request_quote", quote: "白波" },
+					declaredEffect: "navigation",
+				}),
+			),
+			await s.executor.execute(
+				s.operate({ action: "page.press", key: "Enter" }, undefined),
+			),
+		];
+		expect(sent).toHaveLength(3);
+		expect(asked.map((a) => a.action)).toEqual(["click", "type", "press"]);
+		expect(asked[0]?.summary).toContain("確認が必要");
+		// Nothing was sent for them.
+		expect(s.adapter.dispatched.map((c) => c.action)).toEqual([
+			"browser.navigate",
+		]);
+	});
+
+	test("where the platform can read the element nothing changes", async () => {
+		const { asked, approver } = asking();
+		const s = await setup({ approver });
+		await s.executor.execute(
+			s.operate(click("e4"), s.first.observation.observationRef),
+		);
+		expect(asked).toHaveLength(0);
 	});
 });
 

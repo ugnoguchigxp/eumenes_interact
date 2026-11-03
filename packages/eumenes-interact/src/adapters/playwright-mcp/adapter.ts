@@ -10,10 +10,6 @@ import type {
 	FixedInspection,
 	PlatformAdapter,
 } from "../../contracts/adapter.ts";
-import type {
-	InteractEventName,
-	InteractLogFields,
-} from "../../contracts/common.ts";
 import type { RawObservation } from "../../contracts/observation.ts";
 import {
 	COMMON_ACTIONS,
@@ -25,20 +21,19 @@ import {
 	EXTRACT_TARGET_FUNCTION,
 	extractCap,
 	parseExtraction,
-} from "./extract.ts";
+} from "../mcp/extract.ts";
 import {
 	INSPECT_FOCUSED_FUNCTION,
 	INSPECT_LOCATOR_FUNCTION,
 	INSPECT_TARGET_FUNCTION,
 	parseLocatorInspection,
 	parseTargetInspection,
-} from "./inspect.ts";
+} from "../mcp/inspect.ts";
 import {
 	classifyToolError,
 	parseTabList,
 	parseToolResult,
 	type McpTab,
-	type McpToolResult,
 	type ParsedToolResult,
 } from "./response.ts";
 import {
@@ -46,13 +41,22 @@ import {
 	startMcpSession,
 	type McpSession,
 	type McpSessionLaunch,
-} from "./session.ts";
+} from "../mcp/session.ts";
+import {
+	createLog,
+	fromTransport,
+	loggedRead,
+	readOnly,
+	refOf,
+	refuseLaunchOptions,
+	versionOf,
+	webUrl,
+	type McpToolResult,
+} from "../mcp/common.ts";
 import {
 	commandCall,
 	isAllowedTool,
-	refOf,
 	tabIndexOf,
-	webUrl,
 	type McpToolName,
 } from "./tools.ts";
 
@@ -60,7 +64,7 @@ import {
  * PlatformAdapter over a child `@playwright/mcp` (plan.md §5.2), ported from Eumenes'
  * `mcp-driver.ts`. The only way to reach the child is `callToolNow`, whose names are the closed
  * list of `tools.ts`; `browser_evaluate` is reachable only through the fixed functions of
- * `inspect.ts`. MCP output files hold page text, so every call ends by emptying the output dir.
+ * `mcp/inspect.ts`. MCP output files hold page text, so every call ends by emptying the output dir.
  *
  * Child flags, appended after the host's own `launch.args` (all documented options of 0.0.83):
  * `--isolated` (profile in memory, no saved browser), `--headless` (when asked; headed is the
@@ -144,19 +148,7 @@ export function createPlaywrightMcpAdapter(
 	let closes = 0;
 	let queue: Promise<unknown> = Promise.resolve();
 
-	const log = (
-		name: InteractEventName,
-		fields: Omit<InteractLogFields, "correlationId">,
-	) => {
-		try {
-			options.logger.event(name, {
-				correlationId: options.correlationId,
-				...fields,
-			});
-		} catch {
-			// A failing logger must not break the adapter.
-		}
-	};
+	const log = createLog(options);
 
 	/** MCP writes snapshots, console logs and screenshots here; all of it is page content. */
 	const clearOutput = async () => {
@@ -361,42 +353,6 @@ export function createPlaywrightMcpAdapter(
 		return tabs;
 	};
 
-	/** Reads never reach the page, so whatever goes wrong in them is not dispatched. */
-	const readOnly = async <T>(run: () => Promise<T>): Promise<T> => {
-		try {
-			return await run();
-		} catch (error) {
-			throw new AdapterError(
-				error instanceof AdapterError ? error.code : "mcp_unavailable",
-				false,
-			);
-		}
-	};
-
-	/** A read with its outcome logged (counts and codes only, never the content). */
-	const loggedRead = <T>(
-		run: () => Promise<T>,
-		count?: (value: T) => number,
-	): Promise<T> => {
-		const started = Date.now();
-		return readOnly(run).then(
-			(value) => {
-				log("adapter.observed", {
-					durationMs: Date.now() - started,
-					...(count ? { count: count(value) } : {}),
-				});
-				return value;
-			},
-			(error: AdapterError) => {
-				log("adapter.failed", {
-					code: error.code,
-					durationMs: Date.now() - started,
-				});
-				throw error;
-			},
-		);
-	};
-
 	const runDispatch = async (
 		command: AdapterCommand,
 		signal: AbortSignal,
@@ -495,7 +451,7 @@ export function createPlaywrightMcpAdapter(
 			);
 		},
 		observe: (signal) =>
-			loggedRead(async (): Promise<RawObservation> => {
+			loggedRead(log, async (): Promise<RawObservation> => {
 				const parsed = await callTool("browser_snapshot", {}, signal, true);
 				const body =
 					parsed.snapshot?.kind === "inline"
@@ -517,6 +473,7 @@ export function createPlaywrightMcpAdapter(
 			}),
 		extract: (targetRef, maxChars, signal) =>
 			loggedRead(
+				log,
 				async () => {
 					const cap = extractCap(maxChars);
 					const args =
@@ -582,24 +539,12 @@ export function createPlaywrightMcpAdapter(
 
 /** The adapter only ever drives its own isolated browser (plan.md §5.2). */
 function refuseAttachingLaunch(launch: AdapterLaunch) {
-	for (const flag of ATTACH_FLAGS) {
-		const variable = `PLAYWRIGHT_MCP_${flag.toUpperCase().replaceAll("-", "_")}`;
-		if (
-			launch.args.some(
-				(arg) => arg === `--${flag}` || arg.startsWith(`--${flag}=`),
-			) ||
-			(launch.env !== undefined && variable in launch.env)
-		)
-			throw new AdapterError("launch_not_isolated", false);
-	}
-}
-
-function versionOf(initialize: unknown): string | null {
-	const version = (initialize as { serverInfo?: { version?: unknown } } | null)
-		?.serverInfo?.version;
-	return typeof version === "string" && version !== "" && version.length <= 64
-		? version
-		: null;
+	refuseLaunchOptions(launch, {
+		flags: ATTACH_FLAGS,
+		variables: ATTACH_FLAGS.map(
+			(flag) => `PLAYWRIGHT_MCP_${flag.toUpperCase().replaceAll("-", "_")}`,
+		),
+	});
 }
 
 function toTargets(tabs: McpTab[]): AdapterTarget[] {
@@ -618,26 +563,5 @@ async function readOutputFile(directory: string, name: string) {
 		return await readFile(join(directory, name), "utf8");
 	} catch {
 		throw new AdapterError("snapshot_file_missing", false);
-	}
-}
-
-function fromTransport(error: unknown): AdapterError {
-	if (!(error instanceof McpTransportError))
-		return new AdapterError("mcp_unavailable", true);
-	switch (error.reason) {
-		case "timeout":
-			return new AdapterError("call_timeout", error.dispatched);
-		case "aborted":
-			return new AdapterError("cancelled", error.dispatched);
-		case "exited":
-			return new AdapterError("process_exited", error.dispatched);
-		case "output_limit":
-			return new AdapterError("mcp_unavailable", true);
-		case "rpc_error":
-			// -32602 invalid params / -32601 unknown method: rejected before any tool ran.
-			return new AdapterError(
-				"mcp_protocol_error",
-				error.rpcCode !== -32602 && error.rpcCode !== -32601,
-			);
 	}
 }

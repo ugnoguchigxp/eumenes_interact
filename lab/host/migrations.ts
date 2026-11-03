@@ -130,10 +130,18 @@ CREATE TABLE lab_definition_runs (
 );
 `;
 
+/** Which platform and external tool a definition run used (plan.md §10.3, §14). */
+const definitionPlatform = `
+ALTER TABLE lab_definition_runs ADD COLUMN platform TEXT;
+ALTER TABLE lab_definition_runs
+	ADD COLUMN tool_json TEXT CHECK (tool_json IS NULL OR json_valid(tool_json));
+`;
+
 export const labMigrations: readonly string[] = Object.freeze([
 	labTables.trim() + "\n",
 	liveSplit.trim() + "\n",
 	definitionRuns.trim() + "\n",
+	definitionPlatform.trim() + "\n",
 ]);
 
 /** Every table the lab migrations create. */

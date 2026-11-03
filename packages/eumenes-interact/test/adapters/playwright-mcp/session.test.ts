@@ -7,7 +7,7 @@ import {
 	McpTransportError,
 	startMcpSession,
 	type McpSession,
-} from "../../../src/adapters/playwright-mcp/session.ts";
+} from "../../../src/adapters/mcp/session.ts";
 import { NEVER } from "./fakes.ts";
 
 const STUB = join(import.meta.dir, "fixtures", "stub-mcp.mjs");

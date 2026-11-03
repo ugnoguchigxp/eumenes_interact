@@ -1,7 +1,7 @@
 {
 	"formatVersion": 1,
 	"id": "wikipedia-article",
-	"revision": 1,
+	"revision": 2,
 	"title": "Wikipedia（日本語）でキーワードを検索し、記事本文を取得する",
 	"skillRef": "skill:interact.execute@1",
 	"catalogRef": "catalog:interact.actions@1",
@@ -79,8 +79,7 @@
 			"args": {
 				"maxChars": 20000
 			},
-			"expectation": "記事の本文のテキストを取得できている",
-			"targetObject": "article.body"
+			"expectation": "記事の本文のテキストを取得できている（本文の範囲は汎用の判定で決める。Agent Browserの観測にはmainの目印が出ないため）"
 		}
 	]
 }

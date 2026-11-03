@@ -86,6 +86,8 @@ export class TrialRecorder {
 		url?: string;
 		title?: string;
 		refCount: number;
+		bodyBytes?: number;
+		shapedBytes?: number;
 	}) {
 		this.events.push({
 			type: "observation",
@@ -94,6 +96,8 @@ export class TrialRecorder {
 			url: o.url ?? null,
 			title: this.scrub ? null : (o.title ?? null),
 			refCount: o.refCount,
+			...(o.bodyBytes === undefined ? {} : { bodyBytes: o.bodyBytes }),
+			...(o.shapedBytes === undefined ? {} : { shapedBytes: o.shapedBytes }),
 		});
 	}
 

@@ -416,7 +416,14 @@ describe("importing seeds", () => {
 
 	test("a changed seed revises the object with the expected revision and disables what it dropped", async () => {
 		const db = freshDb();
-		const seed = await readSeed(join(KNOWLEDGE, "wikipedia.json"));
+		// One candidate on the object under test, whatever the shipped seed has for other platforms.
+		const seed: Seed = structuredClone(
+			await readSeed(join(KNOWLEDGE, "wikipedia.json")),
+		);
+		const first = seed.objects.find(
+			(o) => o.logicalName === "search.first_result",
+		)!;
+		first.candidates = [first.candidates[0]!];
 		importSeed(db, LAB_OWNER, seed, NOW);
 		const changed: Seed = structuredClone(seed);
 		const target = changed.objects.find(

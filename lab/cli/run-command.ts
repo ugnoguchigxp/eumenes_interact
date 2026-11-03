@@ -18,6 +18,7 @@ import { getSetting } from "../host/store.ts";
 import { collectVersions } from "../host/versions.ts";
 import { createScriptedInference } from "../scripted/inference.ts";
 import { loadScript } from "../scripted/script.ts";
+import type { BrowserPlatform } from "./platform.ts";
 import { createSession } from "./session.ts";
 import { summaryLines } from "./report.ts";
 
@@ -33,6 +34,8 @@ export type RunOptions = {
 	/** Keep every observation body under `lab/data/observations/` (at most 7 days). */
 	keepObservations: boolean;
 	headed: boolean;
+	/** Default `playwright-mcp`. */
+	platform?: BrowserPlatform;
 	browser?: string;
 	executablePath?: string;
 };

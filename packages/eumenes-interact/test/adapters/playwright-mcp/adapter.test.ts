@@ -185,11 +185,15 @@ test("a close during open stops the child, or prevents it from starting", async 
 	// Closed while the child starts: it is stopped and the adapter stays closed.
 	const late = setup();
 	late.fake.onTool = hang;
-	const started = late.adapter.open(NEVER);
+	// Handled at once: the open fails while `close` is still running.
+	const started = late.adapter.open(NEVER).then(
+		() => undefined,
+		(error: unknown) => error,
+	);
 	await Bun.sleep(20);
 	expect(late.launches).toHaveLength(1);
 	await late.adapter.close();
-	await expect(started).rejects.toMatchObject({ dispatched: false });
+	expect(await started).toMatchObject({ dispatched: false });
 	expect(late.fake.closeCount).toBeGreaterThanOrEqual(1);
 	expect(late.fake.exited()).toBe(true);
 	expect(late.adapter.state()).toBe("closed");

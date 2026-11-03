@@ -305,6 +305,7 @@ export type DefinitionRunStart = {
 	revision: number;
 	digest: string;
 	inputsSha256: string;
+	platform: string;
 	startedAt: string;
 };
 
@@ -316,7 +317,7 @@ export function insertDefinitionRun(
 		db
 			.query(
 				`INSERT INTO lab_definition_runs (run_id, definition_id, revision, definition_digest,
-					inputs_sha256, started_at) VALUES (?, ?, ?, ?, ?, ?)`,
+					inputs_sha256, platform, started_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 			)
 			.run(
 				run.runId,
@@ -324,6 +325,7 @@ export function insertDefinitionRun(
 				run.revision,
 				run.digest,
 				run.inputsSha256,
+				run.platform,
 				run.startedAt,
 			),
 	);
@@ -332,13 +334,25 @@ export function insertDefinitionRun(
 export function finishDefinitionRun(
 	db: Database,
 	runId: string,
-	end: { status: RunStatus; summary: unknown; nowIso: string },
+	end: {
+		status: RunStatus;
+		summary: unknown;
+		tool: { name: string; version: string | null } | null;
+		nowIso: string;
+	},
 ): void {
 	write(db, () =>
 		db
 			.query(
-				`UPDATE lab_definition_runs SET finished_at = ?, status = ?, summary_json = ? WHERE run_id = ?`,
+				`UPDATE lab_definition_runs SET finished_at = ?, status = ?, summary_json = ?, tool_json = ?
+				WHERE run_id = ?`,
 			)
-			.run(end.nowIso, end.status, JSON.stringify(end.summary), runId),
+			.run(
+				end.nowIso,
+				end.status,
+				JSON.stringify(end.summary),
+				end.tool === null ? null : JSON.stringify(end.tool),
+				runId,
+			),
 	);
 }

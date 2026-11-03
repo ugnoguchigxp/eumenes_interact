@@ -95,7 +95,7 @@ describe("task and knowledge commands", () => {
 			ok: false,
 			status: "rejected",
 			runId: null,
-			definition: { id: "wikipedia-article", revision: 1 },
+			definition: { id: "wikipedia-article", revision: expect.any(Number) },
 			steps: [],
 			extracts: {},
 		});
@@ -113,15 +113,23 @@ describe("the human summary", () => {
 			status: "needs_input",
 			code: "approval_required",
 			definition: { id: "d", revision: 1, digest: "abcdef0123456789" },
+			platform: "playwright-mcp",
+			tool: { name: "@playwright/mcp", version: "0.0.83" },
 			inputs: { query: "q" },
 			finalUrl: "https://a.test/\u001b[2J",
 			steps: [
-				{ id: "open", action: "browser.navigate", status: "confirmed" },
+				{
+					id: "open",
+					action: "browser.navigate",
+					status: "confirmed",
+					durationMs: 1,
+				},
 				{
 					id: "go",
 					action: "page.click",
 					status: "needs_input",
 					code: "approval_required",
+					durationMs: 2,
 				},
 			],
 			extracts: {

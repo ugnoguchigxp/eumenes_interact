@@ -1,7 +1,7 @@
 {
 	"formatVersion": 1,
 	"id": "slashdot-story",
-	"revision": 3,
+	"revision": 5,
 	"title": "Slashdotでキーワードを検索し、最初のストーリーの本文を取得する",
 	"skillRef": "skill:interact.execute@1",
 	"catalogRef": "catalog:interact.actions@1",
@@ -44,9 +44,9 @@
 			"id": "wait_results",
 			"action": "page.wait",
 			"args": {
-				"seconds": 3
+				"seconds": 6
 			},
-			"expectation": "検索結果が表示されるまで待っている"
+			"expectation": "検索結果（JavaScriptで後から読み込まれる記事の一覧）が表示されるまで待っている"
 		},
 		{
 			"id": "look_results",
@@ -78,8 +78,7 @@
 			"args": {
 				"maxChars": 20000
 			},
-			"expectation": "検索結果の最初のストーリー（見出しと本文）のテキストを取得できている",
-			"targetObject": "search.first_story"
+			"expectation": "展開された最初のストーリーの本文のテキストを取得できている（本文の範囲は汎用の判定。展開されたストーリーが最も長い本文を持つ。Agent Browserの観測にはarticleが出ないため）"
 		}
 	]
 }

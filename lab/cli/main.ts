@@ -8,6 +8,8 @@ import { LAB_OWNER } from "../host/run.ts";
 import { getSetting, setSetting } from "../host/store.ts";
 import { listLarmChatProfiles } from "../inference/index.ts";
 import { report, trialLines } from "./report.ts";
+import { assertBrowserOptions, parsePlatform } from "./platform.ts";
+import { compareCommand } from "./compare-command.ts";
 import { knowledgeImport, knowledgeList } from "./knowledge-command.ts";
 import { runCommand } from "./run-command.ts";
 import { parseInputs, taskList, taskRun } from "./task-command.ts";
@@ -16,11 +18,15 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   cases [--include-holdout] [--include-live]
   run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm]
       [--approver fixture|cli] [--include-holdout] [--include-live]
-      [--keep-observations] [--headed]
-      [--browser <channel>] [--executable-path <path>]
+      [--keep-observations] [--headed] [--platform playwright-mcp|agent-browser]
+      [--browser <channel>] [--executable-path <path>]   (--browser/--executable-path: playwright-mcp only)
   task list
   task run <definitionId> --input key=value ... [--json] [--approver stop|cli]
-      [--keep-observations] [--headed] [--browser <channel>] [--executable-path <path>]
+      [--keep-observations] [--headed] [--platform playwright-mcp|agent-browser]
+      [--browser <channel>] [--executable-path <path>]
+  compare --platforms playwright-mcp,agent-browser [--definitions <id,...|all|none>]
+      [--inputs <file.json>] [--repeat n] [--headed] [--split dev] [--include-live] [--keep-observations]
+      [--approver stop|cli]
   knowledge import <seed.json>...
   knowledge list [--origin <origin>]
   trials [--experiment <id>]
@@ -51,6 +57,10 @@ const { values, positionals } = parseArgs({
 		input: { type: "string", multiple: true },
 		json: { type: "boolean" },
 		origin: { type: "string" },
+		platform: { type: "string" },
+		platforms: { type: "string" },
+		definitions: { type: "string" },
+		inputs: { type: "string" },
 	},
 });
 
@@ -90,17 +100,32 @@ async function main(): Promise<number> {
 		return 0;
 	}
 	if (
-		!["run", "task", "knowledge", "trials", "report", "larm"].includes(
-			command ?? "",
-		)
+		![
+			"run",
+			"task",
+			"compare",
+			"knowledge",
+			"trials",
+			"report",
+			"larm",
+		].includes(command ?? "")
 	) {
 		console.error(USAGE);
 		return 2;
 	}
+	// Refused before a lock or a database is touched.
+	const platform = parsePlatform(values.platform);
+	assertBrowserOptions(platform, {
+		browser: values.browser,
+		executablePath: values["executable-path"],
+	});
 	const dbPath = values.db ?? DEFAULT_DB_PATH;
 	// Only a command that runs a browser session takes the lock and reconciles: another process's run in
 	// progress must not be touched by a read-only command.
-	const runs = command === "run" || (command === "task" && sub === "run");
+	const runs =
+		command === "run" ||
+		command === "compare" ||
+		(command === "task" && sub === "run");
 	const lock = runs ? acquireRunLock(`${dbPath}.run.lock`) : null;
 	let db: ReturnType<typeof openLabDb>;
 	try {
@@ -143,12 +168,44 @@ async function main(): Promise<number> {
 							"stop",
 						),
 						headed: values.headed === true,
+						platform,
 						...(values.browser === undefined
 							? {}
 							: { browser: values.browser }),
 						...(values["executable-path"] === undefined
 							? {}
 							: { executablePath: values["executable-path"] }),
+					},
+					logger!,
+				);
+			}
+			case "compare": {
+				const repeat = Number(values.repeat ?? "1");
+				if (!Number.isInteger(repeat) || repeat < 1)
+					throw new Error("invalid_repeat");
+				if (values.platforms === undefined)
+					throw new Error("compare_needs_platforms");
+				return await compareCommand(
+					db,
+					{
+						platforms: values.platforms,
+						...(values.definitions === undefined
+							? {}
+							: { definitions: values.definitions }),
+						...(values.inputs === undefined
+							? {}
+							: { inputsFile: values.inputs }),
+						repeat,
+						headed: values.headed === true,
+						...(values.split === undefined ? {} : { split: values.split }),
+						includeLive: values["include-live"] === true,
+						keepObservations: values["keep-observations"] === true,
+						approver: oneOf<"stop" | "cli">(
+							"approver",
+							values.approver,
+							["stop", "cli"],
+							"stop",
+						),
 					},
 					logger!,
 				);
@@ -207,6 +264,7 @@ async function main(): Promise<number> {
 									),
 								}),
 						headed: values.headed === true,
+						platform,
 						...(values.browser === undefined
 							? {}
 							: { browser: values.browser }),

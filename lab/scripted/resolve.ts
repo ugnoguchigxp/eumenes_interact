@@ -1,4 +1,5 @@
 import type { ChatMessage } from "eumenes-interact";
+import { normalize, parseAria } from "../aria.ts";
 import type { Target } from "./script.ts";
 
 /**
@@ -7,53 +8,7 @@ import type { Target } from "./script.ts";
  * here at run time; a script never carries one.
  */
 
-export type AriaNode = {
-	role: string;
-	name: string | null;
-	ref: string | null;
-	/** The `- /url:` line under a link. */
-	url: string | null;
-	parents: AriaNode[];
-};
-
-export const normalize = (s: string) =>
-	s.normalize("NFKC").trim().replace(/\s+/g, " ");
-
-/** `- link "name" [ref=e3] [cursor=pointer]:` and `- main [ref=e7]:`; `- text:` and `- /url:` lines are no element. */
-const LINE =
-	/^(\s*)- ([A-Za-z][\w-]*)(?: "((?:[^"\\]|\\.)*)")?((?: \[[^\]]*\])*)(?::.*)?$/;
-const REF = /\[ref=([A-Za-z0-9_-]+)\]/;
-const URL_LINE = /^\s*- \/url:\s*(.*?)\s*$/;
-
-export function parseAria(body: string): AriaNode[] {
-	const nodes: AriaNode[] = [];
-	const stack: { indent: number; node: AriaNode }[] = [];
-	for (const raw of body.split("\n")) {
-		const link = URL_LINE.exec(raw);
-		if (link) {
-			// The destination of the link just above.
-			const owner = nodes.at(-1);
-			if (owner && owner.url === null) owner.url = link[1] ?? null;
-			continue;
-		}
-		const m = LINE.exec(raw.replace(/\t/g, "  "));
-		if (!m) continue;
-		// `- text:` is page text, not an element.
-		if (m[2] === "text") continue;
-		const indent = m[1]!.length;
-		while (stack.length && stack.at(-1)!.indent >= indent) stack.pop();
-		const node: AriaNode = {
-			role: m[2]!,
-			name: m[3] === undefined ? null : normalize(m[3].replace(/\\(.)/g, "$1")),
-			ref: REF.exec(m[4] ?? "")?.[1] ?? null,
-			url: null,
-			parents: stack.map((s) => s.node),
-		};
-		nodes.push(node);
-		stack.push({ indent, node });
-	}
-	return nodes;
-}
+export { normalize, parseAria, type AriaNode } from "../aria.ts";
 
 export type Resolved =
 	| { kind: "found"; ref: string; role: string; name: string | null }

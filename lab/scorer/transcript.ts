@@ -35,6 +35,10 @@ export type TranscriptEvent =
 			url: string | null;
 			title: string | null;
 			refCount: number;
+			/** UTF-8 bytes of the body as the platform gave it. */
+			bodyBytes?: number;
+			/** UTF-8 bytes of what the model was shown (Arm 0 shaping); equal to `bodyBytes` without a model. */
+			shapedBytes?: number;
 	  })
 	| (At & {
 			type: "operation.requested";

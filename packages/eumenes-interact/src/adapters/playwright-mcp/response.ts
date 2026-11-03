@@ -4,9 +4,7 @@
  * pass them. Nothing here logs or stores response text.
  */
 
-export type McpContent =
-	| { type: "text"; text: string }
-	| { type: "image"; data: string; mimeType: string };
+import type { McpToolResult } from "../mcp/common.ts";
 
 /** A tab as `browser_tabs` lists it. `index` shifts when tabs close. */
 export type McpTab = {
@@ -15,8 +13,6 @@ export type McpTab = {
 	title: string;
 	current: boolean;
 };
-
-export type McpToolResult = { content?: McpContent[]; isError?: boolean };
 
 export type McpSnapshotBody =
 	| { kind: "inline"; text: string }

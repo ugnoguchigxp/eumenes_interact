@@ -42,6 +42,10 @@ const wikipedia = await readDefinition(
 	join(DEFINITIONS, "wikipedia-article.json"),
 );
 const wikiSeed = await readSeed(join(KNOWLEDGE, "wikipedia.json"));
+/** The extract step names a content root, or reads generically: the sample's data decides, not the runner. */
+const readRoot = wikipedia.steps.find(
+	(s) => s.id === "read" && "targetObject" in s,
+);
 
 /** A logger that keeps everything it is given. */
 function capturing(): LabLogger & { events: unknown[] } {
@@ -86,7 +90,7 @@ describe("running the Wikipedia sample on a fake browser", () => {
 		expect(r.code).toBeNull();
 		expect(r.definition).toEqual({
 			id: "wikipedia-article",
-			revision: 1,
+			revision: wikipedia.revision,
 			digest: definitionDigest(wikipedia),
 		});
 		expect(r.inputs).toEqual({ query: "人工知能" });
@@ -111,7 +115,7 @@ describe("running the Wikipedia sample on a fake browser", () => {
 				text: "機械学習は、データから学習するアルゴリズムの研究分野である。",
 				charCount: 30,
 				truncated: false,
-				root: "target",
+				root: readRoot ? "target" : "main",
 			},
 		});
 		// The keyword was typed by reference; the first article link is the named /wiki/ one, not help,
@@ -129,7 +133,9 @@ describe("running the Wikipedia sample on a fake browser", () => {
 			targetRef: "e2",
 		});
 		expect(s.adapter.dispatched[3]).toMatchObject({ targetRef: "e8" });
-		expect(s.adapter.extracted).toEqual([{ targetRef: "e3", maxChars: 20000 }]);
+		expect(s.adapter.extracted).toEqual([
+			{ targetRef: readRoot ? "e3" : null, maxChars: 20000 },
+		]);
 		expect(s.adapter.closeCount).toBe(1);
 	});
 
@@ -138,7 +144,7 @@ describe("running the Wikipedia sample on a fake browser", () => {
 		const r = await run(s, "機械学習");
 		expect(r.ok).toBe(true);
 		expect(statuses(r).pick).toBe("skipped");
-		expect(r.steps.find((x) => x.id === "pick")).toEqual({
+		expect(r.steps.find((x) => x.id === "pick")).toMatchObject({
 			id: "pick",
 			action: "page.click",
 			status: "skipped",
@@ -250,7 +256,7 @@ describe("running the Wikipedia sample on a fake browser", () => {
 		const stored = getRun(s.db, LAB_OWNER, r.runId!)!;
 		expect(stored.workflow).toEqual({
 			id: "wikipedia-article",
-			revision: 1,
+			revision: wikipedia.revision,
 			digest: definitionDigest(wikipedia),
 		});
 		expect(stored.status).toBe("completed");
@@ -326,23 +332,109 @@ describe("a results page that redirects after the submit, and a click that goes 
 					}
 				: undefined;
 		const q = await run(stuck, "人工知能");
-		// The click was confirmed, but the page is still the results page, where the article body is not
-		// defined: the run stops there, and the caller can see why from the flag.
-		expect(q.status).toBe("failed");
-		expect(q.code).toBe("object_undefined");
+		// The click was confirmed but the page is still the results page. A sample that reads the body through
+		// an object (not defined there) stops; one that reads generically reads what is on the page. Either
+		// way the caller can see from the flag that the click went nowhere.
+		if (readRoot) {
+			expect(q.status).toBe("failed");
+			expect(q.code).toBe("object_undefined");
+		} else expect(q.status).toBe("completed");
 		expect(q.steps.find((x) => x.id === "pick")).toMatchObject({
 			status: "confirmed",
 			urlChanged: false,
 		});
 		expect(q.steps.find((x) => x.id === "query")?.urlChanged).toBe(true);
-		// A fill without a submit is not an expected navigation.
+		// A skipped step has none.
 		expect(
 			(await run(setup(), "機械学習")).steps.find((x) => x.id === "pick"),
-		).toEqual({
+		).toMatchObject({
 			id: "pick",
 			action: "page.click",
 			status: "skipped",
 			skipped: true,
+		});
+	});
+});
+
+describe("metrics for the comparison of platforms", () => {
+	test("every step has a duration, observe steps their snapshot size and refs, extract steps their length", async () => {
+		const s = setup();
+		const r = await run(s, "人工知能");
+		for (const step of r.steps)
+			expect(step.durationMs).toBeGreaterThanOrEqual(0);
+		const look = r.steps.find((x) => x.id === "look_results")!;
+		const results = new TextEncoder().encode(
+			[
+				"- banner [ref=e1]:",
+				'  - searchbox "Wikipedia内を検索" [ref=e2]',
+				"- main [ref=e3]:",
+				'  - link "ヘルプ" [ref=e4]:',
+				"    - /url: /wiki/Help:%E6%A4%9C%E7%B4%A2",
+				'  - link "特別ページ" [ref=e5]:',
+				"    - /url: /wiki/%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2",
+				'  - link "赤リンク" [ref=e6]:',
+				"    - /url: /w/index.php?title=X&action=edit&redlink=1",
+				"  - link [ref=e7]:",
+				"    - /url: /wiki/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",
+				'  - link "機械学習" [ref=e8]:',
+				"    - /url: /wiki/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",
+				'  - link "人工知能" [ref=e9]:',
+				"    - /url: /wiki/%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD",
+			].join("\n"),
+		).length;
+		expect(look.bodyBytes).toBe(results);
+		expect(look.refCount).toBe(9);
+		const page = r.steps.find((x) => x.id === "look_page")!;
+		expect(page.bodyBytes).toBeGreaterThan(0);
+		expect(page.refCount).toBe(5);
+		expect(r.steps.find((x) => x.id === "read")).toMatchObject({
+			charCount: 30,
+		});
+		for (const id of [
+			"open",
+			"query",
+			"wait_results",
+			"pick",
+			"wait_page",
+			"read",
+		])
+			expect(r.steps.find((x) => x.id === id)).not.toHaveProperty("bodyBytes");
+		for (const id of [
+			"open",
+			"query",
+			"look_results",
+			"pick",
+			"wait_page",
+			"look_page",
+		])
+			expect(r.steps.find((x) => x.id === id)).not.toHaveProperty("charCount");
+	});
+
+	test("the stored summary keeps the numbers and none of the page's text", async () => {
+		const s = setup();
+		await run(s, "機械学習");
+		const stored = (
+			s.db.query("SELECT summary_json FROM lab_definition_runs").get() as {
+				summary_json: string;
+			}
+		).summary_json;
+		expect(stored).toContain("bodyBytes");
+		expect(stored).not.toContain("アルゴリズム");
+	});
+
+	test("the platform and tool of a refused run are known too", async () => {
+		const s = setup();
+		const r = await runDefinition({
+			db: s.db,
+			definition: wikipedia,
+			inputs: {},
+			adapter: s.adapter,
+			logger: s.logger,
+		});
+		expect(r).toMatchObject({
+			status: "rejected",
+			platform: "playwright-mcp",
+			tool: null,
 		});
 	});
 });
@@ -729,8 +821,8 @@ describe("the samples", () => {
 			expect(await optionalPick(id)).toBe(false);
 		const read = async (id: string) =>
 			(await get(id)).steps.find((s) => s.id === "read");
+		// Wikipedia reads the article generically or through an object, whichever its revision says.
 		expect(await read("wikipedia-article")).toMatchObject({
-			targetObject: "article.body",
 			args: { maxChars: 20000 },
 		});
 		for (const id of ["gizmodo-article", "biggo-product"])

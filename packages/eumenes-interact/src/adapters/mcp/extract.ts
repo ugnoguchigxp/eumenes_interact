@@ -146,3 +146,33 @@ export function parseExtraction(
 		root: root as ExtractedContent["root"],
 	};
 }
+
+/**
+ * `page.extract` on a platform that can only read an element's text (no function can run on an
+ * element): the platform's text for the named element, normalised like the fixed function does
+ * (spaces collapse, three or more newlines become two, trimmed). Nothing inside the element is
+ * dropped, unlike the function; `root` is always `target`.
+ */
+export function extractionFromText(
+	raw: string,
+	page: { url?: string; title?: string },
+	cap: number,
+): ExtractedContent {
+	const text = raw
+		.replace(/[^\S\n]+/g, " ")
+		.replace(/ ?\n ?/g, "\n")
+		.replace(/\n{3,}/g, "\n\n")
+		.trim();
+	const known = text.slice(0, EXTRACT_HARD_MAX_CHARS);
+	const truncated = text.length > Math.min(known.length, cap);
+	let cut = known.slice(0, cap);
+	if (truncated && /[\ud800-\udbff]$/.test(cut)) cut = cut.slice(0, -1);
+	return {
+		...(page.url ? { url: page.url.slice(0, URL_MAX_CHARS) } : {}),
+		...(page.title ? { title: page.title.slice(0, TITLE_MAX_CHARS) } : {}),
+		text: cut,
+		charCount: text.length,
+		truncated,
+		root: "target",
+	};
+}

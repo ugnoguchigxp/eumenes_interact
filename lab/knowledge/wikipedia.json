@@ -55,6 +55,20 @@
 						"adapter": "playwright-mcp",
 						"via": "snapshot"
 					}
+				},
+				{
+					"kind": "structure",
+					"fields": {
+						"role": "link",
+						"named": "true",
+						"urlIncludes": "/wiki/",
+						"urlExcludes": "/wiki/Help:|/wiki/Special:|/wiki/特別:|/wiki/Wikipedia:|/wiki/Portal:|/wiki/メインページ",
+						"nth": 0
+					},
+					"source": {
+						"adapter": "agent-browser",
+						"via": "snapshot"
+					}
 				}
 			]
 		},

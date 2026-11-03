@@ -1,5 +1,6 @@
 import type { Database } from "bun:sqlite";
 import { createHash } from "node:crypto";
+import { parseAria, refsOf } from "../aria.ts";
 import {
 	AdapterError,
 	shapeObservation,
@@ -8,7 +9,6 @@ import {
 	type AdapterTarget,
 	type HostCall,
 	type HostOutcome,
-	type InspectionResult,
 	type ObservationEnvelope,
 	type OperationRequest,
 	type ExtractedContent,
@@ -33,6 +33,9 @@ import { write } from "./db.ts";
 import {
 	approvalNeeded,
 	commitGuard,
+	LINK_FACTS,
+	UNJUDGEABLE,
+	type Inspected,
 	type ApprovalAction,
 	type CommitGuard,
 } from "./gate.ts";
@@ -122,11 +125,11 @@ const storable = (code: string | undefined, fallback: string) =>
 const named = (command: AdapterCommand, element: string): AdapterCommand =>
 	"element" in command ? { ...command, element } : command;
 
-const REF = /\[ref=([A-Za-z0-9_-]+)\]/g;
+const utf8Bytes = (text: string) => new TextEncoder().encode(text).length;
 
 /** An observation shaped for a run without a model: the adapter's body as it is, every ref in it actionable. */
 function wholeObservation(raw: RawObservation): ShapedObservation {
-	const refs = [...raw.body.matchAll(REF)].map((m) => m[1]!);
+	const refs = refsOf(raw.body);
 	return {
 		body: raw.body,
 		truncated: false,
@@ -263,7 +266,14 @@ export function createExecutor(deps: ExecutorDeps) {
 			...(raw.title === undefined ? {} : { title: raw.title }),
 		});
 		const observationRef = deps.newId();
-		tabs.record(tabRef, observationRef, shaped.refs);
+		tabs.record(
+			tabRef,
+			observationRef,
+			shaped.refs,
+			new Map(
+				parseAria(raw.body).flatMap((n) => (n.ref ? [[n.ref, n.role]] : [])),
+			),
+		);
 		const envelope: ObservationEnvelope = {
 			observationRef,
 			platform: adapter.platform,
@@ -292,6 +302,8 @@ export function createExecutor(deps: ExecutorDeps) {
 			...(raw.url === undefined ? {} : { url: raw.url }),
 			...(raw.title === undefined ? {} : { title: raw.title }),
 			refCount: shaped.refCount,
+			bodyBytes: utf8Bytes(raw.body),
+			shapedBytes: utf8Bytes(shaped.body),
 		});
 		return envelope;
 	}
@@ -361,7 +373,10 @@ export function createExecutor(deps: ExecutorDeps) {
 	}
 
 	/** The element facts for the approval decision; reading never reaches the page's state. */
-	async function inspect(guard: CommitGuard): Promise<InspectionResult | null> {
+	async function inspect(
+		guard: CommitGuard,
+		observationRef: string | undefined,
+	): Promise<Inspected> {
 		if (guard.declared) return null;
 		try {
 			return guard.probe === "focused"
@@ -373,6 +388,13 @@ export function createExecutor(deps: ExecutorDeps) {
 					);
 		} catch (error) {
 			if (control.signal.aborted) throw control.ended();
+			if (error instanceof AdapterError && error.code === "unsupported") {
+				// The platform cannot read the element: only what the snapshot itself shows can settle it.
+				return guard.probe !== "focused" &&
+					tabs.roleOf(observationRef, guard.probe.ref) === "link"
+					? LINK_FACTS
+					: UNJUDGEABLE;
+			}
 			if (error instanceof AdapterError) throw new Refusal(error.code);
 			throw error;
 		}
@@ -459,9 +481,8 @@ export function createExecutor(deps: ExecutorDeps) {
 		await ensureCurrent(tabRef);
 		const tab = tabs.require(tabRef);
 		const guard = commitGuard(command, call.declaredEffect);
-		const needsApproval = guard
-			? approvalNeeded(guard, await inspect(guard))
-			: false;
+		const inspected = guard ? await inspect(guard, call.observationRef) : null;
+		const needsApproval = guard ? approvalNeeded(guard, inspected) : false;
 		// 3. The intent is recorded; the transcript shows the command as the user would, not a granted value.
 		const operationId = deps.newId();
 		const approvalId = needsApproval ? deps.newId() : undefined;
@@ -521,7 +542,12 @@ export function createExecutor(deps: ExecutorDeps) {
 							page: binding.page,
 							action: guard.action,
 							element: binding.element,
-							summary: clip(summaryOf(guard.action, command)),
+							summary: clip(
+								summaryOf(guard.action, command) +
+									(inspected === UNJUDGEABLE
+										? "（プラットフォームが要素の性質を読めないため確認が必要）"
+										: ""),
+							),
 							...(command.action === "page.fill"
 								? { content: command.text }
 								: {}),

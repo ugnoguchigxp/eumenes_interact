@@ -10,6 +10,7 @@ import {
 	type ExtractedContent,
 	type ObservationEnvelope,
 	type PlatformAdapter,
+	type PlatformId,
 	type ResolvedStep,
 	type RunStatus,
 	type WorkDefinition,
@@ -96,6 +97,13 @@ export type StepReport = {
 	 * click that changed nothing (a page script handled it) is visible to the caller this way.
 	 */
 	urlChanged?: boolean;
+	/** Milliseconds the step took (a skipped one is about zero). */
+	durationMs: number;
+	/** `page.observe`: UTF-8 bytes of the snapshot as the platform gave it, and the refs in it. */
+	bodyBytes?: number;
+	refCount?: number;
+	/** `page.extract`: characters of the page's main text before the cap. */
+	charCount?: number;
 };
 
 type StepDone = {
@@ -106,6 +114,9 @@ type StepDone = {
 	/** The URL the step ended on, when the platform said. */
 	url?: string;
 	urlChanged?: boolean;
+	bodyBytes?: number;
+	refCount?: number;
+	charCount?: number;
 };
 
 export type ExtractReport = {
@@ -124,6 +135,9 @@ export type DefinitionRunResult = {
 	/** Why a run that did not complete stopped (a fixed code). */
 	code: string | null;
 	definition: { id: string; revision: number; digest: string };
+	/** The platform the session was on, and the external tool it reported (null before it opened). */
+	platform: PlatformId;
+	tool: { name: string; version: string | null } | null;
 	inputs: Record<string, string>;
 	finalUrl: string | null;
 	steps: StepReport[];
@@ -170,6 +184,8 @@ export async function runDefinition(
 		status: "rejected",
 		code,
 		definition: meta,
+		platform: adapter.platform,
+		tool: null,
 		inputs,
 		finalUrl: null,
 		steps: [],
@@ -228,6 +244,7 @@ export async function runDefinition(
 		revision: definition.revision,
 		digest,
 		inputsSha256: sha256(canonical(inputs)),
+		platform: adapter.platform,
 		startedAt: nowIso(),
 	});
 	const log = (
@@ -245,10 +262,12 @@ export async function runDefinition(
 		id: s.id,
 		action: s.action,
 		status: "not_run",
+		durationMs: 0,
 	}));
 	const extracts: Record<string, ExtractReport> = {};
 	let kept = 0;
 	let finalUrl: string | null = null;
+	let tool: DefinitionRunResult["tool"] = null;
 	let latest: ObservationEnvelope | null = null;
 
 	/** Cancel and expiry: the run leaves `running` at once, so nothing more can be dispatched. */
@@ -458,8 +477,19 @@ export async function runDefinition(
 					{ action: "page.press", key: step.args.key },
 					"navigation",
 				);
-			case "page.observe":
-				return settle(await executor.execute({ kind: "observe", tabRef }));
+			case "page.observe": {
+				const done = settle(
+					await executor.execute({ kind: "observe", tabRef }),
+				);
+				const page = latest as ObservationEnvelope | null;
+				return done.status === "confirmed" && page
+					? {
+							...done,
+							bodyBytes: new TextEncoder().encode(page.body).length,
+							refCount: page.refCount,
+						}
+					: done;
+			}
 			case "page.click":
 			case "page.fill": {
 				const t = target(step);
@@ -544,7 +574,7 @@ export async function runDefinition(
 						title: `[extract ${step.id}] ${content.title ?? ""}`,
 						body: content.text,
 					});
-					return { status: "confirmed" };
+					return { status: "confirmed", charCount: content.charCount };
 				} catch (error) {
 					if (error instanceof Refusal)
 						return { status: "failed", code: error.code };
@@ -561,9 +591,11 @@ export async function runDefinition(
 
 	async function drive(): Promise<Ending> {
 		await adapter.open(control.signal);
+		tool = adapter.toolInfo();
 		tabRef = await executor.attach();
 		for (const [i, step] of steps.entries()) {
 			if (control.signal.aborted) return cancelEnding();
+			const began = now();
 			const done = await runStep(step);
 			if (control.signal.aborted && done.status !== "confirmed")
 				return cancelEnding();
@@ -571,6 +603,10 @@ export async function runDefinition(
 				id: step.id,
 				action: step.action,
 				status: done.status,
+				durationMs: Math.max(0, now() - began),
+				...(done.bodyBytes === undefined ? {} : { bodyBytes: done.bodyBytes }),
+				...(done.refCount === undefined ? {} : { refCount: done.refCount }),
+				...(done.charCount === undefined ? {} : { charCount: done.charCount }),
 				...(done.code === undefined ? {} : { code: done.code }),
 				...(done.status === "skipped" ? { skipped: true as const } : {}),
 				...(done.urlChanged === undefined
@@ -637,6 +673,7 @@ export async function runDefinition(
 			finalUrl: finalUrl === null ? null : originAndPath(finalUrl),
 			steps: reports,
 		},
+		tool,
 		nowIso: nowIso(),
 	});
 	log("definition.finished", { code: ending.status, count: reports.length });
@@ -647,6 +684,8 @@ export async function runDefinition(
 		status: ending.status,
 		code: ending.code,
 		definition: meta,
+		platform: adapter.platform,
+		tool,
 		inputs,
 		finalUrl,
 		steps: reports,

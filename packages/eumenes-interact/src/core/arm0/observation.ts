@@ -16,7 +16,12 @@ export type BoundedSnapshot = {
 	refs: string[];
 };
 
-const REF = /\[ref=([A-Za-z0-9_-]+)\]/g;
+/**
+ * An element ref: `[ref=e1]` in a Playwright MCP snapshot, and also one attribute among others of a bracketed
+ * list (`[checked=false, ref=e322]`, `[ref=e27, url=https://…]`) as Agent Browser prints it. A platform
+ * extension, not Eumenes behaviour; the body itself is never rewritten (plan.md §5.3).
+ */
+const REF = /\[(?:[^\][]*, )?ref=([A-Za-z0-9_-]+)(?:, [^\][]*)?\]/g;
 
 /**
  * Cuts an ARIA snapshot at whole-node boundaries (a node is a `- ` line with its continuation lines).

@@ -52,3 +52,4 @@ Eumenes のドメイン機能のため、Arm 0 の対象外です。SKILL本文�
 - Eumenesの `policy.ts` が行う移動先の検査（私設・ループバックのアドレス、認証情報付きURL、httpとhttps以外のスキーム、`navigation_*_blocked`）は処理核に無い。ホストの責務で、labのホストが移植する。拒否は `HostOutcome` の `refused` で返す（HINTSの文面は処理核が付ける）。
 - `tab_new` が確認済みでも観測が付かなかったとき、Eumenesは `work.tabRef` を新しいタブにして、以後の要素操作を `observation_stale` で止める。処理核は新しいタブのrefを知らないため、操作対象のタブを外す（`tabRef` を空にする）。以後の要素操作・observe・navigate などは `no_target_tab` で拒否され、モデルは `tabs` と `tab_select` で選び直す。古いタブのrefが新しいタブへ送られることはない。
 - 終了の印: arm0の状態に `ended` を持ち、`failed`・`finish`・`clarify`・`stop`・`stopped` の後は `true` になる。終了後の `prepareStep`・`parseStep`・`applyResult` は `core_run_ended` を投げる。TaskStateの項目は変えていない。
+- Agent Browserの観測（プラットフォーム拡張。Eumenesの挙動ではない）: refは `[ref=e26]` のほか、他の属性と同じ括弧の中（`[checked=false, ref=e322]`、`[ref=e27, url=https://…]`）にあってもよい。`observation.ts` の `REF` を、1つの括弧内の属性リストのどこにあるrefも読むようにした。refの文字集合は同じ。Playwright形式の本文では結果が変わらない（goldenは不変）。本文は書き換えない（plan §5.3）。

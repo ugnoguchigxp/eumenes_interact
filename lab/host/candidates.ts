@@ -6,7 +6,7 @@ import {
 	type PageProfile,
 	type SiteObjectView,
 } from "eumenes-interact/sqlite";
-import { normalize, parseAria, type AriaNode } from "../scripted/resolve.ts";
+import { normalize, parseAria, type AriaNode } from "../aria.ts";
 
 /**
  * Site knowledge against the page in front of the browser (plan.md §7.3): which page profile the URL is

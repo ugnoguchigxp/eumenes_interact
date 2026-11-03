@@ -1,0 +1,18 @@
+{
+	"wikipedia-article": {
+		"inputs": [
+			{ "query": "量子コンピュータ" },
+			{ "query": "機械学習 応用 事例" }
+		]
+	},
+	"gizmodo-article": {
+		"inputs": [{ "query": "AI" }, { "query": "iPhone" }]
+	},
+	"slashdot-story": {
+		"inputs": [{ "query": "linux" }, { "query": "AI" }]
+	},
+	"biggo-product": {
+		"needsHeaded": true,
+		"inputs": [{ "query": "イヤホン" }, { "query": "マウス" }]
+	}
+}

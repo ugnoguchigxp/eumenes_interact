@@ -1,10 +1,11 @@
 import { AdapterError } from "../../contracts/adapter.ts";
 import type { AdapterCommand } from "../../contracts/operation.ts";
+import { refOf, webUrl } from "../mcp/common.ts";
 
 /**
  * The closed list of `@playwright/mcp` tools the adapter may call, and the mapping of adapter
  * commands onto them. `browser_evaluate` is reached only through the fixed functions of
- * `inspect.ts`. `browser_run_code_unsafe` (arbitrary code in the server process) is not on the
+ * `mcp/inspect.ts`. `browser_run_code_unsafe` (arbitrary code in the server process) is not on the
  * list (plan.md §5.2). `browser_take_screenshot` is listed for the later capture operation; no
  * command reaches it yet.
  */
@@ -28,34 +29,11 @@ const ALLOWED: ReadonlySet<string> = new Set(ALLOWED_MCP_TOOLS);
 export const isAllowedTool = (name: string): name is McpToolName =>
 	ALLOWED.has(name);
 
-/** Element refs from `[ref=eN]` (optionally frame-prefixed `f1e3`). Anything else would be a selector. */
-const REF = /^(?:f\d+)?e\d+$/;
-
-/** Validation failures happen before anything is sent: `dispatched` is false. */
-export function refOf(ref: string | undefined | null): string {
-	if (typeof ref !== "string" || !REF.test(ref))
-		throw new AdapterError("invalid_ref", false);
-	return ref;
-}
-
 /** `targetRef` of a tab is its index as a decimal string (unstable: it shifts when tabs close). */
 export function tabIndexOf(targetRef: string): number {
 	if (!/^\d{1,6}$/.test(targetRef))
 		throw new AdapterError("invalid_target", false);
 	return Number(targetRef);
-}
-
-/** Defence in depth: the host decides destinations; the adapter never sends other schemes. */
-export function webUrl(url: string): string {
-	let parsed: URL;
-	try {
-		parsed = new URL(url);
-	} catch {
-		throw new AdapterError("invalid_url", false);
-	}
-	if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
-		throw new AdapterError("invalid_url", false);
-	return url;
 }
 
 /**

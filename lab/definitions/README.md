@@ -59,6 +59,7 @@ bun lab/cli/main.ts knowledge list [--origin <origin>]
 
 - `status`はrunの状態（plan.md §9）。拒否されたときだけ`"rejected"`で、`runId`は`null`、`issues`に`{ path, code }`の一覧が付く。
 - クリックと、送信つきの入力（`submit: true`）の手順には、`urlChanged`（その手順でページのURLが変わったか）が付く。クリックは`confirmed`でも、ページ内のスクリプトが処理するだけでURLが変わらないことがあり、そのときは`false`になる。定義に式を足さずに、呼び出し側が見分けるための情報。
+- 各手順に`durationMs`が付く。`page.observe`の手順には`bodyBytes`（プラットフォームが返したスナップショットのUTF-8バイト数）と`refCount`、`page.extract`の手順には`charCount`が付く。結果の最上位には`platform`と`tool`（`{ name, version }`。開く前に拒否されたときは`null`）がある。
 - 手順の`status`は`confirmed` / `skipped` / `failed` / `needs_input` / `indeterminate` / `cancelled` / `expired` / `not_run`。止まった手順より後は`not_run`。
 - 止まった理由は`code`（固定の分類）。主なもの:
   - `object_undefined`: 今のページの種類に、その手順の対象が知識に無い（optionalでない手順）
@@ -144,3 +145,23 @@ bun lab/cli/main.ts task run gizmodo-article --input query=AI --browser chrome
 bun lab/cli/main.ts task run slashdot-story --input query=linux --browser chrome
 bun lab/cli/main.ts task run biggo-product --input query=イヤホン --headed --browser chrome
 ```
+
+## プラットフォーム（Playwright MCPとAgent Browser）
+
+`--platform playwright-mcp|agent-browser`（既定は`playwright-mcp`）で、`run`と`task run`の実行基盤を選ぶ。`--headed`は両方で効く。`--browser`と`--executable-path`は`@playwright/mcp`の引数なので、`agent-browser`と一緒に指定するとエラーにする（別のブラウザで測ることを防ぐ）。
+
+- スナップショットの形が違う。Playwright MCPは`- link "名前" [ref=e3]:`と子の`- /url: …`、Agent Browserは`- link "名前" [ref=e27, url=https://…]`（属性は1つの括弧、リンク先は括弧の中）。リゾルバ・refの一覧・承認判定は両方を同じに読む（`lab/aria.ts`）。
+- Agent Browserは、要素のタグやフォームの情報を読む道具が無い。承認が要るかを要素から判定できないので、**リンクのクリック以外**（ボタン、送信つきの入力、Enter）は承認待ちにする（plan.md §9の「効果を限定できない操作は確認待ち」）。無人の`--approver stop`では、検索の送信で`needs_input`（`approval_required`）で止まる。続けるには`--approver cli`で端末から答える。
+- 定義の実行の記録（`lab_definition_runs`）と試行（`lab_trials`）に、`platform`とツールの名前・版が残る。
+
+## 比較（compare）
+
+```
+bun lab/cli/main.ts compare --platforms playwright-mcp,agent-browser --include-live --headed
+bun lab/cli/main.ts compare --platforms playwright-mcp,agent-browser --split dev --definitions none
+```
+
+- 定義×入力×プラットフォームを`--repeat`回、先に動かすプラットフォームを入れ替えながら実行する（plan.md §10.4）。入力は`lab/compare/inputs.json`（`--inputs <file>`で差し替え）。ヘッドレスで動かないサイトには`needsHeaded: true`が付いていて、`--headed`なしでは「skipped: needs --headed」として報告に残す。
+- 定義は実サイトを開くので`--include-live`が要る。`--split dev`で、スクリプト推論のArm 0のdevケースも各プラットフォームで動かす。`--definitions`は`all`（既定）、`none`、またはidのカンマ区切り。
+- `lab/data/reports/compare-<時刻>.json`と`.md`に、プラットフォーム×定義（ケース）ごとの成功率、所要時間の中央値と合計、スナップショットのバイト数とrefの中央値、抽出文字数、失敗の分類、「クリックしたのにURLが変わらなかった」回数を出す。所要時間にはブラウザの起動を含み、中央値は成功した実行だけで取る。
+- 抽出した本文はレポートに載せない（文字数と先頭80文字だけ、ページのデータとして）。キーワードはユーザーが選んだサンプル入力なので載る。ログには入らない。

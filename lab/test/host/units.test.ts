@@ -11,6 +11,8 @@ import {
 	approvalNeeded,
 	commitGuard,
 	keyCommits,
+	LINK_FACTS,
+	UNJUDGEABLE,
 	needsApproval,
 	needsButtonClickApproval,
 } from "../../host/gate.ts";
@@ -92,6 +94,23 @@ describe("approval gate (Eumenes' decision)", () => {
 		expect(needsButtonClickApproval(roleButton)).toBe(true);
 		expect(needsButtonClickApproval(getSubmit)).toBe(false);
 		expect(needsButtonClickApproval(link)).toBe(false);
+	});
+
+	test("an element the platform cannot read needs approval, a link judged from the snapshot does not", () => {
+		const guard = {
+			action: "click",
+			declared: false,
+			probe: { ref: "e1" },
+		} as const;
+		expect(approvalNeeded(guard, UNJUDGEABLE)).toBe(true);
+		expect(approvalNeeded(guard, LINK_FACTS)).toBe(false);
+		expect(
+			approvalNeeded(
+				{ ...guard, action: "press", probe: "focused" },
+				UNJUDGEABLE,
+			),
+		).toBe(true);
+		expect(approvalNeeded(guard, null)).toBe(false);
 	});
 
 	test("which operations carry a guard", () => {

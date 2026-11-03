@@ -317,8 +317,53 @@ function site(url: URL, b: FakeBrowser): PageDef | null {
 	}
 }
 
+/**
+ * A Playwright-shaped snapshot in Agent Browser's: one bracket of attributes with the ref (and a link's
+ * destination) inline, no `- /url:` child lines, no paragraph text.
+ */
+export function toAgentBrowser(body: string): string {
+	const out: string[] = [];
+	for (const line of body.split("\n")) {
+		const dest = /^\s*- \/url:\s*(.*)$/.exec(line);
+		if (dest) {
+			const last = out.pop();
+			if (last) out.push(last.replace(/\]$/, `, url=${dest[1]}]`));
+			continue;
+		}
+		const m =
+			/^(\s*- [A-Za-z][\w-]*(?: "(?:[^"\\]|\\.)*")?)((?: \[[^\]]*\])*)(?::.*)?$/.exec(
+				line,
+			);
+		if (!m) continue;
+		const attrs = [...(m[2] ?? "").matchAll(/\[([^\]]*)\]/g)].map((a) => a[1]!);
+		const ref = attrs.find((a) => a.startsWith("ref="));
+		const rest = attrs.filter((a) => !a.startsWith("ref="));
+		const all = [...rest, ...(ref ? [ref] : [])];
+		out.push(`${m[1]}${all.length ? ` [${all.join(", ")}]` : ""}`);
+	}
+	return out.join("\n");
+}
+
+export type FakeOptions = {
+	platform?: "playwright-mcp" | "agent-browser";
+	/** The shape of the snapshot the browser returns. */
+	format?: "playwright" | "agent-browser";
+	/** Agent Browser cannot read an element's facts: `inspect` then rejects as unsupported. */
+	inspectSupported?: boolean;
+};
+
 export class FakeBrowser implements PlatformAdapter {
-	readonly platform = "playwright-mcp" as const;
+	readonly platform: "playwright-mcp" | "agent-browser";
+	private readonly format: "playwright" | "agent-browser";
+
+	constructor(options: FakeOptions = {}) {
+		this.platform = options.platform ?? "playwright-mcp";
+		this.format = options.format ?? "playwright";
+		this.inspectSupported = options.inspectSupported ?? true;
+	}
+
+	private readonly inspectSupported: boolean;
+
 	private status: AdapterState = "closed";
 	private tabs: Tab[] = [];
 	private current = 0;
@@ -345,7 +390,13 @@ export class FakeBrowser implements PlatformAdapter {
 	nextTabUrl: string | null = null;
 
 	toolInfo() {
-		return { name: "fake-playwright", version: "0.0.0" };
+		return {
+			name:
+				this.platform === "agent-browser"
+					? "fake-agent-browser"
+					: "fake-playwright",
+			version: "0.0.0",
+		};
 	}
 
 	catalog(): readonly CatalogEntry[] {
@@ -458,7 +509,12 @@ export class FakeBrowser implements PlatformAdapter {
 		const tab = this.tabs[this.current]!;
 		const page = this.page();
 		return Promise.resolve({
-			body: page ? page.lines.join("\n") : "- generic [ref=e1]",
+			body:
+				this.format === "agent-browser"
+					? toAgentBrowser(page ? page.lines.join("\n") : "- generic [ref=e1]")
+					: page
+						? page.lines.join("\n")
+						: "- generic [ref=e1]",
 			url: tab.url,
 			title: tab.title,
 			truncated: false,
@@ -542,6 +598,8 @@ export class FakeBrowser implements PlatformAdapter {
 		targetRef: string | null,
 	): Promise<InspectionResult> {
 		this.calls.push("inspect");
+		if (!this.inspectSupported)
+			return Promise.reject(new AdapterError("unsupported", false));
 		const info = targetRef ? this.page()?.info?.[targetRef] : undefined;
 		return Promise.resolve(info ?? PLAIN_BUTTON);
 	}
