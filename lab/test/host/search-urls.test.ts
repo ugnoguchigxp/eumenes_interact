@@ -22,6 +22,14 @@ describe("search urls (2026-11-04)", () => {
 			"https://www.google.com/search?q=x",
 		);
 	});
+	test("NDL Search and e-Stat have their own search pages (live, 2026-11-04)", () => {
+		expect(siteSearchUrl("https://ndlsearch.ndl.go.jp/", "こころ")).toBe(
+			`https://ndlsearch.ndl.go.jp/search?cs=bib&keyword=${encodeURIComponent("こころ")}`,
+		);
+		expect(siteSearchUrl("https://www.e-stat.go.jp/", "人口")).toContain(
+			"stat-search?page=1&query=",
+		);
+	});
 	test("an unknown site has none", () => {
 		expect(siteSearchUrl("https://unknown.example/", "x")).toBeNull();
 	});

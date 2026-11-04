@@ -503,7 +503,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	const PAGING =
 		/^(?:\d{1,3}|[<>«»‹›]+|next|prev(?:ious)?|次(?:へ|のページ)?|前(?:へ|のページ)?|最初|最後|もっと見る)[\s>»›]*$/i;
 
-	const SEARCH_NAME = /search|検索|keyword|キーワード|query|探す|find/i;
+	const SEARCH_NAME = /search|検索|keyword|キーワード|query|探す|探し|find/i;
 
 	/**
 	 * The search field: the site knowledge's `search.query`, else the page's search boxes, comboboxes and text
@@ -628,7 +628,13 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			after = await typeSearch(field, page, query);
 			// The box took the text but the page did not move (a script-only box, a language it ignores): no search
 			// happened, so the next way is tried rather than the unchanged page being reported as results.
-			if (after && after.url === start.url) after = null;
+			// A box whose page moves only after its script has run (NDL Search: a second or more) gets one short
+			// wait before that is decided.
+			if (after && after.url === start.url) {
+				await operate({ action: "page.wait", seconds: RESULTS_SETTLE_S }, "none");
+				after = await observeFresh();
+				if (after.url === start.url) after = null;
+			}
 		}
 		if (!after) {
 			const known = siteSearchUrl(origin, query);

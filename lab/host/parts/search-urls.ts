@@ -31,6 +31,8 @@ export const SEARCH_URLS: Readonly<Record<string, string>> = {
 	"pypi.org": "https://pypi.org/search/?q={q}",
 	"crates.io": "https://crates.io/search?q={q}",
 	"www.bbc.com": "https://www.bbc.com/search?q={q}",
+	"ndlsearch.ndl.go.jp": "https://ndlsearch.ndl.go.jp/search?cs=bib&keyword={q}",
+	"www.e-stat.go.jp": "https://www.e-stat.go.jp/stat-search?page=1&query={q}",
 	"www.nhk.or.jp": "https://www3.nhk.or.jp/news/word/search.html?q={q}",
 };
 
