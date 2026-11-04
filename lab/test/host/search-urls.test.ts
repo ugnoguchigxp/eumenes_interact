@@ -34,6 +34,7 @@ describe("search urls (2026-11-04)", () => {
 	test("challenge pages are recognised; long ordinary pages are not", () => {
 		expect(isChallenge("Just a moment...", "")).toBe(true);
 		expect(isChallenge("Home", "Please verify you are human")).toBe(true);
+		expect(isChallenge("Human verification - Stack Overflow", "")).toBe(true);
 		expect(isChallenge("Home", `${"text ".repeat(2000)} captcha`)).toBe(false);
 	});
 });

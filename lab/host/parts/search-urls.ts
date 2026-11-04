@@ -74,7 +74,7 @@ export function generalSearchUrl(
  * for an automatic pass, then reports `site_blocked`.
  */
 const CHALLENGE =
-	/just a moment|verify you are human|checking your browser|attention required|are you a robot|unusual traffic|captcha|ロボットではありません|しばらくお待ちください.{0,20}確認/i;
+	/just a moment|verify you are human|human verification|checking your browser|attention required|are you a robot|unusual traffic|captcha|ロボットではありません|しばらくお待ちください.{0,20}確認/i;
 
 export function isChallenge(title: string | undefined, body: string): boolean {
 	if (title && CHALLENGE.test(title)) return true;
