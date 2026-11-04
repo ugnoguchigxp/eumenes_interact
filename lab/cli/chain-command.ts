@@ -107,6 +107,15 @@ export async function chainCommand(
 	let used = 0;
 	let keep = false;
 	let stopped: string | null = null;
+	// Ctrl-C or a kill while a browser is kept open: the browser is closed, not left behind.
+	const onSignal = (signal: NodeJS.Signals) => {
+		console.log(`closed\tsignal:${signal}`);
+		void Promise.allSettled([hold.release(), session.dispose()]).then(() =>
+			process.exit(130),
+		);
+	};
+	process.once("SIGINT", onSignal);
+	process.once("SIGTERM", onSignal);
 	try {
 		for (const [index, step] of plan.steps.entries()) {
 			const check = budgetCheck(used, budget);
@@ -271,6 +280,8 @@ export async function chainCommand(
 			console.log(`closed\t${why}`);
 		}
 	} finally {
+		process.off("SIGINT", onSignal);
+		process.off("SIGTERM", onSignal);
 		await hold.release().catch(() => {});
 		await session.dispose().catch(() => {});
 		// Closing the reader is what lets the process exit while stdin (a fifo or a terminal) stays open.
