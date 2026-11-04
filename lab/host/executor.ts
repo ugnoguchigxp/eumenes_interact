@@ -53,7 +53,8 @@ import { Refusal, RunEnd, type RunEndStatus } from "./types.ts";
  * The order inside `operate` is the contract: refuse what is wrong before anything is sent; record the intent;
  * ask for approval; write `dispatched` in a committed transaction BEFORE awaiting the adapter; settle after.
  * After a cancel nothing is sent and a late result is recorded but never adopted. After an `indeterminate`
- * result the run is over: nothing is sent again.
+ * result the run is over: nothing is sent again — except for navigation, back, wait and an operation its host
+ * caller marks `recoverable` (a host-checked search), which come back as an unconfirmed result.
  */
 
 export type Executed =
@@ -67,7 +68,15 @@ export type ExecuteOptions = {
 	 * request supplies, not one quotation). Without it a `page.fill` needs an input provenance.
 	 */
 	valueChecked?: boolean;
+	/**
+	 * An indeterminate result of this operation does not end the run: the caller (a host part) knows that sending
+	 * it again cannot do harm (a host-checked search, which is a GET). Navigation, back and wait are always so.
+	 */
+	recoverable?: boolean;
 };
+
+/** Commands whose indeterminate result leaves nothing that a second try could duplicate. */
+const IDEMPOTENT = new Set(["browser.navigate", "browser.back", "page.wait"]);
 
 export type ExecutorDeps = {
 	db: Database;
@@ -595,7 +604,14 @@ export function createExecutor(deps: ExecutorDeps) {
 				retryable: false,
 			};
 		}
-		return settle(call, operationId, tabRef, sent, deps.now() - began);
+		return settle(
+			call,
+			operationId,
+			tabRef,
+			sent,
+			deps.now() - began,
+			options.recoverable === true,
+		);
 	}
 
 	/** Records what the adapter answered, then decides what the model may see of it. */
@@ -605,9 +621,19 @@ export function createExecutor(deps: ExecutorDeps) {
 		tabRef: string,
 		sent: AdapterDispatchResult,
 		durationMs: number,
+		recoverable = false,
 	): Promise<Executed> {
 		let { status, code } = sent;
 		let retryable = status === "indeterminate" ? false : sent.retryable;
+		// An idempotent step whose outcome is unknown is settled as failed, not left indeterminate: nothing it did
+		// can be duplicated by doing it again, so the run need not end. Its page is void all the same (bumped).
+		const recovered =
+			status === "indeterminate" &&
+			(recoverable || IDEMPOTENT.has(call.command.action));
+		if (recovered) {
+			status = "failed";
+			code = `unconfirmed_${code ?? "indeterminate"}`;
+		}
 		// The page the action ended on is checked like any destination: one the host must not adopt is dropped.
 		if (status === "confirmed" && sent.url !== undefined) {
 			const verdict = deps.policy(sent.url);
@@ -629,7 +655,7 @@ export function createExecutor(deps: ExecutorDeps) {
 			}),
 		);
 		// A sent command may have changed the page: its observations are void.
-		if (status === "confirmed" || status === "indeterminate") {
+		if (status === "confirmed" || status === "indeterminate" || recovered) {
 			tabs.bump(tabRef);
 			if (status === "confirmed")
 				tabs.patch(tabRef, {

@@ -22,6 +22,7 @@ import { Refusal, RunEnd } from "../types.ts";
 import { captureTargetHash } from "../../scorer/captures.ts";
 import { CaptureError, type CaptureStore } from "./capture.ts";
 import { partsHelpers, type PartsHelpers } from "./core.ts";
+import { generalSearchUrl, isChallenge, siteSearchUrl } from "./search-urls.ts";
 import { ItemRegistry, pageKey } from "./registry.ts";
 
 /**
@@ -39,6 +40,8 @@ export const SUMMARY_HEADINGS = 8;
 const FIND_LIMIT = 20;
 const SEARCH_LIST_LIMIT = 10;
 const CANDIDATES = 10;
+/** Seconds a bot check is given to pass by itself, once. */
+const CHALLENGE_WAIT_S = 8;
 
 /**
  * What a model may write for a checkbox or a radio button (the system text asks for on or off). Any other value
@@ -128,6 +131,11 @@ export type PartExecutorDeps = {
 	grants: InputGrants;
 	/** The user's request: what a typed value is checked against. */
 	request: string;
+	/**
+	 * Verified results of earlier steps of the same request (a chain's handoff): a search word found there has
+	 * a source, as one of the request has. Called at each search, so a later step sees results added since.
+	 */
+	sources?: () => readonly string[];
 	/** Defaults to the package's helpers. */
 	core?: PartsHelpers;
 };
@@ -341,6 +349,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			observation?: ObservationEnvelope;
 			inputProvenance?: InputProvenance;
 			valueChecked?: boolean;
+			recoverable?: boolean;
 		} = {},
 	): Promise<Step> {
 		const tabRef = await activeTab();
@@ -366,7 +375,12 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 					? { inputProvenance: extra.inputProvenance }
 					: {}),
 			},
-			extra.valueChecked ? { valueChecked: true } : undefined,
+			extra.valueChecked || extra.recoverable
+				? {
+						...(extra.valueChecked ? { valueChecked: true } : {}),
+						...(extra.recoverable ? { recoverable: true } : {}),
+					}
+				: undefined,
 		);
 	}
 
@@ -431,82 +445,201 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		};
 	}
 
-	/** Every word of the query must be a passage of the request: the same source rule as a typed value. */
-	function queryFromRequest(query: string): boolean {
+	/**
+	 * Every word of the query must have a source: a passage of the request (the same rule as a typed value), or
+	 * a passage of a verified result of an earlier step of the same request (a handoff, e.g. the ticker found in
+	 * step 1 searched in step 2). A word with neither — a guess — is refused.
+	 */
+	function querySourced(query: string): boolean {
 		const words = query.split(/[\s　]+/).filter(Boolean);
 		if (words.length === 0) return false;
-		return words.every((word) => {
-			if (word.length === 1) return deps.request.includes(word);
-			try {
-				assertQuoted(word, word, deps.request);
-				return true;
-			} catch {
-				return false;
-			}
-		});
+		const texts = [deps.request, ...(deps.sources?.() ?? [])];
+		return words.every((word) =>
+			texts.some((text) => {
+				if (word.length === 1) return text.includes(word);
+				try {
+					assertQuoted(word, word, text);
+					return true;
+				} catch {
+					return false;
+				}
+			}),
+		);
 	}
 
-	/** The search field: the site knowledge's `search.query`, else the one search box or combobox of the page. */
-	function searchField(observation: ObservationEnvelope): Target {
+	const SEARCH_NAME = /search|検索|keyword|キーワード|query|探す|find/i;
+
+	/**
+	 * The search field: the site knowledge's `search.query`, else the page's search boxes, comboboxes and text
+	 * boxes named for search. With several, the one in a search region comes first, then one named for search,
+	 * then the first in document order: never an arbitrary pick, and never a field of a login or other form.
+	 */
+	function searchField(observation: ObservationEnvelope): Target | null {
 		if (observation.url !== undefined) {
 			const found = deps.knowledge.resolve(
 				observation.url,
 				observation.body,
 				"search.query",
 			);
-			{
-				if (found)
-					return {
+			if (found)
+				return {
+					ref: found.ref,
+					record: {
+						item: "p0.i0",
+						role: found.role,
+						name: found.name,
 						ref: found.ref,
-						record: {
-							item: "p0.i0",
-							role: found.role,
-							name: found.name,
-							ref: found.ref,
-							nth: 0,
-							count: 1,
-						},
-					};
-			}
+						nth: 0,
+						count: 1,
+					},
+				};
 		}
 		const { records } = batch(observation, (pageId) => ({
-			records: (["searchbox", "combobox"] as const).flatMap((role) =>
-				core.findItems(observation.body, pageId, { text: null, role }, 5),
+			records: (["searchbox", "combobox", "textbox"] as const).flatMap((role) =>
+				core.findItems(observation.body, pageId, { text: null, role }, 10),
 			),
 		}));
-		if (records.length === 1)
-			return { record: records[0]!, ref: records[0]!.ref };
-		throw new PartFail(
-			records.length === 0 ? "search_box_not_found" : "target_ambiguous",
-			{ candidates: records.map(toItem) },
+		const fields = records.filter(
+			(r) =>
+				r.role === "searchbox" ||
+				SEARCH_NAME.test(r.name) ||
+				r.region === "search" ||
+				(r.role === "combobox" && r.name === ""),
 		);
+		const rank = (r: ItemRecord) =>
+			r.region === "search"
+				? 0
+				: r.role === "searchbox"
+					? 1
+					: SEARCH_NAME.test(r.name)
+						? 2
+						: 3;
+		const best = [...fields].sort((x, y) => rank(x) - rank(y))[0];
+		return best ? { record: best, ref: best.ref } : null;
+	}
+
+	/** A button that only shows the search box (a magnifier in the header). */
+	function revealButton(observation: ObservationEnvelope): Target | null {
+		const { records } = batch(observation, (pageId) => ({
+			records: core.findItems(
+				observation.body,
+				pageId,
+				{ text: null, role: "button" },
+				40,
+			),
+		}));
+		const button = records.find((r) => SEARCH_NAME.test(r.name));
+		return button ? { record: button, ref: button.ref } : null;
+	}
+
+	/**
+	 * A bot check (Cloudflare and the like) is waited out once, a few seconds, without clicking anything; one
+	 * that stays is `site_blocked`. It is never solved or bypassed.
+	 */
+	async function passChallenge(
+		observation: ObservationEnvelope,
+	): Promise<ObservationEnvelope> {
+		if (!isChallenge(observation.title, observation.body)) return observation;
+		await operate({ action: "page.wait", seconds: CHALLENGE_WAIT_S }, "none");
+		const again = await observeFresh();
+		if (isChallenge(again.title, again.body))
+			throw new PartFail("site_blocked", { page: summarize(again) });
+		return again;
+	}
+
+	/** Types the query into the field and submits; null when the field did not take it. */
+	async function typeSearch(
+		field: Target,
+		observation: ObservationEnvelope,
+		query: string,
+	): Promise<ObservationEnvelope | null> {
+		const s = await operate(
+			{
+				action: "page.fill",
+				targetRef: field.ref,
+				element: elementName(field.record),
+				text: query,
+				submit: true,
+			},
+			"input",
+			{ observation, valueChecked: true, recoverable: true },
+		);
+		if (s.kind !== "operation") return null;
+		if (s.result.status !== "confirmed") return null;
+		return afterSending(() => observationAfter(s));
+	}
+
+	async function openUrl(url: string): Promise<ObservationEnvelope | null> {
+		const s = await operate({ action: "browser.navigate", url }, "navigation");
+		if (s.kind !== "operation" || s.result.status !== "confirmed") return null;
+		return afterSending(() => observationAfter(s));
 	}
 
 	async function siteSearch(query: string): Promise<Body> {
-		if (!queryFromRequest(query)) throw new PartFail("query_not_in_request");
-		const observation = await observeFresh();
-		const field = searchField(observation);
-		const s = confirmed(
-			await operate(
-				{
-					action: "page.fill",
-					targetRef: field.ref,
-					element: elementName(field.record),
-					text: query,
-					submit: true,
-				},
-				"input",
-				{ observation, valueChecked: true },
-			),
-		);
-		const after = await afterSending(() => observationAfter(s));
-		const page = summarize(after);
+		if (!querySourced(query)) throw new PartFail("query_not_in_request");
+		const start = await passChallenge(await observeFresh());
+		const origin = start.url ?? "";
+		const tried: string[] = [];
+		let after: ObservationEnvelope | null = null;
+		// 1. The page's own search box, shown first by its button when it is hidden.
+		let field = searchField(start);
+		let page = start;
+		if (!field) {
+			const button = revealButton(start);
+			if (button) {
+				tried.push("reveal");
+				const clicked = await operate(
+					{
+						action: "page.click",
+						targetRef: button.ref,
+						element: elementName(button.record),
+					},
+					// Showing a search box changes no data: it is declared as navigation, not as a submission.
+					"navigation",
+					{ observation: start },
+				);
+				if (
+					clicked.kind === "operation" &&
+					clicked.result.status === "confirmed"
+				) {
+					page = await observationAfter(clicked);
+					field = searchField(page);
+				}
+			}
+		}
+		if (field) {
+			tried.push("box");
+			after = await typeSearch(field, page, query);
+		}
+		// 2. The site's own search page the host knows. 3. A general engine, only where the policy allows it.
+		if (!after) {
+			const known = siteSearchUrl(origin, query);
+			if (known) {
+				tried.push("site_url");
+				after = await openUrl(known);
+			}
+		}
+		if (!after) {
+			const general = generalSearchUrl(origin, query);
+			if (general) {
+				tried.push("general");
+				// A general engine outside the run's allowed origins is refused by the policy: then nothing is opened.
+				after = await openUrl(general);
+			}
+		}
+		if (!after) {
+			throw new PartFail("no_search_box", { page: summarize(page) });
+		}
+		after = await passChallenge(after);
+		const summary = summarize(after);
 		const listed = batch(after, (pageId) =>
 			core.listEntries(after.body, pageId, "results", SEARCH_LIST_LIMIT),
 		);
+		if (listed.entries.length === 0)
+			throw new PartFail("zero_results", { status: "partial", page: summary });
 		return {
 			status: "completed",
-			page,
+			page: summary,
 			list: {
 				kind: "results",
 				entries: listed.entries,

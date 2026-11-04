@@ -288,22 +288,42 @@ describe("cancel and deadline at the edges", () => {
 });
 
 describe("an operation with an unknown outcome", () => {
-	test("ends the run as indeterminate and sends nothing more", async () => {
+	test("a click ends the run as indeterminate and sends nothing more", async () => {
 		const adapter = new FakeBrowser();
 		adapter.onDispatch = (command) =>
-			command.action === "page.fill"
+			command.action === "page.click"
 				? { status: "indeterminate", code: "transport_lost", retryable: false }
 				: undefined;
-		const { db, result } = await runScripted("dev-search-base", { adapter });
+		const { db, result } = await runScripted("dev-tab-base", { adapter });
 		expect(result.status).toBe("indeterminate");
-		expect(adapter.dispatched.map((c) => c.action)).toEqual([
-			"browser.navigate",
-			"page.fill",
-		]);
-		const [op] = listOperations(db, LAB_OWNER, result.runId);
-		expect(op).toMatchObject({ status: "indeterminate", retryable: false });
+		const actions = adapter.dispatched.map((c) => c.action);
+		expect(actions.at(-1)).toBe("page.click");
+		expect(actions.filter((a) => a === "page.click")).toHaveLength(1);
+		const ops = listOperations(db, LAB_OWNER, result.runId);
+		expect(ops.at(-1)).toMatchObject({
+			status: "indeterminate",
+			retryable: false,
+		});
 		expect(result.score.contract.resendIndeterminate).toBe(0);
 		expect(result.score.success).toBe(false);
+	});
+
+	test("a host-checked search whose outcome is unknown is settled as failed and the run goes on (2026-11-04)", async () => {
+		const adapter = new FakeBrowser();
+		let first = true;
+		adapter.onDispatch = (command) => {
+			if (command.action === "page.fill" && first) {
+				first = false;
+				return { status: "indeterminate", code: "mcp_error", retryable: false };
+			}
+			return undefined;
+		};
+		const { db, result } = await runScripted("dev-search-base", { adapter });
+		expect(result.status).not.toBe("indeterminate");
+		const fill = listOperations(db, LAB_OWNER, result.runId).find(
+			(o) => o.resultCode === "unconfirmed_mcp_error",
+		);
+		expect(fill).toMatchObject({ status: "failed" });
 	});
 });
 

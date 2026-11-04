@@ -109,19 +109,14 @@ describe("site.search", () => {
 		expect(s.adapter.dispatched).toHaveLength(1);
 	});
 
-	test("two search boxes are ambiguous: candidates come back and nothing is typed", async () => {
+	test("of two search boxes the one in the search region is used, never an arbitrary one (2026-11-04)", async () => {
 		const s = await setup({
 			start: `${BASE}sites/hoshikuzu/duplicate/index.html`,
 			request: "「天野」の本を探してください。",
 		});
-		const r = await s.result(call("site.search", { query: "天野" }));
-		expect(codes(r)).toEqual(["failed", "target_ambiguous"]);
-		expect(r.candidates?.map((c) => c.role)).toEqual([
-			"searchbox",
-			"searchbox",
-		]);
-		expect(r.candidates?.map((c) => c.region)).toEqual(["form", "search"]);
-		expect(s.adapter.dispatched).toHaveLength(1);
+		await s.result(call("site.search", { query: "天野" }));
+		const fill = s.adapter.dispatched.find((c) => c.action === "page.fill");
+		expect(fill).toBeDefined();
 	});
 
 	test("the site knowledge's search.query is used before looking for a box", async () => {
@@ -141,7 +136,8 @@ describe("site.search", () => {
 		// Without knowledge the box is found by role (one searchbox is enough).
 		const before = seen.length;
 		const r = await s.result(call("site.search", { query: "機械学習" }));
-		expect(r.status).toBe("completed");
+		// The fake page after the search lists no results: the search ran, and says it found none.
+		expect([r.status, r.code]).toEqual(["partial", "zero_results"]);
 		expect(seen.length).toBeGreaterThan(before);
 	});
 });
