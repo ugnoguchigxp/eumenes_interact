@@ -80,6 +80,7 @@ export type OperateOptions = {
 	captureDir?: string;
 	/** At most 12 (Arm 0's limit); default 12. */
 	maxModelCalls?: number;
+	/** Headed (window shown) unless explicitly `false`. */
 	headed?: boolean;
 	/** `stop` never grants an approval and ends the run as `needs_input`; `cli` asks on the terminal. */
 	approver: "stop" | "cli";
@@ -385,7 +386,7 @@ export function startOperate(
 					: larmFactory(db, logger)(runId));
 			inferenceInfo = inference.info();
 			session = await (deps.createSession ?? createSession)(
-				{ headed: o.headed === true },
+				{ headed: o.headed !== false },
 				logger,
 			);
 			const def: TrialCase = {
@@ -416,7 +417,7 @@ export function startOperate(
 					browser: {
 						channel: null,
 						customExecutable: false,
-						headless: o.headed !== true,
+						headless: o.headed === false,
 					},
 					commit: deps.commit === undefined ? packageCommit() : deps.commit,
 				}),

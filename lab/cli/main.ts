@@ -21,20 +21,20 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude|manual]
       [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--approver fixture|cli] [--include-holdout] [--include-live]
       [--arm arm1] [--capture-dir <abs dir>]
-      [--keep-observations] [--headed] [--platform playwright-mcp]
+      [--keep-observations] [--headless] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   task list
   task run <definitionId> --input key=value ... [--json] [--approver stop|cli] [--capture-dir <abs dir>]
-      [--keep-observations] [--headed] [--platform playwright-mcp]
+      [--keep-observations] [--headless] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   compare [--platforms playwright-mcp] [--definitions <id,...|all|none>]
-      [--inputs <file.json>] [--repeat n] [--headed] [--split dev] [--include-live] [--keep-observations]
+      [--inputs <file.json>] [--repeat n] [--headless] [--split dev] [--include-live] [--keep-observations]
       [--approver stop|cli] [--inference scripted|claude] [--model <id>] [--effort <e>] [--max-tokens <n>]
       [--arm arm1] [--capture-dir <abs dir>]
   operate --request "<text>" --start-url <https url> --allow-origin <origin> [--allow-origin ...]
       [--inference claude|larm] [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--max-calls n]
       [--arm arm1|arm0] [--capture-dir <abs dir>]
-      [--approver stop|cli] [--headed] [--keep-observations] [--json]
+      [--approver stop|cli] [--headless] [--keep-observations] [--json]
   knowledge import <seed.json>...
   knowledge list [--origin <origin>]
   trials [--experiment <id>]
@@ -42,6 +42,7 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   larm profiles [--base-url <url>]
   larm set --base-url <url> --profile <name>
 global: --db <path>   (default lab/data/interact.sqlite)
+The browser is headed (window shown) by default; --headless opts out. --headed is accepted and changes nothing.
 The LARM token is read from LARM_API_TOKEN and is never stored.`;
 
 const { values, positionals } = parseArgs({
@@ -57,6 +58,7 @@ const { values, positionals } = parseArgs({
 		"include-live": { type: "boolean" },
 		"keep-observations": { type: "boolean" },
 		headed: { type: "boolean" },
+		headless: { type: "boolean" },
 		browser: { type: "string" },
 		"executable-path": { type: "string" },
 		experiment: { type: "string" },
@@ -182,7 +184,7 @@ async function main(): Promise<number> {
 							["stop", "cli"],
 							"stop",
 						),
-						headed: values.headed === true,
+						headed: values.headless !== true,
 						platform,
 						...(values["capture-dir"] === undefined
 							? {}
@@ -212,7 +214,7 @@ async function main(): Promise<number> {
 							? {}
 							: { inputsFile: values.inputs }),
 						repeat,
-						headed: values.headed === true,
+						headed: values.headless !== true,
 						...(values.split === undefined ? {} : { split: values.split }),
 						includeLive: values["include-live"] === true,
 						keepObservations: values["keep-observations"] === true,
@@ -303,7 +305,7 @@ async function main(): Promise<number> {
 										"fixture",
 									),
 								}),
-						headed: values.headed === true,
+						headed: values.headless !== true,
 						platform,
 						...(values.browser === undefined
 							? {}

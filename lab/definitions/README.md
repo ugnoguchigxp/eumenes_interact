@@ -19,7 +19,7 @@ CLIは`bun lab/cli/main.ts`（ルートの`package.json`に`"lab": "bun lab/cli/
 ```
 bun lab/cli/main.ts task list
 bun lab/cli/main.ts task run <definitionId> --input query=<キーワード> [--json]
-    [--approver stop|cli] [--keep-observations] [--headed] [--browser chrome] [--executable-path <path>]
+    [--approver stop|cli] [--keep-observations] [--headless] [--browser chrome] [--executable-path <path>]
 bun lab/cli/main.ts knowledge import <seed.json>...
 bun lab/cli/main.ts knowledge list [--origin <origin>]
 ```
@@ -135,7 +135,7 @@ Eumenesのホスト検査は、タブを「タブ番号とURLの両方が一致�
 - **Wikipedia**: 題名が完全一致すると検索から記事へ直接移動するので、`pick`は飛ばされる。そうでなければ検索結果の最初の記事（ヘルプ・特別ページ・赤リンク・名前の無いサムネイルを除く）へ行く。
 - **ギズモード・ジャパン**: 検索結果はGoogle CSEがページ内に出す（iframeではない）。結果のリンクは`https://www.gizmodo.jp/article/`で始まるものに限り、`google.com`のリンクは押さない。結果の表示を待つため3秒待つ。
 - **Slashdot**: 許可originは`https://*.slashdot.org`（ストーリーは`tech.`、`yro.`、`games.`などのサブドメインにある）。`(techcrunch.com)`のような元記事の外部リンクは押さない（`/story/`を含むリンクだけ）。サブドメインのページに知識は無いので、本文は汎用の抽出。
-- **BigGo**: ヘッドレスのChromeは`{"message":"Access denied"}`になる。**`--headed`が必要**。広告のリンク（`/r/?i=…`）は外部の店へ飛ぶので押さない（`/gp/`を含むものだけ）。結果ページの種類はまだ分かっていないので、知識は`/`だけ。
+- **BigGo**: ヘッドレスのChromeは`{"message":"Access denied"}`になる。**headedが必要**（既定のまま。`--headless`を付けない）。広告のリンク（`/r/?i=…`）は外部の店へ飛ぶので押さない（`/gp/`を含むものだけ）。結果ページの種類はまだ分かっていないので、知識は`/`だけ。
 
 ## 実行例
 
@@ -143,7 +143,7 @@ Eumenesのホスト検査は、タブを「タブ番号とURLの両方が一致�
 bun lab/cli/main.ts task run wikipedia-article --input query=機械学習 --json --browser chrome
 bun lab/cli/main.ts task run gizmodo-article --input query=AI --browser chrome
 bun lab/cli/main.ts task run slashdot-story --input query=linux --browser chrome
-bun lab/cli/main.ts task run biggo-product --input query=イヤホン --headed --browser chrome
+bun lab/cli/main.ts task run biggo-product --input query=イヤホン --browser chrome
 ```
 
 ## プラットフォーム
@@ -156,11 +156,11 @@ bun lab/cli/main.ts task run biggo-product --input query=イヤホン --headed -
 ## 比較（compare）
 
 ```
-bun lab/cli/main.ts compare --include-live --headed --repeat 3
+bun lab/cli/main.ts compare --include-live --repeat 3
 bun lab/cli/main.ts compare --split dev --definitions none
 ```
 
-- 定義×入力×プラットフォームを`--repeat`回、先に動かすプラットフォームを入れ替えながら実行する（plan.md §10.4）。プラットフォームが1つなら、同じ作業の反復測定になる（`--platforms`は省略できる）。入力は`lab/compare/inputs.json`（`--inputs <file>`で差し替え）。ヘッドレスで動かないサイトには`needsHeaded: true`が付いていて、`--headed`なしでは「skipped: needs --headed」として報告に残す。
+- 定義×入力×プラットフォームを`--repeat`回、先に動かすプラットフォームを入れ替えながら実行する（plan.md §10.4）。プラットフォームが1つなら、同じ作業の反復測定になる（`--platforms`は省略できる）。入力は`lab/compare/inputs.json`（`--inputs <file>`で差し替え）。ヘッドレスで動かないサイトには`needsHeaded: true`が付いていて、`--headless`を付けたときは「skipped: needs --headed」として報告に残す。
 - 定義は実サイトを開くので`--include-live`が要る。`--split dev`で、スクリプト推論のArm 0のdevケースも各プラットフォームで動かす。`--definitions`は`all`（既定）、`none`、またはidのカンマ区切り。
 - `lab/data/reports/compare-<時刻>.json`と`.md`に、プラットフォーム×定義（ケース）ごとの成功率、所要時間の中央値と合計、スナップショットのバイト数とrefの中央値、抽出文字数、失敗の分類、「クリックしたのにURLが変わらなかった」回数を出す。所要時間にはブラウザの起動を含み、中央値は成功した実行だけで取る。
 - 抽出した本文はレポートに載せない（文字数と先頭80文字だけ、ページのデータとして）。キーワードはユーザーが選んだサンプル入力なので載る。ログには入らない。

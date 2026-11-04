@@ -60,8 +60,8 @@ claude mcp add eumenes-interact --env INTERACT_MCP_CAPTURE_ROOTS=/Users/y.noguch
 | ツール | 入力 | 返すもの |
 | --- | --- | --- |
 | `interact_list_definitions` | なし | 定義ごとの`id`、`revision`、`title`、`allowedOrigins`、`inputs`（`properties`と`required`）。読み取りのみ |
-| `interact_run_definition` | `definitionId`（文字列）、`inputs`（文字列→文字列）、`headed?`（真偽）、`captureDir?`（絶対パス） | `task run --json`と同じ結果。同期で、1分ほどかかることがある |
-| `interact_operate_start` | `request`（1〜4000文字）、`startUrl`（http(s)）、`allowedOrigins`（1〜10件）、`maxModelCalls?`（1〜12の整数）、`headed?`、`arm?`（`arm0`か`arm1`、既定`arm1`）、`captureDir?`（絶対パス） | `{ runId, status }`。受付であって完了ではない |
+| `interact_run_definition` | `definitionId`（文字列）、`inputs`（文字列→文字列）、`headed?`（真偽、既定true＝画面表示。`false`でheadless）、`captureDir?`（絶対パス） | `task run --json`と同じ結果。同期で、1分ほどかかることがある |
+| `interact_operate_start` | `request`（1〜4000文字）、`startUrl`（http(s)）、`allowedOrigins`（1〜10件）、`maxModelCalls?`（1〜12の整数）、`headed?`（既定true）、`arm?`（`arm0`か`arm1`、既定`arm1`）、`captureDir?`（絶対パス） | `{ runId, status }`。受付であって完了ではない |
 | `interact_operate_status` | `runId` | 最新の`OperateSnapshot`（status、final、modelCalls、operations、tokens、costUsdEstimate、approval） |
 | `interact_operate_cancel` | `runId` | 取り消して、その時点のsnapshot（終了を最大5秒待つ） |
 

@@ -21,6 +21,7 @@ export type OperateFlags = {
 	"max-calls"?: string | undefined;
 	approver?: string | undefined;
 	headed?: boolean | undefined;
+	headless?: boolean | undefined;
 	"keep-observations"?: boolean | undefined;
 	db?: string | undefined;
 };
@@ -67,7 +68,7 @@ export function parseOperateFlags(flags: OperateFlags): OperateOptions {
 			? {}
 			: { effort: parseEffort(flags.effort) }),
 		...(maxCalls === undefined ? {} : { maxModelCalls: maxCalls }),
-		headed: flags.headed === true,
+		headed: flags.headless !== true,
 		approver,
 		keepObservations: flags["keep-observations"] === true,
 		...(flags.db === undefined ? {} : { dbPath: flags.db }),

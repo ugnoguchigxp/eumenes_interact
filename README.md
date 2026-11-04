@@ -48,7 +48,7 @@ bun run lab trials
 bun run lab report --experiment <実験id>
 ```
 
-- `run`は、試行の間だけfixtureを`http://127.0.0.1:<空きポート>/`で配信し、隔離したブラウザをPlaywright MCPで起動して、終わると両方を止めます。既定はheadlessで、`--headed`で画面を表示します。
+- `run`は、試行の間だけfixtureを`http://127.0.0.1:<空きポート>/`で配信し、隔離したブラウザをPlaywright MCPで起動して、終わると両方を止めます。既定はheadedで画面を表示します（interactはheadありで使う想定）。headlessにしたいときだけ`--headless`を付けます。`--headed`は受け付けますが何も変えません。
 - 試行中の宛先はfixtureの配信元と`about:blank`だけです。
 - 研究用DBとログは`lab/data/`（git管理外）に置きます。`run`は同時に一つだけ動きます。
 
@@ -61,12 +61,12 @@ bun run lab task list
 bun run lab task run wikipedia-article --input query=量子コンピュータ --json --browser chrome
 bun run lab task run gizmodo-article --input query=iPhone --json --browser chrome
 bun run lab task run slashdot-story --input query=rust --json --browser chrome
-bun run lab task run biggo-product --input query=マウス --headed --json --browser chrome
+bun run lab task run biggo-product --input query=マウス --json --browser chrome
 ```
 
 - `--json`で、最終URL・各手順の状態・取得した本文（`extracts`）をJSONで標準出力に出します。終了コードは0が成功、1が完了しなかった、2が実行前の拒否です。TypeScriptからは`lab/host/definition-run.ts`の`runDefinition()`で呼べます。
 - 承認が要る操作に当たると、既定では何も送らずに止まります（`--approver cli`で端末から答えられます）。
-- BigGoは、headlessの自動化ブラウザだとアクセスを拒否されるため`--headed`が必要です。
+- BigGoは、headlessの自動化ブラウザだとアクセスを拒否されるため、`--headless`を付けずに（既定のheadedで）動かします。
 - 詳しくは[lab/definitions/README.md](lab/definitions/README.md)を参照してください。
 
 LARMで実LLMを使う場合:

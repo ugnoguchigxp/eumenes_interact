@@ -135,7 +135,7 @@ describe("the operate flags", () => {
 		"allow-origin": ["https://www.youtube.com"],
 	};
 
-	test("defaults: Claude, low effort left to the host, stop approver, headless", () => {
+	test("defaults: Claude, low effort left to the host, stop approver, headed", () => {
 		const o = parseOperateFlags(ok);
 		expect(o).toMatchObject({
 			request: "検索して",
@@ -143,10 +143,14 @@ describe("the operate flags", () => {
 			allowedOrigins: ["https://www.youtube.com"],
 			inference: "claude",
 			approver: "stop",
-			headed: false,
+			headed: true,
 			keepObservations: false,
 		});
 		expect(o.maxModelCalls).toBeUndefined();
+	});
+
+	test("--headless opts out of the headed default", () => {
+		expect(parseOperateFlags({ ...ok, headless: true }).headed).toBe(false);
 	});
 
 	test("the flags are carried: model, effort, max calls, approver, headed, keep, db, several origins", () => {

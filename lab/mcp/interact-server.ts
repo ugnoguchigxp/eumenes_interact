@@ -294,7 +294,9 @@ export const operateStartShape = {
 	headed: z
 		.boolean()
 		.optional()
-		.describe("Show the browser window (some sites refuse headless)."),
+		.describe(
+			"Show the browser window (default true; set false for headless — some sites refuse headless).",
+		),
 	arm: z
 		.enum(["arm1"])
 		.optional()
@@ -314,7 +316,9 @@ export const runDefinitionShape = {
 	headed: z
 		.boolean()
 		.optional()
-		.describe("Show the browser window (some sites refuse headless)."),
+		.describe(
+			"Show the browser window (default true; set false for headless — some sites refuse headless).",
+		),
 	captureDir: captureDirField,
 };
 
@@ -529,7 +533,7 @@ export function createInteractMcpServer(deps: InteractDeps): InteractMcp {
 			const running = deps.runDefinition({
 				definitionId,
 				inputs,
-				headed: headed === true,
+				headed: headed !== false,
 				...(capture ? { captureDir: capture } : {}),
 				signal,
 			});
@@ -585,7 +589,7 @@ export function createInteractMcpServer(deps: InteractDeps): InteractMcp {
 				allowedOrigins,
 				inference: "claude",
 				approver: "stop",
-				headed: headed === true,
+				headed: headed !== false,
 				...(maxModelCalls === undefined ? {} : { maxModelCalls }),
 				...(arm ? { arm } : {}),
 				...(capture ? { captureDir: capture } : {}),

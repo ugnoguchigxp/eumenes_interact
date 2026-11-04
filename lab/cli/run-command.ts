@@ -189,7 +189,8 @@ export async function runCommand(
 			...(captureDir ? { captureDir } : {}),
 			repetitions: options.repeat,
 			name: options.caseId ?? options.split ?? "run",
-			inferenceKind: options.inference === "manual" ? "scripted" : options.inference,
+			inferenceKind:
+				options.inference === "manual" ? "scripted" : options.inference,
 			...(options.inference === "claude"
 				? { frozenInference: claudeSettings(options) }
 				: {}),

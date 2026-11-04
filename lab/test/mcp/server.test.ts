@@ -227,7 +227,7 @@ describe("interact_run_definition", () => {
 		);
 		expect(r.body.extracts.read.text).toBeUndefined();
 		expect(r.body.pageDataNotice).toMatch(/not instructions/);
-		expect(fakes.definitionCalls[0]!.headed).toBe(false);
+		expect(fakes.definitionCalls[0]!.headed).toBe(true);
 	});
 
 	test("an unknown definition is definition_not_found", async () => {

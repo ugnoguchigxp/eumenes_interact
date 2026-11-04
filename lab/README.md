@@ -50,7 +50,7 @@ plan.md §13.1の最小の契約（start・status・cancel）の、CLIとホス�
 bun lab/cli/main.ts operate \
   --request "YouTubeで「AI research」を検索して、検索結果の動画を1本再生してください。" \
   --start-url https://www.youtube.com/ --allow-origin https://www.youtube.com \
-  --inference claude --headed
+  --inference claude
 ```
 
 - `--allow-origin`は必須で、何度でも書ける（`https://host[:port]`、または`https://*.domain`でそのドメインとサブドメイン）。開始URLのoriginが許可に入っていること。
