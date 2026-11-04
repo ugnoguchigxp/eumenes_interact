@@ -21,7 +21,8 @@ const URL_MAX_CHARS = 8192;
  * nav/header/footer/aside with the most text, else `body`. "Most text" is measured on the extracted
  * text of the 20 candidates with the longest `textContent`; for blocks, the deepest candidate that
  * holds at least 90% of the longest one wins, so a wrapper around the content is not picked over it.
- * The form element is dropped like the other chrome, as specified. With no element given, the text of visible
+ * The form element is dropped like the other chrome, as specified. With no element given, or with an article or main
+ * element given, the text of visible
  * asides and of the blocks beside an article inside `main` follows under a `[side]` marker (2026-11-04: npm's
  * license box was dropped).
  */
@@ -65,16 +66,22 @@ const EXTRACT_BODY = `(el) => {
   };
   let root = 'target';
   let text;
-  if (el) text = read(el);
-  else {
-    let hit = pick(Array.from(document.querySelectorAll('article')), false);
+  let hit = null;
+  if (el) {
+    text = read(el);
+    /* A named article or main gets its side facts too (2026-11-04: npm's license box with an article item). */
+    const tag = el.tagName.toUpperCase();
+    if (tag === 'ARTICLE' || tag === 'MAIN' || el.getAttribute('role') === 'main') hit = { node: el, text };
+  } else {
+    hit = pick(Array.from(document.querySelectorAll('article')), false);
     if (hit) root = 'article';
     else if ((hit = pick(Array.from(document.querySelectorAll('main, [role="main"]')), false))) root = 'main';
     else if ((hit = pick(Array.from(document.querySelectorAll('div, section')).filter((n) => !inChrome(n)), true))) root = 'largest-block';
     else { root = 'body'; hit = { node: null, text: document.body ? read(document.body) : '' }; }
     text = hit.text;
-    /* Side facts (a license box, an About box) sit in an aside or beside the article in main. */
-    if (hit.node && root !== 'largest-block') {
+  }
+  /* Side facts (a license box, an About box) sit in an aside or beside the article in main. */
+  if (hit && hit.node && root !== 'largest-block') {
       const extra = [];
       const seen = new Set();
       const within = (outer, n) => { for (let p = n; p; p = p.parentNode) if (p === outer) return true; return false; };
@@ -93,7 +100,6 @@ const EXTRACT_BODY = `(el) => {
           for (const sib of a.parentNode.childNodes) if (sib !== a && sib.nodeType === 1) add(sib);
       const side = extra.join('\\n\\n').trim();
       if (side) text = text + '\\n\\n[side]\\n' + side;
-    }
   }
   return { url: location.href, title: String(document.title).slice(0, ${TITLE_MAX_CHARS}), text: text.slice(0, ${EXTRACT_HARD_MAX_CHARS}), charCount: text.length, root };
 }`;

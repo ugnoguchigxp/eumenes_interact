@@ -178,3 +178,21 @@ test("a sidebar beside the article in main, and an aside, follow under [side] (n
 		"zod\n\nTypeScript-first schema validation.\n\n[side]\nWeekly Downloads 44M\n\nLicense\n\nMIT",
 	);
 });
+
+test("a named article gets the same [side] facts; a named other element does not", () => {
+	const article = h(
+		"ARTICLE",
+		{},
+		h("H1", {}, "zod"),
+		h("P", {}, "TypeScript-first schema validation."),
+	);
+	const box = h("DIV", {}, h("H3", {}, "License"), h("P", {}, "MIT"));
+	const fake = fakeDocument([...CHROME, h("MAIN", {}, article, box)]);
+	expect(runExtraction(EXTRACT_TARGET_FUNCTION, fake, article)).toMatchObject({
+		root: "target",
+		text: "zod\n\nTypeScript-first schema validation.\n\n[side]\nLicense\n\nMIT",
+	});
+	expect(runExtraction(EXTRACT_TARGET_FUNCTION, fake, box).text).toBe(
+		"License\n\nMIT",
+	);
+});
