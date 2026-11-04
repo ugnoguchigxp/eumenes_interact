@@ -581,42 +581,27 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		const origin = start.url ?? "";
 		const tried: string[] = [];
 		let after: ObservationEnvelope | null = null;
-		// 1. The page's own search box, shown first by its button when it is hidden.
+		// 1. The page's own search box. 2. The site's own search page the host knows. 3. A general engine, only
+		// where the policy allows it. 4. A button that shows a hidden box: last, because a button click asks the
+		// user's approval (no site is exempt), and a URL that needs none is preferred.
 		let field = searchField(start);
 		let page = start;
-		if (!field) {
-			const button = revealButton(start);
-			if (button) {
-				tried.push("reveal");
-				const clicked = await operate(
-					{
-						action: "page.click",
-						targetRef: button.ref,
-						element: elementName(button.record),
-					},
-					// Showing a search box changes no data: it is declared as navigation, not as a submission.
-					"navigation",
-					{ observation: start },
-				);
-				if (
-					clicked.kind === "operation" &&
-					clicked.result.status === "confirmed"
-				) {
-					page = await observationAfter(clicked);
-					field = searchField(page);
-				}
-			}
-		}
+		let landedDirect = false;
 		if (field) {
 			tried.push("box");
 			after = await typeSearch(field, page, query);
 		}
-		// 2. The site's own search page the host knows. 3. A general engine, only where the policy allows it.
 		if (!after) {
 			const known = siteSearchUrl(origin, query);
 			if (known) {
 				tried.push("site_url");
 				after = await openUrl(known);
+				// The site went straight to the one thing searched for (a quote, an article): that is a result.
+				if (
+					after?.url &&
+					new URL(after.url).pathname !== new URL(known).pathname
+				)
+					landedDirect = true;
 			}
 		}
 		if (!after) {
@@ -628,6 +613,29 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			}
 		}
 		if (!after) {
+			const button = revealButton(start);
+			if (button) {
+				tried.push("reveal");
+				const clicked = await operate(
+					{
+						action: "page.click",
+						targetRef: button.ref,
+						element: elementName(button.record),
+					},
+					"navigation",
+					{ observation: start },
+				);
+				if (
+					clicked.kind === "operation" &&
+					clicked.result.status === "confirmed"
+				) {
+					page = await observationAfter(clicked);
+					field = searchField(page);
+					if (field) after = await typeSearch(field, page, query);
+				}
+			}
+		}
+		if (!after) {
 			throw new PartFail("no_search_box", { page: summarize(page) });
 		}
 		after = await passChallenge(after);
@@ -635,8 +643,10 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		const listed = batch(after, (pageId) =>
 			core.listEntries(after.body, pageId, "results", SEARCH_LIST_LIMIT),
 		);
-		if (listed.entries.length === 0)
+		if (listed.entries.length === 0) {
+			if (landedDirect) return { status: "completed", page: summary };
 			throw new PartFail("zero_results", { status: "partial", page: summary });
+		}
 		return {
 			status: "completed",
 			page: summary,

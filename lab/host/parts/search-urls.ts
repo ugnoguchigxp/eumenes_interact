@@ -5,6 +5,8 @@
  * policy allows it. Add a site here when its search page is stable and needs no login.
  */
 export const SEARCH_URLS: Readonly<Record<string, string>> = {
+	// A key may name a host and its first path segment: a product inside a larger site.
+	"www.google.com/finance": "https://www.google.com/finance/?q={q}",
 	"cookpad.com": "https://cookpad.com/jp/search/{q}",
 	"www.openstreetmap.org": "https://www.openstreetmap.org/search?query={q}",
 	"developer.mozilla.org": "https://developer.mozilla.org/en-US/search?q={q}",
@@ -41,12 +43,18 @@ const fill = (template: string, query: string) =>
 /** The site's own search page for the query, if the host knows one for this page's host. */
 export function siteSearchUrl(pageUrl: string, query: string): string | null {
 	let host: string;
+	let section: string;
 	try {
-		host = new URL(pageUrl).hostname;
+		const url = new URL(pageUrl);
+		host = url.hostname;
+		section = url.pathname.split("/")[1] ?? "";
 	} catch {
 		return null;
 	}
-	const template = SEARCH_URLS[host] ?? SEARCH_URLS[host.replace(/^www\./, "")];
+	const template =
+		(section ? SEARCH_URLS[`${host}/${section}`] : undefined) ??
+		SEARCH_URLS[host] ??
+		SEARCH_URLS[host.replace(/^www\./, "")];
 	return template ? fill(template, query) : null;
 }
 

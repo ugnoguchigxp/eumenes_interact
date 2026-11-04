@@ -275,7 +275,7 @@ async function main(): Promise<number> {
 				);
 				if (!Number.isFinite(idle) || idle < 0)
 					throw new Error("invalid_keep_open_idle");
-				return chainCommand(
+				return await chainCommand(
 					db,
 					{
 						request: values.request,

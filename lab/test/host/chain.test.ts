@@ -53,9 +53,9 @@ describe("chain (2026-11-04)", () => {
 		let opens = 0;
 		let closes = 0;
 		const open = inner.open.bind(inner);
-		inner.open = (s) => {
+		inner.open = () => {
 			opens += 1;
-			return open(s);
+			return open();
 		};
 		inner.close = async () => {
 			closes += 1;
