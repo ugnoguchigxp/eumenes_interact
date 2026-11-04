@@ -799,7 +799,30 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 
 	async function itemOpen(itemId: string): Promise<Body> {
 		const observation = await observeFresh();
-		const target = resolve(itemId, observation);
+		let target: Target;
+		try {
+			target = resolve(itemId, observation);
+		} catch (error) {
+			// A link the page re-rendered (MDN's search results: empty names, rebuilt after load) may no longer be
+			// told apart from its neighbours, or found at all. The link the model chose had a URL: that URL is opened
+			// instead, through the same navigation (and URL policy) as page.open. Other items still fail.
+			const record = registry.lookup(itemId)?.record;
+			if (
+				error instanceof PartFail &&
+				(error.code === "target_ambiguous" ||
+					error.code === "target_not_found") &&
+				record?.role === "link" &&
+				record.name === "" &&
+				record.url
+			) {
+				let href: string | null = null;
+				try {
+					href = new URL(record.url, observation.url).href;
+				} catch {}
+				if (href) return pageOpen(href);
+			}
+			throw error;
+		}
 		const effect = OPENABLE[target.record.role];
 		if (effect === undefined) throw new PartFail("item_not_openable");
 		// A link may land on a bot check (Cloudflare's "Just a moment..."): waited out once, else site_blocked.

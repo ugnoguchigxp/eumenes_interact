@@ -356,6 +356,29 @@ describe("item ids and their resolution", () => {
 		expect(s.adapter.dispatched).toHaveLength(1);
 	});
 
+	test("an empty-name link the page re-rendered is opened by its URL (MDN results), not clicked by guess", async () => {
+		const blank = <T extends { role: string; name: string }>(x: T) =>
+			x.role === "link" && x.name === "全商品" ? { ...x, name: "" } : x;
+		const s = await setup({
+			core: {
+				...partsHelpers,
+				summarizePage: (o, opt) => {
+					const r = partsHelpers.summarizePage(o, opt);
+					return {
+						summary: { ...r.summary, items: r.summary.items.map(blank) },
+						records: r.records.map(blank),
+					};
+				},
+				resolveItem: () => ({ kind: "none" }),
+			},
+		});
+		const item = s.summary.items.find((i) => i.role === "link" && i.name === "" && i.url);
+		expect(item).toBeDefined();
+		const r = await s.result(call("item.open", { item: item!.item }));
+		expect(r.status).toBe("completed");
+		expect(JSON.stringify(s.adapter.dispatched.at(-1))).toContain("browser.navigate");
+	});
+
 	test("ids of the summary, a list and a form of one page agree", async () => {
 		const s = await setup({ start: `${KAEDE}catalog.html` });
 		const found = await s.result(
