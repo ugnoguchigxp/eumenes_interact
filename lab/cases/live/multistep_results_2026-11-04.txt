@@ -18,3 +18,10 @@ S4 PASS: Wikipedia 富士山 3776 m (rock 3776.12 m, triangulation point 3775.56
 S5 PASS: Gutenberg Jane Austen (#1342); Open Library Pride & Prejudice OL66554W first published 1813 (empty-name result link now titled "Pride_and_Prejudice"). 5 inf (2+2+1).
 S9 recheck PASS: npm zod page.read(null) has [side] with License MIT, Version 4.6.7; page.read(article item) has no [side] (1 wasted inf). No Cloudflare this time (Cloudflare-after-link still 未検証 live). GitHub 44.3k. 7 inf.
 S8 recheck: MDN site.search now returns results (Array.prototype.flat() first). SO search -> /nocaptcha Human verification -> site_blocked (detected). Step s2 still ends "completed" because the model's done text reports the block honestly. 7 inf.
+--- round 3 (after review fixes 368b07d..cdcbe6c) ---
+S3 r3 PASS: HN top Kitty 0.50, 156 points. 5 inf (incl 1 my format error: done text inside arguments).
+S8 r3: s1 MDN 6 inf (item.open p3.i13 target_ambiguous after re-render, p4.i14 OK). s2 SO /nocaptcha -> site_blocked; done cited only r1 -> step failed goal_unmet.site_blocked (M1 fix confirmed live), chain stopped step_failed:s2, no summary. 8 inf.
+S1 r3 PASS: requests 2.34.2, psf/requests 54.6k. 5 inf.
+S9 r3 PASS: npm zod MIT, GitHub 44.3k. 10 inf (s1 7 incl 1 my format error [maxChars missing]; unnamed article read has no [side]; read(null,4000) truncated before [side]; find License -> README badge only; read(null,12000) has [side] License MIT). FINDING: [side] lost when maxChars is small. s2 2, summary 1.
+S11 r3 PASS (keep-open, left playing): s1 arXiv 1706.03762 v1 Mon, 12 Jun 2017 17:57:34 UTC 4 inf (abs URL and find text chosen from my own knowledge: non-blind). s2 YouTube 「【Transformer誕生の舞台裏】ChatGPTの起源『Attention Is All You Need』」 3 inf. notice(ad start) -> notice(ad end) -> playback confirmed (dur 1363.1); keep-open probe every 10 s, ct 6.1 -> 36.6 over 30 s at 20:37:46-20:38:17 JST.
+S4, S5, S7, MSFT r3: 未測定.
