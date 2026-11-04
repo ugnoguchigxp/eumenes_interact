@@ -448,7 +448,9 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		);
 		return {
 			status: "completed",
-			page: summarize(await afterSending(() => observationAfter(s))),
+			page: summarize(
+				await passChallenge(await afterSending(() => observationAfter(s))),
+			),
 		};
 	}
 
@@ -742,6 +744,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	): Promise<Body> {
 		if (text === null && role === null) throw new PartFail("invalid_args");
 		const observation = await observeFresh();
+		if (isChallenge(observation.title, observation.body))
+			throw new PartFail("site_blocked", { page: summarize(observation) });
 		const { records } = batch(observation, (pageId) => ({
 			records: core.findItems(
 				observation.body,
@@ -834,6 +838,10 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		const content = await guard(() =>
 			executor.extract(tabRef, observationRef, ref, maxChars),
 		);
+		// A page that turned into a bot check after it was opened (a late redirect, an adopted tab) is never
+		// read as content: it is reported, not passed.
+		if (itemId === null && isChallenge(content.title, content.text))
+			throw new PartFail("site_blocked");
 		const text = content.text.slice(0, maxChars);
 		return {
 			status: "completed",
@@ -852,6 +860,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		limit: number,
 	): Promise<Body> {
 		const observation = await observeFresh();
+		if (isChallenge(observation.title, observation.body))
+			throw new PartFail("site_blocked", { page: summarize(observation) });
 		const listed = batch(observation, (pageId) =>
 			core.listEntries(observation.body, pageId, kind, limit),
 		);

@@ -1054,3 +1054,18 @@ describe("review fixes (S2b)", () => {
 		expect(JSON.stringify(saved)).not.toContain("商品の詳細");
 	});
 });
+
+describe("a page that became a bot check after it was opened", () => {
+	test("page.find and page.list report site_blocked instead of reading it", async () => {
+		const s = await setup({ start: `${KAEDE}catalog.html` });
+		// A late redirect or an adopted tab: the current tab now shows a challenge.
+		(s.adapter as unknown as { tabs: { title: string }[] }).tabs[0]!.title =
+			"Just a moment...";
+		expect(
+			codes(await s.result(call("page.find", { text: "麻", role: null }))),
+		).toEqual(["failed", "site_blocked"]);
+		expect(
+			codes(await s.result(call("page.list", { kind: "links", limit: 5 }))),
+		).toEqual(["failed", "site_blocked"]);
+	});
+});
