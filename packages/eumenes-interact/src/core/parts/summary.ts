@@ -141,6 +141,26 @@ export function findItems(
 }
 
 const SNIPPET_CHARS = 240;
+/** Roles whose name is the text they show (a table cell says "初出：" in its name, not in a text child). */
+const NAMED_TEXT = ["paragraph", "cell", "gridcell", "rowheader", "columnheader", "term", "definition"];
+
+/**
+ * A hit that is only a label ( such as "出版年") is widened to the nearest enclosing block that says more (its row,
+ * its label-and-value pair), so the value comes back with the label. A block longer than the snippet is not
+ * taken: the hit stays as it was.
+ */
+function widen(nodes: readonly Node[], node: Node, text: string, wanted: string): string {
+	// Only a hit that is little more than the query itself (a label) is widened; a sentence already says enough.
+	if (fold(text).length > wanted.length + 4) return text;
+	for (const a of ancestors(nodes, node)) {
+		if (LANDMARK_STOP.includes(a.role)) break;
+		const wider = textOf(nodes, a);
+		if (wider.length > SNIPPET_CHARS) break;
+		if (wider.length > text.length && fold(wider).includes(fold(text))) return wider;
+	}
+	return text;
+}
+const LANDMARK_STOP = ["main", "navigation", "banner", "contentinfo", "complementary", "region", "table", "list", "article"];
 const CONTAINERS = ["listitem", "article", "row", "region", "section", "group"];
 
 /**
@@ -162,9 +182,9 @@ export function findText(
 	const seen = new Set<string>();
 	for (const node of c.nodes) {
 		const own = node.text || (node.role === "text" ? node.name : "");
-		const text = own || (node.role === "paragraph" ? node.name : "");
+		const text = own || (NAMED_TEXT.includes(node.role) ? node.name : "");
 		if (!text || !fold(text).includes(wanted)) continue;
-		const snippet = clip(text, SNIPPET_CHARS);
+		const snippet = clip(widen(c.nodes, node, text, wanted), SNIPPET_CHARS);
 		if (seen.has(snippet)) continue;
 		seen.add(snippet);
 		const container = ancestors(c.nodes, node).find((a) =>

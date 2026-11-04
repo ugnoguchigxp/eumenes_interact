@@ -750,3 +750,24 @@ describe("findText and the main-first cap (2026-11-04)", () => {
 		expect(summary.items.map((i) => i.name)).toEqual(["肉じゃが"]);
 	});
 });
+
+describe("findText widens a label to its row (2026-11-04)", () => {
+	const PAGE = [
+		"- main:",
+		'  - link "トップ" [ref=e1]:',
+		"    - /url: /",
+		"  - table:",
+		"    - row:",
+		'      - cell "初出："',
+		'      - cell "「朝日新聞」1914（大正3）年4～8月"',
+		"  - generic:",
+		"    - term: 出版年",
+		"    - definition: 大正6",
+	].join("\n");
+	test("a cell's name is searched, and the label comes back with its value", () => {
+		const r = findText(PAGE, "p1", "初出", 5);
+		expect(r.hits[0]?.text).toContain("1914");
+		const y = findText(PAGE, "p1", "出版年", 5);
+		expect(y.hits[0]?.text).toContain("大正6");
+	});
+});
