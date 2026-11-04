@@ -25,9 +25,18 @@ export function toFixtureRef(url: string, baseUrl: string): FixtureRef | null {
 const normalize = (s: string): string =>
 	s.normalize("NFKC").trim().replace(/\s+/g, " ");
 
+function decodePath(path: string): string {
+	try {
+		return decodeURIComponent(path);
+	} catch {
+		return path;
+	}
+}
+
 export function matchesPredicate(p: UrlPredicate, ref: FixtureRef): boolean {
 	// Fixture paths have no leading slash, live paths do (`/watch`): the same page either way.
-	if (p.path.replace(/^\//, "") !== ref.path) return false;
+	// A spec may write the path %-encoded (as the browser shows it) or decoded: both name the same page.
+	if (decodePath(p.path).replace(/^\//, "") !== ref.path) return false;
 	if (p.hash !== undefined && p.hash !== ref.hash) return false;
 	if ((p.queryPresent ?? []).some((key) => !ref.query.has(key))) return false;
 	return Object.entries(p.query ?? {}).every(([key, expected]) => {

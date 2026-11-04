@@ -13,9 +13,12 @@ const DEFAULTS = {
 /** Words that mark a time in the request (the request then states `when`). */
 const TIME =
 	/今日|明日|昨日|今週|来週|先週|今月|来月|\d+\s*(年|月|日|時|分)|\d{4}-\d{2}-\d{2}/;
-/** Personal data or payment: who the data belongs to must not be guessed. */
+/**
+ * Personal data or payment: who the data belongs to must not be guessed. A bare 名前 is not personal data
+ * (「レシピの名前」「曲の名前」); only a person's name is (氏名, 私の名前, 名前を入力する).
+ */
 const PERSONAL =
-	/氏名|名前|住所|電話|メールアドレス|生年月日|カード|口座|パスワード|支払|決済|購入|注文/;
+	/氏名|(?:私|自分|僕|俺|わたし|あなた|本人|家族|子ども|子供)の(?:お)?名前|(?:お)?名前(?:を|は)?(?:入力|記入|登録|書いて|書く)|住所|電話|メールアドレス|生年月日|カード|口座|パスワード|支払|決済|購入|注文/;
 
 /** A name the request gives for the person (`名前は山田花子`): then `who` is stated, not asked. */
 const NAMED = /(?:お名前|名前|氏名)(?:は|：|:)\s*([^、，,。\s]+)/;

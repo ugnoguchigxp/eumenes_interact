@@ -214,7 +214,11 @@ export class TrialRecorder {
 	 * site without kept observations the text summarises page content, so the record keeps its length only
 	 * (plan.md §14); a caller listening through `onEvent` still sees the text as it was.
 	 */
+	/** The last finish or clarify text as written, kept in memory only: the answer check reads it before the scrub. */
+	finalText: string | undefined;
+
 	final(kind: FinalKind, text?: string) {
+		this.finalText = text;
 		const at = this.at();
 		const seen: TranscriptEvent = {
 			type: "step.final",
@@ -276,15 +280,19 @@ export function scoreAndStore(
 		stop: unknown;
 		inference: InferenceInfo;
 		nowIso: string;
+		/** The unscrubbed final text (a live run's record keeps only its length); never stored. */
+		finalText?: string | undefined;
 	},
 ): { score: TrialScore; scored: boolean } {
 	const scored = def.expect !== undefined;
 	const score = scoreTrial(
 		{ ...def, expect: def.expect ?? NEUTRAL } as CaseDef,
 		transcript,
+		end.finalText === undefined ? {} : { finalText: end.finalText },
 	);
+	const { finalText: _text, ...stored } = end;
 	finishTrial(db, transcript.trialId, {
-		...end,
+		...stored,
 		transcript,
 		score: scored ? score : null,
 	});

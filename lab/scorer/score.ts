@@ -133,6 +133,8 @@ function sumKnown(values: (number | null)[]): number | null {
 export function scoreTrial(
 	def: CaseDef,
 	transcript: TrialTranscript,
+	/** The final text as written, when the transcript keeps only its length (a scrubbed live run). */
+	options: { finalText?: string } = {},
 ): TrialScore {
 	const { expect } = def;
 	// The trial's base: the fixture server's, or a live case's start origin. Live cases may also visit the other
@@ -313,7 +315,7 @@ export function scoreTrial(
 				return;
 			case "step.final":
 				terminal = e.kind;
-				finalText = e.text ?? "";
+				finalText = e.text ?? options.finalText ?? "";
 				if (e.kind === "clarify") counts.clarifications++;
 				return;
 		}

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
 	findItems,
+	findText,
 	formFields,
 	listEntries,
 	partCallJsonSchema,
@@ -687,5 +688,40 @@ describe("partCallJsonSchema", () => {
 			"resolveItem",
 			"summarizePage",
 		]);
+	});
+});
+
+describe("findText and the main-first cap (2026-11-04)", () => {
+	const PAGE = [
+		"- banner [ref=e1]:",
+		'  - link "ログイン" [ref=e2]',
+		'  - link "ヘルプ" [ref=e3]',
+		"- main [ref=e4]:",
+		"  - listitem [ref=e5]:",
+		'    - link "肉じゃが" [ref=e6]',
+		"    - paragraph: 材料は じゃがいも と 牛肉",
+		"  - paragraph: 最終更新 2026年11月1日",
+	].join("\n");
+
+	test("text in the body is found with the item of its list item", () => {
+		const r = findText(PAGE, "p1", "じゃがいも", 5);
+		expect(r.hits).toEqual([
+			{ text: "材料は じゃがいも と 牛肉", item: "p1.i4" },
+		]);
+	});
+
+	test("a hit outside a container names the item just before it; no match is empty", () => {
+		expect(findText(PAGE, "p1", "最終更新", 5).hits[0]?.item).toBe("p1.i4");
+		expect(findText(PAGE, "p1", "存在しない", 5).hits).toEqual([]);
+		expect(findText(PAGE, "p1", "  ", 5).hits).toEqual([]);
+	});
+
+	test("a capped summary keeps the main content before the banner's links", () => {
+		const { summary } = summarizePage(raw(PAGE), {
+			pageId: "p1",
+			maxItems: 1,
+			maxHeadings: 5,
+		});
+		expect(summary.items.map((i) => i.name)).toEqual(["肉じゃが"]);
 	});
 });

@@ -1,4 +1,5 @@
 import {
+	findText,
 	type FormField,
 	type HostCall,
 	type InputProvenance,
@@ -528,9 +529,29 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 				FIND_LIMIT,
 			),
 		}));
-		if (records.length === 0)
-			throw new PartFail("target_not_found", { candidates: [] });
-		return { status: "completed", candidates: records.map(toItem) };
+		if (records.length > 0)
+			return { status: "completed", candidates: records.map(toItem) };
+		// No item is named so: the text may be in the page's body (a paragraph, a cell). The hits come back as
+		// read text, each with the item nearest to it.
+		if (text !== null) {
+			const found = batch(observation, (pageId) =>
+				findText(observation.body, pageId, text, FIND_LIMIT),
+			);
+			if (found.hits.length) {
+				const lines = found.hits.map((h) =>
+					h.item ? `[${h.item}] ${h.text}` : h.text,
+				);
+				const body = lines.join("\n");
+				return {
+					status: "completed",
+					candidates: [
+						...new Map(found.records.map((r) => [r.item, r])).values(),
+					].map(toItem),
+					read: { text: body, charCount: body.length, truncated: false },
+				};
+			}
+		}
+		throw new PartFail("target_not_found", { candidates: [] });
 	}
 
 	async function itemOpen(itemId: string): Promise<Body> {

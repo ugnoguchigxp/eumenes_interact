@@ -11,6 +11,7 @@ import {
 export { partsApi } from "./parts/index.ts";
 export {
 	findItems,
+	findText,
 	formFields,
 	listEntries,
 	partCallJsonSchema,

@@ -496,6 +496,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		stop: ending.stop ?? null,
 		inference: input.inferenceInfo(),
 		nowIso: nowIso(),
+		finalText: recorder.finalText,
 	});
 	log("trial.finished", {
 		code: !scored ? "unscored" : score.success ? "success" : "failure",

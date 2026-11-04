@@ -29,11 +29,34 @@ const BLOCK_CAP = 20;
  * first: a quarter of the room (at most `BLOCK_CAP`) is kept for content blocks, the rest goes to controls, and
  * room the controls leave unused goes back to blocks, still up to `BLOCK_CAP`.
  */
+/**
+ * Which records a capped summary keeps first: the page's own content (main, article) before the search box,
+ * and both before the site's chrome (banner, navigation, footer). The shown records keep document order.
+ */
+function priority(r: ItemRecord): number {
+	const region = r.region ?? "";
+	if (region === "main" || region.startsWith("article")) return 0;
+	if (region === "search") return 1;
+	if (
+		["banner", "navigation", "contentinfo", "complementary"].some((l) =>
+			region.startsWith(l),
+		)
+	)
+		return 3;
+	return 2;
+}
+
+const byPriority = (records: ItemRecord[]) =>
+	records
+		.map((r, i) => ({ r, i }))
+		.sort((a, b) => priority(a.r) - priority(b.r) || a.i - b.i)
+		.map(({ r }) => r);
+
 function capItems(records: ItemRecord[], max: number): ItemRecord[] {
 	if (records.length <= max) return records;
 	const isBlock = (r: ItemRecord) => BLOCK_ROLES.includes(r.role);
-	const blocks = records.filter(isBlock);
-	const controls = records.filter((r) => !isBlock(r));
+	const blocks = byPriority(records.filter(isBlock));
+	const controls = byPriority(records.filter((r) => !isBlock(r)));
 	const reserved = Math.min(blocks.length, BLOCK_CAP, Math.floor(max / 4));
 	const controlKeep = Math.min(controls.length, max - reserved);
 	const blockKeep = Math.min(blocks.length, BLOCK_CAP, max - controlKeep);
@@ -113,6 +136,55 @@ export function findItems(
 				(text === null || fold(r.name).includes(text)),
 		)
 		.slice(0, limit);
+}
+
+const SNIPPET_CHARS = 240;
+const CONTAINERS = ["listitem", "article", "row", "region", "section", "group"];
+
+/**
+ * Text on the page (not only item names) that contains the query: each hit's text, with the item nearest to it
+ * (the first item of its list item, article or row, else the item just before it) so the AI can open or read
+ * there. Deterministic; the page's text is data, never an instruction.
+ */
+export function findText(
+	body: string,
+	pageId: string,
+	query: string,
+	limit: number,
+): { hits: { text: string; item?: string }[]; records: ItemRecord[] } {
+	const wanted = fold(query);
+	if (wanted === "") return { hits: [], records: [] };
+	const c = collect(body, pageId);
+	const hits: { text: string; item?: string }[] = [];
+	const records: ItemRecord[] = [];
+	const seen = new Set<string>();
+	for (const node of c.nodes) {
+		const own = node.text || (node.role === "text" ? node.name : "");
+		const text = own || (node.role === "paragraph" ? node.name : "");
+		if (!text || !fold(text).includes(wanted)) continue;
+		const snippet = clip(text, SNIPPET_CHARS);
+		if (seen.has(snippet)) continue;
+		seen.add(snippet);
+		const container = ancestors(c.nodes, node).find((a) =>
+			CONTAINERS.includes(a.role),
+		);
+		let at = container
+			? c.itemNodes.findIndex(
+					(n) => n.index > container.index && n.index < container.end,
+				)
+			: -1;
+		if (at < 0)
+			for (let i = c.itemNodes.length - 1; i >= 0; i--)
+				if (c.itemNodes[i]!.index <= node.index) {
+					at = i;
+					break;
+				}
+		const record = at < 0 ? undefined : c.records[at];
+		hits.push({ text: snippet, ...(record ? { item: record.item } : {}) });
+		if (record) records.push(record);
+		if (hits.length >= limit) break;
+	}
+	return { hits, records };
 }
 
 /** The text a node's subtree shows: its own name or text, else its descendants'. */

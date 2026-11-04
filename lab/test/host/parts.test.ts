@@ -166,6 +166,13 @@ describe("page.find", () => {
 		);
 	});
 
+	test("text that names no item is found in the page body, with the item beside it (2026-11-04)", async () => {
+		const s = await setup({ start: `${KAEDE}care.html` });
+		const r = await s.result(call("page.find", { text: "目安", role: null }));
+		expect(r.status).toBe("completed");
+		expect(r.read?.text).toContain("素材ごとの目安は下の表のとおりです。");
+	});
+
 	test("finding nothing is a failure with an empty candidate list, never a guess", async () => {
 		const s = await setup();
 		const r = await s.result(

@@ -26,6 +26,15 @@ describe("the 5W1H brief of a browser request (M5)", () => {
 		expect(briefMessage(b)).toContain("who: 不明（要確認");
 	});
 
+	test("a bare 名前 (a thing's name) is not personal data; a person's name still is", () => {
+		expect(browseBrief("このレシピの名前を教えて", ref).questions).toEqual([]);
+		expect(browseBrief("動画の名前と投稿日をまとめて", ref).questions).toEqual(
+			[],
+		);
+		expect(browseBrief("私の名前を入力して", ref).questions).toEqual(["who"]);
+		expect(browseBrief("名前を入力して送って", ref).questions).toEqual(["who"]);
+	});
+
 	test("a named person states who, so a form request with its values asks nothing", () => {
 		const b = browseBrief(
 			"見学を申し込んでください。名前は山田花子、メールアドレスは hanako@example.com です。",

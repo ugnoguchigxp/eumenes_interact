@@ -2,6 +2,7 @@ import type { PartsCoreApi } from "../../contracts/parts.ts";
 import { partCallJsonSchema } from "./schema.ts";
 import {
 	findItems,
+	findText,
 	formFields,
 	listEntries,
 	resolveItem,
@@ -10,6 +11,7 @@ import {
 
 export {
 	findItems,
+	findText,
 	formFields,
 	listEntries,
 	partCallJsonSchema,
