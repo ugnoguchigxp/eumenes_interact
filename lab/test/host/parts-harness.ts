@@ -16,6 +16,7 @@ import { InputGrants } from "../../host/grants.ts";
 import { silentLabLogger } from "../../host/log.ts";
 import { CaptureStore } from "../../host/parts/capture.ts";
 import type { PartsHelpers } from "../../host/parts/core.ts";
+import { labEventsPort, labKnowledgePort } from "../../host/parts/ports.ts";
 import { createPartExecutor } from "../../host/parts/executor.ts";
 import { fixturePolicy, type UrlPolicy } from "../../host/policy.ts";
 import { LAB_OWNER } from "../../host/run.ts";
@@ -97,17 +98,14 @@ export async function setupParts(
 	});
 	const first = await executor.start(options.start ?? `${KAEDE}index.html`);
 	const parts = createPartExecutor({
-		db,
-		owner: LAB_OWNER,
+		knowledge: labKnowledgePort(db, LAB_OWNER),
 		executor,
 		tabs,
 		recorder,
-		control,
 		captures: new CaptureStore({ runId, dir }),
 		grants,
 		request: options.request ?? "",
-		logger: silentLabLogger,
-		runId,
+		events: labEventsPort(silentLabLogger, runId),
 		...(options.core ? { core: options.core } : {}),
 	});
 	const summary = parts.begin(first);

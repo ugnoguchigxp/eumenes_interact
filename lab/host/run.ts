@@ -32,6 +32,7 @@ import { RunControl } from "./control.ts";
 import { write } from "./db.ts";
 import { createExecutor } from "./executor.ts";
 import { CaptureStore } from "./parts/capture.ts";
+import { labEventsPort, labKnowledgePort } from "./parts/ports.ts";
 import { createPartExecutor } from "./parts/executor.ts";
 import { InputGrants } from "./grants.ts";
 import type { LabLogger } from "./log.ts";
@@ -356,17 +357,14 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		});
 		const parts = arm1
 			? createPartExecutor({
-					db,
-					owner,
+					knowledge: labKnowledgePort(db, owner),
 					executor,
 					tabs,
 					recorder,
-					control,
 					captures,
 					grants,
 					request: def.request,
-					logger,
-					runId,
+					events: labEventsPort(logger, runId),
 				})
 			: null;
 		let state = startRun({

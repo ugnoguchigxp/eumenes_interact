@@ -1,4 +1,3 @@
-import type { Database } from "bun:sqlite";
 import {
 	type FormField,
 	type HostCall,
@@ -11,14 +10,13 @@ import {
 	type PartCall,
 	type PartResult,
 	type TabView,
+	type PartEventsPort,
+	type PartRecordPort,
+	type SiteKnowledgePort,
 } from "eumenes-interact";
-import { lookupObject, resolveObject } from "../candidates.ts";
-import type { RunControl } from "../control.ts";
 import type { Executed, ExecuteOptions, Executor } from "../executor.ts";
 import { assertQuoted, type InputGrants } from "../grants.ts";
-import type { LabLogger } from "../log.ts";
 import type { TabRegistry } from "../tabs.ts";
-import type { TrialRecorder } from "../trial.ts";
 import { Refusal, RunEnd } from "../types.ts";
 import { captureTargetHash } from "../../scorer/captures.ts";
 import { CaptureError, type CaptureStore } from "./capture.ts";
@@ -119,18 +117,16 @@ type Step =
 type Body = Omit<PartResult, "part" | "resultId">;
 
 export type PartExecutorDeps = {
-	db: Database;
-	owner: string;
 	executor: Pick<Executor, "execute" | "extract" | "capture" | "attach">;
 	tabs: TabRegistry;
-	recorder: TrialRecorder;
-	control: RunControl;
+	/** Injected ports (the host's transcript, events and site knowledge). */
+	recorder: PartRecordPort;
+	events: PartEventsPort;
+	knowledge: SiteKnowledgePort;
 	captures: CaptureStore;
 	grants: InputGrants;
 	/** The user's request: what a typed value is checked against. */
 	request: string;
-	logger: LabLogger;
-	runId: string;
 	/** Defaults to the package's helpers. */
 	core?: PartsHelpers;
 };
@@ -452,22 +448,20 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	/** The search field: the site knowledge's `search.query`, else the one search box or combobox of the page. */
 	function searchField(observation: ObservationEnvelope): Target {
 		if (observation.url !== undefined) {
-			const known = lookupObject(
-				deps.db,
-				deps.owner,
+			const found = deps.knowledge.resolve(
 				observation.url,
+				observation.body,
 				"search.query",
 			);
-			if (known.kind === "defined") {
-				const found = resolveObject(observation.body, known.object.candidates);
-				if (found.kind === "found")
+			{
+				if (found)
 					return {
-						ref: found.match.ref,
+						ref: found.ref,
 						record: {
 							item: "p0.i0",
-							role: found.match.role,
-							name: found.match.name ?? "",
-							ref: found.match.ref,
+							role: found.role,
+							name: found.name,
+							ref: found.ref,
 							nth: 0,
 							count: 1,
 						},
@@ -648,7 +642,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 					}
 				: {}),
 		});
-		deps.logger.lab("capture.saved", { correlationId: deps.runId });
+		deps.events.event("capture.saved", {});
 		return {
 			status: "completed",
 			capture: {
@@ -971,10 +965,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			} else throw error;
 		}
 		recorder.partResult(call.part, status, code);
-		deps.logger.lab("part.executed", {
-			correlationId: deps.runId,
-			code: code ?? status,
-		});
+		deps.events.event("part.executed", { code: code ?? status });
 		return executed;
 	}
 
