@@ -32,11 +32,11 @@ const cli = (...args: string[]) => {
 };
 
 describe("--arm", () => {
-	test("arm0 or arm1, with the command's default", () => {
-		expect(parseArm(undefined, "arm0")).toBe("arm0");
+	test("arm1 only (Arm 0 was removed), with the command's default", () => {
 		expect(parseArm(undefined, "arm1")).toBe("arm1");
-		expect(parseArm("arm1", "arm0")).toBe("arm1");
-		expect(() => parseArm("arm2", "arm0")).toThrow("invalid_arm");
+		expect(parseArm("arm1", "arm1")).toBe("arm1");
+		expect(() => parseArm("arm0", "arm1")).toThrow("invalid_arm");
+		expect(() => parseArm("arm2", "arm1")).toThrow("invalid_arm");
 	});
 
 	test("Arm 1 and LARM do not go together", () => {
@@ -45,7 +45,6 @@ describe("--arm", () => {
 		);
 		expect(() => checkArmInference("arm1", "claude")).not.toThrow();
 		expect(() => checkArmInference("arm1", "scripted")).not.toThrow();
-		expect(() => checkArmInference("arm0", "larm")).not.toThrow();
 	});
 });
 
@@ -122,16 +121,17 @@ describe("operate's flags", () => {
 		expect(
 			parseOperateFlags({
 				...ok,
-				arm: "arm0",
+				arm: "arm1",
 				"max-tokens": "5000",
 				"capture-dir": dir,
 			}),
-		).toMatchObject({ arm: "arm0", maxTokens: 5000, captureDir: dir });
+		).toMatchObject({ arm: "arm1", maxTokens: 5000, captureDir: dir });
 	});
 
 	test("a bad arm, token bound or directory is found before anything starts", () => {
 		const bad = (over: object) => () => parseOperateFlags({ ...ok, ...over });
 		expect(bad({ arm: "arm9" })).toThrow("invalid_arm");
+		expect(bad({ arm: "arm0" })).toThrow("invalid_arm");
 		expect(bad({ "max-tokens": "10" })).toThrow("invalid_max_tokens");
 		expect(bad({ "capture-dir": "rel" })).toThrow("capture_dir_not_absolute");
 		expect(

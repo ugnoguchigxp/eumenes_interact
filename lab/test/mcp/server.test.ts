@@ -618,8 +618,8 @@ describe("arm and capture folders", () => {
 
 	test("arm is passed through when given and left to the host's default when not", async () => {
 		const { call, fakes } = await connect();
-		await call("interact_operate_start", { ...START, arm: "arm0" });
-		expect(fakes.started[0]).toMatchObject({ arm: "arm0" });
+		await call("interact_operate_start", { ...START, arm: "arm1" });
+		expect(fakes.started[0]).toMatchObject({ arm: "arm1" });
 		const other = await connect();
 		await other.call("interact_operate_start", START);
 		expect(other.fakes.started[0]).not.toHaveProperty("arm");

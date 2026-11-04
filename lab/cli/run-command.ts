@@ -25,8 +25,6 @@ import {
 	loadArm1Script,
 } from "../scripted/arm1.ts";
 import { DEFAULT_CAPTURES_DIR } from "../host/parts/capture.ts";
-import { createScriptedInference } from "../scripted/inference.ts";
-import { loadScript } from "../scripted/script.ts";
 import type { BrowserPlatform } from "./platform.ts";
 import {
 	claudeSettings,
@@ -49,9 +47,9 @@ export type RunOptions = {
 	effort?: string;
 	/** `--inference claude`: the output bound of one call, recorded with the run's conditions. */
 	maxTokens?: string;
-	/** `arm0` (default, Eumenes' port) or `arm1` (registered parts). */
+	/** `arm1` (registered parts; the only arm since M4). */
 	arm?: ArmId;
-	/** `collab`: the collaboration agent's output contract drives the parts (arm1 only). */
+	/** `collab`: the collaboration agent's output contract drives the parts. */
 	agent?: "collab";
 	/** Arm 1: an existing absolute directory the screenshots go to; default: `lab/data/captures/<runId>/`. */
 	captureDir?: string;
@@ -112,18 +110,16 @@ function inferenceFactory(
 	logger: LabLogger,
 ): TrialFactories["inference"] {
 	if (options.inference === "scripted")
-		return async (def, arm) => ({
+		return async (def) => ({
 			port:
-				arm === "arm1"
-					? options.agent === "collab"
-						? collabAgentPort(
-								collabScripted(
-									createArm1ScriptedInference(await loadArm1Script(def.id)),
-								),
-								await loadBrowseSkill(),
-							)
-						: createArm1ScriptedInference(await loadArm1Script(def.id))
-					: createScriptedInference(await loadScript(def.id)),
+				options.agent === "collab"
+					? collabAgentPort(
+							collabScripted(
+								createArm1ScriptedInference(await loadArm1Script(def.id)),
+							),
+							await loadBrowseSkill(),
+						)
+					: createArm1ScriptedInference(await loadArm1Script(def.id)),
 			info: () => ({ kind: "scripted" }),
 			dispose: async () => {},
 		});
@@ -155,10 +151,8 @@ export async function runCommand(
 		(options.model || options.effort || options.maxTokens)
 	)
 		throw new Error("model_and_effort_are_for_claude");
-	const arm = options.arm ?? "arm0";
+	const arm = options.arm ?? "arm1";
 	checkArmInference(arm, options.inference);
-	if (options.agent === "collab" && arm !== "arm1")
-		throw new Error("agent_collab_needs_arm1");
 	// Refused before anything is opened.
 	const captureDir = parseCaptureDir(options.captureDir);
 	const all = await loadCases({
@@ -173,9 +167,7 @@ export async function runCommand(
 	const approver = options.approver ?? (live ? "cli" : "fixture");
 	// A missing script is found before anything starts.
 	if (options.inference === "scripted")
-		for (const def of cases)
-			if (arm === "arm1") await loadArm1Script(def.id);
-			else await loadScript(def.id);
+		for (const def of cases) await loadArm1Script(def.id);
 	const approvalNotes = cases.flatMap((c) =>
 		c.approvalScript.note ? [c.approvalScript.note] : [],
 	);

@@ -23,7 +23,7 @@ import {
 	startedRun,
 } from "./support.ts";
 
-const STATE: CoreState = { formatVersion: 1, arm: "arm0", step: 1 };
+const STATE: CoreState = { formatVersion: 1, arm: "arm1", step: 1 };
 
 /** Puts a fresh run into any status directly, as a test fixture only. */
 function runIn(db: ReturnType<typeof openTransaction>, status: RunStatus) {
@@ -277,7 +277,7 @@ describe("saveCoreState", () => {
 		startedRun(db);
 		expect(() =>
 			saveCoreState(db, OWNER_A, "run-1", {
-				state: { formatVersion: 2, arm: "arm0" } as unknown as CoreState,
+				state: { formatVersion: 2, arm: "arm1" } as unknown as CoreState,
 				expectedRevision: 0,
 				nowIso: NOW,
 			}),

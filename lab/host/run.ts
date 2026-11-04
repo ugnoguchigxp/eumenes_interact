@@ -2,14 +2,11 @@ import type { Database } from "bun:sqlite";
 import { createHash, randomUUID } from "node:crypto";
 import {
 	AdapterError,
-	ARM0_SOURCE_COMMIT,
-	ARM0_TOOL_IDS,
 	applyResult,
 	parseStep,
 	prepareStep,
 	startRun,
 	type ArmId,
-	type CommonActionId,
 	type CoreState,
 	type InferenceOutcome,
 	type InferencePort,
@@ -58,53 +55,20 @@ export const OUTPUT_TOKENS = 2048;
 /** One model call may take this long; a run past its own deadline is stopped by the host. */
 export const CALL_MS = 90_000;
 export const MIN_CALL_MS = 5_000;
-/** Arm 0's state schema accepts at most this many model calls (Eumenes `frozenSchema.maxModelCalls`). */
-export const ARM0_MAX_MODEL_CALLS = 12;
+/** A run may make at most this many model calls. */
+export const MAX_MODEL_CALLS = 12;
 
 export const LAB_OWNER = "lab";
-const SKILL_REF = "arm0:browser.page-operator@5";
 const ARM1_SKILL_REF = "arm1:parts@1";
 
 const sha256 = (text: string) =>
 	createHash("sha256").update(text).digest("hex");
 
-/** The case's budget as the run's frozen policy. A case Arm 0 cannot hold is refused, not clamped. */
+/** The case's budget as the run's frozen policy. A case past the run limit is refused, not clamped. */
 export function runPolicy(def: TrialCase): RunPolicy {
-	if (def.budget.maxModelCalls > ARM0_MAX_MODEL_CALLS)
-		throw new Error(`case_budget_exceeds_arm0_limit:${def.id}`);
+	if (def.budget.maxModelCalls > MAX_MODEL_CALLS)
+		throw new Error(`case_budget_exceeds_limit:${def.id}`);
 	return { maxModelCalls: def.budget.maxModelCalls, retries: { default: 1 } };
-}
-
-/** The common action each Arm 0 tool needs; null: the host itself provides it. */
-const TOOL_ACTION: Readonly<
-	Record<(typeof ARM0_TOOL_IDS)[number], CommonActionId | null>
-> = {
-	"browser.page.tabs": null,
-	"browser.page.tab_select": null,
-	"browser.page.tab_new": null,
-	"browser.page.observe": null,
-	"browser.page.navigate": "browser.navigate",
-	"browser.page.back": "browser.back",
-	"browser.page.click": "page.click",
-	"browser.page.hover": "page.hover",
-	"browser.page.type": "page.fill",
-	"browser.page.select": "page.select",
-	"browser.page.press": "page.press",
-	"browser.page.wait": "page.wait",
-};
-
-/** Tools offered this run: those whose action the adapter's catalog supports. */
-export function offeredTools(adapter: PlatformAdapter): string[] {
-	const supported = new Set(
-		adapter
-			.catalog()
-			.filter((entry) => entry.supported && !entry.physicalInput)
-			.map((entry) => entry.action),
-	);
-	return ARM0_TOOL_IDS.filter((id) => {
-		const action = TOOL_ACTION[id];
-		return action === null || supported.has(action);
-	});
 }
 
 export type RunTrialInput = {
@@ -141,8 +105,6 @@ export type RunTrialInput = {
 	control?: RunControl;
 	/** Defaults to the budget's calls at `CALL_MS` each. */
 	deadlineMs?: number;
-	/** Values the user allowed beforehand; they reach the core as `reference.approved`. */
-	approvedValues?: { value: string; origin: string; purpose: string }[];
 	/**
 	 * Arm 1: an existing absolute directory the run's screenshots go to (the caller chooses it per run; the
 	 * model never does). Absent: `<captureRoot>/<runId>/`.
@@ -231,8 +193,8 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	write(db, () => {
 		createRun(db, owner, {
 			runId,
-			skillRef: arm1 ? ARM1_SKILL_REF : SKILL_REF,
-			skillDigest: arm1 ? "arm1-parts:1" : `arm0-source:${ARM0_SOURCE_COMMIT}`,
+			skillRef: ARM1_SKILL_REF,
+			skillDigest: "arm1-parts:1",
 			catalogRef: `catalog:${adapter.platform}`,
 			catalogDigest: `sha256:${sha256(JSON.stringify(adapter.catalog()))}`,
 			platform: adapter.platform,
@@ -336,7 +298,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			request: def.request,
 			scrub,
 			// Arm 1 reads the whole snapshot (the model sees summaries) and follows its own page's navigation.
-			...(arm1 ? { bounding: "none" as const, followOwnNavigation: true } : {}),
+			followOwnNavigation: true,
 			...(input.observationSink
 				? {
 						keepObservation: (o) => input.observationSink?.(trialId, ++kept, o),
@@ -344,46 +306,25 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				: {}),
 		});
 		const first = await executor.start(startUrl);
-		const approved = (input.approvedValues ?? []).map((value) => {
-			const grant = grants.approve(value);
-			return {
-				kind: "input_value",
-				approvalId: randomUUID(),
-				inputValueRef: grant.inputValueRef,
-				origin: grant.origin,
-				purpose: grant.purpose,
-				summary: `${grant.purpose}（${grant.origin}）`.slice(0, 160),
-			};
+		const parts = createPartExecutor({
+			knowledge: labKnowledgePort(db, owner),
+			executor,
+			tabs,
+			recorder,
+			captures,
+			grants,
+			request: def.request,
+			events: labEventsPort(logger, runId),
 		});
-		const parts = arm1
-			? createPartExecutor({
-					knowledge: labKnowledgePort(db, owner),
-					executor,
-					tabs,
-					recorder,
-					captures,
-					grants,
-					request: def.request,
-					events: labEventsPort(logger, runId),
-				})
-			: null;
 		let state = startRun({
 			arm: input.arm,
 			request: def.request,
-			reference: parts
-				? {
-						connection: { connectionId: sessionId, state: "connected" },
-						page: parts.begin(first),
-					}
-				: {
-						connection: { connectionId: sessionId, state: "connected" },
-						tabs: first.tabs,
-						observation: first.observation,
-						...(approved.length ? { approved } : {}),
-					},
+			reference: {
+				connection: { connectionId: sessionId, state: "connected" },
+				page: parts.begin(first),
+			},
 			policy,
 			nowMs: now(),
-			...(arm1 ? {} : { tools: offeredTools(adapter) }),
 		});
 		save(state);
 		for (;;) {
@@ -462,7 +403,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 					return { status: "failed", code: step.code };
 				case "call": {
 					const executed =
-						step.call.kind === "part" && parts
+						step.call.kind === "part"
 							? await parts.run(step.call.part)
 							: await executor.execute(step.call);
 					if (executed.kind === "end") {

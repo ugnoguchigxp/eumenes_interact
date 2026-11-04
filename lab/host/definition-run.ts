@@ -322,7 +322,6 @@ export async function runDefinition(
 		newId: randomUUID,
 		request: definition.title,
 		// No model reads the page: refs are looked up in the whole snapshot.
-		bounding: "none",
 		// A page may redirect after our own action returned; Arm 0 keeps Eumenes' stricter tab rule.
 		followOwnNavigation: true,
 		scrub: !sink,

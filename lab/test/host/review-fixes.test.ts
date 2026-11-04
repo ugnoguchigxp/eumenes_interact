@@ -93,7 +93,7 @@ describe("the whole prompt, not only the uncached part", () => {
 	test("the scorer's efficiency has it per trial, and the aggregate a median", async () => {
 		const { result } = await runScripted("dev-clarify-form", {
 			inference: claudeLike(
-				JSON.stringify({ action: "clarify", text: "どれですか。" }),
+				JSON.stringify({ part: "ask", args: { question: "どれですか。" } }),
 			),
 			inferenceInfo: CLAUDE,
 		});
@@ -110,7 +110,9 @@ describe("the whole prompt, not only the uncached part", () => {
 describe("a score stored before the cache fields existed", () => {
 	test("is aggregated without undefined reaching a median", async () => {
 		const { result } = await runScripted("dev-clarify-form", {
-			inference: claudeLike(JSON.stringify({ action: "clarify", text: "x" })),
+			inference: claudeLike(
+				JSON.stringify({ part: "ask", args: { question: "x" } }),
+			),
 		});
 		const old = JSON.parse(JSON.stringify(result.score)) as TrialScore;
 		const efficiency = old.efficiency as unknown as Record<string, unknown>;
@@ -153,7 +155,9 @@ describe("the comparison freezes what answered", () => {
 				dispose: async () => {},
 			}),
 			inference: async () => ({
-				port: claudeLike(JSON.stringify({ action: "clarify", text: "x" })),
+				port: claudeLike(
+					JSON.stringify({ part: "ask", args: { question: "x" } }),
+				),
 				info: () => CLAUDE,
 				dispose: async () => {},
 			}),
@@ -319,7 +323,7 @@ describe("the success rate of the usage table is the main table's", () => {
 });
 
 describe("the report", () => {
-	const finish = JSON.stringify({ action: "clarify", text: "x" });
+	const finish = JSON.stringify({ part: "ask", args: { question: "x" } });
 
 	test("a trial with no transcript has an unknown number of model calls, not 0", async () => {
 		expect(UNKNOWN_USAGE.modelCalls).toBeNull();
@@ -337,7 +341,7 @@ describe("the report", () => {
 		db.query(
 			`INSERT INTO lab_trials (trial_id, experiment_id, case_id, split, arm, platform, execution_mode, knowledge,
 				repetition, order_index, run_id, started_at, state, versions_json, inference_json)
-			VALUES ('t2', 'exp-1', 'dev-clarify-form', 'dev', 'arm0', 'playwright-mcp', 'free', 'none', 2, 1, 'r2', 'x', 'running', '{}', ?)`,
+			VALUES ('t2', 'exp-1', 'dev-clarify-form', 'dev', 'arm1', 'playwright-mcp', 'free', 'none', 2, 1, 'r2', 'x', 'running', '{}', ?)`,
 		).run(JSON.stringify(CLAUDE));
 		const [g] = usageReport(listTrials(db));
 		expect(g!.overall.modelCalls.total).toBeNull();
@@ -359,7 +363,7 @@ describe("the report", () => {
 		db.query(
 			`INSERT INTO lab_trials (trial_id, experiment_id, case_id, split, arm, platform, execution_mode, knowledge,
 				repetition, order_index, run_id, started_at, state, versions_json, inference_json)
-			VALUES ('t3', 'exp-1', ?, 'live', 'arm0', 'playwright-mcp', 'free', 'none', 5, 2, 'r3', 'x', 'interrupted', '{}', ?)`,
+			VALUES ('t3', 'exp-1', ?, 'live', 'arm1', 'playwright-mcp', 'free', 'none', 5, 2, 'r3', 'x', 'interrupted', '{}', ?)`,
 		).run(`${OPERATE_CASE_PREFIX}abc`, JSON.stringify(CLAUDE));
 		const groups = usageReport(listTrials(db));
 		expect(groups).toHaveLength(1);
@@ -367,14 +371,14 @@ describe("the report", () => {
 		expect(Object.keys(groups[0]!.perCase)).toEqual(["dev-clarify-form"]);
 		const shown = report(db, "exp-1");
 		expect(shown.unfinishedTrials).toBe(0);
-		expect(shown.arms.arm0!.trials).toBe(1);
+		expect(shown.arms.arm1!.trials).toBe(1);
 	});
 });
 
 describe("a real site's stored record keeps no page-derived text", () => {
 	const finishText = JSON.stringify({
-		action: "finish",
-		text: "ページにはこう書いてありました。",
+		part: "done",
+		args: { answer: "ページにはこう書いてありました。", evidence: [] },
 	});
 	const finalOf = (events: readonly TranscriptEvent[]) =>
 		events.filter((e) => e.type === "step.final").at(-1);

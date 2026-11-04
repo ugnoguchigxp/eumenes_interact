@@ -44,9 +44,7 @@ describe("the live YouTube scenario with a fake browser", () => {
 		expect(adapter.dispatched.map((c) => c.action)).toEqual([
 			"browser.navigate",
 			"page.fill",
-			"page.wait",
 			"page.click",
-			"page.wait",
 		]);
 		expect(adapter.dispatched[0]).toMatchObject({ url: `${YT}/` });
 		expect(adapter.dispatched[1]).toMatchObject({
@@ -54,7 +52,7 @@ describe("the live YouTube scenario with a fake browser", () => {
 			submit: true,
 		});
 		// The click took the first of the video links, not the second (nth is the author's choice).
-		expect(adapter.dispatched[3]).toMatchObject({ targetRef: "e2" });
+		expect(adapter.dispatched[2]).toMatchObject({ targetRef: "e2" });
 		expect(adapter.url).toBe(`${YT}/watch?v=abc123`);
 		const lines = summaryLines(result);
 		expect(lines[0]).toContain("success");

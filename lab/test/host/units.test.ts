@@ -402,7 +402,7 @@ describe("cases and trial order", () => {
 
 	test("repetitions go in turn and arms rotate", async () => {
 		const cases = (await loadCases({ includeHoldout: false })).slice(0, 2);
-		const one = planTrials(cases, ["arm0"], 2);
+		const one = planTrials(cases, ["arm1"], 2);
 		expect(one.map((t) => [t.def.id, t.repetition, t.orderIndex])).toEqual([
 			[cases[0]!.id, 1, 0],
 			[cases[1]!.id, 1, 1],
@@ -410,7 +410,7 @@ describe("cases and trial order", () => {
 			[cases[1]!.id, 2, 3],
 		]);
 		// The hook for more arms: the first arm of a pair alternates.
-		const two = planTrials(cases, ["arm0", "arm0"], 1).map((t) => t.arm);
+		const two = planTrials(cases, ["arm1", "arm1"], 1).map((t) => t.arm);
 		expect(two).toHaveLength(4);
 	});
 });

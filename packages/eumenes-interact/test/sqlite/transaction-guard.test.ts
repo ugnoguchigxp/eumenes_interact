@@ -30,7 +30,7 @@ describe("writers refuse outside a transaction", () => {
 				transitionRun(db, OWNER_A, "r1", "running", { nowIso: NOW }),
 			saveCoreState: () =>
 				saveCoreState(db, OWNER_A, "r1", {
-					state: { formatVersion: 1, arm: "arm0" },
+					state: { formatVersion: 1, arm: "arm1" },
 					expectedRevision: 0,
 					nowIso: NOW,
 				}),

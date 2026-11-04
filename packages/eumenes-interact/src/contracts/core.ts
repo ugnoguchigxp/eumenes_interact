@@ -22,7 +22,7 @@ import type {
  */
 
 /** `arm0`: Eumenes' page operator port (baseline). `arm1`: registered parts (plan.md §6.4). */
-export type ArmId = "arm0" | "arm1";
+export type ArmId = "arm1";
 
 export type ChatMessage = {
 	role: "system" | "user" | "assistant";

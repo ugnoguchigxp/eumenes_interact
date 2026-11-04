@@ -49,7 +49,7 @@ export type CompareOptions = {
 	model?: string;
 	effort?: string;
 	maxTokens?: string;
-	/** `arm0` (default) or `arm1` (registered parts), for the fixture cases. */
+	/** `arm1` (registered parts), for the fixture cases. */
 	arm?: ArmId;
 	/** Arm 1: where the cases' screenshots go (an existing absolute directory); default: `lab/data/captures/<runId>/`. */
 	captureDir?: string;
@@ -95,7 +95,7 @@ export async function compareCommand(
 		(options.model || options.effort || options.maxTokens)
 	)
 		throw new Error("model_and_effort_are_for_claude");
-	const arm = options.arm ?? "arm0";
+	const arm = options.arm ?? "arm1";
 	checkArmInference(arm, options.inference ?? "scripted");
 	const captureDir = parseCaptureDir(options.captureDir);
 	// Frozen for the whole comparison and checked before anything is opened.

@@ -1,5 +1,4 @@
 import { arch, platform, release } from "node:os";
-import { ARM0_SOURCE_COMMIT } from "eumenes-interact";
 import { fileURLToPath } from "node:url";
 import type { TrialVersions } from "./types.ts";
 
@@ -37,7 +36,6 @@ export function collectVersions(options: {
 		packageCommit:
 			options.commit === undefined ? packageCommit() : options.commit,
 		coreFormatVersion: 1,
-		arm0SourceCommit: ARM0_SOURCE_COMMIT,
 		tool: { name: "@playwright/mcp", version: null },
 		os: `${platform()} ${release()} ${arch()}`,
 		runtime: `bun ${Bun.version}`,

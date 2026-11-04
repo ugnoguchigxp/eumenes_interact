@@ -15,16 +15,8 @@ import {
 	createArm1ScriptedInference,
 	loadArm1Script,
 } from "../../scripted/arm1.ts";
-import { createScriptedInference } from "../../scripted/inference.ts";
-import { loadScript } from "../../scripted/script.ts";
 import { BASE, FakeBrowser } from "./fake-adapter.ts";
 import { VERSIONS, devCase, freshDb, testCaptureRoot } from "./harness.ts";
-
-/** Arm 0 answers a screenshot request with a finish: it has no tool for it. */
-const finisher = createScriptedInference({
-	caseId: "x",
-	steps: [{ finish: "撮影しました。" }],
-});
 
 const factories = (): TrialFactories => ({
 	adapter: () =>
@@ -32,13 +24,8 @@ const factories = (): TrialFactories => ({
 			adapter: new FakeBrowser(),
 			dispose: () => Promise.resolve(),
 		}),
-	inference: async (def, arm) => ({
-		port:
-			arm === "arm1"
-				? createArm1ScriptedInference(await loadArm1Script(def.id))
-				: def.id === "dev-clarify-form"
-					? createScriptedInference(await loadScript(def.id))
-					: finisher,
+	inference: async (def) => ({
+		port: createArm1ScriptedInference(await loadArm1Script(def.id)),
 		info: () => ({ kind: "scripted" }),
 		dispose: () => Promise.resolve(),
 	}),
@@ -87,39 +74,6 @@ describe("an experiment on Arm 1", () => {
 		expect(shown.experiment.inferenceFrozen).toMatchObject({ maxTokens: 4000 });
 		expect(shown.arms.arm1).toMatchObject({ trials: 2, successRate: 1 });
 		expect(usageReport(listTrials(db)).map((g) => g.arm)).toEqual(["arm1"]);
-	});
-
-	test("both arms in one experiment: the screenshot case is a failure of Arm 0 and a success of Arm 1", async () => {
-		const db = freshDb();
-		const done = await runExperiment({
-			db,
-			cases: [
-				await devCase("dev-capture-results"),
-				await devCase("dev-clarify-form"),
-			],
-			arms: ["arm0", "arm1"],
-			repetitions: 1,
-			name: "both",
-			inferenceKind: "scripted",
-			includesHoldout: false,
-			factories: factories(),
-			logger: silentLabLogger,
-			versions: VERSIONS,
-			fixtureBaseUrl: BASE,
-			captureRoot: testCaptureRoot(),
-		});
-		const byArm = (arm: string, id: string) =>
-			done.results.find(
-				(r) => r.transcript.arm === arm && r.transcript.caseId === id,
-			)!;
-		expect(byArm("arm0", "dev-capture-results").score.success).toBe(false);
-		expect(byArm("arm0", "dev-capture-results").score.failures).toContain(
-			"capture_missing",
-		);
-		expect(byArm("arm1", "dev-capture-results").score.success).toBe(true);
-		const shown = report(db, done.experimentId);
-		expect(shown.arms.arm0).toMatchObject({ trials: 2, successRate: 0.5 });
-		expect(shown.arms.arm1).toMatchObject({ trials: 2, successRate: 1 });
 	});
 });
 

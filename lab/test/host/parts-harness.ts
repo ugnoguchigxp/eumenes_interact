@@ -93,7 +93,6 @@ export async function setupParts(
 		now: Date.now,
 		newId: randomUUID,
 		request: options.request ?? "",
-		bounding: "none",
 		followOwnNavigation: true,
 	});
 	const first = await executor.start(options.start ?? `${KAEDE}index.html`);

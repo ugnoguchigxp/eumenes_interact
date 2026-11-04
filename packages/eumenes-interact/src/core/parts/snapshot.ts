@@ -1,5 +1,5 @@
-import { refsOf, snapshotNodes } from "../arm0/observation.ts";
-import { clip } from "../arm0/text.ts";
+import { refsOf, snapshotNodes } from "../shared/observation.ts";
+import { clip } from "../shared/text.ts";
 
 /**
  * The accessibility snapshot as nodes, for both text formats: Playwright MCP (`- link "name" [ref=e3]:` with the

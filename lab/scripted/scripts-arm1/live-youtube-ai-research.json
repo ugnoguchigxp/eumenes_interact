@@ -1,0 +1,13 @@
+{
+	"caseId": "live-youtube-ai-research",
+	"steps": [
+		{ "part": "site.search", "args": { "query": "AI research" } },
+		{
+			"part": "item.open",
+			"target": { "role": "link", "urlIncludes": "/watch?v=", "nth": 0 }
+		},
+		{
+			"done": "「AI research」で検索し、検索結果の動画を1本開いて再生を始めました。"
+		}
+	]
+}

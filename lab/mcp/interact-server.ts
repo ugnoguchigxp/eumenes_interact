@@ -296,11 +296,9 @@ export const operateStartShape = {
 		.optional()
 		.describe("Show the browser window (some sites refuse headless)."),
 	arm: z
-		.enum(["arm0", "arm1"])
+		.enum(["arm1"])
 		.optional()
-		.describe(
-			"arm1 (default): the model may use registered parts; arm0: the model alone.",
-		),
+		.describe("arm1 (default, the only arm): the model uses registered parts."),
 	captureDir: captureDirField,
 };
 
@@ -553,7 +551,7 @@ export function createInteractMcpServer(deps: InteractDeps): InteractMcp {
 		"interact_operate_start",
 		{
 			title: "Start a free-form browser run",
-			description: `Starts a model-driven browser run for a free-form request on the given site and returns { runId, status } at once: a receipt, not completion. Poll interact_operate_status until the status is terminal. One run at a time (error runner_active). ${originNote} ${captureNote} The model may use registered parts (arm1, default) or work alone (arm0). Saved screenshot names appear in the status as captures. ${SAFETY} ${PAGE_DATA}`,
+			description: `Starts a model-driven browser run for a free-form request on the given site and returns { runId, status } at once: a receipt, not completion. Poll interact_operate_status until the status is terminal. One run at a time (error runner_active). ${originNote} ${captureNote} The model uses registered parts (arm1). Saved screenshot names appear in the status as captures. ${SAFETY} ${PAGE_DATA}`,
 			annotations: { readOnlyHint: false, openWorldHint: true },
 		},
 		operateStartShape,

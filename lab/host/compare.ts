@@ -16,8 +16,6 @@ import {
 	createArm1ScriptedInference,
 	loadArm1Script,
 } from "../scripted/arm1.ts";
-import { loadScript } from "../scripted/script.ts";
-import { createScriptedInference } from "../scripted/inference.ts";
 import { FixtureApprover, printable, type Approver } from "./approval.ts";
 import {
 	aggregateUsage,
@@ -212,7 +210,7 @@ export type RunCompareOptions = {
 	frozenInference?: { model: string; effort: string; maxTokens?: number };
 	/** The label of what answers the cases (`scripted`, `claude:<model>/<effort>`), known before any run. */
 	inferenceLabel?: string;
-	/** `arm0` (default) or `arm1` (registered parts); frozen into each platform's experiment. */
+	/** `arm1` (registered parts); frozen into each platform's experiment. */
 	arm?: ArmId;
 	/** Arm 1: an existing absolute directory the cases' screenshots go to; default: the lab's area per run. */
 	captureDir?: string;
@@ -258,7 +256,7 @@ export async function runCompare(
 				caseDigest: "compare",
 				includesHoldout: false,
 				repetitions: 1,
-				arms: [options.arm ?? "arm0"],
+				arms: [options.arm ?? "arm1"],
 				budget: {
 					inference: {
 						kind: options.inferenceKind ?? "scripted",
@@ -416,14 +414,11 @@ async function caseSample(
 	const now = options.now ?? Date.now;
 	const def = options.cases.get(item.target);
 	if (!def) throw new Error(`case_not_found:${item.target}`);
-	const arm = options.arm ?? "arm0";
+	const arm = options.arm ?? "arm1";
 	const inference = options.inference
 		? await options.inference(def, arm)
 		: {
-				port:
-					arm === "arm1"
-						? createArm1ScriptedInference(await loadArm1Script(def.id))
-						: createScriptedInference(await loadScript(def.id)),
+				port: createArm1ScriptedInference(await loadArm1Script(def.id)),
 				info: (): InferenceInfo => ({ kind: "scripted" }),
 				dispose: async () => {},
 			};
@@ -578,7 +573,7 @@ export type CompareReport = {
 		platforms: readonly string[];
 		/** What answered the cases: `scripted`, or `claude:<model>/<effort>`. */
 		inference?: string;
-		/** The arm the fixture cases ran on (`arm0` baseline, `arm1` registered parts). */
+		/** The arm the fixture cases ran on (`arm1` registered parts). */
 		arm?: ArmId;
 		repeat: number;
 		headed: boolean;

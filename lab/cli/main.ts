@@ -20,7 +20,7 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   cases [--include-holdout] [--include-live]
   run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude]
       [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--approver fixture|cli] [--include-holdout] [--include-live]
-      [--arm arm0|arm1] [--agent collab] [--capture-dir <abs dir>]
+      [--arm arm1] [--agent collab] [--capture-dir <abs dir>]
       [--keep-observations] [--headed] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   task list
@@ -30,7 +30,7 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   compare [--platforms playwright-mcp] [--definitions <id,...|all|none>]
       [--inputs <file.json>] [--repeat n] [--headed] [--split dev] [--include-live] [--keep-observations]
       [--approver stop|cli] [--inference scripted|claude] [--model <id>] [--effort <e>] [--max-tokens <n>]
-      [--arm arm0|arm1] [--capture-dir <abs dir>]
+      [--arm arm1] [--capture-dir <abs dir>]
   operate --request "<text>" --start-url <https url> --allow-origin <origin> [--allow-origin ...]
       [--inference claude|larm] [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--max-calls n]
       [--arm arm1|arm0] [--capture-dir <abs dir>]
@@ -234,7 +234,7 @@ async function main(): Promise<number> {
 						...(values["max-tokens"] === undefined
 							? {}
 							: { maxTokens: values["max-tokens"] }),
-						arm: parseArm(values.arm, "arm0"),
+						arm: parseArm(values.arm, "arm1"),
 						...(values["capture-dir"] === undefined
 							? {}
 							: { captureDir: values["capture-dir"] }),
@@ -290,7 +290,7 @@ async function main(): Promise<number> {
 						...(values["max-tokens"] === undefined
 							? {}
 							: { maxTokens: values["max-tokens"] }),
-						arm: parseArm(values.arm, "arm0"),
+						arm: parseArm(values.arm, "arm1"),
 						...(values.agent === undefined
 							? {}
 							: {

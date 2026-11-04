@@ -39,7 +39,7 @@ import {
 } from "./observations.ts";
 import { DEFAULT_CAPTURES_DIR, resolveCaptureDir } from "./parts/capture.ts";
 import { reconcileOnStartup } from "./reconcile.ts";
-import { ARM0_MAX_MODEL_CALLS, LAB_OWNER, runTrial } from "./run.ts";
+import { MAX_MODEL_CALLS, LAB_OWNER, runTrial } from "./run.ts";
 import { createExperiment } from "./store.ts";
 import {
 	OPERATE_CASE_PREFIX,
@@ -168,7 +168,7 @@ export function validateOperate(o: OperateOptions): {
 	captureDir: string | undefined;
 } {
 	const arm = o.arm ?? "arm1";
-	if (arm !== "arm0" && arm !== "arm1") throw new Error("invalid_arm");
+	if (arm !== "arm1") throw new Error("invalid_arm");
 	if (arm === "arm1" && o.inference === "larm")
 		throw new Error("arm1_needs_structured_output (use claude)");
 	const captureDir =
@@ -190,9 +190,9 @@ export function validateOperate(o: OperateOptions): {
 		throw new Error("invalid_start_url");
 	if (!originAllowed(o.allowedOrigins, start.origin))
 		throw new Error("start_origin_not_allowed");
-	const max = o.maxModelCalls ?? ARM0_MAX_MODEL_CALLS;
-	if (!Number.isInteger(max) || max < 1 || max > ARM0_MAX_MODEL_CALLS)
-		throw new Error(`invalid_max_calls (1 to ${ARM0_MAX_MODEL_CALLS})`);
+	const max = o.maxModelCalls ?? MAX_MODEL_CALLS;
+	if (!Number.isInteger(max) || max < 1 || max > MAX_MODEL_CALLS)
+		throw new Error(`invalid_max_calls (1 to ${MAX_MODEL_CALLS})`);
 	return { maxModelCalls: max, arm, captureDir };
 }
 

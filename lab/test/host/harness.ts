@@ -15,12 +15,10 @@ import { silentLabLogger } from "../../host/log.ts";
 import { runTrial, type TrialResult } from "../../host/run.ts";
 import { createExperiment } from "../../host/store.ts";
 import { collectVersions } from "../../host/versions.ts";
-import { createScriptedInference } from "../../scripted/inference.ts";
 import {
 	createArm1ScriptedInference,
 	loadArm1Script,
 } from "../../scripted/arm1.ts";
-import { loadScript } from "../../scripted/script.ts";
 import { BASE, FakeBrowser } from "./fake-adapter.ts";
 
 let captureRoot: string | null = null;
@@ -56,7 +54,7 @@ export function freshDb(): Database {
 		caseDigest: "digest",
 		includesHoldout: false,
 		repetitions: 1,
-		arms: ["arm0"],
+		arms: ["arm1"],
 		budget: {},
 		inferenceKind: "scripted",
 		nowIso: new Date().toISOString(),
@@ -94,7 +92,7 @@ export async function runScripted(
 	const def = options.def ?? (await devCase(caseId));
 	const db = options.db ?? freshDb();
 	const adapter = options.adapter ?? new FakeBrowser();
-	const arm = options.arm ?? "arm0";
+	const arm = options.arm ?? "arm1";
 	const result = await runTrial({
 		db,
 		def,
@@ -105,9 +103,7 @@ export async function runScripted(
 		adapter,
 		inference:
 			options.inference ??
-			(arm === "arm1"
-				? createArm1ScriptedInference(await loadArm1Script(caseId))
-				: createScriptedInference(await loadScript(caseId))),
+			createArm1ScriptedInference(await loadArm1Script(caseId)),
 		inferenceInfo: () => options.inferenceInfo ?? { kind: "scripted" },
 		approver: options.approver ?? new FixtureApprover(def.approvalScript),
 		logger: silentLabLogger,

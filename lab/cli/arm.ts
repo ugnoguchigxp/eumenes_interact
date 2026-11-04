@@ -1,11 +1,11 @@
 import type { ArmId } from "eumenes-interact";
 import { resolveCaptureDir } from "../host/parts/capture.ts";
 
-/** `--arm arm0|arm1` (plan.md §6.4): the baseline port or the registered parts. */
+/** `--arm arm1` (plan.md §6.4): the registered parts. Arm 0 (the baseline port) was removed in M4. */
 export function parseArm(value: string | undefined, fallback: ArmId): ArmId {
 	if (value === undefined) return fallback;
-	if (value === "arm0" || value === "arm1") return value;
-	throw new Error(`invalid_arm:${value} (arm0 or arm1)`);
+	if (value === "arm1") return value;
+	throw new Error(`invalid_arm:${value} (arm1)`);
 }
 
 /**

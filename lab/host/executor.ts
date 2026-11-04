@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { refsOf } from "../aria.ts";
 import {
 	AdapterError,
-	shapeObservation,
 	type AdapterCommand,
 	type AdapterDispatchResult,
 	type AdapterTarget,
@@ -94,11 +93,6 @@ export type ExecutorDeps = {
 	 * Eumenes' rule that a tab is only the same tab while its index and URL both match.
 	 */
 	followOwnNavigation?: boolean;
-	/**
-	 * `arm0` (default): the model sees the bounded snapshot and only its refs are actionable. `none`: a run
-	 * that feeds no model (a work definition) looks up refs in the whole snapshot.
-	 */
-	bounding?: "arm0" | "none";
 	/** Keeps page text (element names) out of the ledger and the transcript: a real site without `--keep-observations`. */
 	scrub?: boolean;
 	/** Gets every observation the model is shown, for a run that keeps them (plan.md §14). */
@@ -267,10 +261,7 @@ export function createExecutor(deps: ExecutorDeps) {
 			tabs.block(tabRef);
 			throw new Refusal(verdict.code, false);
 		}
-		const shaped =
-			deps.bounding === "none"
-				? wholeObservation(raw)
-				: shapeObservation("arm0", raw);
+		const shaped = wholeObservation(raw);
 		tabs.patch(tabRef, {
 			...(raw.url === undefined ? {} : { url: raw.url }),
 			...(raw.title === undefined ? {} : { title: raw.title }),

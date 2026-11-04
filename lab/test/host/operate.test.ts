@@ -24,7 +24,6 @@ import {
 } from "../../host/operate.ts";
 import type { InferenceInfo } from "../../host/types.ts";
 import { createArm1ScriptedInference } from "../../scripted/arm1.ts";
-import { createScriptedInference } from "../../scripted/inference.ts";
 import { FakeBrowser } from "./fake-adapter.ts";
 
 const CLAUDE: InferenceInfo = {
@@ -46,11 +45,13 @@ const text = (t: string): InferenceOutcome => ({
 	latencyMs: 5,
 });
 const observe = JSON.stringify({
-	action: "invoke",
-	tool: "browser.page.observe",
-	arguments: {},
+	part: "page.list",
+	args: { kind: "links", limit: 5 },
 });
-const finish = JSON.stringify({ action: "finish", text: "開きました。" });
+const finish = JSON.stringify({
+	part: "done",
+	args: { answer: "開きました。", evidence: [] },
+});
 
 /** A model that answers the first call at once and holds the second until released or cancelled. */
 function gatedModel() {
@@ -92,8 +93,7 @@ const options = (over: Partial<OperateOptions> = {}): OperateOptions => ({
 	startUrl: "https://ja.wikipedia.org/",
 	allowedOrigins: ["https://ja.wikipedia.org"],
 	inference: "claude",
-	// Arm 0: the gated model and the scripted answers below speak its tools. Arm 1 has its own tests.
-	arm: "arm0",
+	arm: "arm1",
 	approver: "stop",
 	dbPath: join(dir, "interact.sqlite"),
 	...over,
@@ -353,7 +353,7 @@ describe("startOperate", () => {
 		});
 		expect(validateOperate(options())).toMatchObject({
 			maxModelCalls: 12,
-			arm: "arm0",
+			arm: "arm1",
 		});
 		const { arm: _arm, ...unspecified } = options();
 		expect(validateOperate(unspecified)).toMatchObject({ arm: "arm1" });
@@ -387,15 +387,14 @@ describe("startOperate", () => {
 			caseId: "x",
 			steps: [
 				{
-					tool: "browser.page.click" as const,
+					part: "item.open" as const,
 					target: { role: "button", name: "メニュー" },
-					args: { effect: "navigate" },
 				},
 			],
 		};
 		const handle = startOperate(
 			options(),
-			deps(createScriptedInference(script)),
+			deps(createArm1ScriptedInference(script)),
 		);
 		const last = await handle.done;
 		expect(last.status).toBe("needs_input");

@@ -16,16 +16,21 @@ import {
 import { runScripted } from "./harness.ts";
 
 const dev = await loadCases({ includeHoldout: false });
+const live = (
+	await loadCases({ includeHoldout: false, includeLive: true })
+).filter((c) => c.split === "live");
 const holdout = (await loadCases({ includeHoldout: true })).filter(
 	(c) => c.split === "holdout",
 );
 
 describe("the Arm 1 scripts of the dev cases", () => {
-	test("every dev case has one and there is no other", async () => {
+	test("every dev and live case has one and there is no other", async () => {
 		const files = (await readdir(ARM1_SCRIPTS_DIR)).filter((f) =>
 			f.endsWith(".json"),
 		);
-		expect(files.sort()).toEqual(dev.map((c) => `${c.id}.json`).sort());
+		expect(files.sort()).toEqual(
+			[...dev, ...live].map((c) => `${c.id}.json`).sort(),
+		);
 		for (const def of dev)
 			expect((await loadArm1Script(def.id)).caseId).toBe(def.id);
 	});
@@ -251,22 +256,5 @@ describe("the fixed-response acceptance of Arm 1, on the fake browser", () => {
 		);
 		expect(shown).toContain("captures\t1\t/abs/dir");
 		expect(shown).toContain("  a-1-viewport.png");
-	});
-
-	test("Arm 0 cannot take a screenshot: a capture case fails there by design", async () => {
-		const { result } = await runScripted("dev-capture-results", {
-			arm: "arm0",
-			inference: {
-				complete: () =>
-					Promise.resolve({
-						kind: "text",
-						text: JSON.stringify({ action: "finish", text: "撮影しました。" }),
-						usage: { inputTokens: null, outputTokens: null },
-						latencyMs: 0,
-					}),
-			},
-		});
-		expect(result.score.success).toBe(false);
-		expect(result.transcript.captureDir).toBeUndefined();
 	});
 });

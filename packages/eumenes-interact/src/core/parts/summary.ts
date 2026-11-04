@@ -6,7 +6,7 @@ import type {
 	PageSummary,
 } from "../../contracts/parts.ts";
 import type { RawObservation } from "../../contracts/observation.ts";
-import { clip, placeOf } from "../arm0/text.ts";
+import { clip, placeOf } from "../shared/text.ts";
 import { collect, pageItem, type Collected } from "./items.ts";
 import {
 	BLOCK_ROLES,

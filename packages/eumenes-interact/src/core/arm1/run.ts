@@ -15,8 +15,8 @@ import {
 	type PartCall,
 	type PartResult,
 } from "../../contracts/parts.ts";
-import { parseLlmJson } from "../arm0/json.ts";
-import { promptTime } from "../arm0/text.ts";
+import { parseLlmJson } from "../shared/json.ts";
+import { promptTime } from "../shared/text.ts";
 import { partCallJsonSchemaFor } from "../parts/schema.ts";
 import { BLOCK_ROLES } from "../parts/snapshot.ts";
 import { CORRECTION, SYSTEM } from "./texts.ts";

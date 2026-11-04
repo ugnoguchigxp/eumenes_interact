@@ -6,7 +6,6 @@ export type TrialVersions = {
 	/** The package's commit when the repository has one; null before the first commit. */
 	packageCommit: string | null;
 	coreFormatVersion: number;
-	arm0SourceCommit: string;
 	/** The external tool the adapter reported after it opened; version null when unknown. */
 	tool: { name: string; version: string | null };
 	os: string;

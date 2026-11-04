@@ -1,5 +1,5 @@
 import type { ItemRecord, PageItem } from "../../contracts/parts.ts";
-import { clip } from "../arm0/text.ts";
+import { clip } from "../shared/text.ts";
 import {
 	isItemNode,
 	NAME_CHARS,

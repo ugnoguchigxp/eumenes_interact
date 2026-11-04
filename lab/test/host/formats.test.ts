@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { parseAria, refsOf } from "../../aria.ts";
 import { resolveCandidate, resolveObject } from "../../host/candidates.ts";
-import { latestObservation, resolveTarget } from "../../scripted/resolve.ts";
 import { runDefinition } from "../../host/definition-run.ts";
 import { readDefinition } from "../../host/definitions.ts";
 import { silentLabLogger } from "../../host/log.ts";
@@ -206,34 +205,6 @@ describe("the two snapshot spellings", () => {
 				expect(refOf(body, "role", { role: "radio", name: "小" })).toBe("e10");
 			});
 
-			test("the scripted resolver finds role, name, url, nth, within and nameAnyOf", () => {
-				expect(
-					resolveTarget(body, { role: "searchbox", name: "Wikipedia内を検索" }),
-				).toMatchObject({ kind: "found", ref: "e2" });
-				expect(
-					resolveTarget(body, { role: "link", urlIncludes: "/wiki/A" }),
-				).toMatchObject({ kind: "found", ref: "e9" });
-				expect(
-					resolveTarget(body, { role: "link", urlIncludes: "/wiki/" }),
-				).toEqual({ kind: "ambiguous" });
-				expect(
-					resolveTarget(body, { role: "link", urlIncludes: "/wiki/", nth: 3 }),
-				).toMatchObject({ ref: "e7" });
-				expect(
-					resolveTarget(body, {
-						roleAnyOf: ["combobox", "searchbox"],
-						nameAnyOf: ["検索", "Wikipedia内を検索"],
-					}),
-				).toMatchObject({ kind: "found", ref: "e2" });
-				expect(
-					resolveTarget(body, {
-						role: "link",
-						urlIncludes: "/wiki/Terms",
-						within: [{ role: "contentinfo" }],
-					}),
-				).toMatchObject({ ref: "e12" });
-			});
-
 			test("the object resolver gives the same element for the same candidates", () => {
 				const candidate = (id: number, fields: Fields) => ({
 					id,
@@ -262,22 +233,6 @@ describe("the two snapshot spellings", () => {
 			});
 		},
 	);
-
-	test("the scripted inference reads the latest observation from messages in either format", () => {
-		for (const body of [PLAYWRIGHT, INLINE]) {
-			const messages = [
-				{ role: "system" as const, content: "s" },
-				{
-					role: "user" as const,
-					content: `x\nREFERENCE=${JSON.stringify({ observation: { observationRef: "o1", text: body } })}`,
-				},
-			];
-			expect(latestObservation(messages)).toEqual({
-				observationRef: "o1",
-				text: body,
-			});
-		}
-	});
 });
 
 describe("a run on a page in the inline spelling", () => {
@@ -321,7 +276,7 @@ describe("a run on a page in the inline spelling", () => {
 		).toBe(true);
 	});
 
-	test("an Arm 0 case runs on it too: the scripted flow, the core and the scorer", async () => {
+	test("a dev case runs on it too: the scripted flow, the core and the scorer", async () => {
 		const def = await devCase("dev-search-base");
 		const { result } = await runScripted(def.id, { adapter: inline() });
 		expect(result.status).toBe("completed");

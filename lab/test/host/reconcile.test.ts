@@ -112,7 +112,7 @@ describe("trials left running", () => {
 			experimentId: "exp-1",
 			caseId: "dev-search-base",
 			split: "dev",
-			arm: "arm0",
+			arm: "arm1",
 			platform: "playwright-mcp",
 			executionMode: "free",
 			knowledge: "none",

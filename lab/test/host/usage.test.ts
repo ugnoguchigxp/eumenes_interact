@@ -218,11 +218,14 @@ const cachingModel = (texts: string[]): InferencePort => {
 
 describe("through a run, the report and the comparison", () => {
 	const finish = JSON.stringify({
-		action: "finish",
-		text: "検索結果を表示しました。",
+		part: "done",
+		args: { answer: "検索結果を表示しました。", evidence: [] },
 	});
 
-	const clarify = JSON.stringify({ action: "clarify", text: "どれですか。" });
+	const clarify = JSON.stringify({
+		part: "ask",
+		args: { question: "どれですか。" },
+	});
 
 	test("the transcript carries the cache counters and the score its totals", async () => {
 		const { result } = await runScripted("dev-search-base", {
@@ -264,7 +267,7 @@ describe("through a run, the report and the comparison", () => {
 		await runScripted("dev-clarify-form", {
 			db,
 			inference: cachingModel([
-				JSON.stringify({ action: "clarify", text: "どれですか。" }),
+				JSON.stringify({ part: "ask", args: { question: "どれですか。" } }),
 			]),
 			inferenceInfo: CLAUDE,
 		});
@@ -308,7 +311,7 @@ describe("through a run, the report and the comparison", () => {
 		db.query(
 			`INSERT INTO lab_trials (trial_id, experiment_id, case_id, split, arm, platform, execution_mode, knowledge,
 				repetition, order_index, run_id, started_at, state, versions_json, inference_json)
-			VALUES ('t2', 'exp-1', 'dev-clarify-form', 'dev', 'arm0', 'playwright-mcp', 'free', 'none', 2, 1, 'r2', 'x',
+			VALUES ('t2', 'exp-1', 'dev-clarify-form', 'dev', 'arm1', 'playwright-mcp', 'free', 'none', 2, 1, 'r2', 'x',
 				'running', '{}', ?)`,
 		).run(JSON.stringify(CLAUDE));
 		const [group] = usageReport(listTrials(db));
