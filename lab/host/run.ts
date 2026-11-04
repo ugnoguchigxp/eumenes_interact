@@ -112,6 +112,16 @@ export type RunTrialInput = {
 	captureDir?: string;
 	/** Where the default capture directories are made; default `lab/data/captures`. */
 	captureRoot?: string;
+	/**
+	 * Verified results of earlier steps of the same request (a chain): a search term found in one of them is
+	 * sourced like one taken from the request itself.
+	 */
+	sources?: readonly string[];
+	/**
+	 * Leaves the browser open when the trial ends (a chain step whose result is the screen). The caller then
+	 * owns the session and closes it.
+	 */
+	keepSession?: boolean;
 };
 
 export type TrialResult = {
@@ -126,6 +136,8 @@ export type TrialResult = {
 	scored: boolean;
 	/** Where this run's screenshots are (absolute); the files named by its `capture.saved` events. */
 	captureDir: string;
+	/** The model's final text, in memory only (never stored for a live run without kept observations). */
+	finalText: string;
 };
 
 type Ending = {
@@ -314,6 +326,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			captures,
 			grants,
 			request: def.request,
+			...(input.sources ? { sources: () => input.sources ?? [] } : {}),
 			events: labEventsPort(logger, runId),
 		});
 		let state = startRun({
@@ -468,7 +481,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		control.signal.removeEventListener("abort", onAbort);
 		try {
 			// Only what this host started is stopped; the adapter's close is idempotent.
-			await adapter.close();
+			if (!input.keepSession) await adapter.close();
 		} catch {
 			// A failing close must not hide how the run ended.
 		}
@@ -513,5 +526,6 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		score,
 		scored,
 		captureDir: captures.dir,
+		finalText: recorder.finalText ?? "",
 	};
 }

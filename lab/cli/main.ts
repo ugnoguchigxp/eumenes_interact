@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+import { DEFAULT_KEEP_OPEN_IDLE_S, chainCommand } from "./chain-command.ts";
 import { loadCases } from "../cases/load.ts";
 import { DEFAULT_DB_PATH, openLabDb } from "../host/db.ts";
 import { acquireRunLock } from "../host/lock.ts";
@@ -36,6 +37,11 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
       [--arm arm1|arm0] [--capture-dir <abs dir>]
       [--approver stop|cli] [--headless] [--keep-observations] [--json]
   knowledge import <seed.json>...
+  chain --request "<several steps in one sentence>" --inference manual [--keep-open-idle <s>]
+      [--capture-dir <abs dir>] [--keep-observations] [--headless] [--browser <channel>]
+      plans the request into at most 5 steps and runs them on one browser; a step whose result is the
+      screen (再生/表示) keeps the browser open after the steps until you type 完了/done on stdin, or for
+      --keep-open-idle seconds (default 600) with no input. LAB_MANUAL_DIR is required (manual inference).
   knowledge list [--origin <origin>]
   trials [--experiment <id>]
   report --experiment <id>
@@ -74,6 +80,7 @@ const { values, positionals } = parseArgs({
 		arm: { type: "string" },
 		"capture-dir": { type: "string" },
 		"max-calls": { type: "string" },
+		"keep-open-idle": { type: "string" },
 		json: { type: "boolean" },
 		origin: { type: "string" },
 		platform: { type: "string" },
@@ -123,6 +130,7 @@ async function main(): Promise<number> {
 	if (
 		![
 			"run",
+			"chain",
 			"task",
 			"compare",
 			"knowledge",
@@ -141,6 +149,7 @@ async function main(): Promise<number> {
 	// progress must not be touched by a read-only command.
 	const runs =
 		command === "run" ||
+		command === "chain" ||
 		command === "compare" ||
 		(command === "task" && sub === "run");
 	const lock = runs ? acquireRunLock(`${dbPath}.run.lock`) : null;
@@ -255,6 +264,34 @@ async function main(): Promise<number> {
 				}
 				console.error(USAGE);
 				return 2;
+			}
+			case "chain": {
+				if (values.request === undefined)
+					throw new Error("chain_needs_request");
+				if ((values.inference ?? "manual") !== "manual")
+					throw new Error("chain_inference_manual_only");
+				const idle = Number(
+					values["keep-open-idle"] ?? String(DEFAULT_KEEP_OPEN_IDLE_S),
+				);
+				if (!Number.isFinite(idle) || idle < 0)
+					throw new Error("invalid_keep_open_idle");
+				return chainCommand(
+					db,
+					{
+						request: values.request,
+						inference: "manual",
+						keepOpenIdleS: idle,
+						headed: values.headless !== true,
+						...(values.browser === undefined
+							? {}
+							: { browser: values.browser }),
+						...(values["capture-dir"] === undefined
+							? {}
+							: { captureDir: values["capture-dir"] }),
+						keepObservations: values["keep-observations"] === true,
+					},
+					logger!,
+				);
 			}
 			case "run": {
 				const repeat = Number(values.repeat ?? "1");
