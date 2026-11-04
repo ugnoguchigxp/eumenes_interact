@@ -412,3 +412,6 @@ process.exitCode = await main().catch((error: unknown) => {
 	console.error(error instanceof Error ? error.message : String(error));
 	return 1;
 });
+// The work is done and the lock released: a handle left open (a stdin fifo, a browser connection) must not
+// keep the process alive.
+process.exit();

@@ -10,6 +10,7 @@ import {
 	chainCases,
 	holdSession,
 	holdUntil,
+	settleWithin,
 	playbackAdvanced,
 	planBudget,
 	planSteps,
@@ -288,8 +289,15 @@ export async function chainCommand(
 	} finally {
 		process.off("SIGINT", onSignal);
 		process.off("SIGTERM", onSignal);
-		await hold.release().catch(() => {});
-		await session.dispose().catch(() => {});
+		// Bounded: a close that never answers must not hold the run lock (S11 hung here after closed, 2026-11-05).
+		const closedInTime = await settleWithin(
+			(async () => {
+				await hold.release().catch(() => {});
+				await session.dispose().catch(() => {});
+			})(),
+			CLOSE_WAIT_MS,
+		);
+		if (!closedInTime) console.error("notice\tbrowser_close_timeout");
 		// Closing the reader is what lets the process exit while stdin (a fifo or a terminal) stays open.
 		rl.close();
 		process.stdin.destroy();
@@ -298,6 +306,9 @@ export async function chainCommand(
 		? 0
 		: 1;
 }
+
+/** How long closing the browser may take before the run ends without it. */
+const CLOSE_WAIT_MS = 15_000;
 
 /** Short enough that a typical 15–30 s mid-roll ad is seen while it shows. */
 const MEDIA_PROBE_MS = 10_000;

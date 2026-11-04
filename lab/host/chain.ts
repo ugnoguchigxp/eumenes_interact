@@ -347,6 +347,31 @@ export async function holdUntil(
 	}
 }
 
+/**
+ * Waits for `work` at most `ms`: cleanup that hangs (a browser connection that never answers its close) must
+ * not keep the process, and with it the run lock, alive. Resolves `false` when time ran out.
+ */
+export async function settleWithin(
+	work: Promise<unknown>,
+	ms: number,
+): Promise<boolean> {
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const late = new Promise<false>((resolve) => {
+		timer = setTimeout(() => resolve(false), ms);
+	});
+	try {
+		return await Promise.race([
+			work.then(
+				() => true,
+				() => true,
+			),
+			late,
+		]);
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
 /** Whether the kept video moved since the last sample: playing, no ad, position advanced. */
 export function playbackAdvanced(
 	prev: { found: boolean; currentTime?: number | null } | null,

@@ -4,6 +4,7 @@ import {
 	chainCases,
 	holdSession,
 	holdUntil,
+	settleWithin,
 	playbackAdvanced,
 	DEFAULT_KEEP_OPEN_IDLE_S,
 	DEFAULT_KEEP_OPEN_MAX_S,
@@ -130,5 +131,10 @@ describe("chain (2026-11-04)", () => {
 		expect(playbackAdvanced(s(1), { found: false })).toBe(false);
 		expect(DEFAULT_KEEP_OPEN_IDLE_S).toBe(3600);
 		expect(DEFAULT_KEEP_OPEN_MAX_S).toBe(14400);
+	});
+	test("cleanup that never finishes is given up after its time, so the lock is not held", async () => {
+		expect(await settleWithin(new Promise(() => {}), 30)).toBe(false);
+		expect(await settleWithin(Promise.reject(new Error("x")), 30)).toBe(true);
+		expect(await settleWithin(Promise.resolve(), 30)).toBe(true);
 	});
 });
