@@ -36,6 +36,8 @@ export type PlaybackGateOptions = {
 	maxAdMs?: number;
 	/** Longest the main video may sit without advancing. */
 	maxStallMs?: number;
+	/** Wall clock: a slow sample (up to its timeout) must not stretch the limits (live S11: a 180 s limit took ~5 min). */
+	now?: () => number;
 };
 
 /** Advances needed between consecutive non-ad samples: two, so three samples in a row. */
@@ -49,7 +51,9 @@ export async function confirmPlayback(
 	const maxStall = o.maxStallMs ?? 20_000;
 	const samples: MediaSample[] = [];
 	let adSeen = false;
+	const now = o.now ?? Date.now;
 	let adMs = 0;
+	let adStart = 0;
 	let stallMs = 0;
 	let inAd = false;
 	let last: number | null = null;
@@ -73,9 +77,10 @@ export async function confirmPlayback(
 				o.notify(
 					"広告を再生中です。終わるまで待ちます（スキップする場合はお知らせください。スキップのクリックには承認が必要です）。",
 				);
+			if (!inAd) adStart = now();
 			inAd = true;
 			adSeen = true;
-			adMs += interval;
+			adMs = Math.max(adMs + interval, now() - adStart);
 			last = null;
 			advances = 0;
 			if (adMs > maxAd)

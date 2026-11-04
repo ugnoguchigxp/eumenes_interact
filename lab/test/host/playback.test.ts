@@ -71,3 +71,18 @@ describe("playback done check", () => {
 		expect(isPlaybackGoal("まとめる")).toBe(false);
 	});
 });
+
+test("an ad's limit is wall-clock time, not the count of samples", async () => {
+	let t = 0;
+	const v = await confirmPlayback({
+		sample: async () => {
+			t += 7000;
+			return { found: true, currentTime: 1, duration: 30, paused: false, ended: false, readyState: 4, adShowing: true };
+		},
+		sleep: async () => {},
+		notify: () => {},
+		now: () => t,
+	});
+	expect(v.ok).toBe(false);
+	expect(v.samples.length).toBeLessThan(30);
+});
