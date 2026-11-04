@@ -256,6 +256,16 @@ describe("page.find", () => {
 		expect(r.read?.text).toContain("素材ごとの目安は下の表のとおりです。");
 	});
 
+	test("a named item does not hide the body text that says the same (live World Bank / Wikipedia, 2026-11-04)", async () => {
+		const s = await setup({ start: `${KAEDE}care.html` });
+		const r = await s.result(
+			call("page.find", { text: "素材ごと", role: null }),
+		);
+		expect(r.status).toBe("completed");
+		expect(r.candidates?.map((c) => c.role)).toContain("table");
+		expect(r.read?.text).toContain("素材ごとの目安は下の表のとおりです。");
+	});
+
 	test("finding nothing is a failure with an empty candidate list, never a guess", async () => {
 		const s = await setup();
 		const r = await s.result(

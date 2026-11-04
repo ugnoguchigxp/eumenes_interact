@@ -707,8 +707,26 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 				FIND_LIMIT,
 			),
 		}));
-		if (records.length > 0)
-			return { status: "completed", candidates: records.map(toItem) };
+		// Named items come first; the body text that also says it rides along (a link named "Population" must
+		// not hide the paragraph with the number).
+		if (records.length > 0) {
+			const extra =
+				text === null
+					? { hits: [] }
+					: batch(observation, (pageId) =>
+							findText(observation.body, pageId, text, FIND_LIMIT),
+						);
+			if (extra.hits.length === 0)
+				return { status: "completed", candidates: records.map(toItem) };
+			const body = extra.hits
+				.map((h) => (h.item ? `[${h.item}] ${h.text}` : h.text))
+				.join("\n");
+			return {
+				status: "completed",
+				candidates: records.map(toItem),
+				read: { text: body, charCount: body.length, truncated: false },
+			};
+		}
 		// No item is named so: the text may be in the page's body (a paragraph, a cell). The hits come back as
 		// read text, each with the item nearest to it.
 		if (text !== null) {
