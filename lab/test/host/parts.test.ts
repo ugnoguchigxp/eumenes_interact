@@ -252,11 +252,15 @@ describe("site.search: where a search word may come from (2026-11-04)", () => {
 		).not.toBe("query_not_in_request");
 	});
 
-	test("without a goal, a plain word still needs a source", async () => {
+	test("up to two common words may refine a sourced word, never stand alone (live MSFT 'earnings')", async () => {
 		const s = await setup({ request });
 		expect(
-			codes(await s.result(call("site.search", { query: "麻 earnings" }))),
-		).toEqual(["failed", "query_not_in_request"]);
+			(await s.result(call("site.search", { query: "麻 earnings" }))).code,
+		).not.toBe("query_not_in_request");
+		for (const q of ["earnings", "麻 earnings call review", "麻 Azure"])
+			expect(codes(await s.result(call("site.search", { query: q })))).toEqual(
+				["failed", "query_not_in_request"],
+			);
 	});
 });
 

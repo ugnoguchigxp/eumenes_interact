@@ -457,32 +457,42 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	 * a passage of a verified result of an earlier step of the same request (a handoff, e.g. the ticker found in
 	 * step 1 searched in step 2). A word with neither — a guess — is refused.
 	 */
+	/**
+	 * Every entity of a query (a name, a number, a capitalised word) comes from the request, the goal or an
+	 * earlier verified result. Up to two common words may be added by common sense ("earnings", "review",
+	 * 「解説」, live MSFT 2026-11-04), but only beside at least one sourced word: an added word refines a search,
+	 * it never chooses what is searched for.
+	 */
 	function querySourced(query: string): boolean {
 		const words = query.split(/[\s　]+/).filter(Boolean);
 		if (words.length === 0) return false;
 		const texts = [deps.request, ...(deps.sources?.() ?? [])];
 		const goal = deps.goal ?? "";
-		return words.every(
-			(word) =>
-				(PLAIN_WORD.test(word) &&
-					goal
-						.toLowerCase()
-						.split(/[^\p{L}\p{N}ー-]+/u)
-						.includes(word)) ||
-				(PLAIN_WORD.test(word) &&
-					/[^a-z-]/.test(word) &&
-					goal.includes(word)) ||
-				texts.some((text) => {
-					if (word.length === 1) return text.includes(word);
-					try {
-						assertQuoted(word, word, text);
-						return true;
-					} catch {
-						return false;
-					}
-				}),
+		const sourced = (word: string) =>
+			(PLAIN_WORD.test(word) &&
+				goal
+					.toLowerCase()
+					.split(/[^\p{L}\p{N}ー-]+/u)
+					.includes(word)) ||
+			(PLAIN_WORD.test(word) && /[^a-z-]/.test(word) && goal.includes(word)) ||
+			texts.some((text) => {
+				if (word.length === 1) return text.includes(word);
+				try {
+					assertQuoted(word, word, text);
+					return true;
+				} catch {
+					return false;
+				}
+			});
+		const unsourced = words.filter((word) => !sourced(word));
+		return (
+			unsourced.length < words.length &&
+			unsourced.length <= MAX_ADDED_WORDS &&
+			unsourced.every((word) => PLAIN_WORD.test(word))
 		);
 	}
+
+	const MAX_ADDED_WORDS = 2;
 
 	/** A common word: lowercase Latin, or kana/kanji; never a digit or a capital (names and numbers are entities). */
 	const PLAIN_WORD =
