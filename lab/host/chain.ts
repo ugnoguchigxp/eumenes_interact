@@ -118,6 +118,66 @@ export const CHAIN_SITES: readonly {
 		start: "https://musicbrainz.org/",
 		origins: ["https://musicbrainz.org"],
 	},
+	{
+		pattern: /\bfred\b/iu,
+		start: "https://fred.stlouisfed.org/",
+		origins: ["https://fred.stlouisfed.org"],
+	},
+	{
+		pattern: /e-?stat/iu,
+		start: "https://www.e-stat.go.jp/",
+		origins: ["https://www.e-stat.go.jp"],
+	},
+	{
+		pattern: /価格\.?com|kakaku/iu,
+		start: "https://kakaku.com/",
+		origins: ["https://kakaku.com"],
+	},
+	{
+		pattern: /google\s*maps|googleマップ|グーグルマップ/iu,
+		start: "https://www.google.com/maps",
+		origins: ["https://www.google.com"],
+	},
+	{
+		pattern: /rust\s*(?:公式)?\s*(?:docs|ドキュメント)|doc\.rust-lang/iu,
+		start: "https://doc.rust-lang.org/std/",
+		origins: ["https://doc.rust-lang.org"],
+	},
+	{
+		pattern: /vimeo/iu,
+		start: "https://vimeo.com/",
+		origins: ["https://vimeo.com", "https://player.vimeo.com"],
+	},
+	{
+		pattern: /bbc/iu,
+		start: "https://www.bbc.com/news",
+		origins: ["https://www.bbc.com", "https://www.bbc.co.uk"],
+	},
+	{
+		pattern: /気象庁|\bjma\b/iu,
+		start: "https://www.jma.go.jp/bosai/forecast/",
+		origins: ["https://www.jma.go.jp"],
+	},
+	{
+		pattern: /国立国会図書館|ndl\s*search/iu,
+		start: "https://ndlsearch.ndl.go.jp/",
+		origins: ["https://ndlsearch.ndl.go.jp"],
+	},
+	{
+		pattern: /青空文庫|aozora/iu,
+		start: "https://www.aozora.gr.jp/",
+		origins: ["https://www.aozora.gr.jp"],
+	},
+	{
+		pattern: /yahoo!?\s*乗換|路線情報/iu,
+		start: "https://transit.yahoo.co.jp/",
+		origins: ["https://transit.yahoo.co.jp"],
+	},
+	{
+		pattern: /pkg\.go\.dev/iu,
+		start: "https://pkg.go.dev/",
+		origins: ["https://pkg.go.dev"],
+	},
 ];
 
 export const GENERAL_SEARCH_ORIGIN = "https://html.duckduckgo.com";
