@@ -84,6 +84,17 @@ function privateIpv4([a, b]: number[]) {
 	);
 }
 
+const LOOPBACK_DNS = [
+	"nip.io",
+	"sslip.io",
+	"xip.io",
+	"traefik.me",
+	"localtest.me",
+	"lvh.me",
+	"vcap.me",
+	"localhost.direct",
+];
+
 const PRIVATE_SUFFIXES = [
 	".localhost",
 	".local",
@@ -111,6 +122,10 @@ export function isPrivateHost(hostname: string) {
 	if (v4) return privateIpv4(v4);
 	if (host === "localhost" || PRIVATE_SUFFIXES.some((s) => host.endsWith(s)))
 		return true;
+	// Public wildcard-DNS names that resolve to an address written in the name (127.0.0.1.nip.io) or always to
+	// loopback (lvh.me): no DNS is resolved here, so these are refused by name. Any other name that resolves to
+	// a private address is not caught (a known limit, review 2026-11-04).
+	if (LOOPBACK_DNS.some((d) => host === d || host.endsWith(`.${d}`))) return true;
 	// A one-label name resolves through the local network's search domain.
 	return !host.includes(".");
 }

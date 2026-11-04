@@ -240,6 +240,9 @@ describe("the live URL policy", () => {
 	test("public hosts are not private", () => {
 		expect(isPrivateHost("www.youtube.com")).toBe(false);
 		expect(isPrivateHost("8.8.8.8")).toBe(false);
+		for (const h of ["127.0.0.1.nip.io", "app.10-0-0-1.sslip.io", "lvh.me", "x.localtest.me"])
+			expect(isPrivateHost(h)).toBe(true);
+		expect(isPrivateHost("notnip.io")).toBe(false);
 		expect(isPrivateHost("[2606:4700::1111]")).toBe(false);
 	});
 
