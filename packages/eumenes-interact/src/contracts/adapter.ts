@@ -47,7 +47,11 @@ export type AdapterTarget = {
 
 /** Read-only fixed inspections (functions with no model input in them). */
 export type FixedInspection =
-	"inspectTarget" | "inspectFocused" | "inspectLocator";
+	| "inspectTarget"
+	| "inspectFocused"
+	| "inspectLocator"
+	/** The largest video on the page: where it is in playback, never its content. */
+	| "inspectMedia";
 
 /** The element facts a fixed inspection read. Values are attribute facts only, never page text. */
 export type InspectionResult = Readonly<

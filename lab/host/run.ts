@@ -117,6 +117,8 @@ export type RunTrialInput = {
 	 * sourced like one taken from the request itself.
 	 */
 	sources?: readonly string[];
+	/** The chain step's goal: its plain words may join a search (see PartsDeps.goal). */
+	goal?: string;
 	/**
 	 * Leaves the browser open when the trial ends (a chain step whose result is the screen). The caller then
 	 * owns the session and closes it.
@@ -327,6 +329,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			grants,
 			request: def.request,
 			...(input.sources ? { sources: () => input.sources ?? [] } : {}),
+			...(input.goal !== undefined ? { goal: input.goal } : {}),
 			events: labEventsPort(logger, runId),
 		});
 		let state = startRun({

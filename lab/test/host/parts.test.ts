@@ -152,6 +152,83 @@ describe("site.search", () => {
 	});
 });
 
+describe("site.search: what counts as results (2026-11-04)", () => {
+	const request = "この雑貨店サイトで「麻」を検索してください。";
+	const listing = (titles: string[]): PartsHelpers => ({
+		...partsHelpers,
+		listEntries: (body, pageId, kind, limit) => {
+			const real = partsHelpers.listEntries(body, pageId, kind, limit);
+			const base = real.entries[0];
+			return {
+				entries: titles.map((title) => ({ ...base!, title })),
+				records: real.records,
+				truncated: false,
+			};
+		},
+	});
+
+	test("a results page with only skip links is zero results, not completed", async () => {
+		const s = await setup({
+			request,
+			core: listing(["Skip to main content", "Skip navigation"]),
+		});
+		const r = await s.result(call("site.search", { query: "麻" }));
+		expect(codes(r)).toEqual(["partial", "zero_results"]);
+	});
+
+	test("page numbers listed above the results go after them; alone they are zero results", async () => {
+		const s = await setup({
+			request,
+			core: listing(["1", "2", "次へ", "麻のふきん"]),
+		});
+		const r = await s.result(call("site.search", { query: "麻" }));
+		expect(r.list?.entries.map((e) => e.title)).toEqual([
+			"麻のふきん",
+			"1",
+			"2",
+			"次へ",
+		]);
+		const t = await setup({ request, core: listing(["1", "2", "次へ"]) });
+		expect(codes(await t.result(call("site.search", { query: "麻" })))).toEqual(
+			["partial", "zero_results"],
+		);
+	});
+});
+
+describe("site.search: where a search word may come from (2026-11-04)", () => {
+	const request = "「麻」の商品を探して、その説明会の動画を見せてください。";
+
+	test("a plain word of the step goal may join the search", async () => {
+		const s = await setup({ request, goal: "麻 の earnings 動画を探す" });
+		const r = await s.result(call("site.search", { query: "麻 earnings" }));
+		expect(r.code).not.toBe("query_not_in_request");
+	});
+
+	test("a name or number in the goal still needs the request or an earlier result", async () => {
+		const s = await setup({ request, goal: "Microsoft FY27 の earnings" });
+		for (const q of ["麻 Microsoft", "麻 FY27"])
+			expect(codes(await s.result(call("site.search", { query: q })))).toEqual([
+				"failed",
+				"query_not_in_request",
+			]);
+		const t = await setup({
+			request,
+			goal: "FY27 の earnings",
+			sources: ["FY27 Q1"],
+		});
+		expect(
+			(await t.result(call("site.search", { query: "麻 FY27" }))).code,
+		).not.toBe("query_not_in_request");
+	});
+
+	test("without a goal, a plain word still needs a source", async () => {
+		const s = await setup({ request });
+		expect(
+			codes(await s.result(call("site.search", { query: "麻 earnings" }))),
+		).toEqual(["failed", "query_not_in_request"]);
+	});
+});
+
 describe("page.find", () => {
 	test("returns candidates with ids, roles, names and regions", async () => {
 		const s = await setup({ start: `${KAEDE}catalog.html` });

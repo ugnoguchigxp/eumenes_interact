@@ -170,6 +170,7 @@ export async function chainCommand(
 					},
 				}),
 				sources: [...results.values()],
+				goal: step.goal,
 				keepSession: true,
 				...(captureDir ? { captureDir } : {}),
 				...(o.keepObservations
@@ -209,11 +210,33 @@ export async function chainCommand(
 			console.log(
 				`kept\tブラウザを開いたままにしています。閉じるときは「完了」と入力してください（無操作 ${o.keepOpenIdleS} 秒で自動的に閉じます）。`,
 			);
+			// While kept, the largest video's playback position is read (read-only) every 30 s, so "it keeps
+			// playing" is a measured fact rather than a guess from screenshots.
+			const probe = async () => {
+				try {
+					const m = await session.adapter.inspect(
+						"inspectMedia",
+						null,
+						AbortSignal.timeout(5000),
+					);
+					console.log(
+						`media\t${new Date().toISOString()}\t${JSON.stringify(m)}`,
+					);
+				} catch (error) {
+					console.log(
+						`media\t${new Date().toISOString()}\tunread:${String(error)}`,
+					);
+				}
+			};
+			await probe();
+			const timer = setInterval(() => void probe(), MEDIA_PROBE_MS);
 			const why = await holdUntil(
 				input,
 				(line) => decideSession(line, false).decision === "close",
 				o.keepOpenIdleS * 1000,
 			);
+			clearInterval(timer);
+			await probe();
 			console.log(`closed\t${why}`);
 		}
 	} finally {
@@ -227,5 +250,7 @@ export async function chainCommand(
 		? 0
 		: 1;
 }
+
+const MEDIA_PROBE_MS = 30_000;
 
 export { DEFAULT_KEEP_OPEN_IDLE_S };

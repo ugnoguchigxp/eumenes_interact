@@ -136,6 +136,12 @@ export type PartExecutorDeps = {
 	 * a source, as one of the request has. Called at each search, so a later step sees results added since.
 	 */
 	sources?: () => readonly string[];
+	/**
+	 * The goal of this step as the plan wrote it. A plain word of it (a lowercase word or a kana/kanji word, no
+	 * digits, no capital) may join a search — "earnings" in "find the earnings call" — but a name or number
+	 * in it does not: those still need the request or an earlier result as their source.
+	 */
+	goal?: string;
 	/** Defaults to the package's helpers. */
 	core?: PartsHelpers;
 };
@@ -429,10 +435,10 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		const s = confirmed(
 			await operate({ action: "browser.navigate", url }, "navigation"),
 		);
-		return {
-			status: "completed",
-			page: summarize(await afterSending(() => observationAfter(s))),
-		};
+		const landed = await passChallenge(
+			await afterSending(() => observationAfter(s)),
+		);
+		return { status: "completed", page: summarize(landed) };
 	}
 
 	async function pageBack(): Promise<Body> {
@@ -454,18 +460,35 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		const words = query.split(/[\s　]+/).filter(Boolean);
 		if (words.length === 0) return false;
 		const texts = [deps.request, ...(deps.sources?.() ?? [])];
-		return words.every((word) =>
-			texts.some((text) => {
-				if (word.length === 1) return text.includes(word);
-				try {
-					assertQuoted(word, word, text);
-					return true;
-				} catch {
-					return false;
-				}
-			}),
+		const goal = deps.goal ?? "";
+		return words.every(
+			(word) =>
+				(PLAIN_WORD.test(word) &&
+					goal
+						.toLowerCase()
+						.split(/[^\p{L}\p{N}ー-]+/u)
+						.includes(word)) ||
+				(PLAIN_WORD.test(word) &&
+					/[^a-z-]/.test(word) &&
+					goal.includes(word)) ||
+				texts.some((text) => {
+					if (word.length === 1) return text.includes(word);
+					try {
+						assertQuoted(word, word, text);
+						return true;
+					} catch {
+						return false;
+					}
+				}),
 		);
 	}
+
+	/** A common word: lowercase Latin, or kana/kanji; never a digit or a capital (names and numbers are entities). */
+	const PLAIN_WORD =
+		/^(?:[a-z][a-z-]{1,}|[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー]{1,8})$/u;
+
+	const PAGING =
+		/^(?:\d{1,3}|[<>«»‹›]+|next|prev(?:ious)?|次(?:へ|のページ)?|前(?:へ|のページ)?|最初|最後|もっと見る)[\s>»›]*$/i;
 
 	const SEARCH_NAME = /search|検索|keyword|キーワード|query|探す|find/i;
 
@@ -647,9 +670,14 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			core.listEntries(after.body, pageId, "results", SEARCH_LIST_LIMIT),
 		);
 		// "Skip to main content" links are on every page, results or not: they never count as a result.
-		const results = listed.entries.filter(
+		const kept = listed.entries.filter(
 			(e) => !/^skip (to|navigation)\b/i.test(e.title.trim()),
 		);
+		// Page numbers and next/prev links are listed where the page puts them, often above the results: they
+		// go after the real results, and alone they are not results.
+		const paging = kept.filter((e) => PAGING.test(e.title.trim()));
+		const real = kept.filter((e) => !PAGING.test(e.title.trim()));
+		const results = real.length ? [...real, ...paging] : [];
 		if (results.length === 0) {
 			if (landedDirect) return { status: "completed", page: summary };
 			throw new PartFail("zero_results", { status: "partial", page: summary });
@@ -709,7 +737,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		const target = resolve(itemId, observation);
 		const effect = OPENABLE[target.record.role];
 		if (effect === undefined) throw new PartFail("item_not_openable");
-		const after = await click(target, observation, effect);
+		// A link may land on a bot check (Cloudflare's "Just a moment..."): waited out once, else site_blocked.
+		const after = await passChallenge(await click(target, observation, effect));
 		return { status: "completed", page: summarize(after) };
 	}
 

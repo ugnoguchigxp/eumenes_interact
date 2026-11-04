@@ -31,10 +31,12 @@ import {
 	parseExtraction,
 } from "../mcp/extract.ts";
 import {
+	INSPECT_MEDIA_FUNCTION,
 	INSPECT_FOCUSED_FUNCTION,
 	INSPECT_LOCATOR_FUNCTION,
 	INSPECT_TARGET_FUNCTION,
 	parseLocatorInspection,
+	parseMediaInspection,
 	parseTargetInspection,
 } from "../mcp/inspect.ts";
 import {
@@ -579,6 +581,10 @@ export function createPlaywrightMcpAdapter(
 				case "inspectFocused":
 					return parseTargetInspection(
 						await inspectCall({ function: INSPECT_FOCUSED_FUNCTION }, signal),
+					);
+				case "inspectMedia":
+					return parseMediaInspection(
+						await inspectCall({ function: INSPECT_MEDIA_FUNCTION }, signal),
 					);
 				default:
 					throw new AdapterError("unsupported", false);

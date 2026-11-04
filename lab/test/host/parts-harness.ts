@@ -49,6 +49,8 @@ export async function setupParts(
 		adapter?: FakeBrowser;
 		policy?: UrlPolicy;
 		core?: PartsHelpers;
+		goal?: string;
+		sources?: readonly string[];
 		captureDir?: string;
 	} = {},
 ) {
@@ -106,6 +108,8 @@ export async function setupParts(
 		request: options.request ?? "",
 		events: labEventsPort(silentLabLogger, runId),
 		...(options.core ? { core: options.core } : {}),
+		...(options.goal !== undefined ? { goal: options.goal } : {}),
+		...(options.sources ? { sources: () => options.sources ?? [] } : {}),
 	});
 	const summary = parts.begin(first);
 	return {

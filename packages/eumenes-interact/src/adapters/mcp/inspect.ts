@@ -130,3 +130,47 @@ export function parseLocatorInspection(
 	if (facts.tag === null) throw new AdapterError("inspect_invalid", false);
 	return facts;
 }
+
+/**
+ * The largest `<video>` of the page: its playback position and state only. No page text and no model input;
+ * reading it changes nothing (it neither plays nor pauses).
+ */
+export const INSPECT_MEDIA_FUNCTION = `() => {
+  const vs = [...document.querySelectorAll('video')];
+  const area = (v) => { const r = v.getBoundingClientRect(); return r.width * r.height; };
+  const v = vs.sort((a, b) => area(b) - area(a))[0];
+  if (!v) return JSON.stringify({ found: false });
+  const finite = (n) => (Number.isFinite(n) ? Math.round(n * 10) / 10 : null);
+  return JSON.stringify({ found: true, currentTime: finite(v.currentTime), duration: finite(v.duration),
+    paused: v.paused, ended: v.ended, readyState: v.readyState });
+}`;
+
+/** Only the fixed playback facts come back, each of its own type. */
+export function parseMediaInspection(
+	result: string | undefined,
+): InspectionResult {
+	const v = evaluated(result);
+	if (typeof v.found !== "boolean")
+		throw new AdapterError("inspect_invalid", false);
+	if (!v.found) return { found: false };
+	const num = (x: unknown) =>
+		x === null || typeof x === "number" ? x : undefined;
+	const currentTime = num(v.currentTime);
+	const duration = num(v.duration);
+	if (
+		currentTime === undefined ||
+		duration === undefined ||
+		typeof v.paused !== "boolean" ||
+		typeof v.ended !== "boolean" ||
+		typeof v.readyState !== "number"
+	)
+		throw new AdapterError("inspect_invalid", false);
+	return {
+		found: true,
+		currentTime,
+		duration,
+		paused: v.paused,
+		ended: v.ended,
+		readyState: v.readyState,
+	};
+}
