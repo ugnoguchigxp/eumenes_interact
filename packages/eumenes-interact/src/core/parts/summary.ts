@@ -386,6 +386,25 @@ const CHROME_ROLES = ["tablist", "tab", "menu", "menubar", "menuitem", "toolbar"
 const FACET = /[（(][\d,]+[)）]$/;
 
 /**
+ * A link among four or more siblings that are only links (or list items holding only a link): a row of related
+ * searches or categories ("人気の関連ワード", kakaku.com 2026-11-05), however long each title.
+ */
+function inLinkCloud(nodes: readonly Node[], link: Node): boolean {
+	const item = nodes[link.parent];
+	const holder = item?.role === "listitem" ? nodes[item.parent] : item;
+	if (!holder) return false;
+	const kids = nodes.filter((n) => n.parent === holder.index);
+	if (kids.length < 4) return false;
+	const onlyLink = (n: Node): boolean => {
+		if (n.role === "link") return true;
+		if (n.role !== "listitem") return false;
+		const inner = nodes.filter((m) => m.parent === n.index);
+		return inner.length === 1 && inner[0]!.role === "link";
+	};
+	return kids.every(onlyLink);
+}
+
+/**
  * How far down a result link goes (stable within a rank): 0 a result (a heading, an image or a long title, or
  * text beside it in its card), 1 a bare link, 2 a filter, tab or menu, 3 an ad. Kakaku.com, Open Library and
  * YouTube put their category, sort and tab links among the results (2026-11-04).
@@ -413,6 +432,7 @@ function resultRank(
 		up.some((a) => CHROME_ROLES.includes(a.role))
 	)
 		return 2;
+	if (inLinkCloud(nodes, link)) return 1;
 	if (
 		up.some((a) => a.role === "heading") ||
 		own.some((n) => n.role === "heading" || n.role === "img") ||

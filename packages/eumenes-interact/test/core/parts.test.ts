@@ -903,4 +903,23 @@ describe("result order and inline code (2026-11-04)", () => {
 			"[PR] 何かの広告",
 		]);
 	});
+
+	test("a row of related-search links goes below the results, however long its titles", () => {
+		const cloud = ["ゼルダの伝説", "40周年", "マリオパーティ", "キャリングケース"].map(
+			(w, i) =>
+				`    - link "Nintendo Switch 2 ${w} 関連ワード検索" [ref=c${i}]:\n      - /url: /s/${i}`,
+		);
+		const body = [
+			"- main:",
+			"  - generic:",
+			...cloud,
+			"  - generic:",
+			'    - link "マリオカート ワールド" [ref=e9]:',
+			"      - /url: /item/K9/",
+			"      - img \"マリオカート ワールド\"",
+		].join("\n");
+		expect(listEntries(body, "p1", "results", 10).entries[0]?.title).toBe(
+			"マリオカート ワールド",
+		);
+	});
 });
