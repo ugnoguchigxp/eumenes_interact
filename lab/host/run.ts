@@ -213,7 +213,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		createRun(db, owner, {
 			runId,
 			skillRef: ARM1_SKILL_REF,
-			skillDigest: "arm1-parts:1",
+			skillDigest: "arm1-parts:2",
 			catalogRef: `catalog:${adapter.platform}`,
 			catalogDigest: `sha256:${sha256(JSON.stringify(adapter.catalog()))}`,
 			platform: adapter.platform,
