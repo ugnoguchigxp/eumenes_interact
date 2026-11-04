@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
 	confirmPlayback,
+	keptMediaNotice,
 	isPlaybackGoal,
 	type MediaSample,
 } from "../../host/playback.ts";
@@ -85,4 +86,25 @@ test("an ad's limit is wall-clock time, not the count of samples", async () => {
 	});
 	expect(v.ok).toBe(false);
 	expect(v.samples.length).toBeLessThan(30);
+});
+
+describe("while kept open", () => {
+	const s = (adShowing: boolean, ended = false) =>
+		({
+			found: true,
+			currentTime: 10,
+			duration: 100,
+			paused: false,
+			ended,
+			readyState: 4,
+			adShowing,
+		}) as const;
+	test("a mid-roll ad start and its end are told once each, and the video's end", () => {
+		expect(keptMediaNotice(s(false), s(true))).toContain("広告が始まりました");
+		expect(keptMediaNotice(s(true), s(true))).toBeNull();
+		expect(keptMediaNotice(s(true), s(false))).toContain("本編の再生に戻りました");
+		expect(keptMediaNotice(s(false), s(false))).toBeNull();
+		expect(keptMediaNotice(s(false), s(false, true))).toContain("最後まで");
+		expect(keptMediaNotice(null, { found: false })).toBeNull();
+	});
 });

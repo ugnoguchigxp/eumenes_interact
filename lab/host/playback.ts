@@ -110,3 +110,22 @@ export async function confirmPlayback(
 export function isPlaybackGoal(goal: string): boolean {
 	return /再生|流して|play|watch|視聴/iu.test(goal);
 }
+
+/**
+ * While a browser is kept open on a playing video, what changed between two read-only samples that the
+ * user should hear about: an ad starting (mid-roll) or ending, or the video ending. Ads are only reported;
+ * skipping one is a click that needs the user's approval.
+ */
+export function keptMediaNotice(
+	prev: MediaSample | null,
+	next: MediaSample,
+): string | null {
+	if (!next.found) return null;
+	const wasAd = prev?.found === true && prev.adShowing;
+	if (next.adShowing && !wasAd)
+		return "動画の途中で広告が始まりました（スキップする場合はお知らせください。スキップのクリックには承認が必要です）。";
+	if (!next.adShowing && wasAd) return "広告が終わり、本編の再生に戻りました。";
+	if (next.ended && !(prev?.found === true && prev.ended))
+		return "動画が最後まで再生されました。";
+	return null;
+}

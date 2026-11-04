@@ -23,6 +23,7 @@ import { runTrial } from "../host/run.ts";
 import {
 	confirmPlayback,
 	isPlaybackGoal,
+	keptMediaNotice,
 	type MediaSample,
 } from "../host/playback.ts";
 import { createExperiment } from "../host/store.ts";
@@ -235,18 +236,23 @@ export async function chainCommand(
 			console.log(
 				`kept\tブラウザを開いたままにしています。閉じるときは「完了」と入力してください（無操作 ${o.keepOpenIdleS} 秒で自動的に閉じます）。`,
 			);
-			// While kept, the largest video's playback position is read (read-only) every 30 s, so "it keeps
+			// While kept, the largest video's playback position is read (read-only) every 10 s and an ad start/end or the end is told, so "it keeps
 			// playing" is a measured fact rather than a guess from screenshots.
+			let prev: MediaSample | null = null;
 			const probe = async () => {
 				try {
-					const m = await session.adapter.inspect(
+					const m = (await session.adapter.inspect(
 						"inspectMedia",
 						null,
 						AbortSignal.timeout(5000),
-					);
+					)) as MediaSample;
 					console.log(
 						`media\t${new Date().toISOString()}\t${JSON.stringify(m)}`,
 					);
+					// A mid-roll ad (or the end) is told as it is seen; the ad itself is never skipped here.
+					const notice = keptMediaNotice(prev, m);
+					if (notice) console.log(`notice\t${notice}`);
+					prev = m;
 				} catch (error) {
 					console.log(
 						`media\t${new Date().toISOString()}\tunread:${String(error)}`,
@@ -276,6 +282,7 @@ export async function chainCommand(
 		: 1;
 }
 
-const MEDIA_PROBE_MS = 30_000;
+/** Short enough that a typical 15–30 s mid-roll ad is seen while it shows. */
+const MEDIA_PROBE_MS = 10_000;
 
 export { DEFAULT_KEEP_OPEN_IDLE_S };
