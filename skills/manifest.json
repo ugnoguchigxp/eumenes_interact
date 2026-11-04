@@ -1,0 +1,9 @@
+{
+	"formatVersion": 1,
+	"skills": {
+		"browse": {
+			"path": "skills/browse/SKILL.md",
+			"sha256": "475652e08c61a2556007f1aae78569821055b8bd0d43591242940ad47d8f122e"
+		}
+	}
+}

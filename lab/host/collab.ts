@@ -72,13 +72,39 @@ export function partToCollab(raw: string): string {
 	return JSON.stringify({ action: "invoke", tool: call.part, arguments: args });
 }
 
-/** Wraps a collaboration-speaking inference so the operation core receives part calls. */
-export function collabAgentPort(inner: InferencePort): InferencePort {
+const ROOT = new URL("../../skills/", import.meta.url);
+
+/** The browse skill's body (frontmatter removed), checked against the digest in `skills/manifest.json`. */
+export async function loadBrowseSkill(): Promise<string> {
+	const manifest = (await Bun.file(new URL("manifest.json", ROOT)).json()) as {
+		skills: { browse: { sha256: string } };
+	};
+	const bytes = await Bun.file(new URL("browse/SKILL.md", ROOT)).text();
+	const digest = new Bun.CryptoHasher("sha256").update(bytes).digest("hex");
+	if (digest !== manifest.skills.browse.sha256)
+		throw new Error("skill_digest_mismatch:browse");
+	return bytes.replace(/^---\n[\s\S]*?\n---\n/, "").trim();
+}
+
+/**
+ * Wraps a collaboration-speaking inference so the operation core receives part calls. With `skill`, the
+ * skill's text replaces the core's part-format system message: the agent's know-how lives in the skill.
+ */
+export function collabAgentPort(
+	inner: InferencePort,
+	skill?: string,
+): InferencePort {
 	return {
 		async complete(request) {
 			const { outputSchema: _parts, ...rest } = request;
 			const outcome = await inner.complete({
 				...rest,
+				messages:
+					skill === undefined
+						? rest.messages
+						: rest.messages.map((m, i) =>
+								i === 0 && m.role === "system" ? { ...m, content: skill } : m,
+							),
 				outputSchema: collabContract.outputSchema as Record<string, unknown>,
 			});
 			return outcome.kind === "text"

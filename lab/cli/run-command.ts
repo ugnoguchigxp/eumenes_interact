@@ -15,7 +15,11 @@ import {
 import { selectCases } from "../host/plan.ts";
 import type { TrialResult } from "../host/run.ts";
 import { collectVersions } from "../host/versions.ts";
-import { collabAgentPort, collabScripted } from "../host/collab.ts";
+import {
+	collabAgentPort,
+	collabScripted,
+	loadBrowseSkill,
+} from "../host/collab.ts";
 import {
 	createArm1ScriptedInference,
 	loadArm1Script,
@@ -116,6 +120,7 @@ function inferenceFactory(
 								collabScripted(
 									createArm1ScriptedInference(await loadArm1Script(def.id)),
 								),
+								await loadBrowseSkill(),
 							)
 						: createArm1ScriptedInference(await loadArm1Script(def.id))
 					: createScriptedInference(await loadScript(def.id)),
@@ -129,7 +134,10 @@ function inferenceFactory(
 		return async (def) => {
 			const started = await startClaude(settings, logger, def.id);
 			return options.agent === "collab"
-				? { ...started, port: collabAgentPort(started.port) }
+				? {
+						...started,
+						port: collabAgentPort(started.port, await loadBrowseSkill()),
+					}
 				: started;
 		};
 	}

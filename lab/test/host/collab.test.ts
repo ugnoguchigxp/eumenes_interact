@@ -69,3 +69,32 @@ describe("session stays open until the user ends it", () => {
 		);
 	});
 });
+
+describe("browse skill", () => {
+	test("digest matches and the skill replaces the system message", async () => {
+		const { loadBrowseSkill, collabAgentPort } =
+			await import("../../host/collab.ts");
+		const skill = await loadBrowseSkill();
+		expect(skill.startsWith("あなたはブラウザ作業の担当です")).toBe(true);
+		let seen = "";
+		const port = collabAgentPort(
+			{
+				complete: async (r) => {
+					seen = String(r.messages[0]!.content);
+					return {
+						kind: "text",
+						text: JSON.stringify({ action: "reply", text: "q" }),
+					} as never;
+				},
+			},
+			skill,
+		);
+		await port.complete({
+			messages: [
+				{ role: "system", content: "OLD" },
+				{ role: "user", content: "u" },
+			],
+		} as never);
+		expect(seen).toBe(skill);
+	});
+});
