@@ -7,7 +7,7 @@ const DEFAULTS = {
 	when: "今（実行時点）",
 	where: "開始ページのサイト",
 	why: "依頼の文面どおり（目的の記載なし）",
-	how: "許可されたサイト内で部品を一つずつ使う。送信・購入などは承認で止まる",
+	how: "部品を一つずつ使う。開けるURLはホストの方針で決まり（他のサイトへ移ることもある）、拒否されたURLは開かない。送信・購入などは承認で止まる",
 } as const;
 
 /** Words that mark a time in the request (the request then states `when`). */
