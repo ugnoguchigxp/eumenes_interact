@@ -362,47 +362,75 @@ function resultLinks(c: Collected, links: LinkItem[]): LinkItem[] {
 			(a) => a.role === "listitem" || a.role === "article",
 		),
 	);
-	const chosen = structured.length ? structured : candidates;
-	return chosen
-		.map((l, i) => ({ l, i, rank: resultRank(c.nodes, l.node, l.title) }))
+	// Real results are not always list items (Kakaku.com's product cards, 2026-11-05), and list items are often
+	// the site's own links (footer, categories): every candidate is ranked, list items keep a small preference.
+	const listed = new Set(structured.map((l) => l.node.index));
+	return candidates
+		.map((l, i) => ({
+			l,
+			i,
+			rank:
+				resultRank(c.nodes, l.node, l.title, l.record.url) * 2 +
+				(listed.has(l.node.index) ? 0 : 1),
+		}))
 		.sort((a, b) => a.rank - b.rank || a.i - b.i)
 		.map(({ l }) => l);
 }
 
-const AD = /^(広告|スポンサー|PR|Ad|Ads|Sponsored|プロモーション)$|^(広告|Sponsored|スポンサー)[\s・:：]/i;
+const AD_TEXT =
+	/^(\[?(PR|AD|広告|スポンサー|Sponsored|Ad|Ads|プロモーション)\]?)($|[\s・:：\]])/i;
+const AD_URL =
+	/doubleclick\.net|googleadservices|googlesyndication|criteo\.com|\/click\?ad=|adchoices|amazon-adsystem|\/aclk\?/i;
 const CHROME_ROLES = ["tablist", "tab", "menu", "menubar", "menuitem", "toolbar"];
+/** "ゲーム機本体 (561)": a filter that narrows the list, not a result. */
+const FACET = /[（(][\d,]+[)）]$/;
 
 /**
- * How far down a result link goes (stable within a rank): 0 a result with text or a heading beside it, 1 a bare
- * link (a category or filter), 2 a tab or menu, 3 an ad. Kakaku.com, Open Library and YouTube put their
- * category, sort and tab links in the same lists as the results (2026-11-04).
+ * How far down a result link goes (stable within a rank): 0 a result (a heading, an image or a long title, or
+ * text beside it in its card), 1 a bare link, 2 a filter, tab or menu, 3 an ad. Kakaku.com, Open Library and
+ * YouTube put their category, sort and tab links among the results (2026-11-04).
  */
-function resultRank(nodes: readonly Node[], link: Node, title: string): number {
+function resultRank(
+	nodes: readonly Node[],
+	link: Node,
+	title: string,
+	url: string | undefined,
+): number {
 	const up = ancestors(nodes, link);
 	const container = up.find((a) => a.role === "listitem" || a.role === "article");
 	const inside = container ? descendants(nodes, container) : [];
+	const own = descendants(nodes, link);
 	const said = (n: Node) => (n.name || n.text || "").trim();
 	if (
-		AD.test(title.trim()) ||
-		[link, ...up.slice(0, 3), ...inside].some((n) => AD.test(said(n)))
+		AD_TEXT.test(title.trim()) ||
+		AD_URL.test(url ?? "") ||
+		[...up.slice(0, 3), ...inside].some((n) => AD_TEXT.test(said(n)))
 	)
 		return 3;
 	if (
+		FACET.test(title.trim()) ||
 		CHROME_ROLES.includes(link.role) ||
 		up.some((a) => CHROME_ROLES.includes(a.role))
 	)
 		return 2;
-	if (!container) return 1;
-	const beside = inside.some(
-		(n) =>
-			n.index !== link.index &&
-			n.parent !== link.index &&
-			(n.role === "heading" ||
-				n.role === "img" ||
-				((n.role === "text" || n.role === "paragraph") && said(n) && said(n) !== title)),
-	);
-	const asHeading = up.some((a) => a.role === "heading");
-	return beside || asHeading ? 0 : 1;
+	if (
+		up.some((a) => a.role === "heading") ||
+		own.some((n) => n.role === "heading" || n.role === "img") ||
+		[...title].length >= 20
+	)
+		return 0;
+	const beside = inside.some((n) => {
+		if (n.index === link.index || n.index < link.end && n.index > link.index) return false;
+		if (n.role === "heading" || n.role === "img") return true;
+		const t = said(n);
+		return (
+			(n.role === "text" || n.role === "paragraph") &&
+			[...t].length >= 2 &&
+			!/^["|｜・\s]+$/.test(t) &&
+			!title.includes(t)
+		);
+	});
+	return beside ? 0 : 1;
 }
 
 /** The short text beside a result's link: text nodes of its list item or article. */

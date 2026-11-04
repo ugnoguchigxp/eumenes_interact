@@ -810,7 +810,7 @@ describe("findText: an infobox label row brings the rows below it (Wikipedia 日
 });
 
 describe("result order and inline code (2026-11-04)", () => {
-	test("bare category links and ads go below the real results, which keep their order", () => {
+	test("tabs, bare category links and ads go below the real results, which keep their order", () => {
 		const body = [
 			"- main:",
 			"  - tablist:",
@@ -841,6 +841,7 @@ describe("result order and inline code (2026-11-04)", () => {
 			"電気ケトル A",
 			"電気ケトル B",
 			"家電",
+			"動画タブ",
 			"スポンサー商品",
 		]);
 	});
@@ -872,5 +873,34 @@ describe("result order and inline code (2026-11-04)", () => {
 		const hit = findText(body, "p1", "needle", 5).hits[0]?.text ?? "";
 		expect(hit.startsWith("…")).toBe(true);
 		expect(hit).toContain("needle()");
+	});
+
+	test("product cards outside list items come before the site's own list items, filters and [PR] (kakaku.com, 2026-11-05)", () => {
+		const body = [
+			"- main:",
+			"  - list:",
+			"    - listitem:",
+			'      - link "ゲーム機本体 (561)" [ref=e1]:',
+			"        - /url: /s/?category=0006_0001",
+			"  - link \"[PR] 何かの広告\" [ref=e2]:",
+			"    - /url: https://dsp.example/click?ad=1",
+			"  - generic:",
+			'    - link "ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]" [ref=e3]:',
+			"      - /url: /item/K1/",
+			"    - text: ¥7,768～",
+			"  - list:",
+			"    - listitem:",
+			'      - link "利用規約" [ref=e4]:',
+			"        - /url: /kiyaku",
+			'      - text: "|"',
+		].join("\n");
+		expect(
+			listEntries(body, "p1", "results", 10).entries.map((e) => e.title),
+		).toEqual([
+			"ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]",
+			"利用規約",
+			"ゲーム機本体 (561)",
+			"[PR] 何かの広告",
+		]);
 	});
 });
