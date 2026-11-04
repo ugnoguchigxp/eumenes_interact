@@ -139,10 +139,10 @@ export const INSPECT_MEDIA_FUNCTION = `() => {
   const vs = [...document.querySelectorAll('video')];
   const area = (v) => { const r = v.getBoundingClientRect(); return r.width * r.height; };
   const v = vs.sort((a, b) => area(b) - area(a))[0];
-  if (!v) return JSON.stringify({ found: false });
+  if (!v) return { found: false };
   const finite = (n) => (Number.isFinite(n) ? Math.round(n * 10) / 10 : null);
-  return JSON.stringify({ found: true, currentTime: finite(v.currentTime), duration: finite(v.duration),
-    paused: v.paused, ended: v.ended, readyState: v.readyState });
+  return { found: true, currentTime: finite(v.currentTime), duration: finite(v.duration),
+    paused: v.paused, ended: v.ended, readyState: v.readyState };
 }`;
 
 /** Only the fixed playback facts come back, each of its own type. */
