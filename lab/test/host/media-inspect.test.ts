@@ -13,7 +13,19 @@ describe("inspectMedia (2026-11-04)", () => {
 			paused: false,
 			ended: false,
 			readyState: 4,
+			adShowing: false,
 		});
+	});
+	test("an ad playing in the player is reported, not taken for the video", () => {
+		const r = parseMediaInspection(
+			'{"found":true,"currentTime":11.5,"duration":68.2,"paused":false,"ended":false,"readyState":4,"adShowing":true}',
+		);
+		expect(r).toMatchObject({ found: true, adShowing: true });
+	});
+	test("a double-encoded answer is malformed", () => {
+		expect(() =>
+			parseMediaInspection(JSON.stringify(JSON.stringify({ found: true }))),
+		).toThrow();
 	});
 	test("no video is a fact, a malformed answer is an error", () => {
 		expect(parseMediaInspection('{"found":false}')).toEqual({ found: false });

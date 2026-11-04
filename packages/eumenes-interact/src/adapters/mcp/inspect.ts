@@ -142,7 +142,8 @@ export const INSPECT_MEDIA_FUNCTION = `() => {
   if (!v) return { found: false };
   const finite = (n) => (Number.isFinite(n) ? Math.round(n * 10) / 10 : null);
   return { found: true, currentTime: finite(v.currentTime), duration: finite(v.duration),
-    paused: v.paused, ended: v.ended, readyState: v.readyState };
+    paused: v.paused, ended: v.ended, readyState: v.readyState,
+    adShowing: !!v.closest('.ad-showing, .ad-interrupting') };
 }`;
 
 /** Only the fixed playback facts come back, each of its own type. */
@@ -162,7 +163,8 @@ export function parseMediaInspection(
 		duration === undefined ||
 		typeof v.paused !== "boolean" ||
 		typeof v.ended !== "boolean" ||
-		typeof v.readyState !== "number"
+		typeof v.readyState !== "number" ||
+		(v.adShowing !== undefined && typeof v.adShowing !== "boolean")
 	)
 		throw new AdapterError("inspect_invalid", false);
 	return {
@@ -172,5 +174,6 @@ export function parseMediaInspection(
 		paused: v.paused,
 		ended: v.ended,
 		readyState: v.readyState,
+		adShowing: v.adShowing === true,
 	};
 }
