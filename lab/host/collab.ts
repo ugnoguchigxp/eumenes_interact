@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { createCollaborationContract } from "eumenes-collaboration";
-import type { InferencePort } from "eumenes-interact";
+import type { InferencePort, InferenceRequest } from "eumenes-interact";
+import { briefMessage, browseBrief } from "./brief.ts";
 
 /**
  * The collaboration agent's output contract driving the browser capability (v3 §M2). The model answers with a
@@ -101,11 +102,7 @@ export function collabAgentPort(
 			const outcome = await inner.complete({
 				...rest,
 				messages:
-					skill === undefined
-						? rest.messages
-						: rest.messages.map((m, i) =>
-								i === 0 && m.role === "system" ? { ...m, content: skill } : m,
-							),
+					skill === undefined ? rest.messages : withSkill(rest.messages, skill),
 				outputSchema: collabContract.outputSchema as Record<string, unknown>,
 			});
 			return outcome.kind === "text"
@@ -113,6 +110,39 @@ export function collabAgentPort(
 				: outcome;
 		},
 	};
+}
+
+/**
+ * The skill replaces the part-format system text, and the 5W1H brief of the request is put just before it
+ * as data (M5). The core's opening is `system, REFERENCE, request`; anything else is left as it is.
+ */
+function withSkill(
+	messages: InferenceRequest["messages"],
+	skill: string,
+): InferenceRequest["messages"] {
+	const [system, reference, request, ...rest] = messages;
+	if (
+		system?.role !== "system" ||
+		reference?.role !== "user" ||
+		!reference.content.startsWith("REFERENCE=") ||
+		request?.role !== "user"
+	)
+		return messages.map((m, i) =>
+			i === 0 && m.role === "system" ? { ...m, content: skill } : m,
+		);
+	let ref: unknown;
+	try {
+		ref = JSON.parse(reference.content.slice("REFERENCE=".length));
+	} catch {
+		ref = null;
+	}
+	return [
+		{ ...system, content: skill },
+		reference,
+		{ role: "user", content: briefMessage(browseBrief(request.content, ref)) },
+		request,
+		...rest,
+	];
 }
 
 /** A part-speaking scripted inference re-expressed as the collaboration agent's outputs. */
