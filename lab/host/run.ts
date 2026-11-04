@@ -292,6 +292,8 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	};
 
 	async function drive(): Promise<Ending> {
+		/** Each issued result id and how its part ended, for the done check below. */
+		const partStatus = new Map<string, { status: string; code?: string }>();
 		const opening = now();
 		await adapter.open(control.signal);
 		recorder.adapterOpenMs = now() - opening;
@@ -414,6 +416,16 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 												recorder.final("failed");
 						return { status: "failed", code: gate.code };
 					}
+					// A done that cites only results that did not complete (e.g. a challenge page reported as
+					// `site_blocked`) has not met the goal: it ends failed with the answer kept as the reason.
+					const cited = step.refs.map((r) => partStatus.get(r));
+					if (cited.length && cited.every((c) => c && (c.status === "failed" || c.status === "indeterminate"))) {
+						recorder.final("failed", step.text);
+						return {
+							status: "failed",
+							code: `goal_unmet.${cited.at(-1)?.code ?? cited.at(-1)?.status}`.slice(0, 64),
+						};
+					}
 					recorder.final("finish", step.text);
 					return { status: "completed", code: null };
 				}
@@ -446,6 +458,11 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 					}
 					// A result that arrives after a cancel is never given to the core.
 					if (control.signal.aborted) return cancelEnding();
+					if (executed.outcome.kind === "part")
+						partStatus.set(executed.outcome.result.resultId, {
+							status: executed.outcome.result.status,
+							code: executed.outcome.result.code,
+						});
 					const applied = applyResult(state, executed.outcome);
 					state = applied.state;
 					save(state);
