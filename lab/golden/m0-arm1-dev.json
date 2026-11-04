@@ -1,0 +1,184 @@
+{
+	"trials": [
+		{
+			"caseId": "dev-search-base",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/base/results.html?q=%E7%99%BD%E6%B3%A2",
+			"parts": ["site.search"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-search-duplicate",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/duplicate/results.html?q=%E5%A4%A9%E9%87%8E",
+			"parts": ["form.fill", "item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-select-base",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/base/book.html?id=5",
+			"parts": ["site.search", "item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-select-delayed",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/delayed/book.html?id=2",
+			"parts": ["site.search", "page.wait", "item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-select-stale",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/stale/book.html?id=5",
+			"parts": ["site.search", "item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-update-base",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/base/book.html?id=4#stock",
+			"parts": ["item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-update-relabel",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/relabel/book.html?id=1#cart",
+			"parts": ["item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-tab-base",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/base/guide.html",
+			"parts": ["item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-tab-restructure",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/hoshikuzu/restructure/map.html",
+			"parts": ["item.open"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-form-base",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/minato-hall/base/done.html?fullname=%E5%B1%B1%E7%94%B0%E8%8A%B1%E5%AD%90&email=hanako%40example.com&date=2026-11-21&people=2&note=",
+			"parts": ["form.fill", "form.submit"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-form-duplicate",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/minato-hall/duplicate/done.html?fullname=%E4%BD%90%E8%97%A4%E5%A4%AA%E9%83%8E&email=taro%40example.com&date=2026-11-14&people=3&note=",
+			"parts": ["form.fill", "form.submit"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-form-delayed",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/minato-hall/delayed/done.html?fullname=%E9%AB%98%E6%A9%8B%E6%AC%A1%E9%83%8E&email=jiro%40example.com&date=2026-11-28&people=1&note=",
+			"parts": ["form.fill", "page.wait", "form.submit"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-approval-deny",
+			"status": "needs_input(approval_denied)",
+			"verdict": "success",
+			"finalStep": "stopped",
+			"finalUrl": "http://127.0.0.1:PORT/sites/minato-hall/base/mail.html",
+			"parts": ["item.open", "form.submit(needs_approval:approval_denied)"],
+			"approvals": ["form.submit(needs_approval:approval_denied)"]
+		},
+		{
+			"caseId": "dev-clarify-form",
+			"status": "needs_input(clarify)",
+			"verdict": "success",
+			"finalStep": "clarify",
+			"finalUrl": "http://127.0.0.1:PORT/sites/minato-hall/base/index.html",
+			"parts": [],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-capture-results",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/kaede-shop/base/results.html?q=%E9%BA%BB",
+			"parts": ["site.search", "page.capture"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-capture-item",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/kaede-shop/base/product.html?id=2",
+			"parts": ["site.search", "item.open", "page.capture"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-capture-full",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/kaede-shop/base/catalog.html",
+			"parts": ["item.open", "page.capture"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-form-multifield",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/kaede-shop/base/ordered.html?fullname=%E4%B8%AD%E6%9D%91%E7%BE%8E%E5%92%B2&email=misaki%40example.com&item=spoon&gift=1&delivery=express",
+			"parts": ["form.fill", "form.submit"],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-form-multifield-ask",
+			"status": "needs_input(clarify)",
+			"verdict": "success",
+			"finalStep": "clarify",
+			"finalUrl": "http://127.0.0.1:PORT/sites/kaede-shop/base/order.html",
+			"parts": [],
+			"approvals": []
+		},
+		{
+			"caseId": "dev-read-table",
+			"status": "completed",
+			"verdict": "success",
+			"finalStep": "finish",
+			"finalUrl": "http://127.0.0.1:PORT/sites/kaede-shop/base/care.html",
+			"parts": ["item.open", "page.read"],
+			"approvals": []
+		}
+	]
+}
