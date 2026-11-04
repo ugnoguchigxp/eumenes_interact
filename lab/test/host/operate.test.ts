@@ -344,15 +344,15 @@ describe("startOperate", () => {
 		bad({ startUrl: "https://example.com/" }, "start_origin_not_allowed");
 		bad({ startUrl: "http://ja.wikipedia.org/" }, "invalid_start_url");
 		bad({ startUrl: "https://u:p@ja.wikipedia.org/" }, "invalid_start_url");
-		bad({ maxModelCalls: 13 }, "invalid_max_calls");
+		bad({ maxModelCalls: 11 }, "invalid_max_calls");
 		bad({ maxModelCalls: 0 }, "invalid_max_calls");
 		bad({ request: " " }, "invalid_request");
 		bad({ effort: "extreme" as never }, "invalid_effort");
-		expect(validateOperate(options({ maxModelCalls: 12 }))).toMatchObject({
-			maxModelCalls: 12,
+		expect(validateOperate(options({ maxModelCalls: 10 }))).toMatchObject({
+			maxModelCalls: 10,
 		});
 		expect(validateOperate(options())).toMatchObject({
-			maxModelCalls: 12,
+			maxModelCalls: 10,
 			arm: "arm1",
 		});
 		const { arm: _arm, ...unspecified } = options();
@@ -364,7 +364,7 @@ describe("startOperate", () => {
 					allowedOrigins: ["https://*.slashdot.org"],
 				}),
 			),
-		).toMatchObject({ maxModelCalls: 12 });
+		).toMatchObject({ maxModelCalls: 10 });
 	});
 
 	test("the budget is the run's: one call allowed leaves no call for a tool and ends the run as failed", async () => {

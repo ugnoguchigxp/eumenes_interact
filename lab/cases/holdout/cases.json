@@ -7,7 +7,7 @@
 		"note": "別サイト。キーワード入力と館の選択（select）を組み合わせた検索。",
 		"request": "つばめ図書館で、中央館にある「宇宙」の資料を検索して、一覧を表示してください。",
 		"start": "sites/tsubame-library/base/index.html",
-		"budget": { "maxModelCalls": 12 },
+		"budget": { "maxModelCalls": 10 },
 		"approvalScript": { "decision": "grant" },
 		"expect": {
 			"kind": "reach",
@@ -29,7 +29,7 @@
 		"request": "つばめ図書館で、東分館にある「森」の資料を検索して、一覧を表示してください。",
 		"start": "sites/tsubame-library/stale/index.html",
 		"staleFrom": "sites/tsubame-library/base/index.html",
-		"budget": { "maxModelCalls": 12 },
+		"budget": { "maxModelCalls": 10 },
 		"approvalScript": { "decision": "grant" },
 		"expect": {
 			"kind": "reach",
@@ -90,7 +90,7 @@
 		"note": "DOMの構成変更。入力欄の順序が変わり、送信ボタンがformの外（form属性）にある。（12回以内に収めるため、申込ページから開始する）",
 		"request": "ホールの見学を申し込みたいです。鈴木一郎、メールは ichiro@example.com、11月28日に4名で参加します。",
 		"start": "sites/minato-hall/restructure/apply.html",
-		"budget": { "maxModelCalls": 12 },
+		"budget": { "maxModelCalls": 10 },
 		"approvalScript": { "decision": "grant" },
 		"expect": {
 			"kind": "reach",
@@ -134,7 +134,7 @@
 		"note": "別サイトで資料ページの資料の部分だけを撮影する（item）。「宇宙」の候補が複数ある。",
 		"request": "つばめ図書館で『宇宙と時間』の資料ページを開いて、その資料の情報の部分だけを撮影してください。",
 		"start": "sites/tsubame-library/base/index.html",
-		"budget": { "maxModelCalls": 12 },
+		"budget": { "maxModelCalls": 10 },
 		"approvalScript": { "decision": "grant" },
 		"expect": {
 			"kind": "reach",
@@ -170,7 +170,7 @@
 		"note": "別サイトの五項目フォーム。カードの種類は必須のラジオ。送信は承認必須。",
 		"request": "つばめ図書館の利用者登録をお願いします。お名前は森田健、メールアドレスは ken@example.com、よく使う館は東分館、メールでの新着案内は受け取ります。カードはアプリでお願いします。",
 		"start": "sites/tsubame-library/base/register.html",
-		"budget": { "maxModelCalls": 12 },
+		"budget": { "maxModelCalls": 10 },
 		"approvalScript": { "decision": "grant" },
 		"expect": {
 			"kind": "reach",

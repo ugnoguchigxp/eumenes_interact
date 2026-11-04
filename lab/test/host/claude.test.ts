@@ -200,12 +200,12 @@ describe("the operate flags", () => {
 		).not.toThrow();
 	});
 
-	test("max calls is at most 12, an integer, at least 1", () => {
+	test("max calls is at most 10, an integer, at least 1", () => {
 		const calls = (n: string) => () =>
 			parseOperateFlags({ ...ok, "max-calls": n });
-		expect(calls("12")).not.toThrow();
+		expect(calls("10")).not.toThrow();
 		expect(calls("1")).not.toThrow();
-		for (const n of ["13", "0", "-1", "2.5", "x"])
+		for (const n of ["11", "0", "-1", "2.5", "x"])
 			expect(calls(n)).toThrow("invalid_max_calls");
 	});
 
@@ -239,7 +239,7 @@ describe("the operate flags", () => {
 			"--allow-origin",
 			"https://a.example",
 			"--max-calls",
-			"13",
+			"11",
 		);
 		expect(tooMany.code).toBe(1);
 		expect(tooMany.err).toContain("invalid_max_calls");

@@ -137,8 +137,8 @@ export const caseSchema = z
 		allowedOrigins: z.array(z.string().min(1)).min(1).optional(),
 		/** Fixture page the stored site knowledge was taken from (stale-knowledge cases). */
 		staleFrom: fixturePath.optional(),
-		/** Arm 0 (like Eumenes) rejects a budget above 12 model calls, so no case may ask for more. */
-		budget: z.strictObject({ maxModelCalls: z.int().positive().max(12) }),
+		/** One browser task gets at most 10 model calls (v3 §M4c, MAX_MODEL_CALLS), so no case may ask for more. */
+		budget: z.strictObject({ maxModelCalls: z.int().positive().max(10) }),
 		/** What the scripted user answers when the host asks for approval of an effectful operation. */
 		approvalScript: z.strictObject({
 			decision: z.enum(["grant", "deny"]),

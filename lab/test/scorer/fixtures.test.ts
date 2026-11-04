@@ -75,13 +75,13 @@ describe("case files", () => {
 		).toBe(false);
 	});
 
-	test("no budget exceeds Arm 0's limit of 12 model calls", async () => {
+	test("no budget exceeds the limit of 10 model calls per browser task", async () => {
 		for (const c of await loadCases({ includeHoldout: true })) {
-			expect(c.budget.maxModelCalls, c.id).toBeLessThanOrEqual(12);
+			expect(c.budget.maxModelCalls, c.id).toBeLessThanOrEqual(10);
 		}
 		const [first] = await loadCases({ includeHoldout: false });
 		expect(
-			caseSchema.safeParse({ ...first, budget: { maxModelCalls: 13 } }).success,
+			caseSchema.safeParse({ ...first, budget: { maxModelCalls: 11 } }).success,
 		).toBe(false);
 	});
 

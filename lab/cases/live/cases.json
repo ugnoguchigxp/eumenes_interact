@@ -8,7 +8,7 @@
 		"request": "YouTubeで「AI research」を検索して、検索結果の動画を1本再生してください。",
 		"start": "https://www.youtube.com/",
 		"allowedOrigins": ["https://www.youtube.com"],
-		"budget": { "maxModelCalls": 12 },
+		"budget": { "maxModelCalls": 10 },
 		"approvalScript": {
 			"decision": "grant",
 			"note": "利用者がこのシナリオの実行を明示的に許可している。無人で動かすため、Arm 0が単純なボタンのクリックで承認を求めても許可を返す。"

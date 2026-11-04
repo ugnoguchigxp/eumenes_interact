@@ -167,9 +167,9 @@ describe("the schema rules of live cases", () => {
 		).toBe(true);
 	});
 
-	test("budgets keep max 12", () => {
-		expect(check({ budget: { maxModelCalls: 13 } }).success).toBe(false);
-		expect(check({ budget: { maxModelCalls: 12 } }).success).toBe(true);
+	test("budgets keep max 10", () => {
+		expect(check({ budget: { maxModelCalls: 11 } }).success).toBe(false);
+		expect(check({ budget: { maxModelCalls: 10 } }).success).toBe(true);
 	});
 
 	test("queryPresent must name at least one key", () => {

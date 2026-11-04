@@ -173,7 +173,7 @@ describe("tools/list", () => {
 		expect(start.required).toEqual(["request", "startUrl", "allowedOrigins"]);
 		expect(start.properties.maxModelCalls).toMatchObject({
 			minimum: 1,
-			maximum: 12,
+			maximum: 10,
 		});
 		expect(start.properties.allowedOrigins.minItems).toBe(1);
 		const run = byName.interact_run_definition!.inputSchema as any;

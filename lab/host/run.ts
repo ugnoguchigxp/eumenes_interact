@@ -56,7 +56,7 @@ export const OUTPUT_TOKENS = 2048;
 export const CALL_MS = 90_000;
 export const MIN_CALL_MS = 5_000;
 /** A run may make at most this many model calls. */
-export const MAX_MODEL_CALLS = 12;
+export const MAX_MODEL_CALLS = 10;
 
 export const LAB_OWNER = "lab";
 const ARM1_SKILL_REF = "arm1:parts@1";

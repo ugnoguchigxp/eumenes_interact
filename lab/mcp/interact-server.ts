@@ -286,10 +286,10 @@ export const operateStartShape = {
 		.number()
 		.int()
 		.min(1)
-		.max(12)
+		.max(10)
 		.optional()
 		.describe(
-			"Upper bound on model calls (default set by the lab, at most 12).",
+			"Upper bound on model calls (default set by the lab, at most 10).",
 		),
 	headed: z
 		.boolean()
