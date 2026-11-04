@@ -21,7 +21,9 @@ const URL_MAX_CHARS = 8192;
  * nav/header/footer/aside with the most text, else `body`. "Most text" is measured on the extracted
  * text of the 20 candidates with the longest `textContent`; for blocks, the deepest candidate that
  * holds at least 90% of the longest one wins, so a wrapper around the content is not picked over it.
- * The form element is dropped like the other chrome, as specified.
+ * The form element is dropped like the other chrome, as specified. With no element given, the text of visible
+ * asides and of the blocks beside an article inside `main` follows under a `[side]` marker (2026-11-04: npm's
+ * license box was dropped).
  */
 const EXTRACT_BODY = `(el) => {
   const DROP = new Set(['NAV', 'HEADER', 'FOOTER', 'ASIDE', 'SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'IFRAME', 'SVG', 'CANVAS', 'FORM']);
@@ -55,7 +57,7 @@ const EXTRACT_BODY = `(el) => {
       .filter((n) => n.getClientRects().length > 0)
       .sort((a, b) => b.textContent.length - a.textContent.length)
       .slice(0, 20)
-      .map((n) => ({ text: read(n) }))
+      .map((n) => ({ node: n, text: read(n) }))
       .filter((x) => x.text.length > 0);
     if (scored.length === 0) return null;
     const max = Math.max(...scored.map((x) => x.text.length));
@@ -69,8 +71,29 @@ const EXTRACT_BODY = `(el) => {
     if (hit) root = 'article';
     else if ((hit = pick(Array.from(document.querySelectorAll('main, [role="main"]')), false))) root = 'main';
     else if ((hit = pick(Array.from(document.querySelectorAll('div, section')).filter((n) => !inChrome(n)), true))) root = 'largest-block';
-    else { root = 'body'; hit = { text: document.body ? read(document.body) : '' }; }
+    else { root = 'body'; hit = { node: null, text: document.body ? read(document.body) : '' }; }
     text = hit.text;
+    /* Side facts (a license box, an About box) sit in an aside or beside the article in main. */
+    if (hit.node && root !== 'largest-block') {
+      const extra = [];
+      const seen = new Set();
+      const within = (outer, n) => { for (let p = n; p; p = p.parentNode) if (p === outer) return true; return false; };
+      const add = (n) => {
+        if (seen.has(n) || within(n, hit.node) || within(hit.node, n) || n.getClientRects().length === 0 || inChrome(n)) return;
+        seen.add(n);
+        const t = read(n);
+        if (t && !text.includes(t)) extra.push(t);
+      };
+      for (const n of document.querySelectorAll('aside, [role="complementary"]')) add(n);
+      let main = null;
+      for (let p = hit.node.parentNode; p && p.nodeType === 1; p = p.parentNode)
+        if (p.tagName.toUpperCase() === 'MAIN' || p.getAttribute('role') === 'main') { main = p; break; }
+      if (main)
+        for (let a = hit.node; a && a !== main && a.parentNode; a = a.parentNode)
+          for (const sib of a.parentNode.childNodes) if (sib !== a && sib.nodeType === 1) add(sib);
+      const side = extra.join('\\n\\n').trim();
+      if (side) text = text + '\\n\\n[side]\\n' + side;
+    }
   }
   return { url: location.href, title: String(document.title).slice(0, ${TITLE_MAX_CHARS}), text: text.slice(0, ${EXTRACT_HARD_MAX_CHARS}), charCount: text.length, root };
 }`;
