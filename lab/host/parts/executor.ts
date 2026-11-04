@@ -590,6 +590,9 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		if (field) {
 			tried.push("box");
 			after = await typeSearch(field, page, query);
+			// The box took the text but the page did not move (a script-only box, a language it ignores): no search
+			// happened, so the next way is tried rather than the unchanged page being reported as results.
+			if (after && after.url === start.url) after = null;
 		}
 		if (!after) {
 			const known = siteSearchUrl(origin, query);
@@ -643,7 +646,11 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		const listed = batch(after, (pageId) =>
 			core.listEntries(after.body, pageId, "results", SEARCH_LIST_LIMIT),
 		);
-		if (listed.entries.length === 0) {
+		// "Skip to main content" links are on every page, results or not: they never count as a result.
+		const results = listed.entries.filter(
+			(e) => !/^skip (to|navigation)\b/i.test(e.title.trim()),
+		);
+		if (results.length === 0) {
 			if (landedDirect) return { status: "completed", page: summary };
 			throw new PartFail("zero_results", { status: "partial", page: summary });
 		}
@@ -652,7 +659,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			page: summary,
 			list: {
 				kind: "results",
-				entries: listed.entries,
+				entries: results,
 				truncated: listed.truncated,
 			},
 		};

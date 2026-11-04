@@ -140,6 +140,16 @@ describe("site.search", () => {
 		expect([r.status, r.code]).toEqual(["partial", "zero_results"]);
 		expect(seen.length).toBeGreaterThan(before);
 	});
+	test("a box that takes the text but leaves the page where it was is not reported as results (2026-11-04)", async () => {
+		const s = await setup({ request });
+		s.adapter.onDispatch = (command) =>
+			command.action === "page.fill"
+				? { status: "confirmed", retryable: false, url: s.adapter.url }
+				: undefined;
+		const r = await s.result(call("site.search", { query: "麻" }));
+		// No other way is open on this fake site, so the honest answer is that no search happened.
+		expect(codes(r)).toEqual(["failed", "no_search_box"]);
+	});
 });
 
 describe("page.find", () => {
