@@ -83,9 +83,8 @@ export async function chainCommand(
 		inferenceKind: "scripted",
 		nowIso: new Date().toISOString(),
 	});
-	const lines = createInterface({ input: process.stdin })[
-		Symbol.asyncIterator
-	]();
+	const rl = createInterface({ input: process.stdin });
+	const lines = rl[Symbol.asyncIterator]();
 	const input = { [Symbol.asyncIterator]: () => lines };
 	const nextLine = async () => {
 		const n = await lines.next();
@@ -220,7 +219,9 @@ export async function chainCommand(
 	} finally {
 		await hold.release().catch(() => {});
 		await session.dispose().catch(() => {});
-		lines.return?.();
+		// Closing the reader is what lets the process exit while stdin (a fifo or a terminal) stays open.
+		rl.close();
+		process.stdin.destroy();
 	}
 	return stopped === null && outcomes.every((s) => s.status === "completed")
 		? 0
