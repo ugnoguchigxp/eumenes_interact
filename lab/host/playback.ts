@@ -129,3 +129,32 @@ export function keptMediaNotice(
 		return "動画が最後まで再生されました。";
 	return null;
 }
+
+/** A wall-clock time in the user's zone (JST, UTC+9, no DST), e.g. `2026-11-04T22:15:03+09:00`, so probe lines need no conversion before they are shown. */
+export function jstIso(at: Date): string {
+	const shifted = new Date(at.getTime() + 9 * 3600_000);
+	return `${shifted.toISOString().slice(0, 19)}+09:00`;
+}
+
+/**
+ * One probe of a kept tab: reads the media (read-only), prints a `media` line in JST and, when the sample
+ * crosses an ad start/end or the end, a `notice` line. Returns the sample to compare against next time
+ * (the previous one when the read failed, so a failed read never invents a transition).
+ */
+export async function probeKeptMedia(
+	read: () => Promise<MediaSample>,
+	prev: MediaSample | null,
+	log: (line: string) => void,
+	now: () => Date = () => new Date(),
+): Promise<MediaSample | null> {
+	try {
+		const m = await read();
+		log(`media\t${jstIso(now())}\t${JSON.stringify(m)}`);
+		const notice = keptMediaNotice(prev, m);
+		if (notice) log(`notice\t${notice}`);
+		return m;
+	} catch (error) {
+		log(`media\t${jstIso(now())}\tunread:${String(error)}`);
+		return prev;
+	}
+}

@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import {
 	confirmPlayback,
 	keptMediaNotice,
+	jstIso,
+	probeKeptMedia,
 	isPlaybackGoal,
 	type MediaSample,
 } from "../../host/playback.ts";
@@ -106,5 +108,45 @@ describe("while kept open", () => {
 		expect(keptMediaNotice(s(false), s(false))).toBeNull();
 		expect(keptMediaNotice(s(false), s(false, true))).toContain("最後まで");
 		expect(keptMediaNotice(null, { found: false })).toBeNull();
+	});
+});
+
+describe("kept-tab probe (chain-command)", () => {
+	const at = () => new Date("2026-11-04T13:15:03.456Z");
+	const sample = (adShowing: boolean): MediaSample => ({
+		found: true,
+		currentTime: 10,
+		duration: 100,
+		paused: false,
+		ended: false,
+		readyState: 4,
+		adShowing,
+	});
+
+	test("times are shown in JST", () => {
+		expect(jstIso(at())).toBe("2026-11-04T22:15:03+09:00");
+		expect(jstIso(new Date("2026-12-31T20:00:00Z"))).toBe("2027-01-01T05:00:00+09:00");
+	});
+
+	test("an ad starting prints a media line and a notice, and the sample becomes prev", async () => {
+		const lines: string[] = [];
+		const next = await probeKeptMedia(async () => sample(true), sample(false), (l) => lines.push(l), at);
+		expect(lines[0]).toStartWith("media\t2026-11-04T22:15:03+09:00\t{");
+		expect(lines[1]).toContain("広告が始まりました");
+		expect(next).toEqual(sample(true));
+	});
+
+	test("a failed read prints unread and keeps the previous sample, so no transition is invented", async () => {
+		const lines: string[] = [];
+		const prev = sample(true);
+		const next = await probeKeptMedia(async () => { throw new Error("closed"); }, prev, (l) => lines.push(l), at);
+		expect(lines).toEqual(["media\t2026-11-04T22:15:03+09:00\tunread:Error: closed"]);
+		expect(next).toBe(prev);
+	});
+
+	test("no change prints only the media line", async () => {
+		const lines: string[] = [];
+		await probeKeptMedia(async () => sample(false), sample(false), (l) => lines.push(l), at);
+		expect(lines).toHaveLength(1);
 	});
 });

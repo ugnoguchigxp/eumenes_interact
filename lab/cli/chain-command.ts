@@ -23,7 +23,7 @@ import { runTrial } from "../host/run.ts";
 import {
 	confirmPlayback,
 	isPlaybackGoal,
-	keptMediaNotice,
+	probeKeptMedia,
 	type MediaSample,
 } from "../host/playback.ts";
 import { createExperiment } from "../host/store.ts";
@@ -255,24 +255,16 @@ export async function chainCommand(
 			// playing" is a measured fact rather than a guess from screenshots.
 			let prev: MediaSample | null = null;
 			const probe = async () => {
-				try {
-					const m = (await session.adapter.inspect(
-						"inspectMedia",
-						null,
-						AbortSignal.timeout(5000),
-					)) as MediaSample;
-					console.log(
-						`media\t${new Date().toISOString()}\t${JSON.stringify(m)}`,
-					);
-					// A mid-roll ad (or the end) is told as it is seen; the ad itself is never skipped here.
-					const notice = keptMediaNotice(prev, m);
-					if (notice) console.log(`notice\t${notice}`);
-					prev = m;
-				} catch (error) {
-					console.log(
-						`media\t${new Date().toISOString()}\tunread:${String(error)}`,
-					);
-				}
+				prev = await probeKeptMedia(
+					() =>
+						session.adapter.inspect(
+							"inspectMedia",
+							null,
+							AbortSignal.timeout(5000),
+						) as Promise<MediaSample>,
+					prev,
+					(line) => console.log(line),
+				);
 			};
 			await probe();
 			const timer = setInterval(() => void probe(), MEDIA_PROBE_MS);
