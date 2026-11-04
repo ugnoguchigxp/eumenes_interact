@@ -160,6 +160,14 @@ function widen(nodes: readonly Node[], node: Node, text: string, wanted: string)
 	}
 	return text;
 }
+/** A link or other named item inside a table row: its row (the values beside it) is what a find wants. */
+function inRow(nodes: readonly Node[], node: Node): boolean {
+	for (const a of ancestors(nodes, node)) {
+		if (a.role === "row") return true;
+		if (a.role === "table" || LANDMARK_STOP.includes(a.role)) return false;
+	}
+	return false;
+}
 const LANDMARK_STOP = ["main", "navigation", "banner", "contentinfo", "complementary", "region", "table", "list", "article"];
 const CONTAINERS = ["listitem", "article", "row", "region", "section", "group"];
 
@@ -182,7 +190,9 @@ export function findText(
 	const seen = new Set<string>();
 	for (const node of c.nodes) {
 		const own = node.text || (node.role === "text" ? node.name : "");
-		const text = own || (NAMED_TEXT.includes(node.role) ? node.name : "");
+		const text =
+			own ||
+			(NAMED_TEXT.includes(node.role) || inRow(c.nodes, node) ? node.name : "");
 		if (!text || !fold(text).includes(wanted)) continue;
 		const snippet = clip(widen(c.nodes, node, text, wanted), SNIPPET_CHARS);
 		if (seen.has(snippet)) continue;

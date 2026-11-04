@@ -771,3 +771,20 @@ describe("findText widens a label to its row (2026-11-04)", () => {
 		expect(y.hits[0]?.text).toContain("大正6");
 	});
 });
+
+describe("findText: a link in a table row brings its row (World Bank, 2026-11-04)", () => {
+	const PAGE = [
+		"- main:",
+		"  - table:",
+		"    - row:",
+		"      - cell:",
+		'        - link "Japan" [ref=e1]:',
+		"          - /url: /indicator/SP.POP.TOTL?locations=JP",
+		'      - cell "2025"',
+		'      - cell "123,366.73"',
+	].join("\n");
+	test("the row's values come back with the link", () => {
+		const r = findText(PAGE, "p1", "Japan", 5);
+		expect(r.hits[0]?.text).toContain("123,366.73");
+	});
+});
