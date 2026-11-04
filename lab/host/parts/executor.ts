@@ -42,6 +42,7 @@ const SEARCH_LIST_LIMIT = 10;
 const CANDIDATES = 10;
 /** Seconds a bot check is given to pass by itself, once. */
 const CHALLENGE_WAIT_S = 8;
+const RESULTS_SETTLE_S = 3;
 
 /**
  * What a model may write for a checkbox or a radio button (the system text asks for on or off). Any other value
@@ -665,41 +666,51 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			throw new PartFail("no_search_box", { page: summarize(page) });
 		}
 		after = await passChallenge(after);
-		const summary = summarize(after);
-		const listed = batch(after, (pageId) =>
-			core.listEntries(after.body, pageId, "results", SEARCH_LIST_LIMIT),
-		);
-		// "Skip to main content" links are on every page, results or not: they never count as a result.
-		// Script-only links (javascript:, "#") are page widgets (tabs, toggles), not results.
-		const isResult = (e: { title: string; url?: string }) =>
-			!/^skip (to|navigation)\b/i.test(e.title.trim()) &&
-			!/^(javascript:|#)/i.test((e.url ?? "").replace(/^"|"$/g, "").trim());
-		let kept = listed.entries.filter(isResult);
-		// When the list the page shape suggests has no real result, the links that name the query are the
-		// results (a site that lays them out as a plain run of links or a table).
-		if (!kept.some((e) => !PAGING.test(e.title.trim()))) {
-			const named = batch(after, (pageId) => ({
-				records: core.findItems(
-					after.body,
-					pageId,
-					{ text: query, role: "link" },
-					SEARCH_LIST_LIMIT,
-				),
-			}));
-			const byName = named.records
-				.map((r) => ({
-					item: r.item,
-					title: r.name,
-					...(r.url ? { url: r.url } : {}),
-				}))
-				.filter(isResult);
-			if (byName.length) kept = [...byName, ...kept];
+		const collect = (after: ObservationEnvelope) => {
+			const listed = batch(after, (pageId) =>
+				core.listEntries(after.body, pageId, "results", SEARCH_LIST_LIMIT),
+			);
+			// "Skip to main content" links are on every page, results or not: they never count as a result.
+			// Script-only links (javascript:, "#") are page widgets (tabs, toggles), not results.
+			const isResult = (e: { title: string; url?: string }) =>
+				!/^skip (to|navigation)\b/i.test(e.title.trim()) &&
+				!/^(javascript:|#)/i.test((e.url ?? "").replace(/^"|"$/g, "").trim());
+			let kept = listed.entries.filter(isResult);
+			// When the list the page shape suggests has no real result, the links that name the query are the
+			// results (a site that lays them out as a plain run of links or a table).
+			if (!kept.some((e) => !PAGING.test(e.title.trim()))) {
+				const named = batch(after, (pageId) => ({
+					records: core.findItems(
+						after.body,
+						pageId,
+						{ text: query, role: "link" },
+						SEARCH_LIST_LIMIT,
+					),
+				}));
+				const byName = named.records
+					.map((r) => ({
+						item: r.item,
+						title: r.name,
+						...(r.url ? { url: r.url } : {}),
+					}))
+					.filter(isResult);
+				if (byName.length) kept = [...byName, ...kept];
+			}
+			// Page numbers and next/prev links are listed where the page puts them, often above the results: they
+			// go after the real results, and alone they are not results.
+			const paging = kept.filter((e) => PAGING.test(e.title.trim()));
+			const real = kept.filter((e) => !PAGING.test(e.title.trim()));
+			const results = real.length ? [...real, ...paging] : [];
+			return { results, truncated: listed.truncated };
+		};
+		let { results, truncated } = collect(after);
+		// Sites that render results client-side show them a moment after the page loads: look once more.
+		if (results.length === 0 && !landedDirect) {
+			await operate({ action: "page.wait", seconds: RESULTS_SETTLE_S }, "none");
+			after = await observeFresh();
+			({ results, truncated } = collect(after));
 		}
-		// Page numbers and next/prev links are listed where the page puts them, often above the results: they
-		// go after the real results, and alone they are not results.
-		const paging = kept.filter((e) => PAGING.test(e.title.trim()));
-		const real = kept.filter((e) => !PAGING.test(e.title.trim()));
-		const results = real.length ? [...real, ...paging] : [];
+		const summary = summarize(after);
 		if (results.length === 0) {
 			if (landedDirect) return { status: "completed", page: summary };
 			throw new PartFail("zero_results", { status: "partial", page: summary });
@@ -710,7 +721,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			list: {
 				kind: "results",
 				entries: results,
-				truncated: listed.truncated,
+				truncated,
 			},
 		};
 	}
