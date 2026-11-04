@@ -20,7 +20,7 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   cases [--include-holdout] [--include-live]
   run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude]
       [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--approver fixture|cli] [--include-holdout] [--include-live]
-      [--arm arm0|arm1] [--capture-dir <abs dir>]
+      [--arm arm0|arm1] [--agent collab] [--capture-dir <abs dir>]
       [--keep-observations] [--headed] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   task list
@@ -70,6 +70,7 @@ const { values, positionals } = parseArgs({
 		effort: { type: "string" },
 		"max-tokens": { type: "string" },
 		arm: { type: "string" },
+		agent: { type: "string" },
 		"capture-dir": { type: "string" },
 		"max-calls": { type: "string" },
 		json: { type: "boolean" },
@@ -290,6 +291,16 @@ async function main(): Promise<number> {
 							? {}
 							: { maxTokens: values["max-tokens"] }),
 						arm: parseArm(values.arm, "arm0"),
+						...(values.agent === undefined
+							? {}
+							: {
+									agent: oneOf<"collab">(
+										"agent",
+										values.agent,
+										["collab"],
+										"collab",
+									),
+								}),
 						...(values["capture-dir"] === undefined
 							? {}
 							: { captureDir: values["capture-dir"] }),

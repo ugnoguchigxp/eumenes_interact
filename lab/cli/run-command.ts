@@ -15,6 +15,7 @@ import {
 import { selectCases } from "../host/plan.ts";
 import type { TrialResult } from "../host/run.ts";
 import { collectVersions } from "../host/versions.ts";
+import { collabAgentPort, collabScripted } from "../host/collab.ts";
 import {
 	createArm1ScriptedInference,
 	loadArm1Script,
@@ -46,6 +47,8 @@ export type RunOptions = {
 	maxTokens?: string;
 	/** `arm0` (default, Eumenes' port) or `arm1` (registered parts). */
 	arm?: ArmId;
+	/** `collab`: the collaboration agent's output contract drives the parts (arm1 only). */
+	agent?: "collab";
 	/** Arm 1: an existing absolute directory the screenshots go to; default: `lab/data/captures/<runId>/`. */
 	captureDir?: string;
 	/** Default: the fixture user for fixtures, the terminal for live cases. */
@@ -108,7 +111,13 @@ function inferenceFactory(
 		return async (def, arm) => ({
 			port:
 				arm === "arm1"
-					? createArm1ScriptedInference(await loadArm1Script(def.id))
+					? options.agent === "collab"
+						? collabAgentPort(
+								collabScripted(
+									createArm1ScriptedInference(await loadArm1Script(def.id)),
+								),
+							)
+						: createArm1ScriptedInference(await loadArm1Script(def.id))
 					: createScriptedInference(await loadScript(def.id)),
 			info: () => ({ kind: "scripted" }),
 			dispose: async () => {},
@@ -117,7 +126,12 @@ function inferenceFactory(
 		// Frozen for the whole run, and checked before anything is opened.
 		const settings = claudeSettings(options);
 		ensureClaudeCredential();
-		return async (def) => startClaude(settings, logger, def.id);
+		return async (def) => {
+			const started = await startClaude(settings, logger, def.id);
+			return options.agent === "collab"
+				? { ...started, port: collabAgentPort(started.port) }
+				: started;
+		};
 	}
 	const start = larmFactory(db, logger);
 	return async (def) => start(def.id);
@@ -135,6 +149,8 @@ export async function runCommand(
 		throw new Error("model_and_effort_are_for_claude");
 	const arm = options.arm ?? "arm0";
 	checkArmInference(arm, options.inference);
+	if (options.agent === "collab" && arm !== "arm1")
+		throw new Error("agent_collab_needs_arm1");
 	// Refused before anything is opened.
 	const captureDir = parseCaptureDir(options.captureDir);
 	const all = await loadCases({

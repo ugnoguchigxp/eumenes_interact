@@ -7,6 +7,7 @@
 		"@modelcontextprotocol/sdk": "1.31.0",
 		"@playwright/mcp": "0.0.83",
 		"agent-desktop": "0.11.1",
+		"eumenes-collaboration": "file:../../eumenes_collaboration",
 		"eumenes-interact": "workspace:*",
 		"pino": "10.3.1",
 		"zod": "4.4.3"
