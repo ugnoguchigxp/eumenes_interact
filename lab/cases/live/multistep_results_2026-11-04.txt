@@ -44,3 +44,13 @@ S5 r4 PASS: Jane Austen / OL66554W。結果リスト先頭にタブ類(Books/Aut
 S7 r4 try1(修正前): WB国別ページのpage.find PopulationはリンクのみでWB値なし、「million」は軸目盛、指標ページの「Japan」行はリンク名のみで値が出ず(5推論で中断)→ findTextを表の行内リンクに拡張して再実行
 
 S7 try2 (after inRow fix caa1cc9): PARTIAL, 7 inferences. WB page.find "Japan" returned chart text "Million 123 124 124..." (no table row on that page). Wikipedia infobox 人口 rowheader -> link only, value not returned; page.read(link) gives "人口" only. Infobox th/td row widening is a remaining gap.
+S7 try3 (after infobox fix 38b0c94): PASS, 7 inferences (s1 3, s2 3, s3 1). WB ~124M; Wikipedia infobox via page.find rowheader 人口 -> "人口 統計(2026年) 1億2281万人(12位)"; summary compares (~1%).
+
+S8 r4: PASS(criteria C1 OK, C2 site_blocked correctly reported, chain stopped goal_unmet.site_blocked; no s3), 9 inferences (s1 6 incl. 1 my format error, s2 3). MDN site.search -> /en-US/search results, item.open of empty-name link p3.i13 opened flat page first try (no target_ambiguous this time). SO: /nocaptcha Human verification.
+
+S9 r4: PASS, 8 inferences (s1 4, s2 3, s3 1). npm no Cloudflare; page.find License -> img only, page.read null [side] gave MIT/4.6.7. GitHub 44.3k stars via page.find.
+
+MSFT r4: PASS, 9 inferences (s1 3, s2 5, s3 1). $545.08 +4.62%; YouTube site.search -> テレ東BIZ video playing (Pause (k)). Results list starts with tabs/Shorts.
+
+S11 r4: PASS, 10 inferences (s1 6, s2 4). arXiv site.search results newest-first (original not listed) -> abs/1706.03762 opened from my prior knowledge; page.find "Submitted on" -> 12 Jun 2017. YouTube site.search -> 3Blue1Brown "Attention in transformers, step-by-step" playing (Pause (k)); screenshot diff over 20s at 23:45 JST nonzero, captions advancing. Left playing (kept; idle auto-close 600s by design).
+Observation: MSFT kept-open runner did not exit after stdin fifo closed (end.sh); needed kill; blocked next run with runner_active (S7c similarly delayed).
