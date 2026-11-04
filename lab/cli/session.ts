@@ -5,6 +5,7 @@ import { join } from "node:path";
 import type { PlatformAdapter } from "eumenes-interact";
 import { createPlaywrightMcpAdapter } from "eumenes-interact/adapters/playwright-mcp";
 import type { LabLogger } from "../host/log.ts";
+import { type GuardBlock, startNetGuard } from "../host/net-guard.ts";
 import { playwrightLaunch } from "./launch.ts";
 import type { BrowserPlatform } from "./platform.ts";
 
@@ -14,6 +15,12 @@ export type BrowserOptions = {
 	platform?: BrowserPlatform;
 	browser?: string;
 	executablePath?: string;
+	/**
+	 * A live session (real sites): the browser is started behind the network guard, so every request it makes
+	 * is refused if its host is or resolves to a private address (review 2026-11-04 H1/H2). Off for fixture runs,
+	 * whose server is on loopback.
+	 */
+	netGuard?: boolean | { onBlock?: (b: GuardBlock) => void };
 };
 
 /**
@@ -25,13 +32,20 @@ export async function createSession(
 	logger: LabLogger,
 ): Promise<{ adapter: PlatformAdapter; dispose(): Promise<void> }> {
 	const workDir = await mkdtemp(join(tmpdir(), "interact-lab-"));
+	const guard = options.netGuard
+		? await startNetGuard(
+				typeof options.netGuard === "object" && options.netGuard.onBlock
+					? { onBlock: options.netGuard.onBlock }
+					: {},
+			)
+		: null;
+	const launch = playwrightLaunch({
+		...(options.browser ? { channel: options.browser } : {}),
+		...(options.executablePath ? { executablePath: options.executablePath } : {}),
+	});
+	if (guard) launch.args = [...launch.args, "--proxy-server", guard.url];
 	const adapter = createPlaywrightMcpAdapter({
-		launch: playwrightLaunch({
-			...(options.browser ? { channel: options.browser } : {}),
-			...(options.executablePath
-				? { executablePath: options.executablePath }
-				: {}),
-		}),
+		launch,
 		workDir,
 		logger,
 		correlationId: randomUUID(),
@@ -41,6 +55,7 @@ export async function createSession(
 		adapter,
 		dispose: async () => {
 			await adapter.close();
+			await guard?.close();
 			await rm(workDir, { recursive: true, force: true });
 		},
 	};

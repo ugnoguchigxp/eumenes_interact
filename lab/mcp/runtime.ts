@@ -52,7 +52,10 @@ async function runLocked(
 		const cancel = () => control.cancel("cancel");
 		if (request.signal.aborted) cancel();
 		request.signal.addEventListener("abort", cancel, { once: true });
-		const session = await createSession({ headed: request.headed }, logger);
+		const session = await createSession(
+			{ headed: request.headed, netGuard: true },
+			logger,
+		);
 		try {
 			return await runDefinition({
 				db,

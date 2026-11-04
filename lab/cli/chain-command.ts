@@ -97,7 +97,13 @@ export async function chainCommand(
 		return n.done ? null : n.value;
 	};
 	const session = await createSession(
-		{ headed: o.headed, ...(o.browser ? { browser: o.browser } : {}) },
+		{
+			headed: o.headed,
+			...(o.browser ? { browser: o.browser } : {}),
+			netGuard: {
+				onBlock: (b) => console.log(`guard\t${b.code}\t${b.host}`),
+			},
+		},
 		logger,
 	);
 	const hold = holdSession(session.adapter);

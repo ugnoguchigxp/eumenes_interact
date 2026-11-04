@@ -108,7 +108,7 @@ export async function taskRun(
 	const control = new RunControl();
 	const onSigint = () => control.cancel("cancel");
 	process.on("SIGINT", onSigint);
-	const session = await createSession(options, logger);
+	const session = await createSession({ ...options, netGuard: true }, logger);
 	try {
 		const result = await runDefinition({
 			db,

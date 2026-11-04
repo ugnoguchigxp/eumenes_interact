@@ -69,7 +69,7 @@ function ipv4Octets(host: string) {
 	return m ? m.slice(1).map(Number) : null;
 }
 
-function privateIpv4([a, b]: number[]) {
+export function privateIpv4([a, b]: number[]) {
 	return (
 		a === 0 ||
 		a === 10 ||
