@@ -670,9 +670,31 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			core.listEntries(after.body, pageId, "results", SEARCH_LIST_LIMIT),
 		);
 		// "Skip to main content" links are on every page, results or not: they never count as a result.
-		const kept = listed.entries.filter(
-			(e) => !/^skip (to|navigation)\b/i.test(e.title.trim()),
-		);
+		// Script-only links (javascript:, "#") are page widgets (tabs, toggles), not results.
+		const isResult = (e: { title: string; url?: string }) =>
+			!/^skip (to|navigation)\b/i.test(e.title.trim()) &&
+			!/^(javascript:|#)/i.test((e.url ?? "").replace(/^"|"$/g, "").trim());
+		let kept = listed.entries.filter(isResult);
+		// When the list the page shape suggests has no real result, the links that name the query are the
+		// results (a site that lays them out as a plain run of links or a table).
+		if (!kept.some((e) => !PAGING.test(e.title.trim()))) {
+			const named = batch(after, (pageId) => ({
+				records: core.findItems(
+					after.body,
+					pageId,
+					{ text: query, role: "link" },
+					SEARCH_LIST_LIMIT,
+				),
+			}));
+			const byName = named.records
+				.map((r) => ({
+					item: r.item,
+					title: r.name,
+					...(r.url ? { url: r.url } : {}),
+				}))
+				.filter(isResult);
+			if (byName.length) kept = [...byName, ...kept];
+		}
 		// Page numbers and next/prev links are listed where the page puts them, often above the results: they
 		// go after the real results, and alone they are not results.
 		const paging = kept.filter((e) => PAGING.test(e.title.trim()));

@@ -154,8 +154,13 @@ describe("site.search", () => {
 
 describe("site.search: what counts as results (2026-11-04)", () => {
 	const request = "この雑貨店サイトで「麻」を検索してください。";
-	const listing = (titles: string[]): PartsHelpers => ({
+	// `named` stands for the links on the page that name the query (none unless a test says so).
+	const listing = (titles: string[], named = false): PartsHelpers => ({
 		...partsHelpers,
+		findItems: (body, pageId, query, limit) =>
+			named || query.role !== "link" || query.text === null
+				? partsHelpers.findItems(body, pageId, query, limit)
+				: [],
 		listEntries: (body, pageId, kind, limit) => {
 			const real = partsHelpers.listEntries(body, pageId, kind, limit);
 			const base = real.entries[0];
@@ -174,6 +179,32 @@ describe("site.search: what counts as results (2026-11-04)", () => {
 		});
 		const r = await s.result(call("site.search", { query: "麻" }));
 		expect(codes(r)).toEqual(["partial", "zero_results"]);
+	});
+
+	test("script-only links are not results; links naming the query are (live tenki.jp, 2026-11-04)", async () => {
+		const s = await setup({
+			request,
+			core: {
+				...listing(["衛星", "天気図"], true),
+				listEntries: (body, pageId, kind, limit) => {
+					const real = partsHelpers.listEntries(body, pageId, kind, limit);
+					return {
+						entries: ["衛星", "天気図", "2"].map((title) => ({
+							...real.entries[0]!,
+							title,
+							url: "javascript:void(0)",
+						})),
+						records: real.records,
+						truncated: false,
+					};
+				},
+			},
+		});
+		const r = await s.result(call("site.search", { query: "麻" }));
+		expect(r.status).toBe("completed");
+		const titles = r.list?.entries.map((e) => e.title) ?? [];
+		expect(titles.length).toBeGreaterThan(0);
+		expect(titles.every((t) => t.includes("麻"))).toBe(true);
 	});
 
 	test("page numbers listed above the results go after them; alone they are zero results", async () => {
