@@ -215,7 +215,10 @@ export function findText(
 			own ||
 			(NAMED_TEXT.includes(node.role) || inRow(c.nodes, node) ? node.name : "");
 		if (!text || !fold(text).includes(wanted)) continue;
-		const snippet = clip(widen(c.nodes, node, text, wanted), SNIPPET_CHARS);
+		const sentence = inlineSentence(c.nodes, node);
+		const snippet = sentence
+			? around(sentence, wanted)
+			: clip(widen(c.nodes, node, text, wanted), SNIPPET_CHARS);
 		if (seen.has(snippet)) continue;
 		seen.add(snippet);
 		const container = ancestors(c.nodes, node).find((a) =>
@@ -238,6 +241,41 @@ export function findText(
 		if (hits.length >= limit) break;
 	}
 	return { hits, records };
+}
+
+/** Roles that sit inside a sentence: a paragraph's text is split around them in the snapshot. */
+const INLINE_ROLES = ["code", "strong", "emphasis", "link", "mark", "subscript", "superscript", "time", "insertion", "deletion"];
+const SENTENCE_BLOCKS = ["paragraph", "listitem", "cell", "gridcell", "definition", "blockquote", "caption", "generic"];
+
+/**
+ * A text hit whose block also holds inline pieces (`code`, `strong`, a link): the block's whole sentence,
+ * joined in order, so a sentence is not cut at the inline code (Rust docs, 2026-11-04). "" when the hit is
+ * not such a piece of a sentence.
+ */
+function inlineSentence(nodes: readonly Node[], node: Node): string {
+	const block = node.parent >= 0 ? nodes[node.parent]! : undefined;
+	if (!block || !SENTENCE_BLOCKS.includes(block.role)) return "";
+	const kids = nodes.filter((n) => n.parent === block.index);
+	if (kids.length < 2) return "";
+	if (!kids.every((n) => n.role === "text" || INLINE_ROLES.includes(n.role)))
+		return "";
+	if (!kids.some((n) => n.role !== "text")) return "";
+	if (!kids.includes(node) && node.role !== "text") return "";
+	return kids
+		.map((n) => n.text || n.name || textOf(nodes, n))
+		.filter(Boolean)
+		.join(" ")
+		.replace(/\s+/g, " ")
+		.trim();
+}
+
+/** The snippet of a long sentence around the query; a short one whole. */
+function around(text: string, wanted: string): string {
+	if (text.length <= SNIPPET_CHARS) return text;
+	const at = Math.max(0, fold(text).indexOf(wanted));
+	const start = Math.max(0, Math.min(at - 60, text.length - SNIPPET_CHARS));
+	const piece = clip(text.slice(start), SNIPPET_CHARS);
+	return start > 0 ? `…${piece}` : piece;
 }
 
 /** The text a node's subtree shows: its own name or text, else its descendants'. */
@@ -324,7 +362,47 @@ function resultLinks(c: Collected, links: LinkItem[]): LinkItem[] {
 			(a) => a.role === "listitem" || a.role === "article",
 		),
 	);
-	return structured.length ? structured : candidates;
+	const chosen = structured.length ? structured : candidates;
+	return chosen
+		.map((l, i) => ({ l, i, rank: resultRank(c.nodes, l.node, l.title) }))
+		.sort((a, b) => a.rank - b.rank || a.i - b.i)
+		.map(({ l }) => l);
+}
+
+const AD = /^(広告|スポンサー|PR|Ad|Ads|Sponsored|プロモーション)$|^(広告|Sponsored|スポンサー)[\s・:：]/i;
+const CHROME_ROLES = ["tablist", "tab", "menu", "menubar", "menuitem", "toolbar"];
+
+/**
+ * How far down a result link goes (stable within a rank): 0 a result with text or a heading beside it, 1 a bare
+ * link (a category or filter), 2 a tab or menu, 3 an ad. Kakaku.com, Open Library and YouTube put their
+ * category, sort and tab links in the same lists as the results (2026-11-04).
+ */
+function resultRank(nodes: readonly Node[], link: Node, title: string): number {
+	const up = ancestors(nodes, link);
+	const container = up.find((a) => a.role === "listitem" || a.role === "article");
+	const inside = container ? descendants(nodes, container) : [];
+	const said = (n: Node) => (n.name || n.text || "").trim();
+	if (
+		AD.test(title.trim()) ||
+		[link, ...up.slice(0, 3), ...inside].some((n) => AD.test(said(n)))
+	)
+		return 3;
+	if (
+		CHROME_ROLES.includes(link.role) ||
+		up.some((a) => CHROME_ROLES.includes(a.role))
+	)
+		return 2;
+	if (!container) return 1;
+	const beside = inside.some(
+		(n) =>
+			n.index !== link.index &&
+			n.parent !== link.index &&
+			(n.role === "heading" ||
+				n.role === "img" ||
+				((n.role === "text" || n.role === "paragraph") && said(n) && said(n) !== title)),
+	);
+	const asHeading = up.some((a) => a.role === "heading");
+	return beside || asHeading ? 0 : 1;
 }
 
 /** The short text beside a result's link: text nodes of its list item or article. */
@@ -334,7 +412,7 @@ function textFor(nodes: readonly Node[], link: Node, title: string) {
 	);
 	if (!container) return {};
 	const text = descendants(nodes, container)
-		.filter((n) => n.role === "text" || n.role === "paragraph")
+		.filter((n) => n.role === "text" || n.role === "paragraph" || n.role === "code")
 		.map((n) => n.text || n.name)
 		.filter((t) => t && t !== title)
 		.join(" ");

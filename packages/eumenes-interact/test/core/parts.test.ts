@@ -808,3 +808,69 @@ describe("findText: an infobox label row brings the rows below it (Wikipedia 日
 		expect(r.hits[0]?.text).toContain("123,802,000");
 	});
 });
+
+describe("result order and inline code (2026-11-04)", () => {
+	test("bare category links and ads go below the real results, which keep their order", () => {
+		const body = [
+			"- main:",
+			"  - tablist:",
+			'    - tab "動画" [ref=e1]:',
+			'      - link "動画タブ" [ref=e2]:',
+			"        - /url: /videos",
+			"  - list:",
+			"    - listitem:",
+			'      - link "家電" [ref=e3]:',
+			"        - /url: /cat/kaden",
+			"    - listitem:",
+			'      - link "スポンサー商品" [ref=e4]:',
+			"        - /url: /ad",
+			"      - text: 広告",
+			"    - listitem:",
+			'      - link "電気ケトル A" [ref=e5]:',
+			"        - /url: /items/a",
+			"      - text: ¥3,980",
+			"    - listitem:",
+			'      - heading "電気ケトル B" [level=3]:',
+			'        - link "電気ケトル B" [ref=e6]:',
+			"          - /url: /items/b",
+		].join("\n");
+		const titles = listEntries(body, "p1", "results", 10).entries.map(
+			(e) => e.title,
+		);
+		expect(titles).toEqual([
+			"電気ケトル A",
+			"電気ケトル B",
+			"家電",
+			"スポンサー商品",
+		]);
+	});
+
+	test("a sentence with inline code is found whole, not cut at the code", () => {
+		const body = [
+			"- main:",
+			"  - paragraph:",
+			"    - text: The",
+			"    - code: Vec<T>",
+			"    - text: type is a growable array; use",
+			"    - code: push",
+			"    - text: to add an element.",
+		].join("\n");
+		expect(findText(body, "p1", "growable", 5).hits[0]?.text).toBe(
+			"The Vec<T> type is a growable array; use push to add an element.",
+		);
+		expect(findText(body, "p1", "add an element", 5).hits).toHaveLength(1);
+	});
+
+	test("a long sentence is cut around the hit", () => {
+		const long = "x ".repeat(200);
+		const body = [
+			"- paragraph:",
+			`  - text: ${long}`,
+			"  - code: needle()",
+			"  - text: tail",
+		].join("\n");
+		const hit = findText(body, "p1", "needle", 5).hits[0]?.text ?? "";
+		expect(hit.startsWith("…")).toBe(true);
+		expect(hit).toContain("needle()");
+	});
+});
