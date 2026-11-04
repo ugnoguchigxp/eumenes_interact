@@ -120,9 +120,13 @@ export function isPrivateHost(hostname: string) {
  * host and port; `https://*.domain` allows the domain and its subdomains on the default port) and
  * `about:blank`. Credentials, non-http(s) schemes, other origins and loopback/private/link-local hosts are
  * refused, even if an origin list named one. Unlike the fixture policy it may be a real site, so the private
- * address rules of Eumenes' web policy apply.
+ * address rules of Eumenes' web policy apply. `openWeb` (a chain step, user decision 2026-11-04) drops only
+ * the origin list: every other refusal stays.
  */
-export function originPolicy(allowedOrigins: readonly string[]): UrlPolicy {
+export function originPolicy(
+	allowedOrigins: readonly string[],
+	openWeb = false,
+): UrlPolicy {
 	return (raw) => {
 		if (raw.length > MAX_URL_CHARS)
 			return { ok: false, code: "navigation_invalid_url" };
@@ -139,7 +143,7 @@ export function originPolicy(allowedOrigins: readonly string[]): UrlPolicy {
 			return { ok: false, code: "navigation_credentials_blocked" };
 		if (isPrivateHost(url.hostname))
 			return { ok: false, code: "navigation_private_blocked" };
-		if (!originAllowed(allowedOrigins, url.origin))
+		if (!openWeb && !originAllowed(allowedOrigins, url.origin))
 			return { ok: false, code: "navigation_out_of_scope" };
 		return { ok: true, url: url.href };
 	};

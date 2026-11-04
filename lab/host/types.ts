@@ -42,6 +42,12 @@ export type InferenceKind = InferenceInfo["kind"];
  */
 export type TrialCase = Omit<CaseDef, "expect"> & {
 	expect?: CaseDef["expect"];
+	/**
+	 * A chain step on the user's behalf (2026-11-04, user decision): it may leave its start site for any
+	 * public https/http page without approval. The URL policy still refuses private hosts, credentials and
+	 * other schemes; challenge pages are still reported, never passed.
+	 */
+	openWeb?: boolean;
 };
 
 /** The comparison conditions of one trial (plan.md §10.3). Arm 0 is the only arm; the rest are fixed. */

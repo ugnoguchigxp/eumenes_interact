@@ -148,6 +148,8 @@ export function chainCases(
 				request: stepRequest(step, request, results),
 				start: site.start,
 				allowedOrigins: [...site.origins, GENERAL_SEARCH_ORIGIN],
+				// The user decided a step may follow a link off its start site with no approval (2026-11-04).
+				openWeb: true,
 				budget: { maxModelCalls },
 				approvalScript: { decision: "deny" },
 			},

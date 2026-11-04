@@ -31,6 +31,7 @@ describe("chain (2026-11-04)", () => {
 		]);
 		expect(cases[1]!.step.keepOpen).toBe(true);
 		expect(cases[0]!.def!.allowedOrigins).toContain("https://www.google.com");
+		expect(cases.every((c) => c.def === null || c.def.openWeb === true)).toBe(true);
 	});
 	test("a later step is given the earlier verified results as data", () => {
 		const plan = planSteps(MSFT, "request");

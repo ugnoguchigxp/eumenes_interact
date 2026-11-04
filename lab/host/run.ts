@@ -176,7 +176,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const baseUrl = live ? `${new URL(def.start).origin}/` : input.fixtureBaseUrl;
 	if (!baseUrl) throw new Error("fixture_base_url_missing");
 	const urlPolicy = live
-		? originPolicy(def.allowedOrigins ?? [])
+		? originPolicy(def.allowedOrigins ?? [], def.openWeb === true)
 		: fixturePolicy(baseUrl);
 	const startUrl = live ? def.start : new URL(def.start, baseUrl).href;
 	const nowIso = () => new Date(now()).toISOString();

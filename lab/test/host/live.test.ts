@@ -220,6 +220,23 @@ describe("the live URL policy", () => {
 		expect(verdict).toEqual({ ok: false, code: "navigation_private_blocked" });
 	});
 
+	test("an open-web step leaves its site without approval but keeps every other refusal", () => {
+		const open = originPolicy([YT], true);
+		expect(open("https://andreasfertig.com/blog/x").ok).toBe(true);
+		expect(open("http://example.org/").ok).toBe(true);
+		expect(open("https://192.168.1.1/")).toEqual({
+			ok: false,
+			code: "navigation_private_blocked",
+		});
+		expect(open("https://u:p@example.org/")).toEqual({
+			ok: false,
+			code: "navigation_credentials_blocked",
+		});
+		expect(open("file:///etc/passwd").ok).toBe(false);
+		expect(open("javascript:alert(1)").ok).toBe(false);
+		expect(originPolicy([YT])("https://andreasfertig.com/").ok).toBe(false);
+	});
+
 	test("public hosts are not private", () => {
 		expect(isPrivateHost("www.youtube.com")).toBe(false);
 		expect(isPrivateHost("8.8.8.8")).toBe(false);
