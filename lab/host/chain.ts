@@ -103,6 +103,21 @@ export const CHAIN_SITES: readonly {
 		start: "https://stackoverflow.com/",
 		origins: ["https://stackoverflow.com"],
 	},
+	{
+		pattern: /crates\.io|crates/iu,
+		start: "https://crates.io/",
+		origins: ["https://crates.io"],
+	},
+	{
+		pattern: /gutenberg|グーテンベルク/iu,
+		start: "https://www.gutenberg.org/",
+		origins: ["https://www.gutenberg.org"],
+	},
+	{
+		pattern: /musicbrainz/iu,
+		start: "https://musicbrainz.org/",
+		origins: ["https://musicbrainz.org"],
+	},
 ];
 
 export const GENERAL_SEARCH_ORIGIN = "https://html.duckduckgo.com";
