@@ -128,7 +128,9 @@ export function findItems(
 	limit: number,
 ): ItemRecord[] {
 	const text = query.text === null ? null : fold(query.text);
-	const role = query.role?.toLowerCase() ?? null;
+	// "any" (or an empty role) names no role: the model's way of saying "whatever it is".
+	const asked = query.role?.trim().toLowerCase() ?? "";
+	const role = asked === "" || asked === "any" ? null : asked;
 	return collect(body, pageId)
 		.records.filter(
 			(r) =>

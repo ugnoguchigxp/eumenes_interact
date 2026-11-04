@@ -229,6 +229,15 @@ describe("content blocks", () => {
 		expect(
 			findItems(CARD, "p3", { text: "写真", role: null }, 5).map((r) => r.role),
 		).toEqual(["img"]);
+		// "any" names no role (live 2026-11-04: World Bank "Population" and a YouTube channel link were missed).
+		expect(
+			findItems(CARD, "p3", { text: "写真", role: "any" }, 5).map(
+				(r) => r.role,
+			),
+		).toEqual(["img"]);
+		expect(
+			findItems(CARD, "p3", { text: "写真", role: " " }, 5).map((r) => r.role),
+		).toEqual(["img"]);
 	});
 
 	test("buttons inside an article are still form-scanned and listed as controls", () => {
