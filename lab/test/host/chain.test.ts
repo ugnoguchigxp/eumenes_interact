@@ -4,6 +4,9 @@ import {
 	chainCases,
 	holdSession,
 	holdUntil,
+	playbackAdvanced,
+	DEFAULT_KEEP_OPEN_IDLE_S,
+	DEFAULT_KEEP_OPEN_MAX_S,
 	planSteps,
 	stepRequest,
 } from "../../host/chain.ts";
@@ -77,5 +80,55 @@ describe("chain (2026-11-04)", () => {
 		expect(await holdUntil(feed(["ありがとう"]), done, 50)).toBe(
 			"idle_timeout",
 		);
+	});
+	test("closed input ends the hold at once instead of waiting out the idle time", async () => {
+		async function* closed() {
+			yield "ありがとう";
+		}
+		const t0 = Date.now();
+		expect(await holdUntil(closed(), () => false, 60_000)).toBe(
+			"input_closed",
+		);
+		expect(Date.now() - t0).toBeLessThan(1000);
+	});
+	test("advancing playback keeps the hold from going idle; the max bound still closes it", async () => {
+		let active = Date.now();
+		const ticker = setInterval(() => {
+			active = Date.now();
+		}, 10);
+		try {
+			const t0 = Date.now();
+			expect(
+				await holdUntil(feed([]), () => false, 60, {
+					lastActive: () => active,
+					maxMs: 300,
+				}),
+			).toBe("max_hold");
+			expect(Date.now() - t0).toBeGreaterThanOrEqual(290);
+		} finally {
+			clearInterval(ticker);
+		}
+		// activity that stops: idle counts from the last advance
+		const last = Date.now();
+		expect(
+			await holdUntil(feed([]), () => false, 80, {
+				lastActive: () => last + 100,
+				maxMs: 5000,
+			}),
+		).toBe("idle_timeout");
+	});
+	test("playback counts as activity only while the position advances", () => {
+		const s = (currentTime: number, paused = false) => ({
+			found: true,
+			currentTime,
+			paused,
+		});
+		expect(playbackAdvanced(s(1), s(2))).toBe(true);
+		expect(playbackAdvanced(s(2), s(2))).toBe(false);
+		expect(playbackAdvanced(s(1), s(2, true))).toBe(false);
+		expect(playbackAdvanced(null, s(2))).toBe(false);
+		expect(playbackAdvanced(s(1), { found: false })).toBe(false);
+		expect(DEFAULT_KEEP_OPEN_IDLE_S).toBe(3600);
+		expect(DEFAULT_KEEP_OPEN_MAX_S).toBe(14400);
 	});
 });

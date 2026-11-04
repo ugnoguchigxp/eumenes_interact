@@ -16,8 +16,13 @@ import type { TrialCase } from "./types.ts";
  * idle timeout passes (`DEFAULT_KEEP_OPEN_IDLE_S`).
  */
 
-/** Seconds a kept browser stays open with no word from the user. `--keep-open-idle` changes it. */
-export const DEFAULT_KEEP_OPEN_IDLE_S = 600;
+/**
+ * Seconds a kept browser stays open with no word from the user and no playback advancing (a kept step is
+ * usually a video, so a long one is not cut off). `--keep-open-idle` changes it.
+ */
+export const DEFAULT_KEEP_OPEN_IDLE_S = 3600;
+/** However long the video, a kept browser closes after this many seconds. `--keep-open-max` changes it. */
+export const DEFAULT_KEEP_OPEN_MAX_S = 4 * 3600;
 
 /**
  * Sites a step may name, with where it starts and the origins it may visit. The general search engine is
@@ -297,30 +302,66 @@ export function holdSession(inner: PlatformAdapter): {
 }
 
 /**
- * Waits until the user ends the kept session (`decide` returns true for a line) or `idleMs` pass with no line
- * at all; each line that does not end it restarts the wait. Resolves with why it ended.
+ * Waits until the user ends the kept session (`decide` returns true for a line), the input closes (EOF: no one
+ * can type 完了 any more, so the session ends now rather than holding the run lock), or `idleMs` pass with no
+ * line and no activity (`lastActive`, e.g. the video's position advancing). `maxMs` bounds the whole hold.
+ * Resolves with why it ended; no timer is left behind.
  */
 export async function holdUntil(
 	lines: AsyncIterable<string>,
 	decide: (line: string) => boolean,
 	idleMs: number,
-): Promise<"user_done" | "idle_timeout" | "input_closed"> {
+	opts: {
+		lastActive?: () => number;
+		maxMs?: number;
+		now?: () => number;
+	} = {},
+): Promise<"user_done" | "idle_timeout" | "input_closed" | "max_hold"> {
+	const now = opts.now ?? Date.now;
+	const start = now();
+	const maxAt = opts.maxMs === undefined ? Infinity : start + opts.maxMs;
+	let lastLine = start;
 	const it = lines[Symbol.asyncIterator]();
+	let pending: Promise<IteratorResult<string>> | null = null;
 	for (;;) {
+		pending ??= it.next();
+		const idleAt = Math.max(lastLine, opts.lastActive?.() ?? 0) + idleMs;
+		const at = Math.min(idleAt, maxAt);
 		let timer: ReturnType<typeof setTimeout> | undefined;
-		const idle = new Promise<"idle">((resolve) => {
-			timer = setTimeout(() => resolve("idle"), idleMs);
+		const tick = new Promise<"tick">((resolve) => {
+			timer = setTimeout(() => resolve("tick"), Math.max(0, at - now()));
 		});
-		const next = await Promise.race([it.next(), idle]);
+		const next = await Promise.race([pending, tick]);
 		clearTimeout(timer);
-		if (next === "idle") return "idle_timeout";
-		if (next.done) {
-			// No more input (a non-interactive start): only the idle timeout ends it.
-			await new Promise((r) => setTimeout(r, idleMs));
-			return "input_closed";
+		if (next === "tick") {
+			const t = now();
+			if (t >= maxAt) return "max_hold";
+			if (t >= Math.max(lastLine, opts.lastActive?.() ?? 0) + idleMs)
+				return "idle_timeout";
+			continue; // activity moved the deadline
 		}
+		pending = null;
+		if (next.done) return "input_closed";
+		lastLine = now();
 		if (decide(next.value)) return "user_done";
 	}
+}
+
+/** Whether the kept video moved since the last sample: playing, no ad, position advanced. */
+export function playbackAdvanced(
+	prev: { found: boolean; currentTime?: number | null } | null,
+	cur: {
+		found: boolean;
+		currentTime?: number | null;
+		paused?: boolean;
+		adShowing?: boolean;
+	} | null,
+): boolean {
+	if (!cur?.found || cur.paused) return false;
+	if (cur.adShowing) return true; // an ad is playback the user did not stop
+	const a = prev?.found ? prev.currentTime : null;
+	const b = cur.currentTime;
+	return typeof a === "number" && typeof b === "number" && b > a;
 }
 
 export type ChainBudgetView = ReturnType<typeof budgetCheck>;

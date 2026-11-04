@@ -1,5 +1,9 @@
 import { parseArgs } from "node:util";
-import { DEFAULT_KEEP_OPEN_IDLE_S, chainCommand } from "./chain-command.ts";
+import {
+	DEFAULT_KEEP_OPEN_IDLE_S,
+	DEFAULT_KEEP_OPEN_MAX_S,
+	chainCommand,
+} from "./chain-command.ts";
 import { loadCases } from "../cases/load.ts";
 import { DEFAULT_DB_PATH, openLabDb } from "../host/db.ts";
 import { acquireRunLock } from "../host/lock.ts";
@@ -37,11 +41,12 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
       [--arm arm1|arm0] [--capture-dir <abs dir>]
       [--approver stop|cli] [--headless] [--keep-observations] [--json]
   knowledge import <seed.json>...
-  chain --request "<several steps in one sentence>" --inference manual [--keep-open-idle <s>]
+  chain --request "<several steps in one sentence>" --inference manual [--keep-open-idle <s>] [--keep-open-max <s>]
       [--capture-dir <abs dir>] [--keep-observations] [--headless] [--browser <channel>]
       plans the request into at most 5 steps and runs them on one browser; a step whose result is the
-      screen (再生/表示) keeps the browser open after the steps until you type 完了/done on stdin, or for
-      --keep-open-idle seconds (default 600) with no input. LAB_MANUAL_DIR is required (manual inference).
+      screen (再生/表示) keeps the browser open after the steps until you type 完了/done on stdin, stdin
+      closes, --keep-open-idle seconds (default 3600) pass with no input while the video is not advancing,
+      or --keep-open-max seconds (default 14400) pass. LAB_MANUAL_DIR is required (manual inference).
   knowledge list [--origin <origin>]
   trials [--experiment <id>]
   report --experiment <id>
@@ -81,6 +86,7 @@ const { values, positionals } = parseArgs({
 		"capture-dir": { type: "string" },
 		"max-calls": { type: "string" },
 		"keep-open-idle": { type: "string" },
+		"keep-open-max": { type: "string" },
 		json: { type: "boolean" },
 		origin: { type: "string" },
 		platform: { type: "string" },
@@ -153,6 +159,8 @@ async function main(): Promise<number> {
 		command === "compare" ||
 		(command === "task" && sub === "run");
 	const lock = runs ? acquireRunLock(`${dbPath}.run.lock`) : null;
+	// A signal handler that exits (chain's kept browser) skips the finally below; the lock goes with the process.
+	if (lock) process.once("exit", () => lock.release());
 	let db: ReturnType<typeof openLabDb>;
 	try {
 		db = openLabDb(dbPath);
@@ -275,12 +283,18 @@ async function main(): Promise<number> {
 				);
 				if (!Number.isFinite(idle) || idle < 0)
 					throw new Error("invalid_keep_open_idle");
+				const max = Number(
+					values["keep-open-max"] ?? String(DEFAULT_KEEP_OPEN_MAX_S),
+				);
+				if (!Number.isFinite(max) || max <= 0)
+					throw new Error("invalid_keep_open_max");
 				return await chainCommand(
 					db,
 					{
 						request: values.request,
 						inference: "manual",
 						keepOpenIdleS: idle,
+						keepOpenMaxS: max,
 						headed: values.headless !== true,
 						...(values.browser === undefined
 							? {}

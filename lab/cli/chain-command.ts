@@ -5,10 +5,12 @@ import { decideSession, stepResultFact } from "eumenes-collaboration";
 import { asCollabAgent } from "../host/collab.ts";
 import {
 	DEFAULT_KEEP_OPEN_IDLE_S,
+	DEFAULT_KEEP_OPEN_MAX_S,
 	budgetCheck,
 	chainCases,
 	holdSession,
 	holdUntil,
+	playbackAdvanced,
 	planBudget,
 	planSteps,
 	summaryPrompt,
@@ -37,6 +39,7 @@ export type ChainOptions = {
 	/** Only `manual` for now: the summary step needs a plain-text call the other ports do not expose here. */
 	inference: "manual";
 	keepOpenIdleS: number;
+	keepOpenMaxS: number;
 	headed: boolean;
 	browser?: string;
 	captureDir?: string;
@@ -249,12 +252,14 @@ export async function chainCommand(
 		);
 		if (keep) {
 			console.log(
-				`kept\tブラウザを開いたままにしています。閉じるときは「完了」と入力してください（無操作 ${o.keepOpenIdleS} 秒で自動的に閉じます）。`,
+				`kept\tブラウザを開いたままにしています。閉じるときは「完了」と入力してください（再生が止まって無操作 ${o.keepOpenIdleS} 秒、または最長 ${o.keepOpenMaxS} 秒で自動的に閉じます）。`,
 			);
 			// While kept, the largest video's playback position is read (read-only) every 10 s and an ad start/end or the end is told, so "it keeps
 			// playing" is a measured fact rather than a guess from screenshots.
 			let prev: MediaSample | null = null;
+			let lastActive = 0;
 			const probe = async () => {
+				const before = prev;
 				prev = await probeKeptMedia(
 					() =>
 						session.adapter.inspect(
@@ -265,6 +270,8 @@ export async function chainCommand(
 					prev,
 					(line) => console.log(line),
 				);
+				// A video that is playing keeps the session from going idle.
+				if (playbackAdvanced(before, prev)) lastActive = Date.now();
 			};
 			await probe();
 			const timer = setInterval(() => void probe(), MEDIA_PROBE_MS);
@@ -272,6 +279,7 @@ export async function chainCommand(
 				input,
 				(line) => decideSession(line, false).decision === "close",
 				o.keepOpenIdleS * 1000,
+				{ lastActive: () => lastActive, maxMs: o.keepOpenMaxS * 1000 },
 			);
 			clearInterval(timer);
 			await probe();
@@ -294,4 +302,4 @@ export async function chainCommand(
 /** Short enough that a typical 15–30 s mid-roll ad is seen while it shows. */
 const MEDIA_PROBE_MS = 10_000;
 
-export { DEFAULT_KEEP_OPEN_IDLE_S };
+export { DEFAULT_KEEP_OPEN_IDLE_S, DEFAULT_KEEP_OPEN_MAX_S };

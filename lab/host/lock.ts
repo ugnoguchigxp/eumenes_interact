@@ -25,6 +25,20 @@ export function processAlive(pid: number): boolean {
 	}
 }
 
+/**
+ * Whether a live pid is a runner (bun or node). A pid that the system reused for another program after the
+ * runner died leaves a stale lock; without /proc (not Linux) a live pid is taken as a runner.
+ */
+export function runnerAlive(pid: number): boolean {
+	if (!processAlive(pid)) return false;
+	try {
+		const cmd = readFileSync(`/proc/${pid}/cmdline`, "utf8");
+		return /\b(bun|node)\b/.test(cmd);
+	} catch {
+		return true;
+	}
+}
+
 export type RunLock = { release(): void };
 
 function ownerOf(path: string): number | null {
@@ -38,7 +52,7 @@ function ownerOf(path: string): number | null {
 
 export function acquireRunLock(
 	path: string,
-	isAlive: (pid: number) => boolean = processAlive,
+	isAlive: (pid: number) => boolean = runnerAlive,
 	pid: number = process.pid,
 ): RunLock {
 	mkdirSync(dirname(path), { recursive: true });

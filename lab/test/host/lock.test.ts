@@ -21,6 +21,7 @@ import {
 	RunnerActiveError,
 	acquireRunLock,
 	processAlive,
+	runnerAlive,
 } from "../../host/lock.ts";
 import { LAB_OWNER } from "../../host/run.ts";
 import { insertTrial, createExperiment } from "../../host/store.ts";
@@ -67,6 +68,21 @@ describe("the single-runner lock", () => {
 		writeFileSync(path, "2222\n");
 		mine.release();
 		expect(readFileSync(path, "utf8").trim()).toBe("2222");
+	});
+
+	test("a live pid that is not a runner (pid reused after a crash) leaves a stale lock", () => {
+		const path = join(dir, "reused.lock");
+		const other = Bun.spawn(["sleep", "30"]);
+		try {
+			writeFileSync(path, `${other.pid}\n`);
+			expect(runnerAlive(other.pid)).toBe(false);
+			expect(runnerAlive(process.pid)).toBe(true);
+			const lock = acquireRunLock(path);
+			expect(readFileSync(path, "utf8").trim()).toBe(String(process.pid));
+			lock.release();
+		} finally {
+			other.kill();
+		}
 	});
 
 	test("this process is alive", () => {
