@@ -54,3 +54,11 @@ MSFT r4: PASS, 9 inferences (s1 3, s2 5, s3 1). $545.08 +4.62%; YouTube site.sea
 
 S11 r4: PASS, 10 inferences (s1 6, s2 4). arXiv site.search results newest-first (original not listed) -> abs/1706.03762 opened from my prior knowledge; page.find "Submitted on" -> 12 Jun 2017. YouTube site.search -> 3Blue1Brown "Attention in transformers, step-by-step" playing (Pause (k)); screenshot diff over 20s at 23:45 JST nonzero, captions advancing. Left playing (kept; idle auto-close 600s by design).
 Observation: MSFT kept-open runner did not exit after stdin fifo closed (end.sh); needed kill; blocked next run with runner_active (S7c similarly delayed).
+Round 5 (after c84b386/6c82af6/1a20a3f/976ccb6/4a1b07b; headed, manual inference, non-blind: URLs and find text chosen from my own knowledge):
+N2 r5: N2 first try turn_limit (10 inf, my facet detour). N2c step_failed: my done JSON lacked "action":"invoke" (operator error) x2. N2d SUCCESS 7 inf: site.search list = 2 footer links, logo, then product cards from entry 4 (before: top 10 had no products); facet ゲーム機本体 -> BEE-S-KB6CA -> find 最安価格 -> "最安価格 54,099円" (label+value in one read). Exited, lock released.
+N4 r5: SUCCESS 6 inf. find "In other words" -> "remove all elements e for which f(&e) returns "false"" (inline code kept; false gets stray quotes).
+N10 r5: SUCCESS 7 inf. Get sentences complete ("...up to a maximum of 10 redirects:"); first hit is Client.Get, second func Get. GitHub 139.6k stars.
+S5 r5: PASS 6 inf. Open Library real work OL66554W is entry 2 (before: 7th); entry text still has quote/comma artifacts (\",\").
+S11a r5: PASS 7 inf; YouTube list starts with videos (no tabs/Shorts); duration thumbnails "26:05 Now playing" and channel links still listed. kept -> 完了 at 07:11:29 JST -> closed user_done, process exited 07:11:30.
+S11 r5: next run started with no runner_active. PASS 7 inf; notice(ad) -> notice(main) -> confirmed; kept, ct 36.5 -> 46.5 at 07:13:09-19 JST. Left playing (idle 3600 s while paused, cap 14400 s).
+MSFT r5: 未測定 (S11a used for the 完了 exit check).
