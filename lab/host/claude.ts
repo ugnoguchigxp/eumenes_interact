@@ -7,6 +7,7 @@ import {
 	type ClaudeEffort,
 	type ClaudeSettings,
 } from "../inference/index.ts";
+import { asCollabAgent } from "./collab.ts";
 import type { InferenceInfo } from "./types.ts";
 
 /**
@@ -113,7 +114,7 @@ export function startClaude(
 ): ClaudeSession {
 	const inference = createClaudeInference({ settings, logger, correlationId });
 	return {
-		port: inference,
+		port: asCollabAgent(inference),
 		info: () => ({
 			kind: "claude",
 			...inference.describe(),

@@ -2,6 +2,7 @@ import type { Database } from "bun:sqlite";
 import { randomUUID } from "node:crypto";
 import type { InferencePort, LoggerPort } from "eumenes-interact";
 import { createLarmInference } from "../inference/index.ts";
+import { asCollabAgent } from "./collab.ts";
 import { getSetting } from "./store.ts";
 import type { InferenceInfo } from "./types.ts";
 
@@ -33,7 +34,7 @@ export function larmFactory(
 			correlationId,
 		});
 		return {
-			port: inference,
+			port: asCollabAgent(inference),
 			info: () => ({ kind: "larm", ...inference.describe() }),
 			dispose: () => inference.close(),
 		};

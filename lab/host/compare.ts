@@ -17,6 +17,7 @@ import {
 	loadArm1Script,
 } from "../scripted/arm1.ts";
 import { FixtureApprover, printable, type Approver } from "./approval.ts";
+import { collabScriptedAgent } from "./collab.ts";
 import {
 	aggregateUsage,
 	inferenceLabel,
@@ -418,7 +419,9 @@ async function caseSample(
 	const inference = options.inference
 		? await options.inference(def, arm)
 		: {
-				port: createArm1ScriptedInference(await loadArm1Script(def.id)),
+				port: collabScriptedAgent(
+					createArm1ScriptedInference(await loadArm1Script(def.id)),
+				),
 				info: (): InferenceInfo => ({ kind: "scripted" }),
 				dispose: async () => {},
 			};

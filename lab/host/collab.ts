@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createCollaborationContract } from "eumenes-collaboration";
 import type { InferencePort } from "eumenes-interact";
 
@@ -75,11 +76,11 @@ export function partToCollab(raw: string): string {
 const ROOT = new URL("../../skills/", import.meta.url);
 
 /** The browse skill's body (frontmatter removed), checked against the digest in `skills/manifest.json`. */
-export async function loadBrowseSkill(): Promise<string> {
-	const manifest = (await Bun.file(new URL("manifest.json", ROOT)).json()) as {
-		skills: { browse: { sha256: string } };
-	};
-	const bytes = await Bun.file(new URL("browse/SKILL.md", ROOT)).text();
+export function loadBrowseSkill(): string {
+	const manifest = JSON.parse(
+		readFileSync(new URL("manifest.json", ROOT), "utf8"),
+	) as { skills: { browse: { sha256: string } } };
+	const bytes = readFileSync(new URL("browse/SKILL.md", ROOT), "utf8");
 	const digest = new Bun.CryptoHasher("sha256").update(bytes).digest("hex");
 	if (digest !== manifest.skills.browse.sha256)
 		throw new Error("skill_digest_mismatch:browse");
@@ -124,4 +125,17 @@ export function collabScripted(parts: InferencePort): InferencePort {
 				: outcome;
 		},
 	};
+}
+
+/**
+ * The only agent the lab runs (v3 §M4b): a real inference speaks the collaboration contract with the browse
+ * skill as its system text; the part format is no longer shown to any model.
+ */
+export function asCollabAgent(inner: InferencePort): InferencePort {
+	return collabAgentPort(inner, loadBrowseSkill());
+}
+
+/** A recorded part script played back as the collaboration agent. */
+export function collabScriptedAgent(parts: InferencePort): InferencePort {
+	return asCollabAgent(collabScripted(parts));
 }

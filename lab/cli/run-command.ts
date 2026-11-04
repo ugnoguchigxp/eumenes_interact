@@ -15,11 +15,7 @@ import {
 import { selectCases } from "../host/plan.ts";
 import type { TrialResult } from "../host/run.ts";
 import { collectVersions } from "../host/versions.ts";
-import {
-	collabAgentPort,
-	collabScripted,
-	loadBrowseSkill,
-} from "../host/collab.ts";
+import { collabScriptedAgent } from "../host/collab.ts";
 import {
 	createArm1ScriptedInference,
 	loadArm1Script,
@@ -49,8 +45,6 @@ export type RunOptions = {
 	maxTokens?: string;
 	/** `arm1` (registered parts; the only arm since M4). */
 	arm?: ArmId;
-	/** `collab`: the collaboration agent's output contract drives the parts. */
-	agent?: "collab";
 	/** Arm 1: an existing absolute directory the screenshots go to; default: `lab/data/captures/<runId>/`. */
 	captureDir?: string;
 	/** Default: the fixture user for fixtures, the terminal for live cases. */
@@ -111,15 +105,9 @@ function inferenceFactory(
 ): TrialFactories["inference"] {
 	if (options.inference === "scripted")
 		return async (def) => ({
-			port:
-				options.agent === "collab"
-					? collabAgentPort(
-							collabScripted(
-								createArm1ScriptedInference(await loadArm1Script(def.id)),
-							),
-							await loadBrowseSkill(),
-						)
-					: createArm1ScriptedInference(await loadArm1Script(def.id)),
+			port: collabScriptedAgent(
+				createArm1ScriptedInference(await loadArm1Script(def.id)),
+			),
 			info: () => ({ kind: "scripted" }),
 			dispose: async () => {},
 		});
@@ -127,15 +115,7 @@ function inferenceFactory(
 		// Frozen for the whole run, and checked before anything is opened.
 		const settings = claudeSettings(options);
 		ensureClaudeCredential();
-		return async (def) => {
-			const started = await startClaude(settings, logger, def.id);
-			return options.agent === "collab"
-				? {
-						...started,
-						port: collabAgentPort(started.port, await loadBrowseSkill()),
-					}
-				: started;
-		};
+		return async (def) => startClaude(settings, logger, def.id);
 	}
 	const start = larmFactory(db, logger);
 	return async (def) => start(def.id);
