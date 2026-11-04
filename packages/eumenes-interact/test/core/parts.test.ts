@@ -788,3 +788,23 @@ describe("findText: a link in a table row brings its row (World Bank, 2026-11-04
 		expect(r.hits[0]?.text).toContain("123,366.73");
 	});
 });
+
+describe("findText: an infobox label row brings the rows below it (Wikipedia 日本, 2026-11-04)", () => {
+	const PAGE = [
+		"- main:",
+		"  - table:",
+		"    - rowgroup:",
+		"      - row:",
+		'        - rowheader "人口":',
+		'          - link "人口" [ref=e1]:',
+		"            - /url: /wiki/人口",
+		'      - row "総計（2024年） 123,802,000人"',
+		'      - row "人口密度 331.7人/km2"',
+		'      - row "GDP 600兆円"',
+		'      - row "通貨 円"',
+	].join("\n");
+	test("the figures come back with the label", () => {
+		const r = findText(PAGE, "p1", "人口", 5);
+		expect(r.hits[0]?.text).toContain("123,802,000");
+	});
+});

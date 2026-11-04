@@ -156,9 +156,30 @@ function widen(nodes: readonly Node[], node: Node, text: string, wanted: string)
 		if (LANDMARK_STOP.includes(a.role)) break;
 		const wider = textOf(nodes, a);
 		if (wider.length > SNIPPET_CHARS) break;
+		// A row that says little more than its label has its figures in the rows below (an infobox).
+		if (a.role === "row" && fold(wider).length <= 2 * wanted.length + 4)
+			return withNextRows(nodes, a, wider.length > text.length ? wider : text);
 		if (wider.length > text.length && fold(wider).includes(fold(text))) return wider;
 	}
 	return text;
+}
+/**
+ * A row that holds only the label (an infobox "人口" header whose figures sit in the rows below it, as on
+ * Wikipedia) brings the next rows of its table, up to the snippet length.
+ */
+function withNextRows(nodes: readonly Node[], row: Node, text: string): string {
+	let out = text;
+	let taken = 0;
+	for (const n of nodes) {
+		if (taken >= 3) break;
+		if (n.index < row.end || n.parent !== row.parent || n.role !== "row") continue;
+		const more = textOf(nodes, n);
+		if (!more) continue;
+		if (out.length + 1 + more.length > SNIPPET_CHARS) break;
+		out = `${out} ${more}`;
+		taken++;
+	}
+	return out;
 }
 /** A link or other named item inside a table row: its row (the values beside it) is what a find wants. */
 function inRow(nodes: readonly Node[], node: Node): boolean {
