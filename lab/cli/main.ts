@@ -18,7 +18,7 @@ import { parseInputs, taskList, taskRun } from "./task-command.ts";
 
 const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   cases [--include-holdout] [--include-live]
-  run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude]
+  run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude|manual]
       [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--approver fixture|cli] [--include-holdout] [--include-live]
       [--arm arm1] [--capture-dir <abs dir>]
       [--keep-observations] [--headed] [--platform playwright-mcp]
@@ -281,7 +281,7 @@ async function main(): Promise<number> {
 						inference: oneOf(
 							"inference",
 							values.inference,
-							["scripted", "larm", "claude"],
+							["scripted", "larm", "claude", "manual"],
 							"scripted",
 						),
 						...(values.model === undefined ? {} : { model: values.model }),

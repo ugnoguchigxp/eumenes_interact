@@ -8,8 +8,11 @@ export const FIXTURES_DIR = fileURLToPath(
 	new URL("../fixtures", import.meta.url),
 );
 
+/** `LAB_LIVE_CASES=<path>` replaces the live case file (ad-hoc live trials kept outside the repository). */
 const caseFile = (split: CaseDef["split"]): string =>
-	fileURLToPath(new URL(`./${split}/cases.json`, import.meta.url));
+	split === "live" && process.env.LAB_LIVE_CASES
+		? process.env.LAB_LIVE_CASES
+		: fileURLToPath(new URL(`./${split}/cases.json`, import.meta.url));
 
 /** Validates one case file. Rejects cases whose `split` differs from the file's, and duplicate ids. */
 export function parseCases(json: unknown, split: CaseDef["split"]): CaseDef[] {

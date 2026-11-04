@@ -1,3 +1,4 @@
+import { createManualInference } from "../inference/manual.ts";
 import type { Database } from "bun:sqlite";
 import type { ArmId } from "eumenes-interact";
 import { loadCases } from "../cases/load.ts";
@@ -15,7 +16,7 @@ import {
 import { selectCases } from "../host/plan.ts";
 import type { TrialResult } from "../host/run.ts";
 import { collectVersions } from "../host/versions.ts";
-import { collabScriptedAgent } from "../host/collab.ts";
+import { asCollabAgent, collabScriptedAgent } from "../host/collab.ts";
 import {
 	createArm1ScriptedInference,
 	loadArm1Script,
@@ -37,7 +38,7 @@ export type RunOptions = {
 	includeHoldout: boolean;
 	includeLive: boolean;
 	repeat: number;
-	inference: "scripted" | "larm" | "claude";
+	inference: "scripted" | "larm" | "claude" | "manual";
 	/** `--inference claude`: the model (default `claude-haiku-5-5`) and effort (default `low`). */
 	model?: string;
 	effort?: string;
@@ -111,6 +112,15 @@ function inferenceFactory(
 			info: () => ({ kind: "scripted" }),
 			dispose: async () => {},
 		});
+	if (options.inference === "manual") {
+		const dir = process.env.LAB_MANUAL_DIR;
+		if (!dir) throw new Error("manual_needs_LAB_MANUAL_DIR");
+		return async (def) => ({
+			port: asCollabAgent(createManualInference(dir, def.id)),
+			info: () => ({ kind: "scripted" }),
+			dispose: async () => {},
+		});
+	}
 	if (options.inference === "claude") {
 		// Frozen for the whole run, and checked before anything is opened.
 		const settings = claudeSettings(options);
@@ -179,7 +189,7 @@ export async function runCommand(
 			...(captureDir ? { captureDir } : {}),
 			repetitions: options.repeat,
 			name: options.caseId ?? options.split ?? "run",
-			inferenceKind: options.inference,
+			inferenceKind: options.inference === "manual" ? "scripted" : options.inference,
 			...(options.inference === "claude"
 				? { frozenInference: claudeSettings(options) }
 				: {}),
