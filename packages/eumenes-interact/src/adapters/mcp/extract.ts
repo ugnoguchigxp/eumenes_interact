@@ -115,6 +115,29 @@ const ROOTS: readonly string[] = [
 ];
 const KEYS = new Set(["url", "title", "text", "charCount", "root"]);
 
+const SIDE_MARK = "\n\n[side]\n";
+/** A cut must not leave half of a surrogate pair. */
+const clip = (s: string, n: number) => {
+	const c = s.slice(0, Math.max(0, n));
+	return c.length < s.length && /[\ud800-\udbff]$/.test(c) ? c.slice(0, -1) : c;
+};
+
+/**
+ * Cuts to `cap` without losing the `[side]` block that follows the main text (2026-11-04: npm's license box
+ * fell off a 4000-character read). When the whole does not fit, up to 40% of the cap (at least 200 characters)
+ * is kept for the side block, the main text is cut first and the cut is marked with `…`.
+ */
+export function capKeepingSide(text: string, cap: number): string {
+	if (text.length <= cap) return text;
+	const at = text.lastIndexOf(SIDE_MARK);
+	if (at < 0) return clip(text, cap);
+	const side = text.slice(at);
+	const sideKeep = clip(side, Math.min(side.length, Math.max(200, Math.floor(cap * 0.4)), cap));
+	const room = cap - sideKeep.length - 2;
+	if (room <= 0) return clip(text, cap);
+	return `${clip(text.slice(0, at), room)}\n…${sideKeep}`;
+}
+
 /** The cap in force: what the caller asked for, never above the hard bound. */
 export function extractCap(maxChars: number): number {
 	if (!Number.isSafeInteger(maxChars) || maxChars < 1)
@@ -163,9 +186,7 @@ export function parseExtraction(
 	)
 		throw bad();
 	const truncated = charCount > Math.min(text.length, cap);
-	let cut = text.slice(0, cap);
-	// A cut must not leave half of a surrogate pair.
-	if (truncated && /[\ud800-\udbff]$/.test(cut)) cut = cut.slice(0, -1);
+	const cut = capKeepingSide(text, cap);
 	return {
 		...(url !== "" ? { url } : {}),
 		...(title !== "" ? { title } : {}),
