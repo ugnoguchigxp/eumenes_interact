@@ -25,3 +25,22 @@ S1 r3 PASS: requests 2.34.2, psf/requests 54.6k. 5 inf.
 S9 r3 PASS: npm zod MIT, GitHub 44.3k. 10 inf (s1 7 incl 1 my format error [maxChars missing]; unnamed article read has no [side]; read(null,4000) truncated before [side]; find License -> README badge only; read(null,12000) has [side] License MIT). FINDING: [side] lost when maxChars is small. s2 2, summary 1.
 S11 r3 PASS (keep-open, left playing): s1 arXiv 1706.03762 v1 Mon, 12 Jun 2017 17:57:34 UTC 4 inf (abs URL and find text chosen from my own knowledge: non-blind). s2 YouTube 「【Transformer誕生の舞台裏】ChatGPTの起源『Attention Is All You Need』」 3 inf. notice(ad start) -> notice(ad end) -> playback confirmed (dur 1363.1); keep-open probe every 10 s, ct 6.1 -> 36.6 over 30 s at 20:37:46-20:38:17 JST.
 S4, S5, S7, MSFT r3: 未測定.
+N1 FRED+e-Stat: 成功(部分) 推論8(3+4+1) s1 OK 4.2% Sep2026; s2 e-Statのsite.searchがDDGフォールバック→統計局stat.go.jpで2.4%(e-Statページ自体の値ではない=C2部分); page.findのヒットがリンクid p4.i33に紐付く表示(帰属のずれ); s3 OK
+N2 価格.com: 成功 推論6(5+1) 54,099円; site.searchがDDGフォールバック(価格.comに検索欄あり)、DDG結果に広告項目が混在; page.find「最安価格」がラベルのみ返す(値は無し)→page.readで取得
+N3 Googleマップ: 成功 推論5(4+1) 芝公園4-2-8; site.searchはサイトの検索欄で成功; page.find「住所」は「住所をコピーします」ボタンだけ(値なし)→page.readで取得; 検索後に再描画でページ番号p3→p4
+N4 Rust docs: 部分成功(C2部分) 推論8(7+1); page.findがインラインcode要素で文が途切れる(「In other words, remove all elements」で終わる)→ false の要素を除く旨を確認できず、正直に未確認と報告; "pub fn retain" は見つからない(シグネチャがcode/リンクに分割); URLフラグメント#method.retainは結果URLから落ちる
+N5 Vimeo: 失敗(needs_input) 推論5(3+2) s1 OK(Vimeoトップに検索欄なし→DDG→timelapseグループ); s2 Playボタンのitem.openがボタン承認ゲート(needsButtonClickApproval, サイト例外なし)にかかりStopApproverでapproval_denied→停止。YouTubeは自動再生のため承認不要だった。設計どおりの停止で偽の成功なし。分類: 承認ポリシー(再生ボタン)
+N6 BBC 3段: 成功 推論6(2+3+1) トップはLIVEページ; s1はREFERENCEで見出し確認できたがevidence用にpage.find 1回; s2 page.readで本文(main)+[side]が出た(ライブの別投稿が[side]に入る)
+N7 気象庁: 成功 推論6(5+1) 雨のち昼前からくもり 11/18℃; 開始ページ(SPA)のREFERENCEが空(items 0)、ハッシュURLでpage.openしても描画前の要約→page.waitで出現; page.readで表のセルが区切りなしに連結(「---9090503020」)→列対応は推測が要る。分類: 読取り整形(表)
+N8 NDL+青空文庫: 成功 推論15(6+8+1; s1でpage.find契約違反1=作者ミス) 出版年1917(岩波版)・初出1914; site.searchがNDL(検索box有)でもDDGフォールバック; s2のsite.searchはDDGが空結果→作家ページURLを直接open; 図書カードでpage.find「初出」「作品名」がtarget_not_found(表セル内テキスト)、page.read(null)は無関係な末尾領域を返した→table itemのpage.readで取得。分類: 検索box検出, page.find表セル, page.read本文選択
+N9 Yahoo乗換: 部分成功 推論8(7+1) 在来線9,020円のみ・新幹線ルート不出現(条件既定と推定・未確認); フォーム送信はボタン承認が要るためモデル知識の結果URLを直接page.open(フォーム経路は未検証); page.find「円」が1件のみ(重複除去で同額が畳まれた); page.read(null)に広告文が混在。分類: フォーム/承認, 検索条件
+N10 pkg.go.dev+GitHub: 成功 推論7(3+3+1) http.Get説明・139.6k stars; page.findの先頭ヒットはinline code手前で切れ(N4同様)だが2件目が全文
+V1 NDL site.search再検証(修正後): サイト検索box経由で「こころ」の検索結果174,914件を取得(修正前はDDGフォールバック→途中修正版ではトップページのお知らせを結果扱い→bcdbaf9で解消)
+V2 価格.com site.search再検証: サイト検索box経由 search.kakaku.com 到達(修正前DDG)。ただし結果リスト先頭がカテゴリ絞り込みリンク(製品ではない)=残課題
+S1 r4 PASS: 2.34.2 / 54.6k stars 6推論(2+3+1)
+S3 r4 PASS: HN 1位 AI is forcing us to pay off 40 years of technical debt 285 points (23:14 JST) 3推論(2+1)
+S4 r4 PASS: 3776 m (3776.12) / OSM 1件目 Mount Fuji 9推論(5+3+1)。page.find「標高」は同名リンク(インフォボックス見出し)が先頭でテキスト本文のみ、「3,776」(カンマ)はtarget_not_found→「3776」で取得(1推論ロス)
+S5 r4 PASS: Jane Austen / OL66554W。結果リスト先頭にタブ類(Books/Authors等)が並ぶ(本物の結果は7件目) 6推論(2+3+1)
+S7 r4 try1(修正前): WB国別ページのpage.find PopulationはリンクのみでWB値なし、「million」は軸目盛、指標ページの「Japan」行はリンク名のみで値が出ず(5推論で中断)→ findTextを表の行内リンクに拡張して再実行
+
+S7 try2 (after inRow fix caa1cc9): PARTIAL, 7 inferences. WB page.find "Japan" returned chart text "Million 123 124 124..." (no table row on that page). Wikipedia infobox 人口 rowheader -> link only, value not returned; page.read(link) gives "人口" only. Infobox th/td row widening is a remaining gap.
