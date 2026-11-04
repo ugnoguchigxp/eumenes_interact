@@ -86,7 +86,10 @@ test("open starts the host's executable with the fixed isolated flags and a mini
 		["HOME", "PATH", "PLAYWRIGHT_BROWSERS_PATH"].sort(),
 	);
 	expect(JSON.parse(readFileSync(configPath, "utf8"))).toEqual({
-		browser: { launchOptions: { args: ["--mute-audio"] } },
+		browser: {
+				launchOptions: { args: ["--mute-audio"] },
+				contextOptions: { acceptDownloads: false },
+			},
 	});
 	expect(fake.requests.map((r) => r.method)).toEqual([
 		"initialize",

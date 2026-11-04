@@ -92,7 +92,16 @@ import {
 const TOOL_NAME = "@playwright/mcp";
 const OUTPUT_DIR_NAME = "playwright-mcp-output";
 const CONFIG_FILE_NAME = "playwright-mcp.config.json";
-const CONFIG = { browser: { launchOptions: { args: ["--mute-audio"] } } };
+/**
+ * `acceptDownloads: false`: a page that starts a download gets it cancelled, so nothing is written to disk
+ * without the host asking (review 2026-11-04 H2; downloads have no approval path yet, so they are refused).
+ */
+const CONFIG = {
+	browser: {
+		launchOptions: { args: ["--mute-audio"] },
+		contextOptions: { acceptDownloads: false },
+	},
+};
 
 /** Browser start-up and the first tool call, which launches the browser. */
 const DEFAULT_CONNECT_TIMEOUT_MS = 60_000;
