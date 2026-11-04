@@ -124,6 +124,11 @@ export type RunTrialInput = {
 	 * owns the session and closes it.
 	 */
 	keepSession?: boolean;
+	/**
+	 * Checked by the host when the model says it is done; a failed check ends the trial as failed with its
+	 * code instead of a false success (chain playback steps: `confirmPlayback`).
+	 */
+	beforeFinish?: () => Promise<{ ok: true } | { ok: false; code: string }>;
 };
 
 export type TrialResult = {
@@ -401,9 +406,17 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			switch (step.kind) {
 				case "continue":
 					continue;
-				case "finish":
+				case "finish": {
+					const gate = input.beforeFinish
+						? await input.beforeFinish()
+						: ({ ok: true } as const);
+					if (!gate.ok) {
+												recorder.final("failed");
+						return { status: "failed", code: gate.code };
+					}
 					recorder.final("finish", step.text);
 					return { status: "completed", code: null };
+				}
 				case "clarify":
 					recorder.final("clarify", step.text);
 					return { status: "needs_input", code: "clarify" };

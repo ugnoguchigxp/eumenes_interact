@@ -20,6 +20,11 @@ import {
 } from "../host/observations.ts";
 import { StopApprover } from "../host/approval.ts";
 import { runTrial } from "../host/run.ts";
+import {
+	confirmPlayback,
+	isPlaybackGoal,
+	type MediaSample,
+} from "../host/playback.ts";
 import { createExperiment } from "../host/store.ts";
 import { collectVersions } from "../host/versions.ts";
 import { createManualInference } from "../inference/manual.ts";
@@ -172,6 +177,26 @@ export async function chainCommand(
 				sources: [...results.values()],
 				goal: step.goal,
 				keepSession: true,
+				...(step.keepOpen && isPlaybackGoal(step.goal)
+					? {
+							beforeFinish: async () => {
+								const verdict = await confirmPlayback({
+									sample: async () =>
+										(await session.adapter.inspect(
+											"inspectMedia",
+											null,
+											AbortSignal.timeout(5000),
+										)) as unknown as MediaSample,
+									sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+									notify: (m) => console.log(`notice\t${m}`),
+								});
+								console.log(
+									`playback\t${verdict.ok ? "confirmed" : verdict.code}\t${JSON.stringify(verdict.samples.slice(-3))}`,
+								);
+								return verdict.ok ? { ok: true } : { ok: false, code: verdict.code };
+							},
+						}
+					: {}),
 				...(captureDir ? { captureDir } : {}),
 				...(o.keepObservations
 					? { observationSink: createObservationSink(DEFAULT_OBSERVATIONS_DIR) }
