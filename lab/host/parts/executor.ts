@@ -611,6 +611,20 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		return afterSending(() => observationAfter(s));
 	}
 
+	/** Same title and same headings: the same page content, whatever its address says. */
+	function samePage(a: ObservationEnvelope, b: ObservationEnvelope): boolean {
+		if (a.title !== b.title) return false;
+		// Read without issuing page ids: this comparison must not register a page.
+		const headings = (o: ObservationEnvelope) =>
+			core.summarizePage(
+				{ body: o.body, truncated: o.truncated, missing: o.missing },
+				{ pageId: "p0", maxItems: 1, maxHeadings: SUMMARY_HEADINGS },
+			).summary.headings;
+		const ha = headings(a);
+		const hb = headings(b);
+		return ha.length > 0 && ha.join("\n") === hb.join("\n");
+	}
+
 	async function siteSearch(query: string): Promise<Body> {
 		if (!querySourced(query)) throw new PartFail("query_not_in_request");
 		const start = await passChallenge(await observeFresh());
@@ -630,10 +644,15 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			// happened, so the next way is tried rather than the unchanged page being reported as results.
 			// A box whose page moves only after its script has run (NDL Search: a second or more) gets one short
 			// wait before that is decided.
-			if (after && after.url === start.url) {
+			// A page whose address has moved while it still shows the start page's content (a client-side route
+			// that renders a moment later) is waited for the same way, so the start page's links are never
+			// reported as results.
+			const unchanged = (o: ObservationEnvelope) =>
+				o.url === start.url || samePage(o, start);
+			if (after && unchanged(after)) {
 				await operate({ action: "page.wait", seconds: RESULTS_SETTLE_S }, "none");
 				after = await observeFresh();
-				if (after.url === start.url) after = null;
+				if (unchanged(after)) after = null;
 			}
 		}
 		if (!after) {
