@@ -208,19 +208,27 @@ export function listEntries(
 	limit: number,
 ): { entries: ListEntry[]; records: ItemRecord[]; truncated: boolean } {
 	const c = collect(body, pageId);
+	// A link whose accessible name is empty (MDN's search results, 2026-11-04) is named by the text inside
+	// it, else by the last segment of its URL; a link with none of these is not an entry.
 	const links = c.itemNodes
 		.map((node, i) => ({ node, record: c.records[i]! }))
-		.filter(({ node }) => node.role === "link" && node.name);
+		.filter(({ node }) => node.role === "link")
+		.map(({ node, record }) => ({
+			node,
+			record,
+			title: node.name || textOf(c.nodes, node) || urlLabel(record.url),
+		}))
+		.filter(({ title }) => title);
 	let entries: { entry: ListEntry; record?: ItemRecord }[];
 	if (kind === "table") entries = tableRows(c);
 	else {
 		const chosen = kind === "links" ? links : resultLinks(c, links);
-		entries = chosen.map(({ node, record }) => ({
+		entries = chosen.map(({ node, record, title }) => ({
 			entry: {
 				item: record.item,
-				title: record.name,
+				title,
 				...(record.url ? { url: record.url } : {}),
-				...(kind === "results" ? textFor(c.nodes, node, record.name) : {}),
+				...(kind === "results" ? textFor(c.nodes, node, title) : {}),
 			},
 			record,
 		}));
@@ -234,7 +242,20 @@ export function listEntries(
 	};
 }
 
-type LinkItem = { node: Node; record: ItemRecord };
+type LinkItem = { node: Node; record: ItemRecord; title: string };
+
+/** The readable last path segment of a link's URL ("/docs/Web/.../flat" -> "flat"); "" when none. */
+function urlLabel(url: string | undefined): string {
+	if (!url) return "";
+	try {
+		const u = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/");
+		if (u.protocol !== "http:" && u.protocol !== "https:") return "";
+		const last = u.pathname.split("/").filter(Boolean).at(-1) ?? "";
+		return decodeURIComponent(last).slice(0, 80);
+	} catch {
+		return "";
+	}
+}
 
 /**
  * Result entries: named links inside list items or articles, outside navigation. A page whose snapshot has

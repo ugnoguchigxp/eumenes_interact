@@ -434,6 +434,22 @@ describe("listEntries", () => {
 		).toEqual(["寄付"]);
 	});
 
+	test("a link with an empty name is named by its inner text, else its URL (MDN results, 2026-11-04)", () => {
+		const body = [
+			"- main:",
+			"  - list:",
+			"    - listitem:",
+			"      - link [ref=e5, url=https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/flat]:",
+			"        - code: Array.prototype.flat()",
+			"    - listitem:",
+			"      - link [ref=e6, url=https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap]",
+		].join("\n");
+		const titles = listEntries(body, "p3", "results", 10).entries.map(
+			(e) => e.title,
+		);
+		expect(titles).toEqual(["Array.prototype.flat()", "flatMap"]);
+	});
+
 	test("links are every named link; the limit marks truncation", () => {
 		const all = listEntries(RESULTS, "p3", "links", 50);
 		expect(all.entries).toHaveLength(8);
