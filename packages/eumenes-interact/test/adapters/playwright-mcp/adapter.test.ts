@@ -117,6 +117,22 @@ test("headed mode passes no --headless, and the version is null without serverIn
 	});
 });
 
+test("headed mode passes the display through (only then); headless keeps it out", async () => {
+	const saved = process.env.DISPLAY;
+	process.env.DISPLAY = ":7";
+	try {
+		const headed = setup({ headless: false });
+		await headed.adapter.open(NEVER);
+		expect(headed.launches[0]?.env?.DISPLAY).toBe(":7");
+		const headless = setup({ headless: true });
+		await headless.adapter.open(NEVER);
+		expect(headless.launches[0]?.env?.DISPLAY).toBeUndefined();
+	} finally {
+		if (saved === undefined) delete process.env.DISPLAY;
+		else process.env.DISPLAY = saved;
+	}
+});
+
 test("a launch that would attach to an existing browser is refused before anything starts", async () => {
 	for (const ctx of [
 		setup({ args: ["/fake/cli.js", "--extension"] }),

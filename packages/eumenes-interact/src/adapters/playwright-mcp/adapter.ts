@@ -188,6 +188,12 @@ export function createPlaywrightMcpAdapter(
 		const base: Record<string, string> = {};
 		if (process.env.PATH !== undefined) base.PATH = process.env.PATH;
 		if (process.env.HOME !== undefined) base.HOME = process.env.HOME;
+		// A headed browser needs the display; without it Playwright silently falls back to headless.
+		if (!options.browser.headless)
+			for (const key of ["DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"] as const) {
+				const value = process.env[key];
+				if (value !== undefined) base[key] = value;
+			}
 		return {
 			command,
 			args: [

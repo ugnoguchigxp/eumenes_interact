@@ -188,7 +188,16 @@ test("the adapter drives a real child process over stdio and stops it on close",
 	]);
 	expect(
 		start.envKeys.every((k) =>
-			["HOME", "PATH", "STUB_LOG", "STUB_MODE"].includes(k),
+			[
+				"HOME",
+				"PATH",
+				"STUB_LOG",
+				"STUB_MODE",
+				// headed: the display is passed through when the host has one
+				"DISPLAY",
+				"WAYLAND_DISPLAY",
+				"XAUTHORITY",
+			].includes(k),
 		),
 	).toBe(true);
 	expect(adapter.toolInfo()).toEqual({
