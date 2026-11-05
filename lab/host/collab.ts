@@ -238,8 +238,19 @@ export function collabScripted(parts: InferencePort): InferencePort {
  * The only agent the lab runs (v3 §M4b): a real inference speaks the collaboration contract with the browse
  * skill as its system text; the part format is no longer shown to any model.
  */
-export function asCollabAgent(inner: InferencePort): InferencePort {
-	return collabAgentPort(inner, loadBrowseSkill());
+export function asCollabAgent(
+	inner: InferencePort,
+	options: {
+		verifyCompletion?: boolean;
+		completionVerifiers?: readonly Pick<InferencePort, "complete">[];
+	} = {},
+): InferencePort {
+	const reviewers =
+		options.completionVerifiers ?? (options.verifyCompletion ? [inner] : []);
+	return {
+		...collabAgentPort(inner, loadBrowseSkill()),
+		...(reviewers.length ? { completionVerifiers: reviewers } : {}),
+	};
 }
 
 /** A recorded part script played back as the collaboration agent. */

@@ -21,9 +21,16 @@ export type TrialVersions = {
 export type InferenceInfo =
 	| { kind: "scripted" }
 	| { kind: "larm"; profile: string; model: string | null }
-	| { kind: "openai"; provider: "openai"; model: string; effort: string }
+	| {
+			kind: "openai";
+			provider: "openai";
+			model: string;
+			effort: string;
+			completionReview?: "dual";
+	  }
 	| {
 			kind: "claude";
+			completionReview?: "dual";
 			provider: "anthropic";
 			model: string;
 			effort: string;

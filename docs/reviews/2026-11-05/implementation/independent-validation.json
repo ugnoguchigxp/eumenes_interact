@@ -15,5 +15,24 @@
     "whole CLI provider persistence and stop behavior"
   ],
   "independentCaseCount": 4,
-  "casePolicy": "All cases retained and executed with both providers; no existing holdout read by the author."
+  "casePolicy": "All independent plan 4 and browser 6 cases retained. First runs were new requests; later browser runs are explicitly matched development regressions, not fresh holdout.",
+  "additionalPasses": [
+    {
+      "method": "read-only source counterchecks, fixes then source recheck; runtime tests separately recorded",
+      "findings": [
+        "settle failure and run/trial/definition terminal publication atomicity",
+        "whole CLI cumulative accounting, deciding-call consumption, unsafe model step identifiers",
+        "page-result text incorrectly serving as input authority",
+        "semantic false completion despite structurally valid evidence"
+      ],
+      "resolution": "Existing transactions, RunControl, shared CallBudget, original-request authority and fresh-context dual LLM completion judgment reused. No new High found in final source pass.",
+      "remainingLimits": [
+        "Some error outcomes lack per-call provider metadata; unknown usage stays reserved.",
+        "Mixed-provider trial cost remains null; shared spend ledger is canonical.",
+        "Existing SEARCH/PAGING/SORT candidate heuristics remain."
+      ],
+      "boundedContext": "Over-200000-character completion input now becomes partial before a paid review; targeted persisted-state regression passes."
+    }
+  ],
+  "independentBrowserCaseCount": 6
 }

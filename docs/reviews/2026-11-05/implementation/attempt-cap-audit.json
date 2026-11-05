@@ -1,0 +1,18 @@
+{
+  "at": "2026-11-05T13:03:16.687Z",
+  "before": {
+    "id": 1,
+    "cap": 10000000,
+    "attempts": 500
+  },
+  "after": {
+    "id": 1,
+    "cap": 10000000,
+    "attempts": 600
+  },
+  "unchangedUsage": {
+    "calls": 458,
+    "upperMicros": 7679618
+  },
+  "reason": "Additional paired completion reviews; spend cap 10 USD unchanged; existing calls and unknown reservations preserved"
+}

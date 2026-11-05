@@ -270,7 +270,11 @@ export function startOperate(
 				tokens.cacheRead.add(e.tokens.cacheRead);
 				tokens.cacheWrite.add(e.tokens.cacheWrite);
 				cost.add(
-					claude
+					claude &&
+						!(
+							inferenceInfo?.kind === "claude" &&
+							inferenceInfo.completionReview === "dual"
+						)
 						? estimateClaudeCostUsd(claude.model, {
 								inputTokens: e.tokens.input,
 								outputTokens: e.tokens.output,

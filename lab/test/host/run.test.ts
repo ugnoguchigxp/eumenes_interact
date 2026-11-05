@@ -73,6 +73,170 @@ test("page results embedded in planning context cannot authorize typed input", a
 	).toHaveLength(0);
 });
 
+for (const outcome of ["achieved", "partial", "invalid"] as const)
+	test(`completion review is inside the run budget and gates publication: ${outcome}`, async () => {
+		const { createArm1ScriptedInference, loadArm1Script } =
+			await import("../../scripted/arm1.ts");
+		let reviewCalls = 0;
+		const inference = {
+			...createArm1ScriptedInference(await loadArm1Script("dev-search-base")),
+			completionVerifiers: [
+				{
+					complete: async () => {
+						reviewCalls++;
+						return {
+							kind: "text" as const,
+							text:
+								outcome === "invalid"
+									? "{}"
+									: JSON.stringify({
+											outcome,
+											explanation: "独立した達成確認",
+										}),
+							usage: { inputTokens: 1, outputTokens: 1 },
+							latencyMs: 1,
+						};
+					},
+				},
+			],
+		};
+		const { result, db } = await runScripted("dev-search-base", { inference });
+		expect(reviewCalls).toBe(1);
+		expect(result.score.efficiency.modelCalls).toBeLessThanOrEqual(10);
+		expect(
+			result.transcript.events.filter(
+				(e) => e.type === "model.call" && e.purpose === "completion_review",
+			),
+		).toHaveLength(1);
+		expect(result.status).toBe(
+			outcome === "achieved" ? "completed" : "partial",
+		);
+		expect(getRun(db, LAB_OWNER, result.runId)?.status).toBe(result.status);
+		expect(
+			result.transcript.events.some(
+				(e) => e.type === "step.final" && e.kind === "finish",
+			),
+		).toBe(outcome === "achieved");
+		db.close();
+	});
+
+test("oversized completion evidence preserves operations as partial without calling a reviewer", async () => {
+	const { createArm1ScriptedInference, loadArm1Script } =
+		await import("../../scripted/arm1.ts");
+	const def = await devCase("dev-search-base");
+	let reviews = 0;
+	const { result, db, adapter } = await runScripted(def.id, {
+		authorityRequest: `${def.request}\n${"資料".repeat(110_000)}`,
+		inference: {
+			...createArm1ScriptedInference(await loadArm1Script(def.id)),
+			completionVerifiers: [
+				{
+					complete: async () => {
+						reviews++;
+						throw new Error("unexpected review");
+					},
+				},
+			],
+		},
+	});
+	expect(reviews).toBe(0);
+	expect(result.status).toBe("partial");
+	expect(getRun(db, LAB_OWNER, result.runId)?.status).toBe("partial");
+	expect(adapter.dispatched.length).toBeGreaterThan(0);
+	expect(
+		result.transcript.events.some(
+			(e) => e.type === "step.final" && e.kind === "finish",
+		),
+	).toBe(false);
+	db.close();
+});
+
+test("a completion reviewer that ignores abort cannot hold a cancelled run open", async () => {
+	const { createArm1ScriptedInference, loadArm1Script } =
+		await import("../../scripted/arm1.ts");
+	const control = new RunControl();
+	const inference = {
+		...createArm1ScriptedInference(await loadArm1Script("dev-search-base")),
+		completionVerifiers: [
+			{
+				complete: async () => {
+					queueMicrotask(() => control.cancel("cancel"));
+					return new Promise<never>(() => {});
+				},
+			},
+		],
+	};
+	const { result } = await runScripted("dev-search-base", {
+		inference,
+		control,
+	});
+	expect(result.status).toBe("cancelled");
+	expect(result.transcript.events.some((e) => e.type === "step.final")).toBe(
+		false,
+	);
+});
+
+for (const limit of [1, 2, 3, 4, 5])
+	test(`two completion reviews share the original ${limit}-call limit`, async () => {
+		const { createArm1ScriptedInference, loadArm1Script } =
+			await import("../../scripted/arm1.ts");
+		let reviews = 0;
+		const reviewer = {
+			complete: async () => {
+				reviews++;
+				return {
+					kind: "text" as const,
+					text: JSON.stringify({
+						outcome: "achieved",
+						explanation: "確認済み",
+					}),
+					usage: { inputTokens: 1, outputTokens: 1 },
+					latencyMs: 1,
+				};
+			},
+		};
+		const def = {
+			...(await devCase("dev-search-base")),
+			budget: { maxModelCalls: limit },
+		};
+		const { result } = await runScripted(def.id, {
+			def,
+			inference: {
+				...createArm1ScriptedInference(await loadArm1Script(def.id)),
+				completionVerifiers: [reviewer, reviewer],
+			},
+		});
+		expect(result.score.efficiency.modelCalls).toBeLessThanOrEqual(limit);
+		if (result.status === "completed") expect(reviews).toBe(2);
+		if (limit < 4) expect(result.status).not.toBe("completed");
+		if (limit >= 4) expect(result.status).toBe("completed");
+	});
+
+test("the second review can refuse a completion accepted by the first", async () => {
+	const { createArm1ScriptedInference, loadArm1Script } =
+		await import("../../scripted/arm1.ts");
+	const reviewer = (outcome: string) => ({
+		complete: async () => ({
+			kind: "text" as const,
+			text: JSON.stringify({ outcome, explanation: "範囲の確認" }),
+			usage: { inputTokens: 1, outputTokens: 1 },
+			latencyMs: 1,
+		}),
+	});
+	const { result } = await runScripted("dev-search-base", {
+		inference: {
+			...createArm1ScriptedInference(await loadArm1Script("dev-search-base")),
+			completionVerifiers: [reviewer("achieved"), reviewer("partial")],
+		},
+	});
+	expect(result.status).toBe("partial");
+	expect(
+		result.transcript.events.some(
+			(e) => e.type === "step.final" && e.kind === "finish",
+		),
+	).toBe(false);
+});
+
 describe("scripted run of a fake search flow", () => {
 	test("finishes, is scored a success from the end state, and is stored", async () => {
 		const { db, def, adapter, result } = await runScripted("dev-search-base");

@@ -19,7 +19,7 @@ import { FixtureApprover } from "../host/approval.ts";
 import { runTrial } from "../host/run.ts";
 import { collectVersions } from "../host/versions.ts";
 import { silentLabLogger } from "../host/log.ts";
-import type { InferenceOutcome } from "eumenes-interact";
+import type { InferenceOutcome, InferencePort } from "eumenes-interact";
 const ALL_IDS = [
 	"dev-search-base",
 	"dev-select-delayed",
@@ -140,6 +140,8 @@ const save = () => {
 					effort: "low",
 					maxOutputTokens: 2048,
 					httpRetries: 0,
+					completionReview:
+						"Claude + Luna; both must approve, inside the original per-run call budget",
 				},
 				rows,
 				budget: ledger.summary(),
@@ -166,7 +168,7 @@ for (const p of ["claude", "openai"] as const) {
 		arms: ["arm1"],
 		budget: {
 			combinedUsd: 10,
-			maxHttpAttempts: 500,
+			maxHttpAttempts: 600,
 			maxOutputTokens: 2048,
 			retries: 0,
 		},
@@ -195,16 +197,25 @@ try {
 			);
 			const calls: unknown[] = [];
 			try {
-				const port = asCollabAgent({
+				const record = (
+					inner: Pick<InferencePort, "complete">,
+					purpose: string,
+				): InferencePort => ({
 					complete: async (r) => {
-						const out = await inference.raw.complete(r);
+						const out = await inner.complete(r);
 						calls.push({
+							purpose,
 							...meta(out),
 							syntheticOutput: out.kind === "text" ? out.text : null,
 						});
 						if (out.kind === "error") blockedProviders.add(p);
 						return out;
 					},
+				});
+				const port = asCollabAgent(record(inference.raw, "execution"), {
+					completionVerifiers: (inference.port.completionVerifiers ?? []).map(
+						(v) => record(v, "completion_review"),
+					),
 				});
 				const result = await runTrial({
 					db,

@@ -28,7 +28,7 @@ export class SpendLedger {
 	constructor(
 		path: string,
 		readonly limitUsd: number,
-		readonly maxAttempts = 500,
+		readonly maxAttempts = 600,
 	) {
 		if (
 			!(limitUsd > 0 && limitUsd <= 10) ||

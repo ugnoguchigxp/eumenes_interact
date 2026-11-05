@@ -10,6 +10,7 @@ import {
 	type CoreState,
 	type InferenceOutcome,
 	type InferencePort,
+	type InferenceRequest,
 	type PlatformAdapter,
 	type RunPolicy,
 	type RunStatus,
@@ -38,6 +39,7 @@ import type { ObservationSink } from "./observations.ts";
 import { insertTrial, updateTrialVersions } from "./store.ts";
 import { TabRegistry } from "./tabs.ts";
 import { scoreAndStore, TrialRecorder } from "./trial.ts";
+import { completionRequest, parseCompletionReview } from "./completion.ts";
 import {
 	RunEnd,
 	RunPersistenceError,
@@ -173,6 +175,13 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const sessionId = randomUUID();
 	const control = input.control ?? new RunControl();
 	const policy = runPolicy(def);
+	const verifiers = input.inference.completionVerifiers ?? [];
+	const corePolicy = verifiers.length
+		? {
+				...policy,
+				maxModelCalls: Math.max(1, policy.maxModelCalls - verifiers.length),
+			}
+		: policy;
 	const skillIdentity = input.inference.skill ?? {
 		ref: "arm1:core@2",
 		digest: `sha256:${sha256(prepareStep(startRun({ arm: input.arm, request: def.request, policy, nowMs: now() })).messages[0]!.content)}`,
@@ -222,6 +231,31 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		name: Parameters<LabLogger["lab"]>[0],
 		fields: { code?: string; count?: number; durationMs?: number } = {},
 	) => logger.lab(name, { correlationId: runId, ...fields });
+	let totalModelCalls = 0;
+	const callModel = async (
+		port: Pick<InferencePort, "complete">,
+		request: InferenceRequest,
+		purpose?: "completion_review",
+	): Promise<InferenceOutcome | "error"> => {
+		if (control.signal.aborted) throw control.ended();
+		if (totalModelCalls >= policy.maxModelCalls)
+			throw new RunEnd("failed", "budget_exhausted");
+		totalModelCalls++;
+		const began = now();
+		let outcome: InferenceOutcome | "error";
+		try {
+			outcome = await control.wait(port.complete(request));
+		} catch {
+			outcome = "error";
+		}
+		recorder.modelCall(began, outcome, now() - began, purpose);
+		log("model.called", {
+			code: outcome === "error" ? "error" : outcome.kind,
+			durationMs: now() - began,
+		});
+		if (now() >= deadlineAtMs) control.cancel("deadline");
+		return outcome;
+	};
 
 	// Versions, policy and deadline are frozen before anything opens (plan.md §9).
 	write(db, () => {
@@ -361,7 +395,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				connection: { connectionId: sessionId, state: "connected" },
 				page: parts.begin(first),
 			},
-			policy,
+			policy: corePolicy,
 			nowMs: now(),
 		});
 		save(state);
@@ -374,27 +408,13 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				return cancelEnding();
 			}
 			const prepared = prepareStep(state);
-			let outcome: InferenceOutcome | "error";
-			try {
-				outcome = await input.inference.complete({
-					messages: prepared.messages,
-					maxOutputTokens: OUTPUT_TOKENS,
-					...(prepared.outputSchema
-						? { outputSchema: prepared.outputSchema }
-						: {}),
-					signal: AbortSignal.any([
-						control.signal,
-						AbortSignal.timeout(callMs),
-					]),
-				});
-			} catch {
-				// The port promises to classify its failures; one that throws is an error call.
-				outcome = "error";
-			}
-			recorder.modelCall(callStarted, outcome, now() - callStarted);
-			log("model.called", {
-				code: outcome === "error" ? "error" : outcome.kind,
-				durationMs: now() - callStarted,
+			const outcome = await callModel(input.inference, {
+				messages: prepared.messages,
+				maxOutputTokens: OUTPUT_TOKENS,
+				...(prepared.outputSchema
+					? { outputSchema: prepared.outputSchema }
+					: {}),
+				signal: AbortSignal.any([control.signal, AbortSignal.timeout(callMs)]),
 			});
 			if (control.signal.aborted) return cancelEnding();
 			// The call timeout and the run deadline can fire together: the deadline is the cause.
@@ -447,6 +467,68 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 					) {
 						recorder.final("failed", step.text);
 						return { status: "failed", code: "completion_evidence_invalid" };
+					}
+					for (const verifier of verifiers) {
+						let reviewRequest: InferenceRequest;
+						try {
+							reviewRequest = completionRequest(
+								{
+									originalRequest: input.authorityRequest ?? def.request,
+									task: input.goal ?? def.request,
+									answer: step.text,
+									evidence: step.refs,
+									trace: prepared.messages,
+								},
+								AbortSignal.any([
+									control.signal,
+									AbortSignal.timeout(
+										Math.max(1, Math.min(CALL_MS, deadlineAtMs - now())),
+									),
+								]),
+							);
+						} catch {
+							recorder.final(
+								"partial",
+								"完了確認用の記録を準備できませんでした。",
+							);
+							return {
+								status: "partial",
+								code: "completion_review_unavailable",
+							};
+						}
+						const checked = await callModel(
+							verifier,
+							reviewRequest,
+							"completion_review",
+						);
+						if (control.signal.aborted) return cancelEnding();
+						if (checked === "error" || checked.kind !== "text") {
+							recorder.final(
+								"partial",
+								"完了確認ができなかったため、確認済みの操作だけを保持します。",
+							);
+							return {
+								status: "partial",
+								code: "completion_review_unavailable",
+							};
+						}
+						let verdict;
+						try {
+							verdict = parseCompletionReview(checked.text);
+						} catch {
+							recorder.final(
+								"partial",
+								"完了確認の結果を受理できませんでした。",
+							);
+							return { status: "partial", code: "completion_review_invalid" };
+						}
+						if (verdict.outcome !== "achieved") {
+							recorder.final("partial", verdict.explanation);
+							return {
+								status: "partial",
+								code: `completion_review_${verdict.outcome}`,
+							};
+						}
 					}
 					const gate = input.beforeFinish
 						? await control.wait(input.beforeFinish(control.signal))

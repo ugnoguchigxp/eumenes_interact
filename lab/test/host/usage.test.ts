@@ -123,6 +123,9 @@ describe("a trial's usage", () => {
 
 	test("labels group what answered", () => {
 		expect(inferenceLabel(CLAUDE)).toBe("claude:claude-haiku-5-5/low");
+		expect(inferenceLabel({ ...CLAUDE, completionReview: "dual" })).toBe(
+			"claude:claude-haiku-5-5/low/dual",
+		);
 		expect(inferenceLabel({ kind: "larm", profile: "chat", model: null })).toBe(
 			"larm:chat",
 		);

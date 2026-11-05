@@ -8,6 +8,8 @@ plan.md §3.1の「実験用ホスト」。Arm 1の登録部品をfixtureと実�
 
 runは --inference claude / --inference openai を指定できる。OpenAIはgpt-6-luna、Claudeはclaude-haiku-5-5を現在の有料検証の固定条件とする。両APIを同じ10USD台帳で制限し、HTTP retryは0、出力上限を超えて要求しない。不明usageは0にしない。詳しくはルートREADMEのAPI設定と検証記録を参照。
 
+ブラウザ作業の完了確認にはClaudeとLunaの両方を使うため、両方のキーが必要。比較名の`/dual`がこの構成を表す。混合providerの試行費用は`null`とし、合計費用の上限は共通台帳で確認する。manualの要求・choiceファイルは既存ファイルを上書きしないため、再実行には新しい作業ディレクトリを使う。
+
 指定できるもの（`run`、`compare`、`operate`で共通）:
 
 - `--inference claude`（`run`は`scripted|manual|claude|openai`、`compare`は`scripted|claude`、`operate`は`claude`、`chain`は`manual|claude|openai`）

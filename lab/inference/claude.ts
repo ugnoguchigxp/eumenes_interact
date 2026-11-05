@@ -200,6 +200,7 @@ export function createClaudeInference(o: {
 					metadata: {
 						provider: "anthropic",
 						requestedModel: settings.model,
+						requestedEffort: settings.effort,
 						returnedModel: message.model ?? null,
 						responseId: message.id ?? null,
 						serviceTier: message.usage?.service_tier ?? null,

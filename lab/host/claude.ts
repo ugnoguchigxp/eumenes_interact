@@ -11,6 +11,7 @@ import { asCollabAgent } from "./collab.ts";
 import type { InferenceInfo } from "./types.ts";
 import { SpendLedger, budgetedInference } from "../inference/spend.ts";
 import { createOpenAIInference, LUNA_MODEL } from "../inference/openai.ts";
+import { silentLabLogger } from "./log.ts";
 
 export function paidLedger() {
 	return new SpendLedger(
@@ -127,13 +128,16 @@ export function startClaude(
 ): ClaudeSession {
 	const inference = createClaudeInference({ settings, logger, correlationId });
 	if (settings.model !== "claude-haiku-5-5") throw new Error("unpriced_model");
+	const other = createOpenAIInference(lunaSettings({}));
 	const ledger = paidLedger();
 	const raw = budgetedInference(inference, ledger, settings.model);
+	const reviewLuna = budgetedInference(other, ledger, LUNA_MODEL);
 	return {
-		port: asCollabAgent(raw),
+		port: asCollabAgent(raw, { completionVerifiers: [raw, reviewLuna] }),
 		raw,
 		info: () => ({
 			kind: "claude",
+			completionReview: "dual",
 			...inference.describe(),
 			...(settings.maxTokens === undefined
 				? {}
@@ -161,14 +165,22 @@ export function lunaSettings(flags: {
 	};
 }
 export function startLuna(settings = lunaSettings({})): ClaudeSession {
+	ensureClaudeCredential();
 	const inner = createOpenAIInference(settings);
+	const other = createClaudeInference({
+		settings: { model: "claude-haiku-5-5", effort: "low" },
+		logger: silentLabLogger,
+		correlationId: "completion-review",
+	});
 	const ledger = paidLedger();
 	const raw = budgetedInference(inner, ledger, LUNA_MODEL);
+	const reviewClaude = budgetedInference(other, ledger, "claude-haiku-5-5");
 	return {
-		port: asCollabAgent(raw),
+		port: asCollabAgent(raw, { completionVerifiers: [reviewClaude, raw] }),
 		raw,
 		info: () => ({
 			kind: "openai",
+			completionReview: "dual",
 			provider: "openai",
 			model: LUNA_MODEL,
 			effort: settings.effort,

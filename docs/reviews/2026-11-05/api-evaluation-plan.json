@@ -169,7 +169,7 @@
 	"execution_budget": {
 		"combinedUsd": 10,
 		"perProvider": "shared combined cap; no independent extra allocation",
-		"httpAttemptCap": 500,
+		"httpAttemptCap": 600,
 		"httpRetries": 0,
 		"maxOutputTokens": 2048,
 		"unknownUsage": "retain full official model-window reservation",
@@ -178,6 +178,8 @@
 			"attempts": 313,
 			"accountedUpperUsd": 7.181179,
 			"unknownCalls": 11
-		}
+		},
+		"completionReview": "Claude and Luna fresh-context review; both must approve; reserve two calls inside existing per-run allowance",
+		"attemptCapChange": "500 to 600, audited; 10 USD cap and all existing charges/reservations unchanged"
 	}
 }

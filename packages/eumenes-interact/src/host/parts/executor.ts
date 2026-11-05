@@ -1108,7 +1108,18 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	function provenanceOf(
 		value: string,
 		pageUrl: string,
+		quote?: string | null,
 	): InputProvenance | null {
+		if (quote != null) {
+			try {
+				if (sameKey(value) === "" || !sameKey(quote).includes(sameKey(value)))
+					return null;
+				assertQuoted(value, quote, deps.request);
+				return { kind: "request_quote", quote };
+			} catch {
+				return null;
+			}
+		}
 		try {
 			assertQuoted(value, value, deps.request);
 			return { kind: "request_quote", quote: value };
@@ -1248,7 +1259,11 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			}
 			command = { action: "page.click", targetRef: target.ref, element };
 		} else if (TEXT_ROLES.has(target.record.role)) {
-			const found = provenanceOf(field.value, observation.url ?? "");
+			const found = provenanceOf(
+				field.value,
+				observation.url ?? "",
+				field.quote,
+			);
 			if (found === null) return needsInput();
 			provenance = found;
 			command = {

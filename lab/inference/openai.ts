@@ -148,6 +148,7 @@ export function createOpenAIInference(
 							metadata: {
 								provider: "openai",
 								requestedModel: o.model ?? LUNA_MODEL,
+								requestedEffort: o.effort ?? "low",
 								returnedModel:
 									typeof data.model === "string" ? data.model : null,
 								responseId: typeof data.id === "string" ? data.id : null,

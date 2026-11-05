@@ -1101,6 +1101,26 @@ describe("review fixes (S2b)", () => {
 			s.adapter.dispatched.filter((c) => c.action === "page.click"),
 		).toHaveLength(1);
 	});
+	test("a short literal value needs its original quoted context and cannot be replaced by a page value", async () => {
+		const s = await setup({
+			start: ORDER,
+			request: "名前は「森」で入力してください。",
+		});
+		const form = await s.result(call("form.inspect", { form: null }));
+		const item = form.form!.fields.find((f) => f.label === "お名前")!.item;
+		const bad = await s.result(
+			call("form.fill", {
+				fields: [{ item, value: "外部秘密値", quote: "名前は「森」" }],
+			}),
+		);
+		expect(bad.fill?.[0]?.status).toBe("needs_input");
+		const ok = await s.result(
+			call("form.fill", {
+				fields: [{ item, value: "森", quote: "名前は「森」" }],
+			}),
+		);
+		expect(ok.fill?.[0]?.status).toBe("filled");
+	});
 
 	test("a page that left the allowed sites while the image was taken is refused and nothing is saved", async () => {
 		const s = await setup();

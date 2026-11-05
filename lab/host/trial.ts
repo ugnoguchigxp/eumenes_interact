@@ -64,6 +64,7 @@ export class TrialRecorder {
 		startedAtMs: number,
 		outcome: InferenceOutcome | "error",
 		durationMs: number,
+		purpose?: "completion_review",
 	) {
 		const at = this.at();
 		this.firstCallAt ??= Math.max(0, startedAtMs - this.origin);
@@ -79,6 +80,10 @@ export class TrialRecorder {
 				: outcome.usage;
 		this.add({
 			type: "model.call",
+			...(purpose ? { purpose } : {}),
+			...(outcome !== "error" && outcome.metadata
+				? { inference: outcome.metadata }
+				: {}),
 			at,
 			durationMs,
 			outcome: kind,

@@ -67,8 +67,10 @@ describe("--max-tokens", () => {
 describe("what a Claude run records about itself", () => {
 	test("the output bound is part of the inference info when the run set one", () => {
 		const saved = process.env.ANTHROPIC_API_KEY;
+		const savedOpenAI = process.env.OPENAI_API_KEY;
 		// Building the client makes no call; a placeholder key is all it asks for.
 		process.env.ANTHROPIC_API_KEY = "placeholder-not-a-key";
+		process.env.OPENAI_API_KEY = "placeholder-not-a-key";
 		try {
 			const bounded = startClaude(
 				claudeSettings({ maxTokens: 4000 }),
@@ -77,6 +79,7 @@ describe("what a Claude run records about itself", () => {
 			);
 			expect(bounded.info()).toEqual({
 				kind: "claude",
+				completionReview: "dual",
 				provider: "anthropic",
 				model: "claude-haiku-5-5",
 				effort: "low",
@@ -87,6 +90,8 @@ describe("what a Claude run records about itself", () => {
 		} finally {
 			if (saved === undefined) delete process.env.ANTHROPIC_API_KEY;
 			else process.env.ANTHROPIC_API_KEY = saved;
+			if (savedOpenAI === undefined) delete process.env.OPENAI_API_KEY;
+			else process.env.OPENAI_API_KEY = savedOpenAI;
 		}
 	});
 });

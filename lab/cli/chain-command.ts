@@ -118,6 +118,7 @@ export async function executeChain(
 	const rawPort = (id: string): InferencePort =>
 		apiSession?.raw ?? createManualInference(dir!, id);
 	const stepScope = (id: string) => `step:${id}`;
+	const completionVerifiers = apiSession?.port.completionVerifiers ?? [];
 	const portFor = (id: string, scope = id) =>
 		calls.port(rawPort(id), stepScope(scope), 10);
 	const captureDir = parseCaptureDir(o.captureDir);
@@ -365,6 +366,11 @@ export async function executeChain(
 					adapter: hold.adapter,
 					inference: asCollabAgent(
 						portFor(asked ? `${def.id}-c${asked}` : def.id, step.id),
+						{
+							completionVerifiers: completionVerifiers.map((port) =>
+								calls.port(port, stepScope(step.id), 10),
+							),
+						},
 					),
 					inferenceInfo: apiSession?.info ?? (() => ({ kind: "scripted" })),
 					approver: new AllowlistApprover(
@@ -443,7 +449,10 @@ export async function executeChain(
 					break;
 				}
 				asked += 1;
-				if (calls.remaining(stepScope(step.id), budget.perStep) === 0) {
+				if (
+					calls.remaining(stepScope(step.id), budget.perStep) <
+					completionVerifiers.length + 1
+				) {
 					choiceStop = "budget_exhausted";
 					break;
 				}

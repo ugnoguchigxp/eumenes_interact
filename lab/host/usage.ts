@@ -63,7 +63,7 @@ export function trialUsage(
 		e.type === "model.call" ? [e.tokens] : [],
 	);
 	const costs =
-		inference?.kind === "claude"
+		inference?.kind === "claude" && inference.completionReview !== "dual"
 			? calls.map((t) =>
 					estimateClaudeCostUsd(inference.model, {
 						inputTokens: t.input,
@@ -99,9 +99,9 @@ export function inferenceLabel(info: InferenceInfo | null | undefined): string {
 		case "larm":
 			return `larm:${info.profile}`;
 		case "claude":
-			return `claude:${info.model}/${info.effort}`;
+			return `claude:${info.model}/${info.effort}${info.completionReview === "dual" ? "/dual" : ""}`;
 		case "openai":
-			return `openai:${info.model}/${info.effort}`;
+			return `openai:${info.model}/${info.effort}${info.completionReview === "dual" ? "/dual" : ""}`;
 	}
 }
 

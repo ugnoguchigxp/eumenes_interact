@@ -1,0 +1,110 @@
+{
+  "at": "2026-11-05T12:51:45.971Z",
+  "scope": "Replay of two preserved false completions; judges must reject; no external actions",
+  "rows": [
+    {
+      "provider": "claude",
+      "report": "api-pilot-2026-11-05T11-28-06.443Z.json",
+      "case": "dev-capture-item",
+      "passed": true,
+      "verdict": {
+        "outcome": "partial",
+        "explanation": "trace上で『木のスプーン』(p2.i7)から詳細ページ(product.html?id=2, p3)へ遷移し、page.captureでp3.i8（role img、name『商品の写真』）を範囲item指定で撮影し、captureId c1 (160x121 png) の完了は確認できます。ただし依頼の『その商品の部分』が商品写真だけを指すのか、商品の詳細記事(p3.i7『商品の詳細』)を含む商品部分全体を指すのかは確定できず、撮影範囲が依頼と一致するという根拠が不足しています。また撮影画像の内容（対象が写真のみか）を直接確認する証拠もありません。"
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 808,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 3442
+      },
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011Cgjp2XzpbH3cLnqxPZVbP",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      }
+    },
+    {
+      "provider": "openai",
+      "report": "api-pilot-2026-11-05T11-28-06.443Z.json",
+      "case": "dev-capture-item",
+      "passed": false,
+      "verdict": {
+        "outcome": "achieved",
+        "explanation": "『木のスプーン』の商品詳細ページが開かれ、ページ上で商品の写真と確認された画像要素だけを撮影しています。"
+      },
+      "usage": {
+        "inputTokens": 1698,
+        "outputTokens": 51,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_071863fa14443b86016aec7bd9266087d1994bab9a566d9e1a",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      }
+    },
+    {
+      "provider": "claude",
+      "report": "api-pilot-2026-11-05T12-34-28.247Z.json",
+      "case": "independent-final-capture",
+      "passed": true,
+      "verdict": {
+        "outcome": "partial",
+        "explanation": "r2とr3で商品ページの名前・価格660円・素材（桜の木）は確認できています。しかし、r4で保存されたのは商品の詳細（p3.i7）ではなく、範囲の広いmain要素（p3.i6）です。依頼は紹介欄だけを撮ることだったため、範囲が広すぎる可能性があります。また、r4はファイル情報のみで画像の中身を確認できる証拠がなく、写真・名前・価格・素材が実際に写っているか、おすすめ欄が含まれていないかは確認できません。"
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 595,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 5089
+      },
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011Cgjp36pmv1kTmJp8Q3UQ3",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      }
+    },
+    {
+      "provider": "openai",
+      "report": "api-pilot-2026-11-05T12-34-28.247Z.json",
+      "case": "independent-final-capture",
+      "passed": true,
+      "verdict": {
+        "outcome": "partial",
+        "explanation": "木のスプーンの商品ページを開き、名前・価格・素材の説明を確認し、画像を保存したことは記録されています。ただし撮影範囲は商品詳細欄（p3.i7）ではなくページ全体のmain（p3.i6）で指定されています。保存画像に写真も含まれ、必要な情報が一緒に写っているかは確認できないため、依頼どおり「その欄だけ」を撮影したとは裏付けられません。"
+      },
+      "usage": {
+        "inputTokens": 2576,
+        "outputTokens": 132,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_023a4f229ca96eb1016aec7bdf728c87d1890f700ff042a698",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      }
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 454,
+    "accountedUpperUsd": 7.66797,
+    "unknownCalls": 11
+  }
+}

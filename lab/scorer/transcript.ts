@@ -3,6 +3,7 @@ import type {
 	AdapterCommand,
 	DeclaredEffect,
 	OperationResult,
+	InferenceMetadata,
 } from "eumenes-interact";
 
 /**
@@ -32,6 +33,8 @@ type At = { at: number };
 export type TranscriptEvent =
 	| (At & {
 			type: "model.call";
+			purpose?: "completion_review";
+			inference?: InferenceMetadata;
 			durationMs: number;
 			outcome: ModelCallOutcome;
 			tokens: TokenUsage;

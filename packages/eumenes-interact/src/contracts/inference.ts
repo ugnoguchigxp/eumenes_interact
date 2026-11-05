@@ -34,6 +34,7 @@ export type InferenceMetadata = {
 	responseId: string | null;
 	serviceTier: string | null;
 	httpAttempts: number;
+	requestedEffort?: string;
 };
 
 /** Classified per call (plan.md §11 "出力の不正"). */
@@ -56,5 +57,7 @@ export type InferenceOutcome =
 export interface InferencePort {
 	/** Identity of the frozen skill body this trusted adapter actually applies (not provider credentials). */
 	readonly skill?: { ref: string; digest: string };
+	/** Trusted host policy: a fresh-context semantic review using the same bounded inference budget. */
+	readonly completionVerifiers?: readonly Pick<InferencePort, "complete">[];
 	complete(request: InferenceRequest): Promise<InferenceOutcome>;
 }
