@@ -301,6 +301,22 @@ describe("page.find", () => {
 		expect(r.read?.text).toContain("素材ごとの目安は下の表のとおりです。");
 	});
 
+	test("a phrase not on the page falls back to its words, saying which matched (2026-11-05)", async () => {
+		const s = await setup({ start: `${KAEDE}care.html` });
+		const r = await s.result(
+			call("page.find", { text: "存在しない 目安", role: null }),
+		);
+		expect(r.status).toBe("completed");
+		expect(r.read?.text).toContain(
+			"[語ごとの一致: 目安（「存在しない 目安」そのものはなし）]",
+		);
+		expect(r.read?.text).toContain("素材ごとの目安は下の表のとおりです。");
+		const none = await s.result(
+			call("page.find", { text: "存在しない 語句", role: null }),
+		);
+		expect(codes(none)).toEqual(["failed", "target_not_found"]);
+	});
+
 	test("finding nothing is a failure with an empty candidate list, never a guess", async () => {
 		const s = await setup();
 		const r = await s.result(

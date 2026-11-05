@@ -829,6 +829,42 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 				};
 			}
 		}
+		// The whole phrase is not on the page: each of its words may be (a guessed phrase like "初登頂の年" or
+		// "Population 2025" rarely appears verbatim). Hits for any word come back, saying which words matched, so
+		// the next call need not guess a new phrase.
+		const words =
+			text === null
+				? []
+				: [...new Set(text.split(/[\s、,，・/]+/u))].filter(
+						(w) => w.length >= 2,
+					);
+		if (words.length >= 2) {
+			const byWord = words.map((w) => ({
+				w,
+				found: batch(observation, (pageId) =>
+					findText(observation.body, pageId, w, FIND_LIMIT),
+				),
+			}));
+			const matched = byWord.filter((b) => b.found.hits.length > 0);
+			if (matched.length) {
+				const hits = matched.flatMap((b) => b.found.hits).slice(0, FIND_LIMIT);
+				const body = [
+					`[語ごとの一致: ${matched.map((b) => b.w).join(" / ")}（「${text}」そのものはなし）]`,
+					...hits.map((h) => (h.item ? `[${h.item}] ${h.text}` : h.text)),
+				].join("\n");
+				return {
+					status: "completed",
+					candidates: [
+						...new Map(
+							matched.flatMap((b) => b.found.records).map((r) => [r.item, r]),
+						).values(),
+					]
+						.slice(0, FIND_LIMIT)
+						.map(toItem),
+					read: { text: body, charCount: body.length, truncated: false },
+				};
+			}
+		}
 		throw new PartFail("target_not_found", { candidates: [] });
 	}
 
