@@ -91,6 +91,17 @@ bun lab/cli/main.ts operate --request "..." --start-url ... --allow-origin ... -
 - 記録: `part.call`（部品名と引数の名前だけ。値は入れない）、`part.result`（部品名・状態・コード）、`capture.saved`（IDとファイル名・大きさ・バイト数・形式・範囲）。転写の`captureDir`には撮影先の絶対パスが入る（転写だけ。ログには出さない）。画像もパスもログには出ない。
 - Arm 1の固定応答（`--inference scripted`）は`lab/scripted/scripts-arm1/<caseId>.json`。モデルがするのと同じ部品の呼出しJSONを、最新の結果の要約から役割・名前・領域で項目を選んで作る。選べない・複数あるときは聞き返す。Arm 0には撮影の道具が無いので、撮影のケースはArm 0では失敗する（仕様）。`run`の終わりと`operate`は、呼んだ部品の列と保存した撮影を表示する。
 
+## 操作の許可リスト（承認なしで押してよいボタン）
+
+送信しないボタンのクリックは既定で承認が要り、chain では `needs_input` で止まります。例外は `lab/config/action-allowlist.json` に書いたものだけです（`LAB_ACTION_ALLOWLIST` で別ファイルに差し替え可）。
+
+追加の手順:
+
+1. `entries` に `{ "origin": "https://<ホスト>", "actions": ["media.play", "media.pause"] }` を足す。origin は https でパスなし。
+2. `bun lab/scripts/allowlist-check.ts` で確認する（不正なら exit 1 で理由を表示）。chain も起動時に同じ検査をして、不正なら起動しない。
+3. 使える種類は `media.play`（`button "Play"`・`"再生"`・`"Play (k)"`・`"Play keyboard shortcut k"`）と `media.pause` だけ。ボタン名の照合はコードで固定で、ファイルにパターンは書けない。新しい種類は `lab/host/allowlist.ts` の `ACTION_KINDS` とテストを足す。
+4. 実行時の判定は stderr の `allowlist\tgrant|not_listed` で分かる。
+
 ## そのほかのコマンド
 
 `cases`、`run`、`trials`、`report`、`larm`、`knowledge`、`task`、`compare`は`bun lab/cli/main.ts`のusageを見る。作業定義は[definitions/README.md](definitions/README.md)、ケースと採点は[cases/README.md](cases/README.md)。
