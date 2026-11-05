@@ -78,7 +78,15 @@ export function summarizePage(
 	const regions = [
 		...new Set(nodes.map(landmarkLabel).filter((l): l is string => !!l)),
 	].slice(0, MAX_REGIONS);
-	const shown = capItems(records, options.maxItems);
+	// An unnamed link to an address a named link also goes to (a video's thumbnail beside its title) adds
+	// nothing the model can choose by; the named one stands for both. Ids are unchanged.
+	const named = new Set(
+		records.filter((r) => r.role === "link" && r.name && r.url).map((r) => r.url),
+	);
+	const listed = records.filter(
+		(r) => !(r.role === "link" && !r.name && r.url && named.has(r.url)),
+	);
+	const shown = capItems(listed, options.maxItems);
 	const place = raw.url ? placeOf(raw.url) : "";
 	return {
 		summary: {
@@ -90,7 +98,7 @@ export function summarizePage(
 			items: shown.map(pageItem),
 			itemCount: records.length,
 			truncated:
-				shown.length < records.length || headings.length > options.maxHeadings,
+				shown.length < listed.length || headings.length > options.maxHeadings,
 		},
 		records,
 	};

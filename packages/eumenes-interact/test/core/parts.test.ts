@@ -1016,3 +1016,29 @@ describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
 	});
 
 });
+
+describe("quoted text and unnamed duplicate links (L8)", () => {
+	test("a YAML-quoted text node reads without its quotes", () => {
+		const body = [
+			"- main [ref=e1]:",
+			'  - paragraph [ref=e2]: "[Submitted on 12 Jun 2017]"',
+		].join("\n");
+		const hit = findText(body, "p1", "Submitted", 5).hits[0];
+		expect(hit?.text).toBe("[Submitted on 12 Jun 2017]");
+	});
+
+	test("an unnamed link beside a named one to the same address is not listed", () => {
+		const body = [
+			"- main [ref=e1]:",
+			"  - link [ref=e2]:",
+			"    - /url: /watch?v=abc",
+			'  - link "Video title" [ref=e3]:',
+			"    - /url: /watch?v=abc",
+			"  - link [ref=e4]:",
+			"    - /url: /other",
+		].join("\n");
+		const { summary } = summarize(body);
+		expect(summary.items.map((i) => i.item)).toEqual(["p3.i1", "p3.i3", "p3.i4"]);
+		expect(summary.itemCount).toBe(4);
+	});
+});

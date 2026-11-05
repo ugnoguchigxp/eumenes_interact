@@ -67,6 +67,9 @@ export function parseNodes(body: string): Node[] {
 		const child = rest
 			.map((line) => URL_LINE.exec(line))
 			.find((found) => found !== null);
+		// A YAML double-quoted scalar (`- text: "[Submitted on …"`) is its content, not its quotes.
+		if (text.length >= 2 && text.startsWith('"') && text.endsWith('"'))
+			text = unquote(text.slice(1, -1));
 		if (text === "|" || text === ">")
 			text = rest
 				.filter((line) => !URL_LINE.test(line))
