@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { surrounding } from "../../host/parts/executor.ts";
+import { surrounding, withSortControls } from "../../host/parts/executor.ts";
 
 describe("surrounding", () => {
 	test("returns the row around a line that is the name alone", () => {
@@ -10,5 +10,31 @@ describe("surrounding", () => {
 	test("falls back to any occurrence, and null when absent", () => {
 		expect(surrounding("in Japan today", "Japan", 200)).toContain("in Japan");
 		expect(surrounding("nothing here", "Japan", 200)).toBeNull();
+	});
+});
+
+describe("withSortControls", () => {
+	test("puts sort links the cap left out at the head of the items", () => {
+		const summary = {
+			page: "p2",
+			url: "https://x/",
+			title: "t",
+			headings: [],
+			regions: [],
+			items: [{ item: "p2.i1", role: "link", name: "Home" }],
+		};
+		const records = [
+			{ item: "p2.i1", role: "link", name: "Home" },
+			{ item: "p2.i40", role: "link", name: "安い順" },
+			{ item: "p2.i41", role: "paragraph", name: "安い順に並べた結果" },
+		];
+		// biome-ignore lint/suspicious/noExplicitAny: minimal shapes for the test
+		const out = withSortControls(summary as any, records as any);
+		expect(out.items.map((i) => i.item)).toEqual(["p2.i40", "p2.i1"]);
+		// biome-ignore lint/suspicious/noExplicitAny: minimal shapes for the test
+		expect(withSortControls(summary as any, records.slice(0, 1) as any)).toBe(
+			// biome-ignore lint/suspicious/noExplicitAny: minimal shapes for the test
+			summary as any,
+		);
 	});
 });

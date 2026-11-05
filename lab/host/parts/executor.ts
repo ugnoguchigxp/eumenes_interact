@@ -262,7 +262,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 
 	/** Issues the page id and the item ids of the observation's summary. */
 	function summarize(observation: ObservationEnvelope): PageSummary {
-		return batch(observation, (pageId) =>
+		const made = batch(observation, (pageId) =>
 			core.summarizePage(
 				{
 					body: observation.body,
@@ -275,7 +275,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 				},
 				{ pageId, maxItems: SUMMARY_ITEMS, maxHeadings: SUMMARY_HEADINGS },
 			),
-		).summary;
+		);
+		return withSortControls(made.summary, made.records);
 	}
 
 	/** Items similar to a record that is gone or ambiguous: what the model may choose from instead. */
@@ -1404,4 +1405,40 @@ export function surrounding(
 			return `${from > 0 ? "…" : ""}${text.slice(from, to).replace(/\n{2,}/g, "\n")}${to < text.length ? "…" : ""}`;
 		})
 		.join("\n---\n");
+}
+
+/** Names of the controls that order a list ("安い順", "価格の安い順", "Price: Low to High", "Sort by"). */
+const SORT_NAME =
+	/(安い順|高い順|価格の?(安|低|高)い|低価格|価格順|新しい順|新着順|人気順|評価順|並び替え|並べ替え|ソート|sort\b|sort by|price:? *low|lowest price|price.*(asc|desc))/iu;
+const SORT_ROLES = new Set([
+	"link",
+	"button",
+	"option",
+	"combobox",
+	"tab",
+	"radio",
+	"menuitem",
+	"menuitemradio",
+]);
+
+/**
+ * A list's sort controls are put at the head of the page's items when the summary's cap left them out:
+ * "安い順" on a long results page is otherwise reached only by guessing a page.find term.
+ */
+export function withSortControls(
+	summary: PageSummary,
+	records: readonly ItemRecord[],
+): PageSummary {
+	const shown = new Set(summary.items.map((i) => i.item));
+	const sorts = records
+		.filter(
+			(r) =>
+				SORT_ROLES.has(r.role) &&
+				r.name.length <= 40 &&
+				SORT_NAME.test(r.name) &&
+				!shown.has(r.item),
+		)
+		.slice(0, 6);
+	if (sorts.length === 0) return summary;
+	return { ...summary, items: [...sorts.map(toItem), ...summary.items] };
 }
