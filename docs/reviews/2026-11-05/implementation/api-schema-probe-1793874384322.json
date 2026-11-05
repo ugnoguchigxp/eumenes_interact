@@ -1,0 +1,27 @@
+{
+  "at": "2026-11-05T10:26:24.322Z",
+  "rows": [
+    {
+      "provider": "claude",
+      "outcome": {
+        "kind": "error",
+        "code": "http_400",
+        "usage": {
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadInputTokens": null,
+          "cacheCreationInputTokens": null
+        },
+        "latencyMs": 399
+      },
+      "step": null,
+      "passed": false
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 11,
+    "accountedUpperUsd": 9.654362,
+    "unknownCalls": 9
+  }
+}

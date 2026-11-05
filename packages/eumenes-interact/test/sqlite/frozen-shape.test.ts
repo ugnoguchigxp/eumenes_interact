@@ -9,6 +9,7 @@ import { migrations } from "../../src/sqlite/index.ts";
  */
 const RECORDED_SHA256: readonly string[] = [
 	"949e05a671d5758db8deba1fbcbd04abcec7a6a09e0feaa05b996d637ce2fb7b",
+	"3b8f240d2c92a549c91c7d35f864bea1d7528c226e9c8c5f6010b3d1d91c99e6",
 ];
 
 test("migration bodies match the recorded sha256 list", () => {

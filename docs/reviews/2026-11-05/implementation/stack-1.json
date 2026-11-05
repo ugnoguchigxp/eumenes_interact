@@ -1,0 +1,9 @@
+{
+  "command": [
+    "bun",
+    "run",
+    "check:stack"
+  ],
+  "exit": 0,
+  "durationS": 0.028303861618041992
+}

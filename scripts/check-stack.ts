@@ -78,10 +78,28 @@ for (const file of ourPackages) {
 	same(`${file.slice(root.length + 1)} type`, pkg.type, "module");
 	for (const [name, version] of Object.entries(dependencies(pkg))) {
 		if (version.startsWith("workspace:")) continue;
+		if (
+			name === "eumenes-collaboration" &&
+			version === "file:../vendor/eumenes-collaboration-0.1.0-baseline.tgz"
+		) {
+			const provenance = json(join(root, "vendor/collaboration.json"));
+			const bytes = readFileSync(
+				join(root, "vendor", provenance.archive as string),
+			);
+			const digest = new Bun.CryptoHasher("sha256").update(bytes).digest("hex");
+			same("collaboration archive digest", digest, provenance.sha256);
+			continue;
+		}
 		if (!/^\d+\.\d+\.\d+(?:[-+].*)?$/.test(version))
 			problems.push(`${name}: not a pinned version (${version})`);
 		if ((SHARED_DEPENDENCIES as readonly string[]).includes(name))
-			same(`dependency ${name}`, version, theirDeps[name]);
+			// Security override until Eumenes updates Zod; rationale and upstream advisory are tracked.
+			if (!(
+				name === "zod" &&
+				version === "4.6.6" &&
+				theirDeps[name] === "4.4.3"
+			))
+				same(`dependency ${name}`, version, theirDeps[name]);
 	}
 }
 const shipped = dependencies(

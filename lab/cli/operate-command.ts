@@ -118,7 +118,7 @@ export async function operateCommand(
 ): Promise<number> {
 	const options = parseOperateFlags(flags);
 	console.error(
-		`notice: operate drives a real browser on the real site you named${options.inference === "claude" ? " and calls the Claude API with the key in your .env (costs money)" : " and calls the real LARM"}; start it only when you have decided to (user-triggered, plan §10.2, §10.5).`,
+		`notice: operate drives a real browser on the real site you named${options.inference === "claude" ? " and calls the Claude API with your login-shell environment key (costs money)" : " and calls the real LARM"}; start it only when you have decided to (user-triggered, plan §10.2, §10.5).`,
 	);
 	const handle = startOperate(options);
 	const onSigint = () => handle.cancel();

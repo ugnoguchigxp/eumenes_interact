@@ -315,7 +315,12 @@ export function nextArm1Output(
 		const id = step.evidence === "none" ? null : latestResultId(messages);
 		return JSON.stringify({
 			part: "done",
-			args: { answer: step.done, evidence: id ? [id] : [] },
+			args: {
+				answer: step.done,
+				evidence: id ? [id] : [],
+				outcome: "achieved",
+				basis: id ? "observed" : "response",
+			},
 		});
 	}
 	if ("ask" in step) return ask(step.ask);

@@ -1,0 +1,11 @@
+{
+	"command": [
+		"node",
+		"--input-type=module",
+		"-e",
+		"import * as core from \"./packages/eumenes-interact/dist/index.js\"; import * as sql from \"./packages/eumenes-interact/dist/sqlite.js\"; import * as adapter from \"./packages/eumenes-interact/dist/adapters/playwright-mcp.js\"; const s=core.startRun({arm:\"arm1\",request:\"read\",policy:{maxModelCalls:4,retries:{default:1}},nowMs:0});console.log(JSON.stringify({node:process.version,arm:s.arm,callsLeft:core.prepareStep(s).callsLeft,migrations:sql.migrations.length,adapter:typeof adapter.createPlaywrightMcpAdapter}));"
+	],
+	"exit": 0,
+	"cwd": "/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact",
+	"conditions": "actual Node24.11.1; built dist direct imports and currently supported arm1; diagnostic control, does not replace failing check:dist"
+}

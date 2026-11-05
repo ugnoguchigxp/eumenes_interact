@@ -1,0 +1,86 @@
+import {
+	mkdtempSync,
+	mkdirSync,
+	readFileSync,
+	writeFileSync,
+	readdirSync,
+	rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { resolve, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const temp = mkdtempSync(join(tmpdir(), "interact-package-"));
+const env = Object.fromEntries(
+	["PATH", "HOME", "TMPDIR"].flatMap((k) =>
+		process.env[k] === undefined ? [] : [[k, process.env[k]]],
+	),
+);
+try {
+	execFileSync("bun", ["pm", "pack", "--destination", temp], {
+		cwd: join(root, "packages/eumenes-interact"),
+		env,
+		stdio: "pipe",
+	});
+	const archive = join(
+		temp,
+		readdirSync(temp).find((n) => n.endsWith(".tgz")),
+	);
+	const contents = execFileSync("tar", ["-tzf", archive], { encoding: "utf8" })
+		.trim()
+		.split("\n");
+	if (
+		contents.some(
+			(n) =>
+				n.includes("/lab/") || n.includes(".env") || n.includes("node_modules"),
+		)
+	)
+		throw new Error("unwanted_packaged_content");
+	const consumer = join(temp, "consumer");
+	mkdirSync(consumer);
+	writeFileSync(
+		join(consumer, "package.json"),
+		JSON.stringify({
+			private: true,
+			type: "module",
+			dependencies: { "eumenes-interact": `file:${archive}` },
+		}),
+	);
+	execFileSync("bun", ["install", "--ignore-scripts"], {
+		cwd: consumer,
+		env,
+		stdio: "pipe",
+	});
+	writeFileSync(
+		join(consumer, "consumer.mjs"),
+		readFileSync(join(root, "lab/scripts/package-consumer.mjs")),
+	);
+	const runs = [];
+	for (const runtime of ["node", "bun"])
+		runs.push(
+			JSON.parse(
+				execFileSync(runtime, ["consumer.mjs"], {
+					cwd: consumer,
+					env,
+					encoding: "utf8",
+				}),
+			),
+		);
+	const report = {
+		at: new Date().toISOString(),
+		archiveSha256: createHash("sha256")
+			.update(readFileSync(archive))
+			.digest("hex"),
+		contents,
+		runs,
+	};
+	writeFileSync(
+		join(root, "docs/reviews/2026-11-05/implementation/package-consumer.json"),
+		JSON.stringify(report, null, 2) + "\n",
+	);
+	console.log(JSON.stringify({ archiveSha256: report.archiveSha256, runs }));
+} finally {
+	rmSync(temp, { recursive: true, force: true });
+}

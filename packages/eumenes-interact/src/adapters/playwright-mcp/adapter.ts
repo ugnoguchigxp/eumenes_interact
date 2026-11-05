@@ -98,10 +98,16 @@ const CONFIG_FILE_NAME = "playwright-mcp.config.json";
  * `acceptDownloads: false`: a page that starts a download gets it cancelled, so nothing is written to disk
  * without the host asking (review 2026-11-04 H2; downloads have no approval path yet, so they are refused).
  */
+/** Chromium's documented transport controls; HTTP proxying alone does not cover WebRTC UDP. */
+export const BROWSER_LAUNCH_ARGS = [
+	"--mute-audio",
+	"--disable-quic",
+	"--webrtc-ip-handling-policy=disable_non_proxied_udp",
+];
 const CONFIG = {
 	browser: {
-		launchOptions: { args: ["--mute-audio"] },
-		contextOptions: { acceptDownloads: false },
+		launchOptions: { args: BROWSER_LAUNCH_ARGS },
+		contextOptions: { acceptDownloads: false, serviceWorkers: "block" },
 	},
 };
 

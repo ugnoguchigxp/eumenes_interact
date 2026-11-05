@@ -1,0 +1,342 @@
+{
+	"rubric_version": "1.1.0",
+	"mode": "technical",
+	"depth": "deep",
+	"technical_profile": "agent",
+	"assessment_kind": "expected",
+	"baseline_snapshot": "a38f9553acf56715a8c29e170c59ca1829558a4c",
+	"scenario_conditions": [
+		"docs/improvement-plan.mdのT00〜T19、T24のClaude APIとOpenAI API Luna接続と検証、T20の操作・回復の利用確認、T21の該当受入を満たし、F01〜F08を実際の回帰試験で解消する。",
+		"全30項目に必要な観測が得られ、指定5項目だけが例外・失敗・反証に対する段階4の強い証拠を満たす。他25項目は段階3を満たす。",
+		"項目の適用範囲と重みを変えず、新しい未解決High以上の問題がない。",
+		"各criterionのconfidenceとanchor_supportは将来必要になる証拠の条件を表す。現在の確信度や実測値ではない。",
+		"Claude APIとOpenAI API gpt-6-lunaの同一ケース比較を実施し、両providerで必須契約違反0。共有キー設定は計画作成時に確認済みだがAPI送信は未実施。"
+	],
+	"assumed_fixes": ["F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08"],
+	"dependencies": [
+		"T00-T19, T20 technical interaction acceptance, T21, T24",
+		"T21",
+		"T17の統合設計の合意",
+		"本体側実装依頼と受入環境",
+		"実LLM/実サイト/holdoutの実行指示",
+		"実装担当以外のケース作成と受入"
+	],
+	"target": {
+		"locator": "eumenes_interact",
+		"snapshot": "hypothetical-target-after-baseline-a38f955",
+		"reviewed_at": "2026-11-05",
+		"stage": "conditional goal only; implementation not started",
+		"scope": "Same browser-agent scope and weights as baseline. No optional dimensions removed. Desktop and project potential are not included in this calculation."
+	},
+	"evidence": [
+		{
+			"id": "P01",
+			"kind": "primary_doc",
+			"locator": "docs/improvement-plan.md and technical-targets.json",
+			"observed_at": "2026-11-05",
+			"observation": "80点の目標配分と将来必要な検証条件を定義した。",
+			"scope": "実行済み証拠ではなく条件付き計画。"
+		}
+	],
+	"claims": [
+		{
+			"id": "P-C01",
+			"type": "Assumption",
+			"statement": "指定した受入証拠が全て揃う場合だけ、指定の目標アンカーを採用できる。",
+			"evidence_ids": ["P01"],
+			"limitations": "現状の改善実績も、将来80点に達する確率も表さない。"
+		}
+	],
+	"findings": [],
+	"tracks": {
+		"technical": {
+			"dimensions": {
+				"architecture": {
+					"criteria": {
+						"boundaries": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。核とIOとホストの依存方向を契約と複数ホストの適合試験で確認し、代表的変更が局所に収まる。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"flow": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。操作・取消・完了・後段採用・DB更新の正本と順序を定め、通常と競合の境界で一致を実行確認する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"fit": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。未知サイトと複数段を専用の意味分岐なしで処理し、宣言したmacOS単一runnerの資源と統合条件に適合する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"correctness": {
+					"criteria": {
+						"contracts": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。無効入力・根拠不足・部分失敗・未知ID・状態変化を通した達成契約を独立ケースで検証し、根拠と結果の矛盾を検出できる。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。",
+							"anchor_support": "実装後に必要な強い証拠: 無効入力・根拠不足・部分失敗・未知ID・状態変化を通した達成契約を独立ケースで検証し、根拠と結果の矛盾を検出できる。。現時点では未実行。"
+						},
+						"edge_cases": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。同名・古い参照・遅延描画・表・別タブ・無効出力・対象変更で誤対象と偽の完了を防ぐ。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"concurrency": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。取消・期限・同時受付・lease世代・遅い結果・予算競合を境界ごとに再現し、順序と採用が一致する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"security": {
+					"criteria": {
+						"access": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。別所有者・scope・承認世代・遅延・redirect・subresource等の越境を実ブラウザと本体接続で検証し、受信側の未許可効果が0である。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。",
+							"anchor_support": "実装後に必要な強い証拠: 別所有者・scope・承認世代・遅延・redirect・subresource等の越境を実ブラウザと本体接続で検証し、受信側の未許可効果が0である。。現時点では未実行。"
+						},
+						"input_secrets": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。秘密と入力出所、子process環境、撮影先、保持期限、削除と忘却を通常と悪意のある入力で検査する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"abuse": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。注入・大量入力・予算枯渇・通信の迂回に対し、判断と強制を分けて停止と回復を検証する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"reliability": {
+					"criteria": {
+						"failure": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。取消・期限・保存失敗・子process終了・部分効果で状態と報告を一致させ、未確定を成功として返さない。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"recovery": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。送出前後のクラッシュ、応答消失、再起動、重複とreceiptを外部受信側まで通して検証し、不明な効果を再送せず必要な保留作業を回収する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。",
+							"anchor_support": "実装後に必要な強い証拠: 送出前後のクラッシュ、応答消失、再起動、重複とreceiptを外部受信側まで通して検証し、不明な効果を再送せず必要な保留作業を回収する。。現時点では未実行。"
+						},
+						"resilience": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。providerとbrowserとDBの障害、枯渇、長時間動作に対する上限・部分結果・安全な停止を測定する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"maintainability": {
+					"criteria": {
+						"clarity": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。現行の契約と指示と文書が一致し、別担当が主要な通常・失敗経路を追って修正できる。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"change": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。代表的な部品・依存・契約の変更が局所で完了し、意味のある回帰検査と移行手順で検知する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"debt": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。語句とサイトの専用意味分岐を除き、必要な外部仕様接続だけを分離し、典型的変更で負担を確かめる。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"common_components": {
+					"criteria": {
+						"duplication": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。Skill、結果契約、保存、承認がホスト間で一致し、二つの正本やコピー実装を持たない。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"reuse": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。実際に配布した同じ部品をlabの複数入口とEumenesで使い、正常・拒否・取消・記録・移行を共通適合試験で確認する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。",
+							"anchor_support": "実装後に必要な強い証拠: 実際に配布した同じ部品をlabの複数入口とEumenesで使い、正常・拒否・取消・記録・移行を共通適合試験で確認する。。現時点では未実行。"
+						},
+						"abstraction": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。portと公開APIは実在する複数利用先に対応し、代表変更で利点を確認する。不要な抽象層は導入しない。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"testing": {
+					"criteria": {
+						"risk_coverage": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。重要境界の独立ケース、実ブラウザ、クラッシュ受信側と負の対照が、実際の契約違反を検出する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。",
+							"anchor_support": "実装後に必要な強い証拠: 重要境界の独立ケース、実ブラウザ、クラッシュ受信側と負の対照が、実際の契約違反を検出する。。現時点では未実行。"
+						},
+						"quality": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。到達状態を実装と独立に採点し、テストの不適切な期待・flaky・介入と成功の混同を管理する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"automation": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。主対象macOSと支援runtimeのCIが再現可能な検証を継続実行し、回帰導入時の失敗記録がある。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"supply_chain": {
+					"criteria": {
+						"dependencies": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。版と実体と由来を固定して再構築し、更新・脆弱性の適用条件と内容改変を継続検査する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"build_release": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。実成果物の全公開部分・manifest・migrationを空環境と前版から検証し、配布と更新の保護を運用する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"license": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。実際に配布する直接・間接依存の由来、通知、権利条件と更新責任を棚卸しし、版更新時にも確認する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"performance": {
+					"criteria": {
+						"budget": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。全推論・token・deadline・保存量・資源の宣言上限を通常とchoice・失敗・取消でも守り、代表条件で達成を測定する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"hot_path": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。代表量と増量と長時間運転でCPU・memory・I/Oのボトルネックを測り、必要箇所だけ改善して上限内へ収める。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"measurement": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。冷起動と接続済み、失敗込みのp50/p95、usageと介入を分離し、再現負荷と回帰通知を運用する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				},
+				"operability": {
+					"criteria": {
+						"signals": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。DB由来の状態と実効果と表示が一致し、通常ログの秘密を守りながら代表的な障害を診断できる。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"lifecycle": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。別担当が空環境から導入・設定・更新・回復・削除を実施し、手順と所要負担を記録する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						},
+						"interaction": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["P01"],
+							"rationale": "条件付き目標。利用者が主な依頼・曖昧さ・拒否・回答と続行・取消から価値を得て、支援と再依頼を含めて確認する。",
+							"countercheck": "条件付き受入。代表的な例外と反対条件を受入担当が確認し、同じ契約の負の対照が失敗すること。"
+						}
+					}
+				}
+			}
+		}
+	}
+}

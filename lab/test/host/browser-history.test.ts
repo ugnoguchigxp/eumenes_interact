@@ -4,10 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
 	loadBrowserHistory,
-	noBrowserProvedWrong,
 	recordMisjudgment,
 } from "../../host/browser-history.ts";
-import { chainPlan } from "../../host/chain.ts";
 
 const dirs: string[] = [];
 const file = () => {
@@ -42,24 +40,5 @@ describe("browser misjudgment history", () => {
 			"g3",
 			"g4",
 		]);
-	});
-
-	test("an empty or 'not in the results' answer proves 'no browser' wrong", () => {
-		expect(noBrowserProvedWrong("")).toBe(true);
-		expect(noBrowserProvedWrong("前の結果には順位が含まれていません。")).toBe(
-			true,
-		);
-		expect(noBrowserProvedWrong("最安は 54,099円です。")).toBe(false);
-	});
-
-	test("the history reaches the step's signals on an alike goal", () => {
-		const req = "価格.comで Switch 2 を検索して、安い順の上位を教えて";
-		const plan = chainPlan(req, [
-			{ goal: "安い順の上位を教えて", browser: false, correct: true },
-		]);
-		const s2 = plan.steps[1]!;
-		expect(s2.browser.by).toBe("agent");
-		expect(s2.browser.signals.pastMisjudged).toHaveLength(1);
-		expect(chainPlan(req).steps[1]!.browser.signals.pastMisjudged).toEqual([]);
 	});
 });

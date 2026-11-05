@@ -1,0 +1,28 @@
+{
+	"authorship": "Independent validation agent; existing holdout files were not read. All four cases retained without selection.",
+	"cases": [
+		{
+			"id": "independent-text-edit",
+			"request": "次の架空のログ2行だけを、操作せずに1文に言い換えてください。「画面を開く」「最新ボタンを押す」。これは文章の編集で、Web閲覧や画面操作は依頼していません。",
+			"check": "text"
+		},
+		{
+			"id": "independent-explicit-iri",
+			"request": "https://catalogue.example.net/archive/?tag=海洋 を開き、ページ内の公開年を確かめて教えてください。",
+			"check": "iri",
+			"url": "https://catalogue.example.net/archive/?tag=海洋"
+		},
+		{
+			"id": "independent-three-stage-comparison",
+			"request": "次の3段を別々の段として計画してください。第1段: https://a.example.net/spec の仕様を読む。第2段: https://b.example.net/spec の仕様を読む。第3段: 第1段と第2段の結果だけから違いを二つまとめる。第3段では新しいページを開かないでください。",
+			"check": "compare",
+			"urls": ["https://a.example.net/spec", "https://b.example.net/spec"]
+		},
+		{
+			"id": "independent-observed-destination",
+			"request": "https://museum.example.org/exhibitions/ を開き、掲載されている展示を一つ選び、その展示の詳細ページで会期を確かめてください。最後に確認できた会期だけを返してください。詳細ページのURLは一覧の観測結果から得るものとし、推測して計画に書かないでください。",
+			"check": "observed",
+			"url": "https://museum.example.org/exhibitions/"
+		}
+	]
+}

@@ -229,10 +229,10 @@ describe("site.search: what counts as results (2026-11-04)", () => {
 describe("site.search: where a search word may come from (2026-11-04)", () => {
 	const request = "「麻」の商品を探して、その説明会の動画を見せてください。";
 
-	test("a plain word of the step goal may join the search", async () => {
+	test("a generated step goal cannot authorize additional search data", async () => {
 		const s = await setup({ request, goal: "麻 の earnings 動画を探す" });
 		const r = await s.result(call("site.search", { query: "麻 earnings" }));
-		expect(r.code).not.toBe("query_not_in_request");
+		expect(r.code).toBe("query_not_in_request");
 	});
 
 	test("a name or number in the goal still needs the request or an earlier result", async () => {
@@ -252,15 +252,21 @@ describe("site.search: where a search word may come from (2026-11-04)", () => {
 		).not.toBe("query_not_in_request");
 	});
 
-	test("up to two common words may refine a sourced word, never stand alone (live MSFT 'earnings')", async () => {
+	test("lowercase spelling cannot disguise unsourced data as common words", async () => {
 		const s = await setup({ request });
 		expect(
 			(await s.result(call("site.search", { query: "麻 earnings" }))).code,
-		).not.toBe("query_not_in_request");
-		for (const q of ["earnings", "麻 earnings call review", "麻 Azure"])
-			expect(codes(await s.result(call("site.search", { query: q })))).toEqual(
-				["failed", "query_not_in_request"],
-			);
+		).toBe("query_not_in_request");
+		for (const q of [
+			"earnings",
+			"麻 unpublishedprivatevalue",
+			"麻 earnings call review",
+			"麻 Azure",
+		])
+			expect(codes(await s.result(call("site.search", { query: q })))).toEqual([
+				"failed",
+				"query_not_in_request",
+			]);
 	});
 });
 
@@ -388,11 +394,15 @@ describe("item ids and their resolution", () => {
 				resolveItem: () => ({ kind: "none" }),
 			},
 		});
-		const item = s.summary.items.find((i) => i.role === "link" && i.name === "" && i.url);
+		const item = s.summary.items.find(
+			(i) => i.role === "link" && i.name === "" && i.url,
+		);
 		expect(item).toBeDefined();
 		const r = await s.result(call("item.open", { item: item!.item }));
 		expect(r.status).toBe("completed");
-		expect(JSON.stringify(s.adapter.dispatched.at(-1))).toContain("browser.navigate");
+		expect(JSON.stringify(s.adapter.dispatched.at(-1))).toContain(
+			"browser.navigate",
+		);
 	});
 
 	test("ids of the summary, a list and a form of one page agree", async () => {

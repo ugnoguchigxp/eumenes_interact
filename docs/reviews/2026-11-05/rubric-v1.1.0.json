@@ -1,0 +1,439 @@
+{
+	"version": "1.1.0",
+	"tracks": {
+		"technical": {
+			"dimensions": {
+				"architecture": {
+					"label": "Architecture",
+					"weight": 10,
+					"criteria": {
+						"boundaries": {
+							"label": "Responsibility and dependency boundaries",
+							"weight": 1
+						},
+						"flow": {
+							"label": "Data flow and consistency design",
+							"weight": 1
+						},
+						"fit": {
+							"label": "Fit to constraints",
+							"weight": 1
+						}
+					}
+				},
+				"correctness": {
+					"label": "Correctness",
+					"weight": 15,
+					"criteria": {
+						"contracts": {
+							"label": "Input, output, and state contracts",
+							"weight": 1
+						},
+						"edge_cases": {
+							"label": "Boundary cases and invariants",
+							"weight": 1
+						},
+						"concurrency": {
+							"label": "Ordering and atomicity",
+							"weight": 1
+						}
+					}
+				},
+				"security": {
+					"label": "Security",
+					"weight": 15,
+					"criteria": {
+						"access": {
+							"label": "Identity, authorization, and trust boundaries",
+							"weight": 1
+						},
+						"input_secrets": {
+							"label": "Inputs, secrets, and privileges",
+							"weight": 1
+						},
+						"abuse": {
+							"label": "Abuse resistance",
+							"weight": 1
+						}
+					}
+				},
+				"reliability": {
+					"label": "Reliability",
+					"weight": 10,
+					"criteria": {
+						"failure": {
+							"label": "Partial failure and timeouts",
+							"weight": 1
+						},
+						"recovery": {
+							"label": "Retry, deduplication, and durability",
+							"weight": 1
+						},
+						"resilience": {
+							"label": "Dependency failure and saturation",
+							"weight": 1
+						}
+					}
+				},
+				"maintainability": {
+					"label": "Maintainability",
+					"weight": 10,
+					"criteria": {
+						"clarity": {
+							"label": "Readable intent and contracts",
+							"weight": 1
+						},
+						"change": {
+							"label": "Change impact and verification",
+							"weight": 1
+						},
+						"debt": {
+							"label": "Complexity and maintenance cost",
+							"weight": 1
+						}
+					}
+				},
+				"common_components": {
+					"label": "Common Components",
+					"weight": 5,
+					"criteria": {
+						"duplication": {
+							"label": "Consistency of repeated contracts",
+							"weight": 1
+						},
+						"reuse": {
+							"label": "Appropriate standard and shared components",
+							"weight": 1
+						},
+						"abstraction": {
+							"label": "Abstraction cost and benefit",
+							"weight": 1
+						}
+					}
+				},
+				"testing": {
+					"label": "Testing",
+					"weight": 10,
+					"criteria": {
+						"risk_coverage": {
+							"label": "Coverage of important behavior",
+							"weight": 1
+						},
+						"quality": {
+							"label": "Assertion quality and independence",
+							"weight": 1
+						},
+						"automation": {
+							"label": "Reproducibility and regression prevention",
+							"weight": 1
+						}
+					}
+				},
+				"supply_chain": {
+					"label": "Supply Chain",
+					"weight": 10,
+					"criteria": {
+						"dependencies": {
+							"label": "Dependency provenance and vulnerability handling",
+							"weight": 1
+						},
+						"build_release": {
+							"label": "Build, distribution, and update protection",
+							"weight": 1
+						},
+						"license": {
+							"label": "Distribution rights and responsibility",
+							"weight": 1
+						}
+					}
+				},
+				"performance": {
+					"label": "Performance",
+					"weight": 7,
+					"criteria": {
+						"budget": {
+							"label": "Latency, resources, and cost",
+							"weight": 1
+						},
+						"hot_path": {
+							"label": "Hot-path computation and I/O",
+							"weight": 1
+						},
+						"measurement": {
+							"label": "Representative measurement and regression tracking",
+							"weight": 1
+						}
+					}
+				},
+				"operability": {
+					"label": "Operability / UX",
+					"weight": 8,
+					"criteria": {
+						"signals": {
+							"label": "State and failure visibility",
+							"weight": 1
+						},
+						"lifecycle": {
+							"label": "Install, configure, update, recover, remove",
+							"weight": 1
+						},
+						"interaction": {
+							"label": "Primary interactions and recovery",
+							"weight": 1
+						}
+					}
+				}
+			}
+		},
+		"project": {
+			"dimensions": {
+				"problem": {
+					"label": "Problem Value",
+					"weight": 15,
+					"criteria": {
+						"need": {
+							"label": "Specific target user and need",
+							"weight": 1
+						},
+						"impact": {
+							"label": "Cost of the current approach",
+							"weight": 1
+						},
+						"validation": {
+							"label": "Evidence that users have the problem",
+							"weight": 1
+						}
+					}
+				},
+				"solution": {
+					"label": "Solution Fit",
+					"weight": 15,
+					"criteria": {
+						"mechanism": {
+							"label": "Mechanism and constraints",
+							"weight": 1
+						},
+						"experience": {
+							"label": "Path to obtaining value",
+							"weight": 1
+						},
+						"outcomes": {
+							"label": "Demonstrated outcomes",
+							"weight": 1
+						}
+					}
+				},
+				"differentiation": {
+					"label": "Differentiation",
+					"weight": 10,
+					"criteria": {
+						"alternatives": {
+							"label": "Standing against relevant alternatives",
+							"weight": 1
+						},
+						"advantage": {
+							"label": "Specific use-case advantage",
+							"weight": 1
+						},
+						"tradeoffs": {
+							"label": "A justified reason to choose it",
+							"weight": 1
+						}
+					}
+				},
+				"novelty": {
+					"label": "Novelty",
+					"weight": 5,
+					"criteria": {
+						"prior_art": {
+							"label": "A contribution beyond prior art",
+							"weight": 1
+						},
+						"substance": {
+							"label": "Useful effect of the new contribution",
+							"weight": 1
+						},
+						"verification": {
+							"label": "Corroboration of the novel contribution",
+							"weight": 1
+						}
+					}
+				},
+				"adoption": {
+					"label": "Adoption Potential",
+					"weight": 15,
+					"criteria": {
+						"entry": {
+							"label": "Adoption and migration burden",
+							"weight": 1
+						},
+						"reach": {
+							"label": "Access to motivated users",
+							"weight": 1
+						},
+						"retention": {
+							"label": "Continued use and realized benefit",
+							"weight": 1
+						}
+					}
+				},
+				"defensibility": {
+					"label": "Defensibility / Durability",
+					"weight": 5,
+					"criteria": {
+						"assets": {
+							"label": "Accumulating durable assets",
+							"weight": 1
+						},
+						"substitution": {
+							"label": "Resistance to relevant substitution",
+							"weight": 1
+						},
+						"incentives": {
+							"label": "Incentives for continued investment",
+							"weight": 1
+						}
+					}
+				},
+				"execution": {
+					"label": "Execution",
+					"weight": 10,
+					"criteria": {
+						"delivery": {
+							"label": "Delivered scope",
+							"weight": 1
+						},
+						"focus": {
+							"label": "Feasibility of priorities and resources",
+							"weight": 1
+						},
+						"feedback": {
+							"label": "Learning from use",
+							"weight": 1
+						}
+					}
+				},
+				"timing": {
+					"label": "Timing",
+					"weight": 5,
+					"criteria": {
+						"drivers": {
+							"label": "Current demand and enabling conditions",
+							"weight": 1
+						},
+						"readiness": {
+							"label": "User and ecosystem readiness",
+							"weight": 1
+						},
+						"window": {
+							"label": "A feasible response to changing conditions",
+							"weight": 1
+						}
+					}
+				},
+				"health": {
+					"label": "Project Health",
+					"weight": 10,
+					"criteria": {
+						"ownership": {
+							"label": "Ownership and knowledge continuity",
+							"weight": 1
+						},
+						"activity": {
+							"label": "Maintenance appropriate to maturity",
+							"weight": 1
+						},
+						"governance": {
+							"label": "Decisions and sustained resources",
+							"weight": 1
+						}
+					}
+				},
+				"expansion": {
+					"label": "Expansion Potential",
+					"weight": 10,
+					"criteria": {
+						"adjacency": {
+							"label": "Useful adjacent applications",
+							"weight": 1
+						},
+						"scalability": {
+							"label": "Constraints on broader rollout",
+							"weight": 1
+						},
+						"path": {
+							"label": "A feasible expansion sequence",
+							"weight": 1
+						}
+					}
+				}
+			}
+		}
+	},
+	"technical_profiles": {
+		"balanced": {
+			"architecture": 10,
+			"correctness": 15,
+			"security": 15,
+			"reliability": 10,
+			"maintainability": 10,
+			"common_components": 5,
+			"testing": 10,
+			"supply_chain": 10,
+			"performance": 7,
+			"operability": 8
+		},
+		"service": {
+			"architecture": 8,
+			"correctness": 15,
+			"security": 20,
+			"reliability": 15,
+			"maintainability": 8,
+			"common_components": 4,
+			"testing": 10,
+			"supply_chain": 8,
+			"performance": 6,
+			"operability": 6
+		},
+		"desktop": {
+			"architecture": 10,
+			"correctness": 15,
+			"security": 12,
+			"reliability": 10,
+			"maintainability": 10,
+			"common_components": 5,
+			"testing": 10,
+			"supply_chain": 8,
+			"performance": 8,
+			"operability": 12
+		},
+		"library": {
+			"architecture": 12,
+			"correctness": 20,
+			"security": 10,
+			"reliability": 8,
+			"maintainability": 12,
+			"common_components": 5,
+			"testing": 15,
+			"supply_chain": 10,
+			"performance": 5,
+			"operability": 3
+		},
+		"agent": {
+			"architecture": 12,
+			"correctness": 15,
+			"security": 18,
+			"reliability": 12,
+			"maintainability": 8,
+			"common_components": 5,
+			"testing": 10,
+			"supply_chain": 8,
+			"performance": 7,
+			"operability": 5
+		}
+	},
+	"required_dimensions": {
+		"technical": ["correctness", "security", "reliability"],
+		"project": ["problem", "solution", "differentiation"]
+	}
+}

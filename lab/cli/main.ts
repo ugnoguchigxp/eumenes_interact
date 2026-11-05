@@ -276,8 +276,12 @@ async function main(): Promise<number> {
 			case "chain": {
 				if (values.request === undefined)
 					throw new Error("chain_needs_request");
-				if ((values.inference ?? "manual") !== "manual")
-					throw new Error("chain_inference_manual_only");
+				const chainInference = oneOf<"manual" | "claude" | "openai">(
+					"inference",
+					values.inference,
+					["manual", "claude", "openai"],
+					"manual",
+				);
 				const idle = Number(
 					values["keep-open-idle"] ?? String(DEFAULT_KEEP_OPEN_IDLE_S),
 				);
@@ -292,7 +296,7 @@ async function main(): Promise<number> {
 					db,
 					{
 						request: values.request,
-						inference: "manual",
+						inference: chainInference,
 						keepOpenIdleS: idle,
 						keepOpenMaxS: max,
 						headed: values.headless !== true,
@@ -334,7 +338,7 @@ async function main(): Promise<number> {
 						inference: oneOf(
 							"inference",
 							values.inference,
-							["scripted", "larm", "claude", "manual"],
+							["scripted", "larm", "claude", "openai", "manual"],
 							"scripted",
 						),
 						...(values.model === undefined ? {} : { model: values.model }),

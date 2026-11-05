@@ -1,0 +1,70 @@
+{
+  "at": "2026-11-05T12:05:55Z",
+  "scope": "isolated local negative controls; no root files, credentials or API requests changed",
+  "results": [
+    {
+      "name": "cancel",
+      "inputDigest": "98585fa13198067cb18e640ea651e5cb30a36dffedba5f99dcdd2060a95b7052",
+      "command": [
+        "bun",
+        "test",
+        "lab/test/host/run.test.ts",
+        "-t",
+        "interrupts an unresolved finish gate"
+      ],
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "detected": true
+    },
+    {
+      "name": "evidence",
+      "inputDigest": "98585fa13198067cb18e640ea651e5cb30a36dffedba5f99dcdd2060a95b7052",
+      "command": [
+        "bun",
+        "test",
+        "lab/test/host/goal-unmet.test.ts"
+      ],
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "detected": true
+    },
+    {
+      "name": "step-budget",
+      "inputDigest": "98585fa13198067cb18e640ea651e5cb30a36dffedba5f99dcdd2060a95b7052",
+      "command": [
+        "bun",
+        "test",
+        "lab/test/inference/call-budget.test.ts"
+      ],
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "detected": true
+    },
+    {
+      "name": "approval",
+      "inputDigest": "98585fa13198067cb18e640ea651e5cb30a36dffedba5f99dcdd2060a95b7052",
+      "command": [
+        "bun",
+        "test",
+        "lab/test/host/parts.test.ts",
+        "-t",
+        "is asked first"
+      ],
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "detected": true
+    },
+    {
+      "name": "skill-integrity",
+      "inputDigest": "98585fa13198067cb18e640ea651e5cb30a36dffedba5f99dcdd2060a95b7052",
+      "command": [
+        "bun",
+        "-e",
+        "import {loadBrowseSkill} from './lab/host/collab.ts'; let refused=false; try{loadBrowseSkill()}catch(e){refused=e.message==='skill_digest_mismatch:browse'} if(!refused)process.exit(1)"
+      ],
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "detected": true
+    }
+  ]
+}

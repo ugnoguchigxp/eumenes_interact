@@ -6,7 +6,7 @@ import type {
 	PageSummary,
 } from "../../contracts/parts.ts";
 import type { RawObservation } from "../../contracts/observation.ts";
-import { clip, placeOf } from "../shared/text.ts";
+import { clip, placeOf, parseUrl } from "../shared/text.ts";
 import { collect, pageItem, type Collected } from "./items.ts";
 import {
 	BLOCK_ROLES,
@@ -413,7 +413,7 @@ type LinkItem = { node: Node; record: ItemRecord; title: string };
 function urlLabel(url: string | undefined): string {
 	if (!url) return "";
 	try {
-		const u = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/");
+		const u = parseUrl(url.replace(/^"|"$/g, ""), "https://x.invalid/");
 		if (u.protocol !== "http:" && u.protocol !== "https:") return "";
 		const last = u.pathname.split("/").filter(Boolean).at(-1) ?? "";
 		return decodeURIComponent(last).slice(0, 80);
@@ -475,7 +475,7 @@ const SITE_CHROME =
 function siteRoot(url: string | undefined): boolean {
 	if (!url) return false;
 	try {
-		const u = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/");
+		const u = parseUrl(url.replace(/^"|"$/g, ""), "https://x.invalid/");
 		if (u.protocol !== "http:" && u.protocol !== "https:") return false;
 		return (u.pathname === "/" || u.pathname === "") && !u.search && !u.hash;
 	} catch {
@@ -487,8 +487,10 @@ function siteRoot(url: string | undefined): boolean {
 function channelUrl(url: string | undefined): boolean {
 	if (!url) return false;
 	try {
-		const path = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/")
-			.pathname;
+		const path = parseUrl(
+			url.replace(/^"|"$/g, ""),
+			"https://x.invalid/",
+		).pathname;
 		return /^\/@[^/]+\/?$/.test(path) || /^\/(channel|c|user)\//.test(path);
 	} catch {
 		return false;

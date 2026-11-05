@@ -1,0 +1,4 @@
+$ bun check
+lab/test/host/net-guard.browser.test.ts(17,64): error TS2307: Cannot find module 'playwright-core' or its corresponding type declarations.
+Found 1 error in 1 file, checked 230 files [331.83ms]
+error: script "typecheck" exited with code 1

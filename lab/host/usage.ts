@@ -100,6 +100,8 @@ export function inferenceLabel(info: InferenceInfo | null | undefined): string {
 			return `larm:${info.profile}`;
 		case "claude":
 			return `claude:${info.model}/${info.effort}`;
+		case "openai":
+			return `openai:${info.model}/${info.effort}`;
 	}
 }
 

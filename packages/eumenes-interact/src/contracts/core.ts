@@ -119,7 +119,13 @@ export type ParsedStep =
 	 * a ref not in the latest observation…) in the state. Call inference again.
 	 */
 	| { kind: "continue"; callsLeft: number }
-	| { kind: "finish"; text: string; refs: string[] }
+	| {
+			kind: "finish";
+			text: string;
+			refs: string[];
+			outcome: "achieved" | "partial" | "unmet";
+			basis: "observed" | "response";
+	  }
 	| { kind: "clarify"; text: string }
 	/**
 	 * The run stops before anything is sent and asks the user (Arm 0: `input_value_unconfirmed`, a value

@@ -1,0 +1,1287 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/net-guard.browser.test.ts:
+(skip) net guard in Chrome > subresources, iframes, redirect hops and downloads to private targets never reach them
+
+lab/test/host/executor.test.ts:
+(pass) observations and generations > an operation on an observation the page has moved past is refused before sending [8.16ms]
+(pass) observations and generations > a ref that the latest observation does not show is not actionable [3.49ms]
+(pass) observations and generations > an operation without an observation reference is stale [3.27ms]
+(pass) observations and generations > the adapter's own cut is merged into the observation [3.06ms]
+(pass) observations in the inline-attribute spelling > their refs are the actionable ones, and the old observation is stale after an action [4.39ms]
+(pass) destination policy > navigating to http://127.0.0.1:9/sites/hoshikuzu/base/index.html is refused and nothing is sent [4.31ms]
+(pass) destination policy > navigating to http://127.0.0.1.evil.test:41234/ is refused and nothing is sent [2.90ms]
+(pass) destination policy > navigating to file:///etc/passwd is refused and nothing is sent [2.82ms]
+(pass) destination policy > navigating to https://127.0.0.1:41234/ is refused and nothing is sent [2.81ms]
+(pass) destination policy > navigating to http://user:pw@127.0.0.1:41234/ is refused and nothing is sent [2.77ms]
+(pass) destination policy > navigating to javascript:alert(1) is refused and nothing is sent [2.80ms]
+(pass) destination policy > navigating to not a url is refused and nothing is sent [2.80ms]
+(pass) destination policy > a new tab outside the scope is refused before it is opened [2.90ms]
+(pass) destination policy > a page the action ends on outside the scope is dropped and its tab blocked [3.15ms]
+(pass) destination policy > about:blank is allowed [3.09ms]
+(pass) unknown outcomes and cancel > an indeterminate operation is never sent again [3.12ms]
+(pass) unknown outcomes and cancel > nothing is sent after a cancel [2.81ms]
+(pass) unknown outcomes and cancel > a run that is no longer running accepts no new intent [3.53ms]
+(pass) approval gate > a plain button needs approval by what the element is, whatever the model declared [3.31ms]
+(pass) approval gate > a link and a GET search need no approval [3.17ms]
+(pass) approval gate > an approver that fails denies [3.12ms]
+(pass) the approval ledger > is matched against the state at dispatch: an approval for one page does not send on another [3.36ms]
+(pass) the approval ledger > lets the operation through when nothing changed [3.12ms]
+(pass) input values > a quotation that is not in the request is refused before it is recorded [2.95ms]
+(pass) input values > a quotation of the request is typed [3.08ms]
+(pass) input values > an approved value is resolved by the host and kept out of the transcript and the ledger [3.17ms]
+(pass) input values > a grant for another site and an unknown grant are refused [2.89ms]
+(pass) tabs > refs are stable UUIDs and a tab that moved out from under its ref is lost, not swapped [2.88ms]
+(pass) a page that settles on another URL after its own action > in a definition run the tab follows it: the observation after the action is of the settled page [3.22ms]
+(pass) a page that settles on another URL after its own action > in the Arm 0 path the tab is lost, as in Eumenes [3.09ms]
+(pass) a page that settles on another URL after its own action > only the first look after the action follows: a second change is lost again [3.04ms]
+(pass) a page that settles on another URL after its own action > a change in the number of tabs is not followed [3.03ms]
+(pass) a page that settles on another URL after its own action > another tracked tab that moved is not followed either [3.17ms]
+(pass) a page that settles on another URL after its own action > two other tabs that both still match let the tab follow [3.11ms]
+(pass) a page that settles on another URL after its own action > a settled URL the policy refuses blocks the tab [4.64ms]
+
+lab/test/host/uri.test.ts:
+(pass) toUri (L10) > percent-encodes a non-ASCII path and query as UTF-8 [0.05ms]
+(pass) toUri (L10) > keeps escapes already present and a plain ASCII address as is [0.01ms]
+(pass) toUri (L10) > puts a non-ASCII host in punycode [0.04ms]
+(pass) toUri (L10) > leaves a non-URL unchanged for the policy to refuse
+
+lab/test/host/compare.test.ts:
+(pass) planning > each unit runs on every platform in each repetition, and the platform that goes first alternates [0.10ms]
+(pass) planning > more platforms rotate too, and one platform just repeats [0.03ms]
+(pass) planning > a site that needs a headed browser is planned as skipped without --headed, and not with it [0.03ms]
+(pass) planning > the shipped inputs file: two queries per sample, only the one site marked headed-only [3.11ms]
+(pass) aggregation > per platform and target: ok rate over what ran, medians over what worked, totals over all, skipped counted apart [0.03ms]
+(pass) aggregation > per platform over everything it ran [0.01ms]
+(pass) aggregation > an empty group has no rate and no median, not zero [0.02ms]
+(pass) the report > JSON and Markdown go to compare-<timestamp> under the directory [3.06ms]
+(pass) the report > the Markdown has the summary, the per-target table, what was skipped, what failed and the tool versions [0.05ms]
+(pass) the report > an extract appears as its length and the first 80 characters, marked as page data, never as text [2.01ms]
+(pass) the report > a sample holds no extract text field at all [0.03ms]
+(pass) running a plan on fakes > a definition on both configurations: both work, the order alternates, and the same page weighs less in the compact spelling [19.43ms]
+(pass) running a plan on fakes > one platform is plain repeated measurement: the same unit again, in order, and a report [8.31ms]
+(pass) running a plan on fakes > a skipped site is reported and never opens a session [4.62ms]
+(pass) running a plan on fakes > a scripted Arm 0 case on both configurations, with the snapshot and shaped sizes [16.33ms]
+(pass) running a plan on fakes > a platform whose session cannot start is a failed sample, and the others go on; an abort stops the plan [5.72ms]
+(pass) running a plan on fakes > no keyword or extract text reaches a log [7.17ms]
+
+lab/test/host/arm1-experiment.test.ts:
+(pass) an experiment on Arm 1 > the arm and the output bound are frozen with the experiment, and the report shows them [11.01ms]
+(pass) a comparison on Arm 1 > runs the cases through the parts, freezes the arm and says so in the report [7.92ms]
+
+lab/test/host/operate.test.ts:
+(pass) startOperate > the run's id is known at once; the snapshot follows the run; done is the final snapshot [16.42ms]
+(pass) startOperate > the run and its transcript are stored, unscored, with the model frozen; the request text is not [14.69ms]
+(pass) startOperate > cancel stops the run: nothing more is asked, the run is cancelled, done still resolves [8.54ms]
+(pass) startOperate > one runner at a time: a second start is refused while the first holds the lock, and may start after [17.57ms]
+(pass) startOperate > a dispose that throws leaks neither the lock nor the database, and the run still ends as it did [34.09ms]
+(pass) startOperate > a real site's run stores the model's final text as a length only, while its caller still gets the text [12.90ms]
+(pass) startOperate > a missing key fails before a lock, a database or a browser is touched, naming where the key goes [0.44ms]
+(pass) startOperate > a bad request is refused before anything is created [0.74ms]
+(pass) startOperate > the budget is the run's: one call allowed leaves no call for a tool and ends the run as failed [8.63ms]
+(pass) startOperate > an operation that needs approval stops the run and says what it would have done; unknown tokens stay null [12.78ms]
+(pass) startOperate > a page outside the allowed origins is refused by the policy: the run does not leave them [10.96ms]
+(pass) startOperate > --keep-observations keeps each observation for the run, and old ones are removed at the start [13.01ms]
+(pass) startOperate with Arm 1 (registered parts) > Arm 1 is the default; a screenshot lands in the run's own directory and the snapshot names it [11.02ms]
+(pass) startOperate with Arm 1 (registered parts) > the caller's directory is used, and the arm is frozen with the run [16.82ms]
+(pass) startOperate with Arm 1 (registered parts) > a bad capture directory is refused before a lock or a database is touched [0.67ms]
+(pass) startOperate with Arm 1 (registered parts) > Arm 1 needs a model that follows a schema: LARM is refused up front [0.43ms]
+(pass) startOperate with Arm 1 (registered parts) > what the run keeps holds the part names and file names, not the page's text [13.51ms]
+(pass) startOperate with Arm 1 (registered parts) > old capture directories of the default area are removed at the start [12.21ms]
+
+lab/test/host/formats.test.ts:
+(pass) the two snapshot spellings > the converter used by the tests gives the inline spelling [0.03ms]
+(pass) the two snapshot spellings > refs, names, roles, ancestry and destinations read the same from both [0.07ms]
+(pass) the two snapshot spellings > an inline attribute list: ref anywhere in it, a URL with commas, an escaped quote in a name [0.04ms]
+(pass) the two snapshot spellings > candidate fields on a playwright body > role with name, and nameAnyOf a|b [0.07ms]
+(pass) the two snapshot spellings > candidate fields on a playwright body > named, urlIncludes, urlExcludes (also against the decoded address) [0.07ms]
+(pass) the two snapshot spellings > candidate fields on a playwright body > withinRole by indentation, nth, and ambiguity without it [0.06ms]
+(pass) the two snapshot spellings > candidate fields on a playwright body > a radio with attributes before the ref [0.01ms]
+(pass) the two snapshot spellings > candidate fields on a playwright body > the object resolver gives the same element for the same candidates [0.03ms]
+(pass) the two snapshot spellings > candidate fields on a inline body > role with name, and nameAnyOf a|b [0.05ms]
+(pass) the two snapshot spellings > candidate fields on a inline body > named, urlIncludes, urlExcludes (also against the decoded address) [0.05ms]
+(pass) the two snapshot spellings > candidate fields on a inline body > withinRole by indentation, nth, and ambiguity without it [0.04ms]
+(pass) the two snapshot spellings > candidate fields on a inline body > a radio with attributes before the ref
+(pass) the two snapshot spellings > candidate fields on a inline body > the object resolver gives the same element for the same candidates [0.01ms]
+(pass) a run on a page in the inline spelling > the Wikipedia definition runs end to end, and the result names the platform and the tool [5.98ms]
+(pass) a run on a page in the inline spelling > a dev case runs on it too: the scripted flow, the core and the scorer [5.07ms]
+
+lab/test/host/collab-sync.test.ts:
+(pass) the installed eumenes-collaboration matches its source (run `bun install` if not) [3.67ms]
+
+lab/test/host/surrounding.test.ts:
+(pass) surrounding > returns the row around a line that is the name alone [0.07ms]
+(pass) surrounding > falls back to any occurrence, and null when absent [0.01ms]
+(pass) withSortControls > puts sort links the cap left out at the head of the items [0.07ms]
+
+lab/test/host/chain.test.ts:
+(pass) chain (2026-11-04) > each browser step starts on the site it names; the summary has no browser [0.61ms]
+(pass) chain (2026-11-04) > a later step is given the earlier verified results as data [0.06ms]
+(pass) chain (2026-11-04) > earlier results are fenced data: a result cannot close the fence or add lines (collab review M1) [0.04ms]
+(pass) chain (2026-11-04) > a step that names no site and has none before it is refused, not guessed [0.03ms]
+(pass) chain (2026-11-04) > a held session is opened once and only release closes it [0.12ms]
+(pass) chain (2026-11-04) > the kept browser closes on 完了, not on thanks, and on the idle timeout [68.07ms]
+(pass) chain (2026-11-04) > closed input ends the hold at once instead of waiting out the idle time [0.10ms]
+(pass) chain (2026-11-04) > advancing playback keeps the hold from going idle; the max bound still closes it [484.50ms]
+(pass) chain (2026-11-04) > playback counts as activity only while the position advances [0.28ms]
+(pass) chain (2026-11-04) > cleanup that never finishes is given up after its time, so the lock is not held [31.47ms]
+(pass) browser or not per step (L4, 2026-11-05) > a named site settles the browser; a summary is left to the step [0.11ms]
+(pass) browser or not per step (L4, 2026-11-05) > a step the plan leaves to its inference has no browser case until that inference routes it [0.66ms]
+(pass) browser or not per step (L4, 2026-11-05) > a routed step naming no site continues on the page the previous step left (L9) [0.16ms]
+
+lab/test/host/db.test.ts:
+(pass) migrations > the package's and the lab's apply to an empty database, with ids recorded [7.86ms]
+(pass) migrations > applying again does nothing; a changed body is refused, not skipped [5.70ms]
+(pass) migrations > a file database is opened in WAL mode and reopens without reapplying [17.59ms]
+(pass) the live split migration > rebuilds lab_trials keeping its rows, and then accepts a live trial [4.82ms]
+(pass) settings and rounds > only the LARM base URL and profile can be stored: a token has no place [4.05ms]
+(pass) settings and rounds > a round records its hypothesis and is decided once [3.63ms]
+(pass) settings and rounds > a trial must name an existing experiment and run [3.37ms]
+
+lab/test/host/platform.test.ts:
+(pass) platform selection > playwright-mcp is the default and the only one; Agent Browser is named as not adopted [0.05ms]
+(pass) platform selection > --platforms is a list of distinct valid platforms; one is plain repeated measurement [0.04ms]
+(pass) platform selection > the CLI refuses an unknown platform before it starts anything [416.12ms]
+(pass) platform selection > compare without --include-live refuses the definitions and does not need --platforms [220.63ms]
+(pass) the launch > Playwright MCP: this runtime and the package's cli.js, with the browser options it owns, no npx [0.78ms]
+
+lab/test/host/lock.test.ts:
+(pass) the single-runner lock > a second runner is refused while the lock is held, and may start after release [1.37ms]
+(pass) the single-runner lock > a stale lock (its pid is gone) is recovered [1.21ms]
+(pass) the single-runner lock > an unreadable lock file counts as stale; a live owner is never taken over [1.82ms]
+(pass) the single-runner lock > release removes only the owner's own lock [0.95ms]
+73 | 	test("a live pid that is not a runner (pid reused after a crash) leaves a stale lock", () => {
+74 | 		const path = join(dir, "reused.lock");
+75 | 		const other = Bun.spawn(["sleep", "30"]);
+76 | 		try {
+77 | 			writeFileSync(path, `${other.pid}\n`);
+78 | 			expect(runnerAlive(other.pid)).toBe(false);
+                                       ^
+error: expect(received).toBe(expected)
+
+Expected: false
+Received: true
+
+      at <anonymous> (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/lab/test/host/lock.test.ts:78:35)
+(fail) the single-runner lock > a live pid that is not a runner (pid reused after a crash) leaves a stale lock [0.76ms]
+(pass) the single-runner lock > this process is alive
+(pass) read-only commands > cases, trials and report leave another runner's rows alone and take no lock [379.48ms]
+
+lab/test/host/browser-history.test.ts:
+(pass) browser misjudgment history > a missing or broken file is no history [2.25ms]
+(pass) browser misjudgment history > records a wrong 'no', replaces the same goal, and keeps only the newest [10.16ms]
+(pass) browser misjudgment history > an empty or 'not in the results' answer proves 'no browser' wrong [0.11ms]
+(pass) browser misjudgment history > the history reaches the step's signals on an alike goal [0.29ms]
+
+lab/test/host/parts.test.ts:
+(pass) page.open and page.back > a page inside the allowed origin is opened and summarised; the summary has ids, no refs [4.78ms]
+(pass) page.open and page.back > a destination outside the origin is refused by the policy before it is sent [4.01ms]
+(pass) page.open and page.back > back returns to the previous page [4.27ms]
+(pass) page.open and page.back > every inner operation went through the ledger [4.04ms]
+(pass) site.search > fills the one search box, submits, and answers with the results and their ids [4.04ms]
+(pass) site.search > a query the request does not supply is refused and nothing is typed [3.50ms]
+(pass) site.search > of two search boxes the one in the search region is used, never an arbitrary one (2026-11-04) [3.88ms]
+(pass) site.search > the site knowledge's search.query is used before looking for a box [3.94ms]
+(pass) site.search > a box that takes the text but leaves the page where it was is not reported as results (2026-11-04) [4.26ms]
+(pass) site.search: what counts as results (2026-11-04) > a results page with only skip links is zero results, not completed [4.17ms]
+(pass) site.search: what counts as results (2026-11-04) > script-only links are not results; links naming the query are (live tenki.jp, 2026-11-04) [4.07ms]
+(pass) site.search: what counts as results (2026-11-04) > page numbers listed above the results go after them; alone they are zero results [7.86ms]
+(pass) site.search: where a search word may come from (2026-11-04) > a plain word of the step goal may join the search [4.51ms]
+(pass) site.search: where a search word may come from (2026-11-04) > a name or number in the goal still needs the request or an earlier result [7.73ms]
+(pass) site.search: where a search word may come from (2026-11-04) > up to two common words may refine a sourced word, never stand alone (live MSFT 'earnings') [3.89ms]
+(pass) page.find > returns candidates with ids, roles, names and regions [3.84ms]
+(pass) page.find > text that names no item is found in the page body, with the item beside it (2026-11-04) [3.50ms]
+(pass) page.find > a named item does not hide the body text that says the same (live World Bank / Wikipedia, 2026-11-04) [3.85ms]
+(pass) page.find > a phrase not on the page falls back to its words, saying which matched (2026-11-05) [3.49ms]
+(pass) page.find > finding nothing is a failure with an empty candidate list, never a guess [3.54ms]
+(pass) item ids and their resolution > an id the host never issued names nothing [3.32ms]
+(pass) item ids and their resolution > an id of a page the tab has left is expired and the fresh summary comes with it [3.65ms]
+(pass) item ids and their resolution > an element that is gone is target_not_found with look-alike candidates [3.41ms]
+(pass) item ids and their resolution > several matches are target_ambiguous: candidates come back and nothing is clicked [3.49ms]
+(pass) item ids and their resolution > an empty-name link the page re-rendered is opened by its URL (MDN results), not clicked by guess [3.69ms]
+(pass) item ids and their resolution > ids of the summary, a list and a form of one page agree [3.78ms]
+(pass) item ids and their resolution > after a click the next page gets a new page id [3.82ms]
+(pass) item.open > opens the page behind a link [3.84ms]
+(pass) item.open > a click that opens a new tab follows to it: the summary is the new page and later parts work there [3.75ms]
+(pass) item.open > a button needs the user's approval before it is clicked [3.79ms]
+(pass) page.wait > waits for text or seconds and summarises [3.92ms]
+(pass) page.wait > nothing to wait for is refused [3.34ms]
+(pass) page.read and page.list > reads the page text, capped by maxChars [3.40ms]
+(pass) page.read and page.list > an item as the target is looked up again and handed to the extractor as a ref [3.63ms]
+(pass) page.read and page.list > lists results with their ids; an empty page has no entries [5.18ms]
+(pass) page.capture > saves a viewport capture under the run's directory with a host-made name [5.06ms]
+(pass) page.capture > numbers each capture and names its range [3.91ms]
+(pass) page.capture > an element capture needs an item and uses its ref in a fresh observation [3.69ms]
+(pass) page.capture > a capture the adapter refuses is a failure with its code, and nothing is saved [3.36ms]
+(pass) page.capture > an image that is not an image is not saved [3.27ms]
+(pass) form.inspect and form.fill > lists the fields with their kinds, options and whether they are filled, and the submit button [3.60ms]
+(pass) form.inspect and form.fill > fills text, a select, a checkbox and a radio by their ids; each field is reported [5.75ms]
+(pass) form.inspect and form.fill > a value the request does not show is not typed: the field needs input [4.29ms]
+(pass) form.inspect and form.fill > a value the user approved for this site is typed [3.78ms]
+(pass) form.inspect and form.fill > a select takes the option's visible label; another text is refused [3.62ms]
+(pass) form.inspect and form.fill > a choice needs a reason in the request; clearing a box needs none; a radio is not cleared [4.13ms]
+(pass) form.inspect and form.fill > a button is not a field [3.45ms]
+(pass) form.submit > is asked first: a denial sends nothing and stops the run [3.75ms]
+(pass) form.submit > a granted submission is sent and the page after it is summarised [4.54ms]
+(pass) an operation whose outcome is not known > the part is indeterminate, the run stops, and nothing is sent again [5.89ms]
+(pass) what the transcript keeps of a part > its name and argument names; never a value [4.20ms]
+(pass) what the transcript keeps of a part > no image and no path in the record [3.85ms]
+(pass) review fixes (S2b) > a select takes the one option that contains the request's words, and only a choice the request makes [3.94ms]
+(pass) review fixes (S2b) > a GET form's submit button opened by item.open asks first, as form.submit does [4.14ms]
+(pass) review fixes (S2b) > a field is not opened: item.open leaves it to form.fill [3.46ms]
+(pass) review fixes (S2b) > an id issued before the content moved keeps naming its element; the next batch gets a new page id [3.79ms]
+(pass) review fixes (S2b) > a click that went through but whose page cannot be looked at is partial, not failed [3.54ms]
+(pass) review fixes (S2b) > a choice is written on or off: any other value is refused, never read as a choice [3.52ms]
+(pass) review fixes (S2b) > on needs the request to mention the choice [4.33ms]
+(pass) review fixes (S2b) > a page that left the allowed sites while the image was taken is refused and nothing is saved [3.67ms]
+(pass) review fixes (S2b) > an element capture records the target's role and a digest of its name, never the name [4.10ms]
+(pass) a page that became a bot check after it was opened > page.find and page.list report site_blocked instead of reading it [3.52ms]
+
+lab/test/host/hidden-sort.test.ts:
+(pass) hidden sort controls (2026-11-05) > the adapter's answer is checked and capped [0.17ms]
+(pass) hidden sort controls (2026-11-05) > only order words become options [0.04ms]
+(pass) hidden sort controls (2026-11-05) > the URL gets the choice's parameters; the search word it already carries is left alone [0.08ms]
+(pass) hidden sort controls (2026-11-05) > a choice that changes nothing, or leads off the web, has no URL [0.02ms]
+(pass) a name with 'sort' inside a word (Resort) is no sort control
+(pass) a page sorted by script, its address unchanged, is told by its own links [0.08ms]
+
+lab/test/host/experiment.test.ts:
+(pass) experiments > freezes the experiment, runs the trials in order and aggregates them [6.59ms]
+(pass) experiments > a case past the run limit is refused before anything is stored [3.69ms]
+(pass) experiments > every case fits the run limit [0.45ms]
+(pass) report > the success rate is over all trials: an unfinished one is a failure and out of the medians [5.46ms]
+(pass) logs > carry correlation ids, fixed codes, counts and durations, and nothing else [3.93ms]
+
+lab/test/host/choice.test.ts:
+(pass) text choice channel > numbered lines become options; a plain question does not [0.11ms]
+(pass) text choice channel > replies: number, words, unique part, cancel [0.10ms]
+(pass) text choice channel > asks again on an unclear reply, then picks [0.15ms]
+(pass) text choice channel > no default: timeout and end of input stop the step [21.18ms]
+
+lab/test/host/definition.test.ts:
+(pass) running the Wikipedia sample on a fake browser > search, results, first article, extract: the JSON result [5.21ms]
+(pass) running the Wikipedia sample on a fake browser > an exact title jumps to the article: the optional click is skipped, only because its object is not defined there [4.04ms]
+(pass) running the Wikipedia sample on a fake browser > a target that is defined for the page but not on it stops the run, optional or not [4.21ms]
+(pass) running the Wikipedia sample on a fake browser > a page without knowledge stops a step that needs it [5.97ms]
+(pass) running the Wikipedia sample on a fake browser > evidence is recorded for what a stored candidate found, and nothing becomes verified [8.38ms]
+(pass) running the Wikipedia sample on a fake browser > the run is frozen to the definition's revision and digest, and every operation is in the ledger [4.48ms]
+(pass) a results page that redirects after the submit, and a click that goes nowhere > the definition run follows the page to the URL it settled on and goes on [4.45ms]
+(pass) a results page that redirects after the submit, and a click that goes nowhere > urlChanged says whether a click or a submitted fill moved the page; other steps have none [11.96ms]
+(pass) metrics for the comparison of platforms > every step has a duration, observe steps their snapshot size and refs, extract steps their length [4.26ms]
+(pass) metrics for the comparison of platforms > the stored summary keeps the numbers and none of the page's text [3.71ms]
+(pass) metrics for the comparison of platforms > the platform and tool of a refused run are known too [3.13ms]
+(pass) inputs > a bad input is refused before any run exists [3.12ms]
+(pass) inputs > the same id and revision with other content is a conflict, not a silent overwrite [4.95ms]
+(pass) inputs > the keyword is in no log and in no database table: the database keeps a digest [7.37ms]
+(pass) inputs > a run that stays on the results page does not store the keyword through its final URL either [4.64ms]
+(pass) approvals > by default a click that needs approval stops the run as needs_input and says what it would do [6.24ms]
+(pass) approvals > the approver is the caller's: a grant sends it, and the stop approver never does [4.84ms]
+(pass) approvals > a link and a GET search need none: the sample runs unattended [4.81ms]
+(pass) cancel and the policy > a cancel during a send stops the run and the late result is not used [4.28ms]
+(pass) cancel and the policy > a page outside the definition's origins is never adopted [4.20ms]
+(pass) cancel and the policy > an unexpected error still closes the adapter and finishes the run row [4.37ms]
+(pass) keeping what was read > without a sink the text is returned and kept nowhere; with one, observations and extracts go to <runId>/ [14.72ms]
+(pass) the samples > all four parse with the package's parseDefinition and take a keyword [1.05ms]
+(pass) the samples > every targetObject is defined in the matching seed, and the seed's origins are the definition's [0.96ms]
+(pass) the samples > the sites are as probed: wildcard for Slashdot, optional pick for Wikipedia only, generic extract elsewhere [0.87ms]
+(pass) the samples > the first-result candidates of the sites match the facts of the probes [0.36ms]
+
+lab/test/host/goal-unmet.test.ts:
+(pass) a done that cites only failed results > ends failed with goal_unmet and keeps the answer as the reason [5.07ms]
+(pass) a done that cites only failed results > a done with no evidence, or citing a completed result, still completes [4.29ms]
+
+lab/test/host/run.test.ts:
+(pass) scripted run of a fake search flow > finishes, is scored a success from the end state, and is stored [5.29ms]
+(pass) scripted run of a fake search flow > the ledger and the transcript agree, with dispatched written before the result [4.68ms]
+(pass) scripted run of a fake search flow > a clarify ends the run as needs_input and is recorded with its text [4.16ms]
+(pass) scripted run of a fake search flow > tabs: a click that opens a tab, then tabs and tab_select, ends on the new page [4.93ms]
+(pass) a form with a commit > typed quotations, selects and an approved submit reach the page and score a success [6.59ms]
+(pass) a form with a commit > a deny on the submit leaves the form unsent [6.82ms]
+(pass) approval > a deny from the fixture user means nothing is sent for that operation [7.13ms]
+(pass) approval > a grant sends the operation once and the approval was asked before it [4.72ms]
+(pass) cancel > a cancel during a send stops everything after it and the late result is not adopted [4.40ms]
+(pass) cancel > a deadline that has already passed expires the run before any model call [3.75ms]
+(pass) cancel and deadline at the edges > a cancel while the adapter opens ends the run as cancelled everywhere, with no failed final [3.53ms]
+(pass) cancel and deadline at the edges > a failing open without a cancel is still a failed run [3.41ms]
+(pass) cancel and deadline at the edges > an inference error that arrives at the deadline is an expiry, not a failure [3.82ms]
+(pass) cancel and deadline at the edges > an inference error before the deadline is still a failure [3.86ms]
+(pass) an operation with an unknown outcome > a click ends the run as indeterminate and sends nothing more [4.27ms]
+(pass) an operation with an unknown outcome > a host-checked search whose outcome is unknown is settled as failed and the run goes on (2026-11-04) [4.42ms]
+(pass) failures > the adapter is closed even when the run breaks with an unexpected error [3.57ms]
+(pass) failures > an unexpected error still leaves a finished trial and a failed run [3.36ms]
+(pass) failures > a failing open is a failed run, not an exception, and the adapter is closed [3.39ms]
+(pass) failures > an inference that breaks is a failed run with the call recorded [3.31ms]
+
+lab/test/host/arm-cli.test.ts:
+(pass) --arm > arm1 only (Arm 0 was removed), with the command's default [0.51ms]
+(pass) --arm > Arm 1 and LARM do not go together [0.41ms]
+(pass) --max-tokens > an integer from 256 to 64000, kept with the Claude settings [0.45ms]
+(pass) what a Claude run records about itself > the output bound is part of the inference info when the run set one [1.61ms]
+(pass) --capture-dir > an existing absolute directory, resolved; nothing given is nothing [1.38ms]
+(pass) operate's flags > Arm 1 is the default, and arm, max tokens and capture directory reach the options [0.53ms]
+(pass) operate's flags > a bad arm, token bound or directory is found before anything starts [0.38ms]
+(pass) the CLI > run refuses a bad --arm, --max-tokens or --capture-dir, and --max-tokens without Claude [558.85ms]
+(pass) the CLI > compare and task run refuse them the same way [332.94ms]
+(pass) the CLI > operate refuses them before a lock or a browser [296.80ms]
+
+lab/test/host/net-guard.test.ts:
+(pass) isPrivateAddress > 127.0.0.1 is private [0.07ms]
+(pass) isPrivateAddress > 10.1.2.3 is private
+(pass) isPrivateAddress > 192.168.0.1 is private
+(pass) isPrivateAddress > 169.254.169.254 is private
+(pass) isPrivateAddress > 0.0.0.0 is private
+(pass) isPrivateAddress > 100.64.0.1 is private
+(pass) isPrivateAddress > ::1 is private [0.11ms]
+(pass) isPrivateAddress > :: is private
+(pass) isPrivateAddress > fe80::1 is private
+(pass) isPrivateAddress > fc00::1 is private
+(pass) isPrivateAddress > fd12:3456::1 is private
+(pass) isPrivateAddress > ff02::1 is private
+(pass) isPrivateAddress > ::ffff:127.0.0.1 is private [0.02ms]
+(pass) isPrivateAddress > ::ffff:7f00:1 is private
+(pass) isPrivateAddress > ::ffff:10.0.0.1 is private
+(pass) isPrivateAddress > 64:ff9b::a9fe:a9fe is private
+(pass) isPrivateAddress > 2002:c0a8:0001::1 is private
+(pass) isPrivateAddress > not-an-ip is private
+(pass) isPrivateAddress > 93.184.216.34 is public
+(pass) isPrivateAddress > 8.8.8.8 is public
+(pass) isPrivateAddress > 2606:4700::1111 is public
+(pass) isPrivateAddress > ::ffff:8.8.8.8 is public
+(pass) isPrivateAddress > 2002:0808:0808::1 is public
+(pass) resolvePublic > a name resolving to a private address is refused [0.42ms]
+(pass) resolvePublic > a public name gives the checked address [0.03ms]
+(pass) resolvePublic > names refused by name and unresolvable names [0.05ms]
+(pass) startNetGuard > CONNECT and plain HTTP to a private resolution are refused before connecting [7.45ms]
+(pass) egress range > a declared fake-IP egress range is let through only for resolved names [0.11ms]
+
+lab/test/host/media-inspect.test.ts:
+(pass) inspectMedia (2026-11-04) > reads the playback facts and nothing else [0.04ms]
+(pass) inspectMedia (2026-11-04) > an ad playing in the player is reported, not taken for the video [0.01ms]
+(pass) inspectMedia (2026-11-04) > a double-encoded answer is malformed [0.02ms]
+(pass) inspectMedia (2026-11-04) > no video is a fact, a malformed answer is an error [0.01ms]
+
+lab/test/host/search-urls.test.ts:
+(pass) search urls (2026-11-04) > a known site gets its own search url with the query encoded [0.01ms]
+(pass) search urls (2026-11-04) > a section of a larger site has its own search url
+(pass) search urls (2026-11-04) > NDL Search and e-Stat have their own search pages (live, 2026-11-04) [0.01ms]
+(pass) search urls (2026-11-04) > an unknown site has none
+(pass) search urls (2026-11-04) > the general engine is scoped to the site [0.02ms]
+(pass) search urls (2026-11-04) > challenge pages are recognised; long ordinary pages are not [0.02ms]
+
+lab/test/host/fixture-server.test.ts:
+(pass) fixture handler on the real fixtures > serves an html page with its content type and no caching [0.57ms]
+(pass) fixture handler on the real fixtures > serves css and js with their types; the query is ignored [0.32ms]
+(pass) fixture handler on the real fixtures > HEAD has headers and no body; other methods are refused [0.22ms]
+(pass) fixture handler on the real fixtures > no directory listing [0.31ms]
+(pass) fixture handler on the real fixtures > /sites/../package.json is refused [0.05ms]
+(pass) fixture handler on the real fixtures > /%2e%2e/package.json is refused [0.03ms]
+(pass) fixture handler on the real fixtures > /sites/%2e%2e/%2e%2e/package.json is refused [0.03ms]
+(pass) fixture handler on the real fixtures > /sites%2f..%2f..%2fpackage.json is refused [0.01ms]
+(pass) fixture handler on the real fixtures > /sites/hoshikuzu/base/..%5c..%5cindex.html is refused
+(pass) fixture handler on the real fixtures > /sites/hoshikuzu/base/index.html%00.png is refused
+(pass) fixture handler on the real fixtures > /% is refused
+(pass) fixture handler on the real fixtures > a missing file is 404 [0.05ms]
+(pass) fixture handler and symlinks > a symlink out of the root is refused, one that stays inside is served [2.89ms]
+(pass) fixture handler and symlinks > an unknown extension is served as opaque bytes [1.62ms]
+
+lab/test/host/arm1-scripts.test.ts:
+(pass) the Arm 1 scripts of the dev cases > every dev and live case has one and there is no other [2.64ms]
+(pass) the Arm 1 scripts of the dev cases > the holdout cases have none [0.13ms]
+(pass) the Arm 1 scripts of the dev cases > a script names items by role and name, never by id or ref [1.84ms]
+(pass) the Arm 1 scripts of the dev cases > a finish text carries the facts the case asks for [1.78ms]
+(pass) the Arm 1 scripts of the dev cases > every name a script looks for appears in its fixture's pages [17.21ms]
+(pass) the Arm 1 scripts of the dev cases > a part that needs a form's approval is the one that submits; a search button is opened, not submitted [1.82ms]
+(pass) choosing an item from what the core showed > by role, name and region; several are ambiguous unless nth names one [0.05ms]
+(pass) choosing an item from what the core showed > an item it cannot find becomes an ask, never a guess [0.07ms]
+(pass) choosing an item from what the core showed > the known set follows the core: a result about another page starts it again [0.03ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-search-base is a scored success [4.93ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-search-duplicate is a scored success [5.16ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-tab-base is a scored success [4.38ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-form-base is a scored success [5.12ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-approval-deny is a scored success [4.19ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-clarify-form is a scored success [3.70ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-capture-results is a scored success [6.86ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-capture-item is a scored success [6.63ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-capture-full is a scored success [6.44ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-form-multifield is a scored success [5.29ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-form-multifield-ask is a scored success [3.70ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > dev-read-table is a scored success [4.54ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > a screenshot case: the file is in the run's capture directory and the transcript says where [6.99ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > the parts the model called are in the transcript, in order [6.27ms]
+(pass) the fixed-response acceptance of Arm 1, on the fake browser > run and operate print the parts called and the screenshots saved [6.53ms]
+
+lab/test/host/collab.test.ts:
+(pass) collab ⇄ part > invoke part [0.05ms]
+(pass) collab ⇄ part > done completes the operation [0.04ms]
+(pass) collab ⇄ part > reply means awaiting the user [0.01ms]
+(pass) collab ⇄ part > discard and garbage pass through [0.08ms]
+(pass) collab ⇄ part > round trip [0.03ms]
+(pass) session stays open until the user ends it > explicit completion closes [0.01ms]
+(pass) session stays open until the user ends it > thanks only continues
+(pass) session stays open until the user ends it > new request after completion reopens
+(pass) browse skill > digest matches and the skill replaces the system message [0.31ms]
+
+lab/test/host/review-fixes.test.ts:
+(pass) the whole prompt, not only the uncached part > a trial's prompt total adds the cache reads and writes to Claude's uncached input [0.03ms]
+(pass) the whole prompt, not only the uncached part > an unreported cache counter is no cache use; an unknown input makes the total unknown [0.02ms]
+(pass) the whole prompt, not only the uncached part > the aggregate has its total and median over the completed trials [0.03ms]
+(pass) the whole prompt, not only the uncached part > the scorer's efficiency has it per trial, and the aggregate a median [3.91ms]
+(pass) a score stored before the cache fields existed > is aggregated without undefined reaching a median [3.47ms]
+(pass) the comparison freezes what answered > the experiment of each platform has the real inference kind with the model and effort, and report shows them [3.45ms]
+(pass) the comparison freezes what answered > scripted stays the default, and the run command's experiments freeze the same way [2.58ms]
+(pass) the success rate of the usage table is the main table's > a case that never started is a failed trial with no calls and no cost, in the denominator [0.10ms]
+(pass) the success rate of the usage table is the main table's > a case sample without usage counts too, as unknown, and a definition has none [0.04ms]
+(pass) the success rate of the usage table is the main table's > a session that could not start is that kind of sample, end to end [2.62ms]
+(pass) the report > a trial with no transcript has an unknown number of model calls, not 0 [4.00ms]
+(pass) the report > an interrupted free-form (operate) trial is not a failed trial of a case [5.67ms]
+(pass) a real site's stored record keeps no page-derived text > a live run without kept observations records the kind and the text's length only; a listener sees the text [3.98ms]
+(pass) a real site's stored record keeps no page-derived text > with kept observations, and for a fixture, the text stays (the scorer reads it) [9.18ms]
+
+lab/test/host/capture.test.ts:
+(pass) the capture directory the caller names > only an existing absolute directory [2.31ms]
+(pass) the capture directory the caller names > a symlink is followed to the real directory, and that is where files go [1.85ms]
+(pass) the capture directory the caller names > a directory swapped for a link to somewhere else after the start is refused [2.59ms]
+(pass) the capture directory the caller names > the directory removed after the start is refused too [0.85ms]
+(pass) the files > named from the run, the number and the range; read-only to others [2.39ms]
+(pass) the files > a JPEG gets its own extension [1.07ms]
+(pass) the files > an existing file is never overwritten [1.61ms]
+(pass) the files > a link planted where the file goes is not followed [2.37ms]
+(pass) the files > what is not an image, an empty image or one without a size is not saved [1.89ms]
+(pass) without a directory > the lab's own area gets one directory per run, made when the first capture is saved [5.27ms]
+
+lab/test/host/brief.test.ts:
+(pass) the 5W1H brief of a browser request (M5) > a plain search request: what and where are given, the rest inferred, nothing asked [0.04ms]
+(pass) the 5W1H brief of a browser request (M5) > a stated time is given, not inferred [0.01ms]
+(pass) the 5W1H brief of a browser request (M5) > personal data or payment without an owner is the only question [0.02ms]
+(pass) the 5W1H brief of a browser request (M5) > a bare 名前 (a thing's name) is not personal data; a person's name still is [0.02ms]
+(pass) the 5W1H brief of a browser request (M5) > a named person states who, so a form request with its values asks nothing [0.01ms]
+(pass) the 5W1H brief of a browser request (M5) > without a page url the start site is inferred
+(pass) the 5W1H brief of a browser request (M5) > the collab agent puts the brief as data between REFERENCE and the request [0.47ms]
+
+lab/test/host/candidates.test.ts:
+(pass) resolving a candidate against the observation > role with an exact name [0.07ms]
+(pass) resolving a candidate against the observation > nameAnyOf is a|b of exact names, in either language [0.08ms]
+(pass) resolving a candidate against the observation > named: an unnamed element does not count [0.04ms]
+(pass) resolving a candidate against the observation > urlIncludes and urlExcludes, also against the decoded address [0.07ms]
+(pass) resolving a candidate against the observation > withinRole is an ancestor by indentation [0.03ms]
+(pass) resolving a candidate against the observation > one match is found, several are ambiguous, and nth is the explicit choice [0.04ms]
+(pass) resolving a candidate against the observation > unsupported kinds and malformed fields are never guessed at [0.02ms]
+(pass) resolving a candidate against the observation > an element without a ref is not a target [0.02ms]
+(pass) resolving a candidate against the observation > the match carries the page's own name for the element [0.01ms]
+(pass) an object's candidates > candidates are a set that must agree on one element; stale and disabled ones are not tried [0.09ms]
+(pass) page profiles > the longest matching prefix wins and `/` is the fallback [0.04ms]
+(pass) knowledge of a site > an object of `/` is known on every page; one of a kind of page only there [3.99ms]
+(pass) importing seeds > every seed in lab/knowledge is valid and imports [4.34ms]
+(pass) importing seeds > importing twice changes nothing: same rows, same revisions, candidates stay candidates [3.84ms]
+(pass) importing seeds > a changed seed revises the object with the expected revision and disables what it dropped [3.96ms]
+(pass) importing seeds > a profile that changed is updated; one that did not is left alone [3.89ms]
+(pass) importing seeds > several origins share one seed: the same profiles and objects for each scope [3.76ms]
+(pass) importing seeds > a seed with a candidate no resolver reads, an unknown profile or a secret-looking field is refused [0.75ms]
+(pass) importing seeds > an invalid seed file is an error that names the file [1.76ms]
+(pass) importing seeds > evidence can be read back for an object [3.59ms]
+
+lab/test/host/claude.test.ts:
+(pass) the Claude settings > Haiku 5.5 at low effort by default, and both can be chosen [0.07ms]
+(pass) the Claude settings > an unknown effort or a model that is not a model id is refused [0.04ms]
+(pass) the Claude settings > the notice says a claude run costs money and is the user's to start [0.04ms]
+(pass) the credential > a missing key fails fast and says where to put it, without a key in the message [0.04ms]
+(pass) the credential > the environment is enough, and nothing is read from the file then [0.03ms]
+(pass) the credential > a .env file of the repository is read when the process started elsewhere, and the key goes only into the environment given [4.33ms]
+(pass) the credential > the dotenv lines: quotes, export, comments, blanks [0.02ms]
+(pass) the credential > the .env of the repository is the one at its root [0.01ms]
+(pass) the operate flags > defaults: Claude, low effort left to the host, stop approver, headed [0.07ms]
+(pass) the operate flags > --headless opts out of the headed default [0.02ms]
+(pass) the operate flags > the flags are carried: model, effort, max calls, approver, headed, keep, db, several origins [0.03ms]
+(pass) the operate flags > allowed origins are required, and the rest of the request is checked [0.10ms]
+(pass) the operate flags > max calls is at most 10, an integer, at least 1 [0.05ms]
+(pass) the operate flags > inference, approver and effort are checked; model and effort are for Claude [0.03ms]
+(pass) the operate flags > the CLI refuses a bad request before it starts anything [382.04ms]
+
+lab/test/host/allowlist.test.ts:
+(pass) action allowlist > the shipped file grants YouTube play/pause only [0.28ms]
+(pass) action allowlist > names beyond the fixed kind, typing and presses are not granted [0.02ms]
+(pass) action allowlist > not listed falls back: unattended denies and keeps the prompt [2.28ms]
+(pass) action allowlist > a file cannot carry patterns, unknown kinds or plain http [2.26ms]
+
+lab/test/host/usage.test.ts:
+(pass) a trial's usage > sums what every call reported, cache included, and prices each call [0.09ms]
+(pass) a trial's usage > one call that did not report makes the sum and the cost unknown, never 0 [0.02ms]
+(pass) a trial's usage > a provider with no cache reports none: those sums are unknown, the rest are not [0.03ms]
+(pass) a trial's usage > an unknown model has no price, and a trial without calls cost nothing [0.03ms]
+(pass) a trial's usage > labels group what answered [0.01ms]
+(pass) aggregating usage > totals over all trials, medians over the completed, success rate over all, cost per trial and per success [0.05ms]
+(pass) aggregating usage > an unknown value keeps the total unknown but not the medians of the others; unknown cost stays null [0.04ms]
+(pass) aggregating usage > no success: no per-success cost; no trial: nothing [0.04ms]
+(pass) through a run, the report and the comparison > the transcript carries the cache counters and the score its totals [15.44ms]
+(pass) through a run, the report and the comparison > report: per platform and inference, overall and per case, with the cost as an estimate [6.24ms]
+(pass) through a run, the report and the comparison > an unfinished trial counts against the success rate and leaves its tokens unknown [4.46ms]
+(pass) through a run, the report and the comparison > a free-form request is not a trial of a case: unscored trials stay out of the report [4.47ms]
+(pass) through a run, the report and the comparison > the comparison shows tokens, calls and the cost estimate per platform and case, and none for a definition [0.22ms]
+
+lab/test/host/playback.test.ts:
+(pass) playback done check > two advances of the main video confirm it [0.18ms]
+(pass) playback done check > an advancing ad is not the video: wait, tell the user, then confirm the main video [0.08ms]
+(pass) playback done check > one advance is not enough [0.04ms]
+(pass) playback done check > a paused video is not playing [0.03ms]
+(pass) playback done check > an ad that never ends gives up (and nothing is skipped) [0.02ms]
+(pass) playback done check > no video [0.02ms]
+(pass) playback done check > which goals are playback [0.04ms]
+(pass) an ad's limit is wall-clock time, not the count of samples [0.11ms]
+(pass) while kept open > a mid-roll ad start and its end are told once each, and the video's end [0.04ms]
+(pass) kept-tab probe (chain-command) > times are shown in JST [0.04ms]
+(pass) kept-tab probe (chain-command) > an ad starting prints a media line and a notice, and the sample becomes prev [0.11ms]
+(pass) kept-tab probe (chain-command) > a failed read prints unread and keeps the previous sample, so no transition is invented [0.05ms]
+(pass) kept-tab probe (chain-command) > no change prints only the media line [0.03ms]
+
+lab/test/host/reconcile.test.ts:
+(pass) restart reconciliation > a dispatched operation becomes indeterminate with its run, and nothing is resent [4.18ms]
+(pass) restart reconciliation > an intent that was never dispatched is not an unsettled operation [3.45ms]
+(pass) restart reconciliation > a run that waits for the user is left alone [3.13ms]
+(pass) trials left running > are marked interrupted with the run's status [3.36ms]
+
+lab/test/host/units.test.ts:
+(pass) url policy > http://127.0.0.1:5000/sites/a/index.html?q=1#x -> true [0.01ms]
+(pass) url policy > http://127.0.0.1:5000/ -> true
+(pass) url policy > about:blank -> true
+(pass) url policy > http://127.0.0.1:5001/ -> false
+(pass) url policy > http://localhost:5000/ -> false
+(pass) url policy > http://127.0.0.1:5000@evil.test/ -> false
+(pass) url policy > http://user:pw@127.0.0.1:5000/ -> false
+(pass) url policy > https://127.0.0.1:5000/ -> false
+(pass) url policy > file:///tmp/x.html -> false
+(pass) url policy > ftp://127.0.0.1:5000/ -> false
+(pass) url policy > http://127.0.0.1:5000/%2e%2e/etc -> true
+(pass) url policy >  -> false [0.01ms]
+(pass) url policy > the verdict carries a fixed code [0.01ms]
+(pass) approval gate (Eumenes' decision) > a non-GET form submit needs approval, a GET or dialog form does not, an undescribed form does [0.01ms]
+(pass) approval gate (Eumenes' decision) > a click on a button whose effect the form rules do not decide needs approval
+(pass) approval gate (Eumenes' decision) > which operations carry a guard [0.06ms]
+(pass) approval gate (Eumenes' decision) > a declared commit needs approval without asking the page; a declaration never removes one [0.02ms]
+(pass) grants > a quotation must be a passage of the request and not much shorter than its value [0.06ms]
+(pass) grants > an approved value is bound to its site and expires [0.07ms]
+(pass) approval ledger and approvers > an approval is used once and only for what it was asked about [0.02ms]
+(pass) approval ledger and approvers > the fixture approver answers from the case's script [0.03ms]
+(pass) approval ledger and approvers > the CLI approver shows target, action and content and takes y as a grant, anything else as a deny [1.42ms]
+(pass) approval ledger and approvers > page- and model-derived text cannot forge lines or escape sequences in the prompt [0.23ms]
+(pass) approval ledger and approvers > an abort while the CLI approver waits is a deny [0.30ms]
+(pass) tab registry > tabs keep their ref while (index, URL) match and a new entry gets a new one [0.06ms]
+(pass) tab registry > several tabs on one URL at shifted indices match none of them [0.04ms]
+(pass) tab registry > a blocked page never gets a ref and blocks the tab it matched [0.08ms]
+(pass) tab registry > a bump voids the tab's observations, cancel voids all [0.04ms]
+(pass) cases and trial order > a holdout case is never selected without the flag, by id or by split [0.86ms]
+(pass) cases and trial order > repetitions go in turn and arms rotate [0.20ms]
+
+lab/test/host/live.test.ts:
+(pass) the live YouTube scenario with a fake browser > searches, plays a video and is scored a success from the URL [5.42ms]
+(pass) the live YouTube scenario with a fake browser > without --keep-observations the pages the model read are stored nowhere [4.49ms]
+(pass) the live YouTube scenario with a fake browser > with an observation sink every body goes there and the state is saved as before [6.89ms]
+(pass) the live YouTube scenario with a fake browser > a page on another origin is a scope violation the scorer counts, and not a success [4.57ms]
+(pass) selecting live cases > a live case is never selected without the flag [0.07ms]
+(pass) selecting live cases > the notices say a live run is the user's to start, and what answers approvals [0.03ms]
+(pass) the live URL policy > https://www.youtube.com/ -> true
+(pass) the live URL policy > https://www.youtube.com/watch?v=abc#t=1 -> true
+(pass) the live URL policy > about:blank -> true
+(pass) the live URL policy > http://www.youtube.com/ -> false [0.01ms]
+(pass) the live URL policy > https://youtube.com/ -> false
+(pass) the live URL policy > https://m.youtube.com/ -> false
+(pass) the live URL policy > https://www.youtube.com:8443/ -> false [0.05ms]
+(pass) the live URL policy > https://www.youtube.com.evil.test/ -> false
+(pass) the live URL policy > https://evil.test/ -> false
+(pass) the live URL policy > https://user:pw@www.youtube.com/ -> false [0.03ms]
+(pass) the live URL policy > https://www.youtube.com@evil.test/ -> false
+(pass) the live URL policy > ftp://www.youtube.com/ -> false
+(pass) the live URL policy > file:///etc/passwd -> false
+(pass) the live URL policy > javascript:alert(1) -> false
+(pass) the live URL policy > data:text/html,x -> false
+(pass) the live URL policy >  -> false
+(pass) the live URL policy > http://localhost/ is private and refused even if an origin list named it [0.02ms]
+(pass) the live URL policy > https://localhost:3000/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://127.0.0.1/ is private and refused even if an origin list named it [0.01ms]
+(pass) the live URL policy > https://127.1/ is private and refused even if an origin list named it [0.01ms]
+(pass) the live URL policy > https://2130706433/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://10.0.0.5/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://172.16.0.1/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://192.168.1.1/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://169.254.169.254/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://100.64.0.1/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://[::1]/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://[fe80::1]/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://[::ffff:127.0.0.1]/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://printer.local/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://nas.internal/ is private and refused even if an origin list named it
+(pass) the live URL policy > https://intranet/ is private and refused even if an origin list named it
+(pass) the live URL policy > an open-web step leaves its site without approval but keeps every other refusal [0.03ms]
+(pass) the live URL policy > public hosts are not private [0.04ms]
+(pass) the live URL policy > fixed codes [0.01ms]
+(pass) wildcard origins in the URL policy > https://slashdot.org/ -> true
+(pass) wildcard origins in the URL policy > https://tech.slashdot.org/story/26/11/03/x -> true
+(pass) wildcard origins in the URL policy > https://a.b.slashdot.org/ -> true
+(pass) wildcard origins in the URL policy > https://SLASHDOT.org/ -> true
+(pass) wildcard origins in the URL policy > https://www.youtube.com/ -> true
+(pass) wildcard origins in the URL policy > https://evilslashdot.org/ -> false
+(pass) wildcard origins in the URL policy > https://slashdot.org.evil.test/ -> false
+(pass) wildcard origins in the URL policy > https://slashdot.org@evil.test/ -> false
+(pass) wildcard origins in the URL policy > http://tech.slashdot.org/ -> false
+(pass) wildcard origins in the URL policy > https://tech.slashdot.org:8443/ -> false
+(pass) wildcard origins in the URL policy > https://slashdot.org:8443/ -> false
+(pass) wildcard origins in the URL policy > https://tech.slashdot.org.attacker.test/ -> false
+(pass) wildcard origins in the URL policy > https://u:p@tech.slashdot.org/ -> false
+(pass) wildcard origins in the URL policy > https://org/ -> false
+(pass) wildcard origins in the URL policy > https://[::1]/ -> false
+(pass) wildcard origins in the URL policy > the private and loopback refusal still applies under a wildcard [0.03ms]
+(pass) kept observations > the sink writes <trial>/<seq>.txt readable by the owner only [1.39ms]
+(pass) kept observations > trial directories older than seven days are deleted, others and non-directories are not [3.17ms]
+(pass) the CLI listing > live cases appear only with --include-live [259.26ms]
+
+lab/test/host/cli.test.ts:
+(pass) --input > the first = splits, a value may contain =, and a repeated key is refused [0.12ms]
+(pass) task and knowledge commands > task list shows the four samples with their inputs and origins [99.50ms]
+(pass) task and knowledge commands > knowledge import is idempotent and knowledge list shows what is stored [500.86ms]
+(pass) task and knowledge commands > an unknown definition is an error before anything starts [113.85ms]
+(pass) task and knowledge commands > missing input is refused with exit code 2 and a JSON result, before any browser is started [251.18ms]
+(pass) the human summary > prints steps, the extract and any approval, with page text made safe [0.23ms]
+
+lab/test/cases/live.test.ts:
+(pass) loading live cases > never without the flag [0.79ms]
+(pass) loading live cases > the live file's cases must be live and the dev file's must not [0.08ms]
+(pass) loading live cases > the YouTube case is as the user asked [0.03ms]
+(pass) the schema rules of live cases > the case itself is valid [0.02ms]
+(pass) the schema rules of live cases > a live case needs allowedOrigins, and only a live case may have them [0.14ms]
+(pass) the schema rules of live cases > allowedOrigins: http origin is refused [0.03ms]
+(pass) the schema rules of live cases > allowedOrigins: origin with a path is refused [0.02ms]
+(pass) the schema rules of live cases > allowedOrigins: origin with a trailing slash is refused [0.02ms]
+(pass) the schema rules of live cases > allowedOrigins: not a url is refused [0.01ms]
+(pass) the schema rules of live cases > allowedOrigins: credentials is refused [0.01ms]
+(pass) the schema rules of live cases > allowedOrigins: start origin missing is refused [0.02ms]
+(pass) the schema rules of live cases > allowedOrigins: start origin on another port is refused [0.02ms]
+(pass) the schema rules of live cases > more origins are fine when the start origin is among them [0.01ms]
+(pass) the schema rules of live cases > a wildcard origin allows its domain and subdomains, and the start origin must be allowed by it [0.17ms]
+(pass) the schema rules of live cases > a live start is an absolute https URL [0.08ms]
+(pass) the schema rules of live cases > a fixture start stays a fixture path [0.04ms]
+(pass) the schema rules of live cases > predicate paths: absolute for live, fixture paths for the rest [0.04ms]
+(pass) the schema rules of live cases > a live case that grants approvals must say the user authorized the scenario [0.03ms]
+(pass) the schema rules of live cases > budgets keep max 10 [0.05ms]
+(pass) the schema rules of live cases > queryPresent must name at least one key [0.05ms]
+
+lab/test/cases/purposes.test.ts:
+(pass) screenshot cases > every screenshot case asks for captures, and dev covers all three ranges [0.08ms]
+(pass) screenshot cases > captures belong to reach cases, with a positive minimum and a known range [0.25ms]
+(pass) screenshot cases > an item capture is asked on a page that has a labelled region for the item, and the full one on a tall page [0.34ms]
+(pass) form filling cases > the multi-field forms have every control type, and the expected query uses their names [0.29ms]
+(pass) form filling cases > the missing-value case omits a required control the form cannot default [0.13ms]
+(pass) content reading cases > each fact is only in the table of the page the answer is read from [0.32ms]
+
+lab/test/mcp/stdio.test.ts:
+(pass) the real server over stdio > stdin closed at once: nothing on stdout, a clean exit [175.35ms]
+(pass) the real server over stdio > answers JSON-RPC only on stdout, then exits when stdin closes [136.35ms]
+(pass) the real server over stdio > SIGTERM ends the server cleanly [127.76ms]
+
+lab/test/mcp/server.test.ts:
+(pass) tools/list > exposes the five tools with their input schemas [4.93ms]
+(pass) interact_list_definitions > returns id, revision, title and the input schema [0.97ms]
+(pass) interact_run_definition > returns the run result, with extract text marked as page data [0.66ms]
+(pass) interact_run_definition > an unknown definition is definition_not_found [0.41ms]
+(pass) interact_run_definition > non-string inputs are refused before any run [0.37ms]
+(pass) interact_run_definition > the lock holder's refusal is runner_active, and no run starts meanwhile [0.74ms]
+(pass) interact_run_definition > a RunnerActiveError from another process is runner_active [0.37ms]
+(pass) interact_run_definition > an unexpected error is internal_error without its message [0.34ms]
+(pass) interact_operate_start > returns a receipt and starts with the claude inference and the stopping approver [0.34ms]
+(pass) interact_operate_start > omits maxModelCalls when not given [0.32ms]
+(pass) interact_operate_start > refuses no origins [0.34ms]
+(pass) interact_operate_start > refuses a bad origin [0.29ms]
+(pass) interact_operate_start > refuses an http origin [0.24ms]
+(pass) interact_operate_start > refuses a path in an origin [0.24ms]
+(pass) interact_operate_start > refuses a non-http startUrl [0.26ms]
+(pass) interact_operate_start > refuses a startUrl with credentials [0.29ms]
+(pass) interact_operate_start > refuses maxModelCalls 0 [0.57ms]
+(pass) interact_operate_start > refuses maxModelCalls 13 [0.49ms]
+(pass) interact_operate_start > refuses fractional maxModelCalls [0.29ms]
+(pass) interact_operate_start > refuses an empty request [0.24ms]
+(pass) interact_operate_start > accepts a wildcard origin pattern [0.30ms]
+(pass) interact_operate_start > a startUrl outside allowedOrigins is start_url_not_allowed [0.23ms]
+(pass) interact_operate_start > a second start while a run is active is runner_active; after it ends one may start [0.33ms]
+(pass) interact_operate_start > the lock refusal inside startOperate is runner_active [0.24ms]
+(pass) interact_operate_start > a lab error code passes through; anything else is internal_error [0.43ms]
+(pass) interact_operate_status and interact_operate_cancel > status returns the latest snapshot [0.32ms]
+(pass) interact_operate_status and interact_operate_cancel > an unknown runId is unknown_run [0.28ms]
+(pass) interact_operate_status and interact_operate_cancel > cancel cancels the run and returns the cancelled snapshot; again is harmless [0.33ms]
+(pass) interact_operate_status and interact_operate_cancel > cancel returns after the bounded wait when the run does not end [51.57ms]
+(pass) shutdown > cancels the active run and waits for it [1.01ms]
+(pass) shutdown > aborts a running definition and refuses new calls [11.64ms]
+(pass) shutdown > returns within the bound when the run never ends [51.44ms]
+(pass) the operator's origin allowlist > a covered origin starts; the description names the env var and the list [1.42ms]
+(pass) the operator's origin allowlist > refuses an origin not in the list [0.50ms]
+(pass) the operator's origin allowlist > refuses one uncovered origin among covered ones [0.40ms]
+(pass) the operator's origin allowlist > refuses a different port [0.25ms]
+(pass) the operator's origin allowlist > refuses a wildcard over an exact origin [0.26ms]
+(pass) the operator's origin allowlist > refuses a wildcard broader than the list's [0.23ms]
+(pass) the operator's origin allowlist > the wildcard https://*.slashdot.org is covered [0.30ms]
+(pass) the operator's origin allowlist > the wildcard https://*.tech.slashdot.org is covered [0.25ms]
+(pass) the operator's origin allowlist > a startUrl outside the list is refused before anything starts [0.25ms]
+(pass) the operator's origin allowlist > unset: a too-broad wildcard is refused, a two-label one is not [0.40ms]
+(pass) the operator's origin allowlist > the env value is parsed with the same rules [0.07ms]
+(pass) arm and capture folders > arm is passed through when given and left to the host's default when not [0.48ms]
+(pass) arm and capture folders > refuses an unknown arm [0.47ms]
+(pass) arm and capture folders > refuses a relative captureDir [0.94ms]
+(pass) arm and capture folders > refuses a non-string captureDir [2.56ms]
+(pass) arm and capture folders > a directory inside a root is passed on, resolved [1.50ms]
+(pass) arm and capture folders > refuses outside the roots before anything starts [0.75ms]
+(pass) arm and capture folders > refuses a symlink that escapes before anything starts [0.60ms]
+(pass) arm and capture folders > refuses a dot-dot walk out before anything starts [0.57ms]
+(pass) arm and capture folders > refuses a missing directory before anything starts [0.38ms]
+(pass) arm and capture folders > refuses a file before anything starts [0.95ms]
+(pass) arm and capture folders > with no roots set, captureDir is refused entirely [0.27ms]
+(pass) arm and capture folders > the roots env value must be absolute existing directories [0.41ms]
+(pass) arm and capture folders > saved file names come back as base names with a note [1.15ms]
+(pass) arm and capture folders > a definition result carries its capture names too [0.25ms]
+
+lab/test/scorer/fixtures.test.ts:
+(pass) case files > all case files parse, ids are unique, and the sizes are as planned [1.65ms]
+(pass) case files > holdout cases are not loaded without the flag [0.59ms]
+(pass) case files > a case in the wrong split file is rejected [0.30ms]
+(pass) case files > the schema rejects unsafe or inconsistent cases [0.34ms]
+(pass) case files > no budget exceeds the limit of 10 model calls per browser task [0.74ms]
+(pass) case files > information-seeking requests carry expected facts [0.34ms]
+(pass) case files > holdout cases use no fixture variant that a dev case uses [0.47ms]
+(pass) case files > every case points at fixture files that exist [0.49ms]
+(pass) case files > the case mix covers the planned categories and variants [0.44ms]
+(pass) case files > a request never names a fixture file or URL [0.37ms]
+(pass) fixtures > no file refers to an external resource [9.71ms]
+(pass) fixtures > every script and stylesheet is a local file that exists [8.58ms]
+(pass) fixtures > every link, form action and window.open target is a local page that exists [8.16ms]
+
+lab/test/scorer/score.test.ts:
+(pass) scoreTrial: end state > success is read from the final URL, with efficiency counts [0.63ms]
+(pass) scoreTrial: end state > a finish claim on the wrong page is not a success [0.30ms]
+(pass) scoreTrial: end state > an in-place update is read from the URL fragment [0.34ms]
+(pass) scoreTrial: end state > an answer that lacks the expected fact fails even at the right page [0.34ms]
+(pass) scoreTrial: end state > digit-group commas do not matter in an answer [0.24ms]
+(pass) scoreTrial: end state > exceeding the model-call budget fails the trial [0.25ms]
+(pass) scoreTrial: wrong targets > a read-only decoy then the right page is a recovery [0.28ms]
+(pass) scoreTrial: wrong targets > a decoy effect on an approved operation is a wrong target on an approval-requiring operation [0.31ms]
+(pass) scoreTrial: wrong targets > a later observation of the same wrong page is not counted again [0.22ms]
+(pass) scoreTrial: approvals > approval before the effect is a success [0.27ms]
+(pass) scoreTrial: approvals > an under-declared effect reached without approval is a violation and a failure [0.23ms]
+(pass) scoreTrial: approvals > a gated operation sent without a grant is a violation even when no page change is seen [0.22ms]
+(pass) scoreTrial: approvals > a denied approval with no send is the correct outcome [0.23ms]
+(pass) scoreTrial: approvals > sending after a deny reaches the effect without a grant [0.21ms]
+(pass) scoreTrial: contract > re-sending an indeterminate operation, identical or marked as a retry [0.26ms]
+(pass) scoreTrial: contract > a send or an adopted result after cancel [0.24ms]
+(pass) scoreTrial: contract > scope violations are distinct URLs outside the fixture root [0.20ms]
+(pass) scoreTrial: contract > another origin or port is out of scope even with the same path [0.24ms]
+(pass) scoreTrial: contract > an unsupported result is counted apart from the violations [0.21ms]
+(pass) scoreTrial: clarify and burden > a clarify with no effect is the correct outcome for an ambiguous request [0.20ms]
+(pass) scoreTrial: clarify and burden > submitting instead of asking fails the clarify case [0.22ms]
+(pass) scoreTrial: clarify and burden > a clarify where the request was clear is an unneeded question [0.19ms]
+(pass) scoreTrial: clarify and burden > approval requests in a case that expects none are unneeded [0.25ms]
+(pass) scoreTrial: tokens and output faults > unknown tokens are null, not 0 [0.22ms]
+(pass) scoreTrial: tokens and output faults > parse rejections and inference faults are counted per call [0.19ms]
+
+lab/test/scorer/capture.test.ts:
+(pass) readImageHeader > reads PNG and JPEG sizes from the magic bytes [0.71ms]
+(pass) readImageHeader > rejects anything else, and truncated files [0.54ms]
+(pass) scoreTrial: captures > a valid viewport capture satisfies the case [1.80ms]
+(pass) scoreTrial: captures > a JPEG capture with matching header is valid [1.71ms]
+(pass) scoreTrial: captures > no capture, or only another range, is capture_missing [1.94ms]
+(pass) scoreTrial: captures > the right page without a capture still fails, and a capture on the wrong page still fails [1.67ms]
+(pass) scoreTrial: captures > a file that does not exist is capture_invalid [0.73ms]
+(pass) scoreTrial: captures > file names that leave the capture folder are invalid, even if the file exists [1.35ms]
+(pass) scoreTrial: captures > a symlink that points outside the capture folder is invalid [2.12ms]
+(pass) scoreTrial: captures > not an image, wrong size, wrong type and empty images are invalid [4.36ms]
+(pass) scoreTrial: captures > a transcript without a capture folder cannot validate its captures [0.57ms]
+(pass) scoreTrial: captures > one invalid extra capture fails the trial even when enough valid ones exist [1.31ms]
+(pass) scoreTrial: captures > the item and full ranges are counted apart [1.46ms]
+(pass) scoreTrial: captures > a request that allows several ranges counts any of them, and only those [1.64ms]
+(pass) scoreTrial: captures > an element capture counts only when it is of the expected element [1.91ms]
+
+lab/test/scorer/url.test.ts:
+(pass) toFixtureRef > resolves a URL under the base and decodes query and fragment [0.01ms]
+(pass) toFixtureRef > rejects another host, another port, another scheme and another prefix [0.03ms]
+(pass) matchesPredicate > path equal, query entries equal after NFKC, extra query allowed, hash equal [0.04ms]
+
+lab/test/scorer/aggregate.test.ts:
+(pass) median > odd, even and empty
+(pass) aggregateScores > success rate is over all trials; medians are over completed ones [0.77ms]
+(pass) aggregateScores > unknown tokens are left out of the medians and counted [0.48ms]
+(pass) aggregateScores > contract counters are sums, not averages, and recovery is a rate over disrupted trials [0.43ms]
+(pass) aggregateScores > an empty set has no rates [0.02ms]
+
+lab/test/scorer/live.test.ts:
+(pass) queryPresent > the key must exist, with any value; the leading slash of a live path is the same page [0.04ms]
+(pass) queryPresent > combines with query and hash [0.02ms]
+(pass) scoring a live trial > a watch page with an id is a success [0.05ms]
+(pass) scoring a live trial > the search results, or a watch page without an id, are not [0.04ms]
+(pass) scoring a live trial > a URL outside the allowed origins is a scope violation, with another subdomain or scheme too [0.06ms]
+(pass) scoring a live trial > about:blank is no violation, and every origin the case allows is in scope [0.04ms]
+(pass) scoring a live trial > a wildcard origin puts its subdomains in scope, and nothing that only looks like them [0.08ms]
+(pass) scoring a live trial > a fixture case still treats any other origin as out of scope [0.15ms]
+
+lab/test/inference/inference.test.ts:
+(pass) listLarmChatProfiles > keeps default, non-deprecated Profiles with an llm Provider [0.60ms]
+(pass) listLarmChatProfiles > an unreadable catalog is a fixed-code error without the token [0.10ms]
+(pass) listLarmChatProfiles > refuses a public address [0.04ms]
+(pass) connection lifecycle > creates once as a sub role, claims, and sends a plain chat [1.37ms]
+(pass) connection lifecycle > reuses the connection and the prompt cache key [0.20ms]
+(pass) connection lifecycle > waits for claimable through the health check [1.33ms]
+(pass) connection lifecycle > renews and re-claims close to expiry, then uses the new credential [0.37ms]
+(pass) connection lifecycle > recreates when the bootEpoch changed [0.19ms]
+(pass) connection lifecycle > recreates when the connection is gone [0.18ms]
+(pass) connection lifecycle > a claimed capacity other than the sub role's is refused and released [0.12ms]
+(pass) connection lifecycle > a claim beyond the catalog capacity is refused [0.10ms]
+(pass) connection lifecycle > a provider on another host never receives the credential [0.08ms]
+(pass) connection lifecycle > close releases what it created once, and is idempotent [0.18ms]
+(pass) connection lifecycle > close without a connection releases nothing [0.03ms]
+(pass) outputSchema > is refused as unsupported, never ignored or sent [0.03ms]
+(pass) max_tokens > a legacy claim caps the output at its reserve [0.09ms]
+(pass) max_tokens > remaining-context takes the request's bound [0.09ms]
+(pass) classification > usage is null, never 0, when not reported [0.12ms]
+(pass) classification > a partly reported usage keeps the unknown side null [0.12ms]
+(pass) classification > content filter [0.10ms]
+(pass) classification > refusal field [0.06ms]
+(pass) classification > empty content [0.06ms]
+(pass) classification > whitespace only [0.06ms]
+(pass) classification > missing content [0.06ms]
+(pass) classification > cut at the token limit [0.07ms]
+(pass) classification > not JSON [0.09ms]
+(pass) classification > no choices [0.11ms]
+(pass) classification > error field in a 200 [0.09ms]
+(pass) classification > content of the wrong type [0.07ms]
+(pass) classification > HTTP 503 [0.17ms]
+(pass) classification > HTTP 400 [0.10ms]
+(pass) classification > the usage of a refused answer is kept [0.14ms]
+(pass) never resent > a transport loss before the response is transport_lost, sent once [0.13ms]
+(pass) never resent > a stream lost while reading the response is transport_lost, sent once [0.14ms]
+(pass) never resent > a refusal LARM made before inference (idle release) is sent once more on a new connection [0.21ms]
+(pass) never resent > a second idle-release refusal ends as http_409 [0.14ms]
+(pass) never resent > other rejections are not replayed [0.09ms]
+(pass) abort and deadline > an already aborted signal sends nothing [0.04ms]
+(pass) abort and deadline > aborting during generation ends the call as aborted [0.12ms]
+(pass) abort and deadline > a caller deadline (TimeoutError reason) is recorded as deadline [0.10ms]
+(pass) abort and deadline > a deadline during the connection is deadline and sends no generation [0.11ms]
+(pass) abort and deadline > close aborts a call in flight and releases afterwards [21.11ms]
+(pass) serialization > calls of one session infer one at a time [33.19ms]
+(pass) secrets > tokens reach neither logs nor error codes, on success and on failure [0.41ms]
+(pass) secrets > a control failure carries a fixed code only [0.11ms]
+(pass) secrets > logged events carry only a correlation id, a fixed code and a duration [0.17ms]
+(pass) secrets > a logger that throws never changes the result [0.08ms]
+(pass) configuration > a missing token, Profile or a public address is refused up front [0.05ms]
+
+lab/test/inference/claude.test.ts:
+(pass) request > sends model, effort, system split, cache control and nothing sampled [0.30ms]
+(pass) request > max_tokens is the larger of the request and 16000, unless set [0.07ms]
+(pass) request > the configured effort and model are sent as they are [0.04ms]
+(pass) request > an outputSchema is sent as a json_schema format beside the effort [0.05ms]
+(pass) request > without an outputSchema there is no format [0.03ms]
+(pass) request > a schema whose top level is not an object is refused before sending [0.03ms]
+(pass) request > maxTokens is the exact max_tokens, above or below the default [0.06ms]
+(pass) request > no system message means no system field [0.03ms]
+(pass) response > takes the text blocks only and ignores thinking [0.03ms]
+(pass) response > maps every usage counter, with the cache fields [0.02ms]
+(pass) response > an unreported counter is null, never 0 [0.04ms]
+(pass) response > refusal without a category [0.05ms]
+(pass) response > refusal with a category
+(pass) response > refusal with a null category
+(pass) response > cut at max_tokens (thinking used the budget)
+(pass) response > cut at max_tokens with partial text
+(pass) response > context window exceeded
+(pass) response > pause_turn
+(pass) response > stop_sequence
+(pass) response > tool_use
+(pass) response > no text block
+(pass) response > whitespace text
+(pass) errors > 401 [0.14ms]
+(pass) errors > 429 [0.03ms]
+(pass) errors > 400 [0.02ms]
+(pass) errors > 403 [0.02ms]
+(pass) errors > 500 [0.02ms]
+(pass) errors > 529 (overloaded) [0.01ms]
+(pass) errors > connection timeout [0.03ms]
+(pass) errors > connection lost [0.01ms]
+(pass) errors > user abort error [0.02ms]
+(pass) errors > anything else [0.01ms]
+(pass) abort > an already aborted signal sends nothing [0.04ms]
+(pass) abort > aborting during the call ends it as aborted and passes the signal on [0.08ms]
+(pass) abort > a caller deadline (TimeoutError reason) is deadline [0.05ms]
+(pass) cost estimate > input and output at the list price [0.02ms]
+(pass) cost estimate > cache reads cost 0.1x and writes 1.25x the input price [0.01ms]
+(pass) cost estimate > a prompt above 100K tokens (cache included) uses the long rates [0.01ms]
+(pass) cost estimate > unknown model or unknown tokens give null, unreported cache counts as none [0.01ms]
+(pass) secrets > the key reaches neither logs nor outcomes [0.09ms]
+(pass) secrets > events carry only a correlation id, a fixed code and a duration [0.04ms]
+(pass) secrets > a logger that throws never changes the result [0.04ms]
+
+packages/eumenes-interact/test/core/arm1.test.ts:
+(pass) startRun > a system text, REFERENCE and the request, in plain JSON state [0.24ms]
+(pass) startRun > a brief that differs from the request is shown beside it [0.09ms]
+(pass) startRun > the system text is the same whatever the run [0.06ms]
+(pass) startRun > unknown parts and out-of-bound policies are errors; an offered subset narrows the schema [0.27ms]
+(pass) parseStep: valid parts > a part becomes a host call, with the tool name and the budget [0.06ms]
+(pass) parseStep: valid parts > an item the REFERENCE showed can be named [0.08ms]
+(pass) parseStep: valid parts > done is finish with its evidence and ask is clarify [0.17ms]
+(pass) parseStep: valid parts > JSON in a fence or with a trailing comma is read like Arm 0's output [0.04ms]
+(pass) parseStep: rejections > not JSON, and not a part [0.37ms]
+(pass) parseStep: rejections > page.find needs text or role [0.15ms]
+(pass) parseStep: rejections > page.wait needs text or seconds [0.20ms]
+(pass) parseStep: rejections > page.capture of an item needs an item [0.11ms]
+(pass) parseStep: rejections > an item the AI was not shown is refused, and so is an item of an older page [0.15ms]
+(pass) parseStep: rejections > done may cite only results the AI was shown [0.09ms]
+(pass) parseStep: rejections > the issues never echo what the output said (only the short preview does, as in Arm 0) [0.11ms]
+(pass) parseStep: rejections > wrong arg names come back with the part's args shape; a bad part name or bad JSON does not [0.25ms]
+(pass) parseStep: rejections > one repair per output, then the run fails [0.07ms]
+(pass) parseStep: rejections > a valid call resets the repair [0.07ms]
+(pass) content blocks > the REFERENCE page's blocks are known as blocks [0.02ms]
+(pass) content blocks > page.read and page.capture accept a block as well as a control [0.11ms]
+(pass) content blocks > item.open refuses a block, naming the rule, and accepts a control [0.08ms]
+(pass) content blocks > blocks from a result are remembered per page and forgotten with the page [0.11ms]
+(pass) content blocks > the system text says what blocks are for
+(pass) budget > the last call is reserved for done or ask [0.11ms]
+(pass) budget > an invalid last call cannot be repaired [0.03ms]
+(pass) budget > repairs and results share the budget [0.06ms]
+(pass) budget > a call cannot be parsed while the previous call has no result [0.05ms]
+(pass) applyResult > the result is appended as one PART_RESULT after the AI's own output [0.13ms]
+(pass) applyResult > earlier messages are never rewritten: the start stays byte-identical across steps [0.17ms]
+(pass) applyResult > a repair notice is appended too, and nothing before it changes [0.06ms]
+(pass) applyResult > page text is enclosed as data and the message stays bounded [2.16ms]
+(pass) applyResult > the AI may name the items of the latest page and cite the results it saw [0.22ms]
+(pass) applyResult > candidates, list entries and form fields add ids of the same page [0.39ms]
+(pass) applyResult > an indeterminate part ends the run and never invites a retry [0.09ms]
+(pass) applyResult > a part that needs approval stops the run [0.06ms]
+(pass) applyResult > a failed or partial part is data for the AI, not the end [0.11ms]
+(pass) applyResult > stop relays the host's words and ends the run [0.07ms]
+(pass) applyResult > a refusal counts against the part's retries; retryable false ends the run [0.20ms]
+(pass) applyResult > outcomes of Arm 0 are not Arm 1's, and a result needs a call in flight [0.06ms]
+(pass) applyResult > the input state is never mutated [0.06ms]
+(pass) state and dispatch > parseCoreState reads Arm 1 states and rejects foreign ones [0.19ms]
+(pass) state and dispatch > every function dispatches by the state's arm, and an unknown one is an error [0.19ms]
+(pass) state and dispatch > shapeObservation keeps the whole body for Arm 1 [0.05ms]
+(pass) state and dispatch > coreApi still has the six functions [0.01ms]
+
+packages/eumenes-interact/test/core/parts.test.ts:
+(pass) summarizePage (Playwright MCP) > title, place of the url, headings and regions [0.02ms]
+(pass) summarizePage (Playwright MCP) > items get ids in document order, a region and the link's url [0.03ms]
+(pass) summarizePage (Playwright MCP) > neither refs nor paragraph text reach the summary [0.01ms]
+(pass) summarizePage (Playwright MCP) > records keep the ref, the position among equal items and their number [0.03ms]
+(pass) summarizePage (Playwright MCP) > ids are deterministic and depend on the page id only by the prefix [0.10ms]
+(pass) summarizePage (Playwright MCP) > maxItems and maxHeadings cap the summary and say so [0.17ms]
+(pass) summarizePage (Playwright MCP) > long names are clipped [0.03ms]
+(pass) summarizePage (bracketed attributes) > items, urls and refs are read from the attribute lists [0.04ms]
+(pass) content blocks > articles, named regions, tables, named images, figures and main are items, in document order [0.02ms]
+(pass) content blocks > an unnamed image, complementary or region is not an item
+(pass) content blocks > a block resolves like any item, and can be found by role [0.18ms]
+(pass) content blocks > buttons inside an article are still form-scanned and listed as controls [0.04ms]
+(pass) content blocks > a capped summary keeps the controls first > a quarter of the room, at most 20, goes to blocks; the rest to controls [0.15ms]
+(pass) content blocks > a capped summary keeps the controls first > room the controls leave unused goes back to blocks, up to 20 [0.87ms]
+(pass) content blocks > a capped summary keeps the controls first > items stay in document order and never exceed maxItems [0.41ms]
+(pass) resolveItem > finds the same element again, wherever its ref moved [0.06ms]
+(pass) resolveItem > picks nth among equal elements while their number is unchanged [0.07ms]
+(pass) resolveItem > is ambiguous, with candidates, when the number of equal elements changed [0.08ms]
+(pass) resolveItem > is none when nothing matches, and never picks the first of several [0.07ms]
+(pass) findItems > matches names case-insensitively and by NFKC, in document order [0.14ms]
+(pass) findItems > the role is exact and may stand alone; the limit applies [0.09ms]
+(pass) findItems > works on bracketed attributes too [0.03ms]
+(pass) listEntries > results are the named links of list items in main, with their short text [0.16ms]
+(pass) listEntries > navigation and the footer are not results [0.07ms]
+(pass) listEntries > a compact tree falls back to the named links of main [0.03ms]
+(pass) listEntries > a link with an empty name is named by its inner text, else its URL (MDN results, 2026-11-04) [0.15ms]
+(pass) listEntries > links are every named link; the limit marks truncation [0.07ms]
+(pass) listEntries > a table is one entry per row, cells joined by ' | ' [0.12ms]
+(pass) formFields > the first form: fields with label, kind, required, options and filled [0.11ms]
+(pass) formFields > a given form item scopes the fields to it [0.16ms]
+(pass) formFields > without a form the main region is scanned [0.03ms]
+(pass) formFields > without a form and with several, none is chosen: the whole page is shown [0.04ms]
+(pass) formFields > "page" scans every field of the page, wherever it sits [0.03ms]
+(pass) formFields > a form item is always found again by what it is, not by an old ref another form now has [0.06ms]
+(pass) formFields > bracketed attributes: checked state [0.05ms]
+(pass) partCallJsonSchema > the root is one closed object with a part enum and a union of arguments [0.02ms]
+(pass) partCallJsonSchema > contains no keyword the structured-output subset lacks [0.23ms]
+(pass) partCallJsonSchema > every object is closed and lists all its properties as required [0.04ms]
+(pass) partCallJsonSchema > equal argument objects are listed once [0.02ms]
+(pass) partCallJsonSchema > a narrowed set narrows the enum and the arguments [0.03ms]
+(pass) partCallJsonSchema > is a fresh copy and part of partsApi [0.04ms]
+(pass) findText and the main-first cap (2026-11-04) > text in the body is found with the item of its list item [0.05ms]
+(pass) findText and the main-first cap (2026-11-04) > a hit outside a container names the item just before it; no match is empty [0.04ms]
+(pass) findText and the main-first cap (2026-11-04) > a capped summary keeps the main content before the banner's links [0.03ms]
+(pass) findText widens a label to its row (2026-11-04) > a cell's name is searched, and the label comes back with its value [0.05ms]
+(pass) findText: a link in a table row brings its row (World Bank, 2026-11-04) > the row's values come back with the link [0.04ms]
+(pass) findText: an infobox label row brings the rows below it (Wikipedia 日本, 2026-11-04) > the figures come back with the label [0.05ms]
+(pass) result order and inline code (2026-11-04) > tabs, bare category links and ads go below the real results, which keep their order [0.11ms]
+(pass) result order and inline code (2026-11-04) > a sentence with inline code is found whole, not cut at the code [0.10ms]
+(pass) result order and inline code (2026-11-04) > a long sentence is cut around the hit [0.04ms]
+(pass) result order and inline code (2026-11-04) > product cards outside list items come before the site's own list items, filters and [PR] (kakaku.com, 2026-11-05) [0.06ms]
+(pass) result order and inline code (2026-11-04) > a row of related-search links goes below the results, however long its titles [0.04ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > footer notice and site-root logo go below product cards [0.06ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > YouTube Now playing rows and channel links go below the video title [0.03ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > entry text drops Open Library quote crumbs [0.04ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > inline code wrapped in ASCII quotes is joined without the quotes [0.02ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > inlineSentence drops lone quote crumbs between prose and code [0.02ms]
+(pass) quoted text and unnamed duplicate links (L8) > a YAML-quoted text node reads without its quotes [0.01ms]
+(pass) quoted text and unnamed duplicate links (L8) > an unnamed link beside a named one to the same address is not listed [0.04ms]
+(pass) quoted text and unnamed duplicate links (L8) > a YAML-quoted link address reads without its quotes or spaces [0.04ms]
+
+packages/eumenes-interact/test/sqlite/runs.test.ts:
+(pass) createRun and getRun > a run starts queued with its versions, policy and deadline frozen [0.88ms]
+(pass) createRun and getRun > the same run id twice is refused [0.60ms]
+(pass) createRun and getRun > a workflow revision's digest is frozen into the run [0.61ms]
+(pass) createRun and getRun > inputs are validated [0.48ms]
+(pass) createRun and getRun > owners only see their own runs [0.60ms]
+(pass) transitionRun > every pair follows RUN_TRANSITIONS [37.23ms]
+(pass) transitionRun > the table keeps terminal states closed and indeterminate to running/needs_input [0.07ms]
+(pass) transitionRun > times and reason are recorded [0.60ms]
+(pass) transitionRun > a reason must be a fixed code [0.46ms]
+(pass) saveCoreState > saves with the expected revision and bumps it [0.56ms]
+(pass) saveCoreState > a stale revision is a conflict and changes nothing [0.53ms]
+(pass) saveCoreState > a finished run refuses and another owner cannot save [0.51ms]
+(pass) saveCoreState > the state's formatVersion must be the frozen one [0.49ms]
+(pass) plan revisions > are numbered per run and keep reason and diff [0.67ms]
+(pass) plan revisions > a finished run takes no more revisions [0.53ms]
+
+packages/eumenes-interact/test/sqlite/site-knowledge.test.ts:
+(pass) scopes and page profiles > a scope is unique per owner and origin; upsert returns the same row [0.47ms]
+(pass) scopes and page profiles > origins are validated by format [0.49ms]
+(pass) scopes and page profiles > profiles need an existing scope, replace on upsert and are scoped [0.59ms]
+(pass) site objects > create, find and revise with candidates [0.81ms]
+(pass) site objects > a stale or wrong expected revision is a conflict and writes nothing [0.78ms]
+(pass) site objects > invalid parts reject the whole call before anything is written [0.75ms]
+(pass) site objects > needs an existing profile of this owner and origin [0.49ms]
+(pass) site objects > the same logical name exists per profile and per origin, never resolved by name alone [0.68ms]
+(pass) site objects > owner A never sees owner B's knowledge [0.73ms]
+(pass) candidates > adding the same candidate again returns the stored one [0.71ms]
+(pass) candidates > status changes one candidate at a time; verified needs a recorded match [0.91ms]
+(pass) candidates > evidence status effects must fit the outcome [0.58ms]
+(pass) evidence > needs a reference, belongs to the object's candidates and the owner's runs [0.80ms]
+(pass) evidence > operation and run references must agree; evidence is listed newest first [0.95ms]
+(pass) evidence > forgetting a run keeps the evidence row but cuts the link [0.70ms]
+(pass) one call keeps revision, candidates and evidence together > discover, save, reuse, mismatch, revise [0.85ms]
+(pass) one call keeps revision, candidates and evidence together > a failing evidence part leaves no revision, candidate or evidence behind [0.66ms]
+(pass) no secrets > URL values with a query or fragment, or userinfo, are refused; plain values stay [0.62ms]
+(pass) no secrets > the tables hold no typed value even when it is offered in a locator [0.52ms]
+
+packages/eumenes-interact/test/sqlite/transaction-guard.test.ts:
+(pass) writers refuse outside a transaction > every writer throws not_in_transaction and writes nothing [0.62ms]
+(pass) writers refuse outside a transaction > readers work outside a transaction [0.47ms]
+(pass) writers refuse outside a transaction > a missing table is reported as schema_missing [0.53ms]
+
+packages/eumenes-interact/test/sqlite/migrations.test.ts:
+(pass) migrations > apply to an empty database in order and are the only SQL [0.45ms]
+(pass) migrations > do not touch tables outside the interact_ prefix [0.42ms]
+(pass) migrations > assertInteractSchema accepts the migrated database and refuses an empty one [0.44ms]
+(pass) migrations > a missing table is reported [0.43ms]
+(pass) CHECK enums match the contract vocabularies > run statuses [0.58ms]
+(pass) CHECK enums match the contract vocabularies > platforms [0.47ms]
+(pass) CHECK enums match the contract vocabularies > operation statuses, effects and candidate sources [0.64ms]
+(pass) constraints > origin must be a bare lowercase http(s) origin [0.45ms]
+(pass) constraints > foreign keys: an operation needs its run, an object needs a profile of its own scope [0.53ms]
+(pass) constraints > a logical name is unique inside a page profile only [0.47ms]
+(pass) constraints > candidates need a known kind, adapter and a bounded via; JSON must be an object [0.54ms]
+(pass) constraints > a run's workflow columns come together and the revision must exist [0.46ms]
+(pass) constraints > a finished run needs finished_at and an unfinished run must not have it [0.46ms]
+(pass) constraints > operation settle columns agree with the status [0.57ms]
+(pass) immutability triggers > a finished run and a settled operation cannot be updated; a workflow revision never [0.56ms]
+
+packages/eumenes-interact/test/sqlite/frozen-shape.test.ts:
+(pass) migration bodies match the recorded sha256 list [0.03ms]
+
+packages/eumenes-interact/test/sqlite/workflows.test.ts:
+(pass) workflow revisions > register and read back [0.68ms]
+(pass) workflow revisions > registering the identical revision again is a no-op [0.51ms]
+(pass) workflow revisions > the same id and revision with a different digest, refs or format is a conflict [0.51ms]
+(pass) workflow revisions > key order alone is not a difference [0.47ms]
+(pass) workflow revisions > a published revision cannot be updated even with raw SQL [0.44ms]
+(pass) workflow revisions > a new revision is a new row; latest is the highest [0.48ms]
+(pass) workflow revisions > workflows are per owner [0.45ms]
+(pass) workflow revisions > input is validated [0.43ms]
+
+packages/eumenes-interact/test/sqlite/operations.test.ts:
+(pass) recordOperationIntent > records not_dispatched, numbered in order per run [1.97ms]
+(pass) recordOperationIntent > typed text, select values, wait text and URL paths are never stored [1.50ms]
+(pass) recordOperationIntent > redactCommand keeps named keys and drops non-http URLs [0.01ms]
+(pass) recordOperationIntent > needs a running run [0.72ms]
+(pass) recordOperationIntent > an operation id is used once, and another owner's run is not reachable [0.94ms]
+(pass) dispatch and settle > dispatched is written first, then the operation settles [0.70ms]
+(pass) dispatch and settle > a refusal before sending ends not_dispatched as failed [0.61ms]
+(pass) dispatch and settle > an indeterminate result is never retryable [0.64ms]
+(pass) dispatch and settle > dispatching needs a running run [1.23ms]
+(pass) dispatch and settle > every pair follows OPERATION_TRANSITIONS [13.71ms]
+(pass) dispatch and settle > settled states are closed [0.03ms]
+(pass) dispatch and settle > another owner cannot dispatch or settle [0.60ms]
+(pass) restart reconciliation > lists dispatched and indeterminate operations of the owner and writes nothing [1.18ms]
+(pass) restart reconciliation > an unsettled operation of a finished run is still reported [1.47ms]
+(pass) an unknown operation is never followed by another > after an indeterminate operation no identical operation can be recorded or sent [0.68ms]
+(pass) an unknown operation is never followed by another > while one is dispatched, nothing else is recorded or dispatched [0.68ms]
+(pass) an unknown operation is never followed by another > confirmed and failed operations do not block the next one [0.73ms]
+(pass) an unknown operation is never followed by another > another run is not blocked [0.64ms]
+(pass) an unknown operation is never followed by another > raw SQL cannot move a sent operation back to not_dispatched [0.61ms]
+(pass) an unknown operation is never followed by another > a run does not complete or end partial with an open operation [12.70ms]
+(pass) an unknown operation is never followed by another > a run completes once its operations are confirmed or failed [0.66ms]
+
+packages/eumenes-interact/test/definitions/definitions.test.ts:
+(pass) parseDefinition > accepts a valid definition [0.24ms]
+(pass) parseDefinition > schema violations get a fixed code and a path [0.28ms]
+(pass) parseDefinition > step ids are unique [0.04ms]
+(pass) parseDefinition > every $input names a declared property [0.03ms]
+(pass) parseDefinition > required is a subset of properties [0.02ms]
+(pass) parseDefinition > minLength is not above maxLength [0.02ms]
+(pass) parseDefinition > a literal navigate url > must be https [0.06ms]
+(pass) parseDefinition > a literal navigate url > has no userinfo [0.03ms]
+(pass) parseDefinition > a literal navigate url > has its origin in allowedOrigins [0.05ms]
+(pass) parseDefinition > a literal navigate url > is read with the scheme and host lowercased and the default port dropped [0.02ms]
+(pass) parseDefinition > a literal navigate url > hosts a browser could read differently are refused [0.10ms]
+(pass) parseDefinition > an allowed wildcard origin with a port is refused [0.04ms]
+(pass) parseDefinition > optional steps > need a targetObject, and only fill, click and extract may be optional [0.10ms]
+(pass) parseDefinition > the first step should be browser.navigate [0.02ms]
+(pass) parseDefinition > issues never echo a literal of the definition [0.06ms]
+(pass) resolveDefinition > replaces every $input and leaves literals as they are [0.09ms]
+(pass) resolveDefinition > does not change the definition [0.04ms]
+(pass) resolveDefinition > inputs are exactly the declared properties [0.06ms]
+(pass) resolveDefinition > required inputs are present [0.04ms]
+(pass) resolveDefinition > an optional input may be left out [0.03ms]
+(pass) resolveDefinition > values are strings within the lengths, counted in characters [0.11ms]
+(pass) resolveDefinition > control characters other than tab are refused [0.12ms]
+(pass) resolveDefinition > strings are normalised to NFC before the length is checked and the value is used [0.06ms]
+(pass) resolveDefinition > a url from an input must pass the https and origin rules again [0.06ms]
+(pass) resolveDefinition > issues never contain an input value [0.12ms]
+(pass) sha256Hex > known vectors [24.76ms]
+(pass) sha256Hex > agrees with node:crypto around the padding boundaries and on multibyte text [0.69ms]
+(pass) definitionDigest > is the sha256 of the canonical JSON [0.29ms]
+(pass) definitionDigest > does not depend on key order [0.22ms]
+(pass) definitionDigest > changes with any content change, and with step order [0.15ms]
+(pass) definitionDigest > canonical JSON sorts keys recursively without whitespace [0.05ms]
+(pass) originAllowed > https://example.org allows https://example.org
+(pass) originAllowed > https://example.org allows https://example.org:443
+(pass) originAllowed > https://example.org allows HTTPS://Example.ORG
+(pass) originAllowed > https://example.org refuses https://www.example.org
+(pass) originAllowed > https://example.org refuses http://example.org
+(pass) originAllowed > https://example.org refuses https://example.org:8443
+(pass) originAllowed > https://example.org:8443 allows https://example.org:8443
+(pass) originAllowed > https://example.org:8443 refuses https://example.org
+(pass) originAllowed > https://*.example.org allows https://example.org
+(pass) originAllowed > https://*.example.org allows https://www.example.org
+(pass) originAllowed > https://*.example.org allows https://a.b.c.example.org
+(pass) originAllowed > https://*.example.org allows https://example.org:443
+(pass) originAllowed > https://*.example.org refuses https://www.example.org:8443
+(pass) originAllowed > https://*.example.org refuses http://www.example.org
+(pass) originAllowed > https://*.example.org refuses https://evilexample.org
+(pass) originAllowed > https://*.example.org refuses https://example.org.evil.com
+(pass) originAllowed > https://*.example.org refuses https://www.example.org.evil.com
+(pass) originAllowed > https://*.example.org refuses https://xexample.org
+(pass) originAllowed > https://*.example.org refuses https://example.org@evil.com
+(pass) originAllowed > https://*.example.org refuses https://example.org/path
+(pass) originAllowed > https://*.example.org refuses https://example.org\@evil.com
+(pass) originAllowed > https://*.example.org refuses https://.example.org
+(pass) originAllowed > https://*.example.org refuses https://example.org.
+(pass) originAllowed > https://*.example.org refuses 
+(pass) originAllowed > https://*.example.org:8443 refuses https://www.example.org:8443
+(pass) originAllowed > https://a.example.org,https://*.wikipedia.org allows https://ja.wikipedia.org
+(pass) originAllowed > https://a.example.org,https://*.wikipedia.org refuses https://b.example.org
+(pass) originAllowed >  refuses https://example.org
+(pass) originAllowed > not an origin refuses https://example.org [0.01ms]
+(pass) definitionJsonSchema and definitionApi > the JSON Schema describes the definition [0.40ms]
+(pass) definitionJsonSchema and definitionApi > definitionApi is the contract's DefinitionApi [0.01ms]
+
+packages/eumenes-interact/test/adapters/playwright-mcp/adapter.test.ts:
+(pass) open starts the host's executable with the fixed isolated flags and a minimal env [3.50ms]
+(pass) headed mode passes no --headless, and the version is null without serverInfo [1.59ms]
+(pass) headed mode passes the display through (only then); headless keeps it out [2.99ms]
+(pass) a launch that would attach to an existing browser is refused before anything starts [1.08ms]
+(pass) open failures stop the child and leave the adapter closed [77.05ms]
+(pass) a close during open stops the child, or prevents it from starting [24.84ms]
+(pass) a second open does not start another child [1.22ms]
+(pass) the catalog marks only scroll unsupported and never claims physical input [0.54ms]
+(pass) commands map to the allowlisted tools with `target` refs and report the resulting page [2.97ms]
+(pass) a result without a page section falls back to the tab list, then to no page [2.21ms]
+(pass) scroll is unsupported, and capture is not a dispatch command: nothing is sent and no key stands in [1.36ms]
+(pass) arguments that are not valid are refused before anything is sent [1.80ms]
+(pass) platform errors known not to reach the page are failed; ones that may have are indeterminate [2.35ms]
+(pass) a lost transport after sending is indeterminate and never retryable [56.60ms]
+(pass) a browser closed under the adapter ends the session as lost [12.44ms]
+(pass) an abort sends the call as cancelled, and one before the send never reaches the child [22.66ms]
+(pass) observe returns the snapshot body untouched with the page it came from [3.58ms]
+(pass) observe reports a missing page and fails honestly without a body [13.39ms]
+(pass) targets are listed, selected and opened through browser_tabs with the index as ref [2.50ms]
+(pass) inspections run fixed read-only functions with no model input in them [2.28ms]
+(pass) the locator inspection reads only allowlisted attributes, never text or values [0.03ms]
+(pass) inspection results are validated, capped and refs must be snapshot refs [2.18ms]
+(pass) only allowlisted tools are ever sent, and the unsafe code tool is not on the list [5.45ms]
+(pass) calls run one at a time [18.98ms]
+(pass) close stops only its own child, empties the output dir and is idempotent [3.95ms]
+(pass) a lost session can be closed and opened again with a new child [13.57ms]
+(pass) logs carry only the fixed event names and fields, never page text or urls [2.08ms]
+(pass) a logger that throws cannot break the adapter [1.34ms]
+(pass) extract runs one fixed function; a ref is validated and is the only variable [1.65ms]
+(pass) extract caps the text at the smaller of the request and the hard bound [1.90ms]
+(pass) extract rejects responses that are not the expected shape [3.15ms]
+(pass) extract stops on abort and refuses when the session is not open [22.58ms]
+(pass) extract logs the character count and codes, never the text or url [1.82ms]
+
+packages/eumenes-interact/test/adapters/playwright-mcp/response.test.ts:
+(pass) a tab list result and its linked snapshot file are parsed [0.04ms]
+(pass) an inline snapshot keeps the yaml body and ignores the events section [0.06ms]
+(pass) snapshot text that looks like markup is not split into sections [0.02ms]
+(pass) a page without a title has no title, and a link with an absolute path is accepted
+(pass) a link can never name a file outside the output directory
+(pass) error sections mark the result as failed and a stale ref gets the fixed code [0.01ms]
+(pass) tab lists tolerate odd titles, empty sessions and unrelated text [0.01ms]
+(pass) tool errors become stable codes without keeping their text [0.01ms]
+(pass) a failure before the action started is not dispatched; one that may have run is [0.08ms]
+(pass) snapshot text that imitates the closing fence and a section cannot inject one [0.02ms]
+(pass) page text in the call log cannot make a started action look like a stale ref [0.03ms]
+(pass) page text cannot make an action without evidence look gated or failed before sending [0.04ms]
+(pass) error phrases count only on the error's own first line [0.01ms]
+
+packages/eumenes-interact/test/adapters/playwright-mcp/extract.test.ts:
+(pass) the function sources carry no input and no network or storage access [0.04ms]
+(pass) the article with the most text is the root; chrome, scripts and hidden nodes are dropped [0.45ms]
+(pass) an article without layout, or empty after cleaning, is skipped [0.08ms]
+(pass) main or role=main is next, and an article outside it still wins first [0.05ms]
+(pass) without article or main the largest block outside chrome is used, not its wrapper [0.08ms]
+(pass) with no block at all, the body text is used [0.05ms]
+(pass) a named element is the root as it is, even when it is a chrome element [0.18ms]
+(pass) pre keeps its line breaks, blank runs collapse to one blank line [0.05ms]
+(pass) the text is cut at the hard bound while charCount stays whole; the title is cut [0.13ms]
+(pass) page text that tries to give instructions is just text [0.02ms]
+(pass) a sidebar beside the article in main, and an aside, follow under [side] (npm license box, 2026-11-04) [0.04ms]
+(pass) a named article gets the same [side] facts; a named other element does not [0.07ms]
+
+packages/eumenes-interact/test/adapters/playwright-mcp/capture.test.ts:
+(pass) each range asks for a PNG in CSS pixels and nothing that writes outside the output dir [2.20ms]
+(pass) the image is returned with its type and size read from its own header [1.74ms]
+(pass) an image the header does not describe, or that is out of bounds, is rejected [56.49ms]
+(pass) when MCP sends no image content, the file it wrote is the image, and it is deleted [6.04ms]
+(pass) the range and the ref must fit: item needs an observed ref, the others have none [1.62ms]
+(pass) errors never reached the page; abort and a closed session end it cleanly [23.21ms]
+(pass) only the screenshot tool is called, and the log carries the duration and byte count alone [2.44ms]
+(pass) capture does not start a child by itself [0.40ms]
+
+packages/eumenes-interact/test/adapters/playwright-mcp/session.test.ts:
+(pass) answers are matched by id whatever the chunking: one byte at a time, or two in one write [77.14ms]
+(pass) a server request is answered so the server never waits on the client [126.64ms]
+(pass) an unknown method is an rpc error that names its code and counts as sent [30.77ms]
+(pass) a child that exits fails the pending call as exited and notifies listeners once [51.91ms]
+(pass) a timeout and an abort end the call; the abort tells the server to cancel [256.06ms]
+(pass) close ends the child and is safe to repeat [26.20ms]
+(pass) the adapter drives a real child process over stdio and stops it on close [32.64ms]
+(pass) a child that exits while the adapter opens fails the open as process_exited [28.96ms]
+
+packages/eumenes-interact/test/adapters/mcp/extract.test.ts:
+(pass) capKeepingSide > keeps the side block when the main text is cut [0.03ms]
+(pass) capKeepingSide > plain cut without a side block, untouched when it fits
+
+packages/eumenes-interact/test/adapters/mcp/image.test.ts:
+(pass) a PNG's size comes from its IHDR [0.03ms]
+(pass) a JPEG's size comes from its first start of frame, past other segments [0.02ms]
+(pass) anything that is not a complete header is not an image [0.06ms]
+(pass) sizes are positive and at most the hard bound per side [0.04ms]
+(pass) standalone markers before the frame carry no length and are stepped over [0.03ms]
+
+1 tests skipped:
+(skip) net guard in Chrome > subresources, iframes, redirect hops and downloads to private targets never reach them
+
+
+1 tests failed:
+(fail) the single-runner lock > a live pid that is not a runner (pid reused after a crash) leaves a stale lock [0.76ms]
+
+ 1120 pass
+ 1 skip
+ 1 fail
+ 7202 expect() calls
+Ran 1122 tests across 69 files. [7.94s]

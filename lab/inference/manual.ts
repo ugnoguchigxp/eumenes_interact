@@ -12,6 +12,8 @@ export function createManualInference(
 	caseId: string,
 	pollMs = 500,
 ): InferencePort {
+	if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(caseId))
+		throw new Error("manual_case_id_invalid");
 	mkdirSync(dir, { recursive: true });
 	let n = 0;
 	return {
@@ -21,6 +23,7 @@ export function createManualInference(
 			writeFileSync(
 				`${base}.req.json`,
 				JSON.stringify({ messages, outputSchema }, null, 1),
+				{ flag: "wx", mode: 0o600 },
 			);
 			const started = Date.now();
 			while (!existsSync(`${base}.res.txt`)) {

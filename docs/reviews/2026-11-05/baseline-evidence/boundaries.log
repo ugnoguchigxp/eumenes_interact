@@ -1,0 +1,5 @@
+site {"request":"https://example.org/ を開いて見出しを教えて","routed":[],"error":"Error: step_site_unknown:s1"}
+site {"request":"https://example.org/ を開いて見出しを教えて","routed":["s1"],"error":"Error: step_site_unknown:s1"}
+site {"request":"UNESCOで世界遺産の説明を調べて","routed":[],"error":"Error: step_site_unknown:s1"}
+site {"request":"UNESCOで世界遺産の説明を調べて","routed":["s1"],"error":"Error: step_site_unknown:s1"}
+cancel {"returned":"completed","stored":"cancelled","finalText":"done"}

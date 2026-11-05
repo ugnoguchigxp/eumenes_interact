@@ -14,20 +14,25 @@ describe("text choice channel", () => {
 		expect(parseChoices("1) だけ")).toBeNull();
 		expect(parseChoices("Q\n1) a\n3) c")).toBeNull();
 	});
-	test("replies: number, words, unique part, cancel", () => {
+	test("only explicit numbers, complete option labels and the cancel command select an action", () => {
 		const o = ["在来線（安い）", "新幹線（速い）"];
 		expect(matchReply("1", o)).toEqual({ kind: "chosen", index: 0 });
 		expect(matchReply("２", o)).toEqual({ kind: "chosen", index: 1 });
-		expect(matchReply("新幹線", o)).toEqual({ kind: "chosen", index: 1 });
+		expect(matchReply("新幹線（速い）", o)).toEqual({
+			kind: "chosen",
+			index: 1,
+		});
+		expect(matchReply("新幹線", o)).toEqual({ kind: "unclear" });
 		expect(matchReply("線", o)).toEqual({ kind: "unclear" });
 		expect(
 			matchReply("新幹線", ["新幹線を使う", "在来線のみ（新幹線なし）"]),
-		).toEqual({ kind: "chosen", index: 0 });
+		).toEqual({ kind: "unclear" });
 		expect(matchReply("3", o)).toEqual({ kind: "unclear" });
-		expect(matchReply("中止", o)).toEqual({ kind: "cancel" });
+		expect(matchReply("0", o)).toEqual({ kind: "cancel" });
+		expect(matchReply("中止", o)).toEqual({ kind: "unclear" });
 	});
 	test("asks again on an unclear reply, then picks", async () => {
-		const replies = ["?", "新幹線"];
+		const replies = ["?", "新幹線（速い）"];
 		const out: string[] = [];
 		const r = await askChoice({
 			step: "s1",

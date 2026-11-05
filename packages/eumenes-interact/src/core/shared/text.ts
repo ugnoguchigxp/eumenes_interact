@@ -1,9 +1,19 @@
 // URL is a global of every runtime the core runs in; lib ES2022 does not declare it.
-declare const URL: new (input: string) => {
+declare const URL: new (
+	input: string,
+	base?: string,
+) => {
 	origin: string;
 	pathname: string;
 	protocol: string;
+	search: string;
+	hash: string;
+	username: string;
+	password: string;
 };
+
+/** Pure WHATWG parsing; the supported Node/Bun runtimes supply the global, with no DOM or IO port. */
+export const parseUrl = (input: string, base?: string) => new URL(input, base);
 
 const URL_CHARS = 160;
 

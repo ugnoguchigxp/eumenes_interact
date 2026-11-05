@@ -1,0 +1,165 @@
+{
+  "at": "2026-11-05T11:12:40.219Z",
+  "target": "/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/packages/eumenes-interact/src/index.ts",
+  "runtime": {
+    "bun": "1.4.4",
+    "node": "v26.3.0",
+    "os": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M4"
+  },
+  "scope": "Synthetic bounded core workload; sampled RSS is not a browser/process-tree peak or a production SLO.",
+  "budgets": {
+    "maxItems": 10000,
+    "maxInputBytes": 1000000,
+    "coreP95Ms": 500,
+    "sampledRssBytes": 536870912,
+    "iterations": 30
+  },
+  "rows": [
+    {
+      "size": 100,
+      "kind": "summary",
+      "bytes": 6577,
+      "p50Ms": 0.1572919999999982,
+      "p95Ms": 0.24412499999999682,
+      "maxMs": 1.1253750000000053,
+      "sampledRssBytes": 36782800,
+      "cpuMicros": {
+        "user": 11569,
+        "system": 1580
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 100,
+      "kind": "find",
+      "bytes": 6577,
+      "p50Ms": 0.1392500000000041,
+      "p95Ms": 0.5203330000000008,
+      "maxMs": 0.5234580000000051,
+      "sampledRssBytes": 39797456,
+      "cpuMicros": {
+        "user": 11929,
+        "system": 1271
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 100,
+      "kind": "list",
+      "bytes": 6577,
+      "p50Ms": 0.14229199999999764,
+      "p95Ms": 0.18879099999999482,
+      "maxMs": 0.8015000000000043,
+      "sampledRssBytes": 42517200,
+      "cpuMicros": {
+        "user": 12465,
+        "system": 905
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 1000,
+      "kind": "summary",
+      "bytes": 68677,
+      "p50Ms": 1.5904999999999916,
+      "p95Ms": 1.9922499999999985,
+      "maxMs": 2.123958000000002,
+      "sampledRssBytes": 55050960,
+      "cpuMicros": {
+        "user": 56683,
+        "system": 6962
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 1000,
+      "kind": "find",
+      "bytes": 68677,
+      "p50Ms": 1.3083750000000123,
+      "p95Ms": 2.1802080000000217,
+      "maxMs": 2.4284580000000062,
+      "sampledRssBytes": 59032296,
+      "cpuMicros": {
+        "user": 59798,
+        "system": 7269
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 1000,
+      "kind": "list",
+      "bytes": 68677,
+      "p50Ms": 1.4460829999999874,
+      "p95Ms": 2.0653330000000096,
+      "maxMs": 2.580999999999989,
+      "sampledRssBytes": 58721000,
+      "cpuMicros": {
+        "user": 55750,
+        "system": 7622
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 10000,
+      "kind": "summary",
+      "bytes": 716677,
+      "p50Ms": 16.775875000000042,
+      "p95Ms": 19.04291699999999,
+      "maxMs": 19.386292000000026,
+      "sampledRssBytes": 139150104,
+      "cpuMicros": {
+        "user": 665799,
+        "system": 42422
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 10000,
+      "kind": "find",
+      "bytes": 716677,
+      "p50Ms": 15.609874999999988,
+      "p95Ms": 18.06970799999999,
+      "maxMs": 19.008749999999964,
+      "sampledRssBytes": 136266520,
+      "cpuMicros": {
+        "user": 604624,
+        "system": 33933
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 10000,
+      "kind": "list",
+      "bytes": 716677,
+      "p50Ms": 16.133499999999913,
+      "p95Ms": 19.378832999999986,
+      "maxMs": 20.284374999999955,
+      "sampledRssBytes": 133366552,
+      "cpuMicros": {
+        "user": 665292,
+        "system": 39365
+      },
+      "withinBudget": true
+    }
+  ],
+  "resourceUsage": {
+    "userCPUTime": 2404967,
+    "systemCPUTime": 199179,
+    "maxRSS": 135888,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 11345,
+    "majorPageFault": 58,
+    "swappedOut": 0,
+    "fsRead": 0,
+    "fsWrite": 0,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 61,
+    "involuntaryContextSwitches": 36957
+  }
+}

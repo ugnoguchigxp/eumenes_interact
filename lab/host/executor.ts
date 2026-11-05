@@ -655,16 +655,23 @@ export function createExecutor(deps: ExecutorDeps) {
 				tabs.block(tabRef);
 			}
 		}
-		write(db, () =>
-			settleOperation(db, owner, operationId, {
-				status: status === "not_dispatched" ? "failed" : status,
-				...(code === undefined
-					? {}
-					: { code: storable(code, "operation_failed") }),
-				retryable,
-				nowIso: nowIso(),
-			}),
-		);
+		try {
+			write(db, () =>
+				settleOperation(db, owner, operationId, {
+					status: status === "not_dispatched" ? "failed" : status,
+					...(code === undefined
+						? {}
+						: { code: storable(code, "operation_failed") }),
+					retryable,
+					nowIso: nowIso(),
+				}),
+			);
+		} catch {
+			// Dispatch already happened. Preserve the unsettled ledger row and never adopt or resend.
+			tabs.bump(tabRef);
+			halted = "operation_persistence_failed";
+			throw new RunEnd("indeterminate", halted);
+		}
 		// A sent command may have changed the page: its observations are void.
 		if (status === "confirmed" || status === "indeterminate" || recovered) {
 			tabs.bump(tabRef);

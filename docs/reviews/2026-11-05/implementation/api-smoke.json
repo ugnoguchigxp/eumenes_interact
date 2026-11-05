@@ -1,0 +1,50 @@
+{
+	"at": "2026-11-05T10:00:41.948Z",
+	"rows": [
+		{
+			"provider": "claude",
+			"requested": {
+				"kind": "claude",
+				"provider": "anthropic",
+				"model": "claude-haiku-5-5",
+				"effort": "low",
+				"maxTokens": 1024
+			},
+			"passed": true,
+			"kind": "text",
+			"code": null,
+			"usage": {
+				"inputTokens": 207,
+				"outputTokens": 8,
+				"cacheReadInputTokens": 0,
+				"cacheCreationInputTokens": 0
+			},
+			"latencyMs": 1959
+		},
+		{
+			"provider": "openai",
+			"requested": {
+				"kind": "openai",
+				"provider": "openai",
+				"model": "gpt-6-luna",
+				"effort": "low"
+			},
+			"passed": true,
+			"kind": "text",
+			"code": null,
+			"usage": {
+				"inputTokens": 36,
+				"outputTokens": 13,
+				"cacheReadInputTokens": 0,
+				"cacheCreationInputTokens": 0
+			},
+			"latencyMs": 4217
+		}
+	],
+	"budget": {
+		"limitUsd": 10,
+		"attempts": 2,
+		"accountedUpperUsd": 0.000178,
+		"unknownCalls": 0
+	}
+}

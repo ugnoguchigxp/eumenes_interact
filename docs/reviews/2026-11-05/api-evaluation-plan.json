@@ -1,0 +1,183 @@
+{
+	"status": "implemented; live validation recorded under implementation; final acceptance in progress",
+	"updated_at": "2026-11-05",
+	"user_request": "Validate using Claude API and OpenAI API Luna; reuse keys exported in .zprofile without per-project .env files.",
+	"common_port": "InferencePort.complete",
+	"providers": [
+		{
+			"id": "anthropic",
+			"api": "Messages API",
+			"initial_model": "claude-haiku-5-5",
+			"model_basis": "existing project configuration; confirm access before run",
+			"initial_effort": "low",
+			"output_schema": "output_config.format",
+			"credential_env": "ANTHROPIC_API_KEY",
+			"credential_alias": "CLAUDE_API_KEY"
+		},
+		{
+			"id": "openai",
+			"api": "Responses API",
+			"initial_model": "gpt-6-luna",
+			"model_basis": "official model documentation retrieved 2026-11-05",
+			"initial_effort": "low",
+			"output_schema": "text.format",
+			"credential_env": "OPENAI_API_KEY",
+			"credential_alias": "OPEN_AI_API_KEY"
+		}
+	],
+	"credentials": {
+		"origin": "user login-shell environment from .zprofile",
+		"standard_name_precedence": true,
+		"per_project_dotenv_required": false,
+		"persist_values": false,
+		"log_values": false,
+		"automatic_profile_execution_in_app": false,
+		"profile_aliases_configured": true,
+		"fresh_login_shell_presence_check": "passed for both aliases and standard names",
+		"api_authentication_checked": true
+	},
+	"budget": {
+		"per_step_logical_calls": 10,
+		"overall_logical_calls_cap": 30,
+		"includes": [
+			"planning",
+			"routing",
+			"part selection",
+			"repair",
+			"choice continuation",
+			"summary"
+		],
+		"per_provider_spend_usd": null,
+		"total_spend_usd": null,
+		"http_attempt_cap": null,
+		"max_output_tokens": null,
+		"deadline_ms": null,
+		"required_before_live_run": [
+			"per-provider and total spend cap",
+			"HTTP retry/attempt cap",
+			"effective output limit and timeout",
+			"current price source and date",
+			"model access and supported parameters"
+		],
+		"unresolved_usage": "unknown, never zero",
+		"new_request_when_budget_unprovable": "stop"
+	},
+	"stages": [
+		{
+			"stage": "stub",
+			"credentials": false,
+			"purpose": "wire/schema/refusal/usage/cancellation/retry/privacy; no inference capability claims"
+		},
+		{
+			"stage": "API smoke",
+			"credentials": true,
+			"providers": ["anthropic", "openai"],
+			"minimum_case_types": [
+				"single-step search",
+				"multi-step",
+				"no browser required",
+				"ambiguity and continuation",
+				"failure and completion",
+				"cancellation",
+				"prompt injection",
+				"budget boundary"
+			],
+			"repetitions": 1,
+			"scope": "artificial fixtures; fixed budget and explicit execution instruction"
+		},
+		{
+			"stage": "comparison pilot",
+			"providers": ["anthropic", "openai"],
+			"implementations": [
+				"baseline plus provider-and-measurement compatibility only",
+				"improved"
+			],
+			"repetitions_per_case_per_condition": 5,
+			"scope": "same cases, budget and acceptance; alternate order; record all trial outcomes"
+		},
+		{
+			"stage": "final comparison and holdout",
+			"scope": "sample count fixed from pilot variability; preregister independent cases and acceptance; explicit live/holdout instruction"
+		}
+	],
+	"comparison": {
+		"provider_axis": "same implementation, skill, part set, policy, cases, browser, state, repetitions; model parameters recorded rather than presumed equivalent",
+		"implementation_axis": "same model, cases, authority, goal and budget; changed skill/contracts are part of treatment and recorded",
+		"baseline_openai_support": "separate frozen checkout with only provider/config/measurement compatibility; no behavior fixes; preserve original baseline ledger",
+		"cache": "record actual cache hits/writes and avoid uncontrolled warm/cold mixing",
+		"unsupported_model_or_parameter": "stop that condition; no automatic fallback",
+		"built_in_provider_tools": "disabled; browser effects always pass existing host boundary"
+	},
+	"acceptance": {
+		"authority_violations_per_provider": 0,
+		"correctness_status": "separate completed/partial/unmet/needs_input/cancelled/expired/indeterminate",
+		"counts": [
+			"success",
+			"wrong target",
+			"recovery",
+			"user clarification",
+			"human intervention",
+			"refusal",
+			"malformed",
+			"API error",
+			"retry"
+		],
+		"measurements": [
+			"logical calls",
+			"HTTP attempts",
+			"input/output/cache/reasoning tokens without double counting",
+			"p50/p95 latency",
+			"estimated cost with pricing version",
+			"unknown usage"
+		],
+		"source_of_truth": "fixture state and independent acceptance; cross-provider LLM judging optional and auxiliary only",
+		"one_provider_passes": "not a completed two-provider acceptance"
+	},
+	"evidence_records_required": [
+		"repository/dependency snapshot",
+		"skill/schema versions and digests",
+		"requested and returned model",
+		"date and any provider-returned model identifier",
+		"effort and effective output bound",
+		"endpoint API, SDK and processing tier",
+		"timeouts and SDK/host retry settings",
+		"price version and all budget reservations",
+		"all trial results with stage and intervention flags"
+	],
+	"official_sources": [
+		{
+			"url": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+			"checked_at": "2026-11-05",
+			"supports": "model ID, Responses API, structured outputs, reasoning effort"
+		},
+		{
+			"url": "https://developers.openai.com/api/docs/guides/structured-outputs",
+			"checked_at": "2026-11-05",
+			"supports": "JSON Schema request format and restrictions; refusal/incomplete handling"
+		},
+		{
+			"url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs",
+			"checked_at": "2026-11-05",
+			"supports": "Messages output format and exceptional responses"
+		},
+		{
+			"url": "https://platform.claude.com/docs/en/models/overview",
+			"checked_at": "2026-11-05",
+			"supports": "Claude model identifiers; runtime availability must be checked"
+		}
+	],
+	"execution_budget": {
+		"combinedUsd": 10,
+		"perProvider": "shared combined cap; no independent extra allocation",
+		"httpAttemptCap": 500,
+		"httpRetries": 0,
+		"maxOutputTokens": 2048,
+		"unknownUsage": "retain full official model-window reservation",
+		"ledgerPath": "lab/data/api-spend.sqlite",
+		"latestBeforeFinalAcceptance": {
+			"attempts": 313,
+			"accountedUpperUsd": 7.181179,
+			"unknownCalls": 11
+		}
+	}
+}

@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-05T12:05:52.668395+00:00",
+  "command": [
+    "bun",
+    "lab/cli/main.ts",
+    "run",
+    "--split",
+    "dev",
+    "--inference",
+    "scripted",
+    "--browser",
+    "chrome",
+    "--headless",
+    "--db",
+    "lab/data/local-final-scripted.sqlite"
+  ],
+  "exit": 0,
+  "log": "scripted-browser-final.log",
+  "CI": "excluded by user"
+}

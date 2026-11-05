@@ -1,0 +1,78 @@
+{
+	"baseline_snapshot": "a38f9553acf56715a8c29e170c59ca1829558a4c",
+	"reviewed_at": "2026-11-05",
+	"original_artifact_directory": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review",
+	"notes": [
+		"Baseline ledgers preserve the original review data; absolute paths describe the original execution environment.",
+		"The sibling dependency snapshot is a23dd54bf1a32ae2b3b953cfd13eae9935b846b3.",
+		"Recorded pass counts and failures have not been re-run or reclassified during plan authoring.",
+		"Code evidence locators refer to the baseline commit; copied execution records and logs below remain reviewable without the temporary checkout."
+	],
+	"execution_records": [
+		{
+			"name": "partial",
+			"record": "baseline-evidence/partial.json",
+			"log": "baseline-evidence/partial.log"
+		},
+		{
+			"name": "full",
+			"record": "baseline-evidence/full.json",
+			"log": "baseline-evidence/full.log"
+		},
+		{
+			"name": "fixture",
+			"record": "baseline-evidence/fixture.json",
+			"log": "baseline-evidence/fixture.log"
+		},
+		{
+			"name": "typecheck",
+			"record": "baseline-evidence/typecheck.json",
+			"log": "baseline-evidence/typecheck.log"
+		},
+		{
+			"name": "core-types",
+			"record": "baseline-evidence/core-types.json",
+			"log": "baseline-evidence/core-types.log"
+		},
+		{
+			"name": "lint",
+			"record": "baseline-evidence/lint.json",
+			"log": "baseline-evidence/lint.log"
+		},
+		{
+			"name": "format",
+			"record": "baseline-evidence/format.json",
+			"log": "baseline-evidence/format.log"
+		},
+		{
+			"name": "stack",
+			"record": "baseline-evidence/stack.json",
+			"log": "baseline-evidence/stack.log"
+		},
+		{
+			"name": "node-dist",
+			"record": "baseline-evidence/node-dist.json",
+			"log": "baseline-evidence/node-dist.log"
+		},
+		{
+			"name": "node-valid",
+			"record": "baseline-evidence/node-valid.json",
+			"log": "baseline-evidence/node-valid.log"
+		},
+		{
+			"name": "probes",
+			"record": "baseline-evidence/probes.json",
+			"log": "baseline-evidence/probes.log"
+		},
+		{
+			"name": "boundaries",
+			"record": "baseline-evidence/boundaries.json",
+			"log": "baseline-evidence/boundaries.log"
+		},
+		{
+			"name": "collab",
+			"record": "baseline-evidence/collab.json",
+			"log": "baseline-evidence/collab.log"
+		}
+	]
+}

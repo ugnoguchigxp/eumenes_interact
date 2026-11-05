@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 import type { CaptureRange } from "../cases/schema.ts";
@@ -66,12 +65,8 @@ export function readImageHeader(bytes: Uint8Array): ImageHeader | null {
  * The digest an element capture's target name is recorded as: what the scorer compares with a case's expected
  * target, without the transcript holding page text.
  */
-export function captureTargetHash(name: string): string {
-	return createHash("sha256")
-		.update(name.normalize("NFKC").trim())
-		.digest("hex")
-		.slice(0, 16);
-}
+export { captureTargetHash } from "eumenes-interact/parts";
+import { captureTargetHash } from "eumenes-interact/parts";
 
 /** Why a saved capture is not valid; null when it is. */
 export function captureProblem(

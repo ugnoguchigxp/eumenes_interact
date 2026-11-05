@@ -1,0 +1,4 @@
+$ bun scripts/check-stack.ts
+check:stack failed against /Users/y.noguchi/Code/eumenes
+  - eumenes-collaboration: not a pinned version (file:../../eumenes_collaboration)
+error: script "check:stack" exited with code 1

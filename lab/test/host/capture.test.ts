@@ -29,6 +29,34 @@ beforeEach(() => {
 afterEach(() => rmSync(root, { recursive: true, force: true }));
 
 const RUN = "0a1b2c3d-1111-2222-3333-444455556666";
+
+test("public capture storage rejects run IDs that escape the host's root before any write", () => {
+	for (const runId of [
+		"01234567/../../outside",
+		"..",
+		"/absolute",
+		"a\\b",
+		"",
+		"a\0b",
+	])
+		expect(() => new CaptureStore({ runId, defaultRoot: root })).toThrow(
+			"capture_run_id_invalid",
+		);
+	expect(readdirSync(root)).toEqual([]);
+});
+test("an existing run-directory symlink cannot redirect a default-root capture", async () => {
+	const outside = mkdtempSync(join(tmpdir(), "capture-outside-"));
+	try {
+		symlinkSync(outside, join(root, RUN));
+		const store = new CaptureStore({ runId: RUN, defaultRoot: root });
+		await expect(store.save("viewport", image())).rejects.toThrow(
+			"capture_dir_changed",
+		);
+		expect(readdirSync(outside)).toEqual([]);
+	} finally {
+		rmSync(outside, { recursive: true, force: true });
+	}
+});
 const image = (width = 8, height = 4) => ({
 	mediaType: "image/png" as const,
 	bytes: makePng(width, height),

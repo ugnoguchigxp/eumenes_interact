@@ -25,7 +25,7 @@ export type TokenUsage = {
 	cacheWrite?: number | null;
 };
 
-export type FinalKind = "finish" | "clarify" | "failed" | "stopped";
+export type FinalKind = "finish" | "partial" | "clarify" | "failed" | "stopped";
 
 type At = { at: number };
 

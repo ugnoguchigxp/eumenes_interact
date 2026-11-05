@@ -1,0 +1,165 @@
+{
+  "at": "2026-11-05T11:10:43.940Z",
+  "target": "eumenes-interact",
+  "runtime": {
+    "bun": "1.4.4",
+    "node": "v26.3.0",
+    "os": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M4"
+  },
+  "scope": "Synthetic bounded core workload; sampled RSS is not a browser/process-tree peak or a production SLO.",
+  "budgets": {
+    "maxItems": 10000,
+    "maxInputBytes": 1000000,
+    "coreP95Ms": 500,
+    "sampledRssBytes": 536870912,
+    "iterations": 30
+  },
+  "rows": [
+    {
+      "size": 100,
+      "kind": "summary",
+      "bytes": 6577,
+      "p50Ms": 0.1409160000000007,
+      "p95Ms": 0.2328329999999994,
+      "maxMs": 0.9715409999999984,
+      "sampledRssBytes": 31032016,
+      "cpuMicros": {
+        "user": 9818,
+        "system": 1494
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 100,
+      "kind": "find",
+      "bytes": 6577,
+      "p50Ms": 0.11891599999999869,
+      "p95Ms": 0.3865419999999986,
+      "maxMs": 0.448875000000001,
+      "sampledRssBytes": 34734800,
+      "cpuMicros": {
+        "user": 9370,
+        "system": 994
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 100,
+      "kind": "list",
+      "bytes": 6577,
+      "p50Ms": 0.12341599999999886,
+      "p95Ms": 0.15337499999999693,
+      "maxMs": 0.6346249999999998,
+      "sampledRssBytes": 37520104,
+      "cpuMicros": {
+        "user": 10802,
+        "system": 933
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 1000,
+      "kind": "summary",
+      "bytes": 68677,
+      "p50Ms": 1.2140839999999997,
+      "p95Ms": 1.6624580000000009,
+      "maxMs": 1.6810000000000045,
+      "sampledRssBytes": 51725032,
+      "cpuMicros": {
+        "user": 48699,
+        "system": 5930
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 1000,
+      "kind": "find",
+      "bytes": 68677,
+      "p50Ms": 1.3287919999999929,
+      "p95Ms": 2.1149169999999913,
+      "maxMs": 2.2458330000000046,
+      "sampledRssBytes": 54510312,
+      "cpuMicros": {
+        "user": 55869,
+        "system": 6076
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 1000,
+      "kind": "list",
+      "bytes": 68677,
+      "p50Ms": 1.3664999999999736,
+      "p95Ms": 1.9456249999999784,
+      "maxMs": 1.9918750000000216,
+      "sampledRssBytes": 54854376,
+      "cpuMicros": {
+        "user": 54769,
+        "system": 5390
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 10000,
+      "kind": "summary",
+      "bytes": 716677,
+      "p50Ms": 14.575625000000002,
+      "p95Ms": 15.878791999999976,
+      "maxMs": 16.96187500000002,
+      "sampledRssBytes": 145949512,
+      "cpuMicros": {
+        "user": 586309,
+        "system": 30552
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 10000,
+      "kind": "find",
+      "bytes": 716677,
+      "p50Ms": 13.952583000000004,
+      "p95Ms": 15.453833000000031,
+      "maxMs": 15.49066700000003,
+      "sampledRssBytes": 136856392,
+      "cpuMicros": {
+        "user": 552290,
+        "system": 25718
+      },
+      "withinBudget": true
+    },
+    {
+      "size": 10000,
+      "kind": "list",
+      "bytes": 716677,
+      "p50Ms": 14.311333999999988,
+      "p95Ms": 15.875667000000021,
+      "maxMs": 16.330291999999872,
+      "sampledRssBytes": 135250760,
+      "cpuMicros": {
+        "user": 600402,
+        "system": 25616
+      },
+      "withinBudget": true
+    }
+  ],
+  "resourceUsage": {
+    "userCPUTime": 2169786,
+    "systemCPUTime": 141687,
+    "maxRSS": 142688,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 12100,
+    "majorPageFault": 59,
+    "swappedOut": 0,
+    "fsRead": 0,
+    "fsWrite": 0,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 115,
+    "involuntaryContextSwitches": 18556
+  }
+}

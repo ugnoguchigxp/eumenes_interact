@@ -78,7 +78,8 @@ describe("request", () => {
 		const { params, options } = requests[0]!;
 		expect(params).toEqual({
 			model: "claude-haiku-5-5",
-			max_tokens: 16_000,
+			service_tier: "standard_only",
+			max_tokens: 1024,
 			system: "rules",
 			messages: [
 				{ role: "user", content: "observe 1" },
@@ -102,7 +103,7 @@ describe("request", () => {
 		expect(options.signal).toBeInstanceOf(AbortSignal);
 	});
 
-	test("max_tokens is the larger of the request and 16000, unless set", async () => {
+	test("max_tokens never exceeds the request or the configured cap", async () => {
 		const big = setup();
 		await big.complete({ maxOutputTokens: 20_000 });
 		expect(big.requests[0]?.params.max_tokens).toBe(20_000);
@@ -150,7 +151,7 @@ describe("request", () => {
 		// Everything else is unchanged.
 		expect(requests[0]?.params).toMatchObject({
 			cache_control: { type: "ephemeral" },
-			max_tokens: 16_000,
+			max_tokens: 1024,
 		});
 	});
 
@@ -173,14 +174,14 @@ describe("request", () => {
 		expect(requests).toHaveLength(0);
 	});
 
-	test("maxTokens is the exact max_tokens, above or below the default", async () => {
+	test("maxTokens caps the request and never increases it", async () => {
 		for (const maxTokens of [2000, 32_000]) {
 			const { complete, requests } = setup(() => message(), {
 				...DEFAULT_CLAUDE_SETTINGS,
 				maxTokens,
 			});
 			await complete({ maxOutputTokens: 1024 });
-			expect(requests[0]?.params.max_tokens).toBe(maxTokens);
+			expect(requests[0]?.params.max_tokens).toBe(Math.min(maxTokens, 1024));
 		}
 	});
 
@@ -425,6 +426,8 @@ describe("abort", () => {
 
 describe("cost estimate", () => {
 	const usage = (u: Partial<InferenceUsage>): InferenceUsage => ({
+		cacheReadInputTokens: 0,
+		cacheCreationInputTokens: 0,
 		inputTokens: 0,
 		outputTokens: 0,
 		...u,
@@ -478,7 +481,7 @@ describe("cost estimate", () => {
 					cacheCreationInputTokens: null,
 				}),
 			),
-		).toBeCloseTo(0.01, 10);
+		).toBeNull();
 	});
 });
 

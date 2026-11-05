@@ -202,6 +202,31 @@ ALTER TABLE lab_trials_next RENAME TO lab_trials;
 CREATE INDEX lab_trials_by_experiment ON lab_trials (experiment_id, order_index);
 `;
 
+/** Add the OpenAI provider without changing previously applied migration bodies. */
+const openAIInference = `
+CREATE TABLE lab_experiments_next (
+	id TEXT PRIMARY KEY CHECK (length(id) BETWEEN 1 AND 128),
+	name TEXT NOT NULL,
+	created_at TEXT NOT NULL,
+	case_ids_json TEXT NOT NULL CHECK (json_valid(case_ids_json) AND json_type(case_ids_json) = 'array'),
+	case_digest TEXT NOT NULL,
+	includes_holdout INTEGER NOT NULL CHECK (includes_holdout IN (0, 1)),
+	repetitions INTEGER NOT NULL CHECK (repetitions >= 1),
+	arms_json TEXT NOT NULL CHECK (json_valid(arms_json) AND json_type(arms_json) = 'array'),
+	budget_json TEXT NOT NULL CHECK (json_valid(budget_json) AND json_type(budget_json) = 'object'),
+	tolerance_json TEXT NOT NULL CHECK (json_valid(tolerance_json) AND json_type(tolerance_json) = 'object'),
+	stop_rule_json TEXT NOT NULL CHECK (json_valid(stop_rule_json) AND json_type(stop_rule_json) = 'object'),
+	inference_kind TEXT NOT NULL CHECK (inference_kind IN ('scripted', 'larm', 'claude', 'openai')),
+	includes_live INTEGER NOT NULL DEFAULT 0 CHECK (includes_live IN (0, 1))
+);
+INSERT INTO lab_experiments_next (id, name, created_at, case_ids_json, case_digest, includes_holdout,
+	repetitions, arms_json, budget_json, tolerance_json, stop_rule_json, inference_kind, includes_live)
+	SELECT id, name, created_at, case_ids_json, case_digest, includes_holdout, repetitions, arms_json,
+	budget_json, tolerance_json, stop_rule_json, inference_kind, includes_live FROM lab_experiments;
+DROP TABLE lab_experiments;
+ALTER TABLE lab_experiments_next RENAME TO lab_experiments;
+`;
+
 export const labMigrations: readonly string[] = Object.freeze([
 	labTables.trim() + "\n",
 	liveSplit.trim() + "\n",
@@ -209,6 +234,7 @@ export const labMigrations: readonly string[] = Object.freeze([
 	definitionPlatform.trim() + "\n",
 	claudeInference.trim() + "\n",
 	partsArm.trim() + "\n",
+	openAIInference.trim() + "\n",
 ]);
 
 /** Every table the lab migrations create. */

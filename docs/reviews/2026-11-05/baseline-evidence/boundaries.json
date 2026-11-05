@@ -1,0 +1,6 @@
+{
+	"command": ["bun", "review-boundaries.ts"],
+	"exit": 0,
+	"cwd": "/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact",
+	"conditions": "isolated snapshot and in-memory DB; FakeBrowser; no external effects"
+}

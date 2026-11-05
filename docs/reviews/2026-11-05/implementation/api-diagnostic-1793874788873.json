@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-05T10:33:08.873Z",
+  "diagnostic": {
+    "type": "Error",
+    "message": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"output_config.format.schema: Invalid schema: Enum value 'page.open' does not match declared type '['string', 'null']'\"},\"request_id\":\"req_011CgjdUUn3gpTdybQ22G8zh\"}"
+  },
+  "kind": "error",
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 13,
+    "accountedUpperUsd": 6.253498,
+    "unknownCalls": 11
+  }
+}

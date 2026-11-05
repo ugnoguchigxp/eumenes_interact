@@ -74,6 +74,10 @@ export function reconcileOnStartup(
 				run_status = (SELECT status FROM interact_runs r WHERE r.run_id = lab_trials.run_id)
 			WHERE state = 'running'`,
 		).run(nowIso);
+		db.query(
+			`UPDATE lab_definition_runs SET finished_at=?, status=(SELECT status FROM interact_runs r WHERE r.run_id=lab_definition_runs.run_id)
+		 WHERE finished_at IS NULL AND run_id IN (SELECT run_id FROM interact_runs WHERE owner=?)`,
+		).run(nowIso, owner);
 		return {
 			settledOperations,
 			indeterminateRuns: [...indeterminate],

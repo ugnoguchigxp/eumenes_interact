@@ -21,13 +21,9 @@ export const DEFAULT_CLAUDE_SETTINGS: ClaudeSettings = {
 	effort: "low",
 };
 
-/**
- * Thinking tokens count against `max_tokens` (adaptive thinking is on by default), so Arm 0's small
- * per-call budget would cut the answer short. This is a deliberate deviation from the LARM path, where
- * `maxOutputTokens` is sent as is. Non-streaming, so it stays below the SDK's long-request limit.
- */
+/** The host and configured cap are both hard upper bounds, including reasoning tokens. */
 const outputBound = (settings: ClaudeSettings, requested: number) =>
-	settings.maxTokens ?? Math.max(requested, 16_000);
+	Math.min(settings.maxTokens ?? requested, requested);
 
 /**
  * Arm 0's list starts with the system message: that goes to the top-level `system`, the rest are the
@@ -119,12 +115,7 @@ function errorCode(error: unknown, signal: AbortSignal): string {
 	return "claude_failed";
 }
 
-/**
- * The host's inference port over the Claude API (plan.md §4). The SDK resolves the key itself
- * (`ANTHROPIC_API_KEY`, which Bun loads from `.env`); this module never reads, logs or stores it, and
- * errors are reduced to fixed codes. The SDK's own retries (408/409/429/5xx, twice) stay on: inference
- * has no side effect, so a resend cannot do harm.
- */
+/** One Messages HTTP attempt, fixed official origin. Global environment keys; no retry or raw error logging. */
 export function createClaudeInference(o: {
 	settings: ClaudeSettings;
 	logger: LoggerPort;
@@ -134,7 +125,14 @@ export function createClaudeInference(o: {
 	describe(): { provider: "anthropic"; model: string; effort: ClaudeEffort };
 } {
 	const { settings } = o;
-	const client = o.client ?? new Anthropic();
+	const client =
+		o.client ??
+		new Anthropic({
+			apiKey: process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY,
+			maxRetries: 0,
+			baseURL: "https://api.anthropic.com",
+			fetchOptions: { redirect: "error" },
+		});
 	const emit = (
 		name: "inference.completed" | "inference.failed",
 		fields: { code: string; durationMs: number },
@@ -173,6 +171,7 @@ export function createClaudeInference(o: {
 				const message = await client.messages.create(
 					{
 						model: settings.model,
+						service_tier: "standard_only",
 						max_tokens: outputBound(settings, request.maxOutputTokens),
 						...(system ? { system } : {}),
 						messages: turns,
@@ -198,6 +197,14 @@ export function createClaudeInference(o: {
 				const result = classify(message);
 				return finish({
 					...result,
+					metadata: {
+						provider: "anthropic",
+						requestedModel: settings.model,
+						returnedModel: message.model ?? null,
+						responseId: message.id ?? null,
+						serviceTier: message.usage?.service_tier ?? null,
+						httpAttempts: 1,
+					},
 					usage: usageOf(message.usage),
 					latencyMs: latencyMs(),
 				});
@@ -252,7 +259,13 @@ export function estimateClaudeCostUsd(
 	usage: InferenceUsage,
 ): number | null {
 	const price = PRICES[model];
-	if (!price || usage.inputTokens === null || usage.outputTokens === null)
+	if (
+		!price ||
+		usage.inputTokens === null ||
+		usage.outputTokens === null ||
+		usage.cacheReadInputTokens == null ||
+		usage.cacheCreationInputTokens == null
+	)
 		return null;
 	const read = usage.cacheReadInputTokens ?? 0;
 	const write = usage.cacheCreationInputTokens ?? 0;

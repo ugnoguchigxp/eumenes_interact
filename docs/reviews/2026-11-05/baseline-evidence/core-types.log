@@ -1,0 +1,6 @@
+$ bun check --project packages/eumenes-interact/tsconfig.core.json
+packages/eumenes-interact/src/core/parts/summary.ts(416,17): error TS2552: Cannot find name 'URL'. Did you mean 'url'?
+packages/eumenes-interact/src/core/parts/summary.ts(478,17): error TS2552: Cannot find name 'URL'. Did you mean 'url'?
+packages/eumenes-interact/src/core/parts/summary.ts(490,20): error TS2552: Cannot find name 'URL'. Did you mean 'url'?
+Found 3 errors in 1 file, checked 36 files [161.84ms]
+error: script "typecheck:core" exited with code 1

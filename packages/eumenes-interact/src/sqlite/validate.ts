@@ -84,7 +84,7 @@ const ORIGIN = new RegExp(
 
 /**
  * A normalized origin: lowercase `http(s)://host[:port]`, no userinfo, path, query or fragment, no
- * default port. `URL` is not available to this package; the host normalizes with it before calling.
+ * default port. The host normalizes the origin with WHATWG URL before calling.
  */
 export function requireOrigin(value: unknown): string {
 	if (typeof value !== "string" || value.length > 270) {

@@ -1,0 +1,1879 @@
+{
+  "at": "2026-11-05T10:38:38.387Z",
+  "scope": "author-run development pilot, not holdout or independent acceptance",
+  "cases": [
+    "dev-form-base",
+    "dev-form-multifield-ask"
+  ],
+  "conditions": {
+    "repetitions": 1,
+    "browser": "chrome",
+    "headless": true,
+    "effort": "low",
+    "maxOutputTokens": 2048,
+    "httpRetries": 0
+  },
+  "rows": [
+    {
+      "provider": "claude",
+      "case": "dev-form-base",
+      "runId": "06c69900-c736-4989-9904-6186bfd5be87",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "50a5a7d4-83a1-4dbf-87e4-9bdc18970678",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 8193,
+          "operations": 5,
+          "observations": 9,
+          "modelCalls": 5,
+          "inputTokens": 20,
+          "outputTokens": 836,
+          "cacheReadTokens": 25882,
+          "cacheWriteTokens": 7255,
+          "promptTokens": 33157
+        },
+        "outputFaults": {
+          "parseRejections": 1,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 1,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "50a5a7d4-83a1-4dbf-87e4-9bdc18970678",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:52104/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/06c69900-c736-4989-9904-6186bfd5be87",
+        "startedAt": "2026-11-05T10:38:38.411Z",
+        "timings": {
+          "adapterOpenMs": 697,
+          "totalMs": 8193
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 842,
+            "observationRef": "71e63e09-1ecf-408f-b7ff-6ce471e4c1d3",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "model.call",
+            "at": 1910,
+            "durationMs": 1062,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 36,
+              "cacheRead": 0,
+              "cacheWrite": 6037
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 1912,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 1912,
+            "part": "form.inspect",
+            "args": [
+              "form"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 1924,
+            "observationRef": "56fb25df-e238-412e-8eee-8cdba7efc1a6",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "part.result",
+            "at": 1925,
+            "part": "form.inspect",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 2940,
+            "durationMs": 1015,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 121,
+              "cacheRead": 6037,
+              "cacheWrite": 358
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2940,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2941,
+            "part": "form.fill",
+            "args": [
+              "fields"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2945,
+            "observationRef": "ab34cfe2-f318-4c84-9532-91eb77fd039d",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "operation.requested",
+            "at": 2949,
+            "operationId": "38f712b2-7205-4d91-9e4e-895b615c523a",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e12",
+              "element": "textbox \"お名前\"",
+              "text": "山田花子",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 2949,
+            "operationId": "38f712b2-7205-4d91-9e4e-895b615c523a"
+          },
+          {
+            "type": "operation.result",
+            "at": 2968,
+            "operationId": "38f712b2-7205-4d91-9e4e-895b615c523a",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 2972,
+            "observationRef": "4ba4cd9e-728d-4855-8fc2-a64e445f1435",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1411,
+            "shapedBytes": 1411
+          },
+          {
+            "type": "operation.requested",
+            "at": 2974,
+            "operationId": "75c98471-fff1-4c5a-93ef-2419bb1993c6",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e14",
+              "element": "textbox \"メールアドレス\"",
+              "text": "hanako@example.com",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 2974,
+            "operationId": "75c98471-fff1-4c5a-93ef-2419bb1993c6"
+          },
+          {
+            "type": "operation.result",
+            "at": 2980,
+            "operationId": "75c98471-fff1-4c5a-93ef-2419bb1993c6",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 2983,
+            "observationRef": "c2f750cf-4384-4659-b50b-38533eaff807",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1431,
+            "shapedBytes": 1431
+          },
+          {
+            "type": "operation.requested",
+            "at": 2985,
+            "operationId": "b6c31ee6-ac58-4d3f-a726-9b71a63fa022",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e16",
+              "element": "combobox \"見学希望日\"",
+              "values": [
+                "11月21日（土）"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 2985,
+            "operationId": "b6c31ee6-ac58-4d3f-a726-9b71a63fa022"
+          },
+          {
+            "type": "operation.result",
+            "at": 2992,
+            "operationId": "b6c31ee6-ac58-4d3f-a726-9b71a63fa022",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 2996,
+            "observationRef": "47d26ab1-ae51-4d96-8e30-8d8aa5cd9b97",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1431,
+            "shapedBytes": 1431
+          },
+          {
+            "type": "operation.requested",
+            "at": 2998,
+            "operationId": "0c62b2bb-da9a-4db1-9135-fcf51155b3ab",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e18",
+              "element": "combobox \"人数\"",
+              "values": [
+                "2名"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 2998,
+            "operationId": "0c62b2bb-da9a-4db1-9135-fcf51155b3ab"
+          },
+          {
+            "type": "operation.result",
+            "at": 3003,
+            "operationId": "0c62b2bb-da9a-4db1-9135-fcf51155b3ab",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3007,
+            "observationRef": "bc67d162-538c-4632-952b-4d582e8200a1",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1431,
+            "shapedBytes": 1431
+          },
+          {
+            "type": "part.result",
+            "at": 3007,
+            "part": "form.fill",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 4561,
+            "durationMs": 1554,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 199,
+              "cacheRead": 6395,
+              "cacheWrite": 226
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 4561,
+            "accepted": false,
+            "reason": "schema_violation"
+          },
+          {
+            "type": "model.call",
+            "at": 6913,
+            "durationMs": 2351,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 318,
+              "cacheRead": 6621,
+              "cacheWrite": 208
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6913,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 6914,
+            "part": "form.submit",
+            "args": [
+              "button"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 6931,
+            "observationRef": "0a988aa0-b55e-4375-9cf3-72d4f8639a0b",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1431,
+            "shapedBytes": 1431
+          },
+          {
+            "type": "operation.requested",
+            "at": 6935,
+            "operationId": "b23902c0-4da8-4352-999a-adba882b5f87",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e22",
+              "element": "button \"申し込む\""
+            },
+            "declaredEffect": "submit",
+            "requiresApproval": true
+          },
+          {
+            "type": "approval.requested",
+            "at": 6935,
+            "approvalId": "21804d92-0475-469a-ab65-18f3e5dc5352",
+            "operationId": "b23902c0-4da8-4352-999a-adba882b5f87"
+          },
+          {
+            "type": "approval.answered",
+            "at": 6935,
+            "approvalId": "21804d92-0475-469a-ab65-18f3e5dc5352",
+            "decision": "grant"
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6938,
+            "operationId": "b23902c0-4da8-4352-999a-adba882b5f87"
+          },
+          {
+            "type": "operation.result",
+            "at": 7519,
+            "operationId": "b23902c0-4da8-4352-999a-adba882b5f87",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/done.html?fullname=%E5%B1%B1%E7%94%B0%E8%8A%B1%E5%AD%90&email=hanako%40example.com&date=2026-11-21&people=2&note=",
+            "title": "見学の申し込み完了 | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 7524,
+            "observationRef": "65e6767e-d072-4b9d-8946-b58427ea0901",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/done.html?fullname=%E5%B1%B1%E7%94%B0%E8%8A%B1%E5%AD%90&email=hanako%40example.com&date=2026-11-21&people=2&note=",
+            "title": "見学の申し込み完了 | みなと市民ホール",
+            "refCount": 20,
+            "bodyBytes": 1016,
+            "shapedBytes": 1016
+          },
+          {
+            "type": "part.result",
+            "at": 7524,
+            "part": "form.submit",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 8960,
+            "durationMs": 1435,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 162,
+              "cacheRead": 6829,
+              "cacheWrite": 426
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 8962,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 9041,
+            "kind": "finish",
+            "text": "見学の申し込みフォームに、お名前「山田花子」、メールアドレス「hanako@example.com」、見学希望日「11月21日（土）」、人数「2名」を入力し、「申し込む」を送信しました。送信後のページ（見学の申し込みを受け付けました）が表示されています。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 36,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 6037
+          },
+          "latencyMs": 1056,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjdtswz83FDfLiWd7ZFy",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.inspect\",\"arguments\":{\"form\":null},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 121,
+            "cacheReadInputTokens": 6037,
+            "cacheCreationInputTokens": 358
+          },
+          "latencyMs": 1013,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdtwzpMEDuy61St9wwL",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.fill\",\"arguments\":{\"fields\":[{\"item\":\"p1.i6\",\"value\":\"山田花子\"},{\"item\":\"p1.i7\",\"value\":\"hanako@example.com\"},{\"item\":\"p1.i8\",\"value\":\"11月21日（土）\"},{\"item\":\"p1.i9\",\"value\":\"2名\"}]},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 199,
+            "cacheReadInputTokens": 6395,
+            "cacheCreationInputTokens": 226
+          },
+          "latencyMs": 1552,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjdu2i6GKQLfBxkJDyeL",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.submit\",\"arguments\":{\"button\":\"申し込む\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 318,
+            "cacheReadInputTokens": 6621,
+            "cacheCreationInputTokens": 208
+          },
+          "latencyMs": 2348,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjdu9KhrvhWEv29G6BxY",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.submit\",\"arguments\":{\"button\":\"p1.i11\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 162,
+            "cacheReadInputTokens": 6829,
+            "cacheCreationInputTokens": 426
+          },
+          "latencyMs": 1433,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjduMxxmNPU88McbJNZN",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r2\",\"r3\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"見学の申し込みフォームに、お名前「山田花子」、メールアドレス「hanako@example.com」、見学希望日「11月21日（土）」、人数「2名」を入力し、「申し込む」を送信しました。送信後のページ（見学の申し込みを受け付けました）が表示されています。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "dev-form-base",
+      "runId": "65915271-d3b0-4174-a4b6-f5e1c653d30b",
+      "status": "needs_input",
+      "code": "clarify",
+      "success": false,
+      "score": {
+        "trialId": "597f1640-d075-4e06-8d69-8026e0baa5fa",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch",
+          "approval_not_requested"
+        ],
+        "terminal": "clarify",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 5482,
+          "operations": 4,
+          "observations": 7,
+          "modelCalls": 3,
+          "inputTokens": 10634,
+          "outputTokens": 273,
+          "cacheReadTokens": 9542,
+          "cacheWriteTokens": 0,
+          "promptTokens": 20176
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 1,
+          "unneededClarify": true,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "597f1640-d075-4e06-8d69-8026e0baa5fa",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:52104/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/65915271-d3b0-4174-a4b6-f5e1c653d30b",
+        "startedAt": "2026-11-05T10:38:47.462Z",
+        "timings": {
+          "adapterOpenMs": 564,
+          "totalMs": 5482
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 670,
+            "observationRef": "a988becf-07d2-4d29-997a-247d142c0a7c",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "model.call",
+            "at": 2060,
+            "durationMs": 1390,
+            "outcome": "ok",
+            "tokens": {
+              "input": 3326,
+              "output": 45,
+              "cacheRead": 2643,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2061,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2062,
+            "part": "form.inspect",
+            "args": [
+              "form"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2084,
+            "observationRef": "cd9d1a4a-9b5b-43cd-855e-7a90ddfd71d5",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "part.result",
+            "at": 2084,
+            "part": "form.inspect",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 3812,
+            "durationMs": 1727,
+            "outcome": "ok",
+            "tokens": {
+              "input": 3579,
+              "output": 102,
+              "cacheRead": 3323,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 3813,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 3813,
+            "part": "form.fill",
+            "args": [
+              "fields"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 3830,
+            "observationRef": "4278a5ae-ae06-4eac-9a90-4d9395581317",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "operation.requested",
+            "at": 3835,
+            "operationId": "b93c2aa1-8ed9-452c-9667-5db2b664a031",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e12",
+              "element": "textbox \"お名前\"",
+              "text": "山田花子",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3835,
+            "operationId": "b93c2aa1-8ed9-452c-9667-5db2b664a031"
+          },
+          {
+            "type": "operation.result",
+            "at": 3863,
+            "operationId": "b93c2aa1-8ed9-452c-9667-5db2b664a031",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3868,
+            "observationRef": "909e01ff-0baf-408f-acfe-f664d0dfaac8",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1411,
+            "shapedBytes": 1411
+          },
+          {
+            "type": "operation.requested",
+            "at": 3870,
+            "operationId": "981eff92-0ccd-4697-be9f-b6baaec82291",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e14",
+              "element": "textbox \"メールアドレス\"",
+              "text": "hanako@example.com",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3870,
+            "operationId": "981eff92-0ccd-4697-be9f-b6baaec82291"
+          },
+          {
+            "type": "operation.result",
+            "at": 3878,
+            "operationId": "981eff92-0ccd-4697-be9f-b6baaec82291",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3882,
+            "observationRef": "38d82def-3244-43ae-84e1-39ce7c0121a7",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1431,
+            "shapedBytes": 1431
+          },
+          {
+            "type": "operation.requested",
+            "at": 3884,
+            "operationId": "56e7257b-fadb-4a49-86ed-c3c34beacd9c",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e16",
+              "element": "combobox \"見学希望日\"",
+              "values": [
+                "11月21日（土）"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3884,
+            "operationId": "56e7257b-fadb-4a49-86ed-c3c34beacd9c"
+          },
+          {
+            "type": "operation.result",
+            "at": 3892,
+            "operationId": "56e7257b-fadb-4a49-86ed-c3c34beacd9c",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3895,
+            "observationRef": "e19a102d-0caa-48c4-a485-4a0b735e52a3",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1431,
+            "shapedBytes": 1431
+          },
+          {
+            "type": "operation.requested",
+            "at": 3897,
+            "operationId": "844162ad-a223-4274-a67c-fb85fa3580f7",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e18",
+              "element": "combobox \"人数\"",
+              "values": [
+                "2名"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3897,
+            "operationId": "844162ad-a223-4274-a67c-fb85fa3580f7"
+          },
+          {
+            "type": "operation.result",
+            "at": 3902,
+            "operationId": "844162ad-a223-4274-a67c-fb85fa3580f7",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3905,
+            "observationRef": "d01265b9-a931-447d-8edc-6d8648c551c3",
+            "url": "http://127.0.0.1:52104/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1431,
+            "shapedBytes": 1431
+          },
+          {
+            "type": "part.result",
+            "at": 3905,
+            "part": "form.fill",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 6150,
+            "durationMs": 2245,
+            "outcome": "ok",
+            "tokens": {
+              "input": 3729,
+              "output": 126,
+              "cacheRead": 3576,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6151,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 6152,
+            "kind": "clarify",
+            "text": "入力は完了しました。申し込みを送信してよろしいですか？"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 3326,
+            "outputTokens": 45,
+            "cacheReadInputTokens": 2643,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 15
+          },
+          "latencyMs": 1385,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_08e75c19d3d1d289016aec5cb869b087d1b37584a8bedd2289",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.inspect\",\"arguments\":{\"form\":null},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 3579,
+            "outputTokens": 102,
+            "cacheReadInputTokens": 3323,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 15
+          },
+          "latencyMs": 1723,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0e4ab6f115aa2014016aec5cb9c63487d18da785e4c2f571e5",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.fill\",\"arguments\":{\"fields\":[{\"item\":\"p1.i6\",\"value\":\"山田花子\"},{\"item\":\"p1.i7\",\"value\":\"hanako@example.com\"},{\"item\":\"p1.i8\",\"value\":\"11月21日（土）\"},{\"item\":\"p1.i9\",\"value\":\"2名\"}]},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 3729,
+            "outputTokens": 126,
+            "cacheReadInputTokens": 3576,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 82
+          },
+          "latencyMs": 2241,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0796a069e530d1cf016aec5cbb970887d19df1cfacc7865816",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"reply\",\"tool\":null,\"arguments\":null,\"text\":\"入力は完了しました。申し込みを送信してよろしいですか？\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "dev-form-multifield-ask",
+      "runId": "fc47419a-1fb9-4c78-a047-6efe79c85427",
+      "status": "needs_input",
+      "code": "clarify",
+      "success": true,
+      "score": {
+        "trialId": "db1f280f-b1fe-41ca-a4d8-b8a2acee6430",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "clarify",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 1969,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": 3330,
+          "outputTokens": 81,
+          "cacheReadTokens": 2643,
+          "cacheWriteTokens": 0,
+          "promptTokens": 5973
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 1,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "db1f280f-b1fe-41ca-a4d8-b8a2acee6430",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:52104/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/fc47419a-1fb9-4c78-a047-6efe79c85427",
+        "startedAt": "2026-11-05T10:38:53.733Z",
+        "timings": {
+          "adapterOpenMs": 529,
+          "totalMs": 1969
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 625,
+            "observationRef": "09897f76-e500-47cf-b5bb-7a68d87fe059",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1502,
+            "shapedBytes": 1502
+          },
+          {
+            "type": "model.call",
+            "at": 2593,
+            "durationMs": 1968,
+            "outcome": "ok",
+            "tokens": {
+              "input": 3330,
+              "output": 81,
+              "cacheRead": 2643,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2594,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 2594,
+            "kind": "clarify",
+            "text": "配送方法は「通常便」と「お急ぎ便」のどちらにしますか？"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 3330,
+            "outputTokens": 81,
+            "cacheReadInputTokens": 2643,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 36
+          },
+          "latencyMs": 1966,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_085289628f067011016aec5cbe95c887d1bcac989a17eef1ce",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"reply\",\"tool\":null,\"arguments\":null,\"text\":\"配送方法は「通常便」と「お急ぎ便」のどちらにしますか？\"}"
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "case": "dev-form-multifield-ask",
+      "runId": "d0f5ad57-394f-460e-9ac4-a13c88c2064a",
+      "status": "failed",
+      "code": "goal_partial",
+      "success": false,
+      "score": {
+        "trialId": "421b1859-374b-45dd-b36f-25ccdde2f2ad",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "terminal_not_clarify"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 13196,
+          "operations": 4,
+          "observations": 7,
+          "modelCalls": 5,
+          "inputTokens": 20,
+          "outputTokens": 1688,
+          "cacheReadTokens": 26032,
+          "cacheWriteTokens": 7309,
+          "promptTokens": 33361
+        },
+        "outputFaults": {
+          "parseRejections": 1,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 1,
+          "unneededApprovals": 1
+        }
+      },
+      "transcript": {
+        "trialId": "421b1859-374b-45dd-b36f-25ccdde2f2ad",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:52104/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/d0f5ad57-394f-460e-9ac4-a13c88c2064a",
+        "startedAt": "2026-11-05T10:38:56.432Z",
+        "timings": {
+          "adapterOpenMs": 545,
+          "totalMs": 13196
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 635,
+            "observationRef": "14f22b51-5135-48d6-bc1a-1185eeae0452",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1502,
+            "shapedBytes": 1502
+          },
+          {
+            "type": "model.call",
+            "at": 3958,
+            "durationMs": 3322,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 513,
+              "cacheRead": 0,
+              "cacheWrite": 6075
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 3958,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 3959,
+            "part": "form.fill",
+            "args": [
+              "fields"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 3976,
+            "observationRef": "422b3faf-b31c-4737-8b03-9c7cd964e0bb",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1502,
+            "shapedBytes": 1502
+          },
+          {
+            "type": "operation.requested",
+            "at": 3980,
+            "operationId": "e5b121c5-8eb5-4a59-b0d8-d46411a3a75f",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e13",
+              "element": "textbox \"お名前\"",
+              "text": "中村美咲",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3980,
+            "operationId": "e5b121c5-8eb5-4a59-b0d8-d46411a3a75f"
+          },
+          {
+            "type": "operation.result",
+            "at": 4008,
+            "operationId": "e5b121c5-8eb5-4a59-b0d8-d46411a3a75f",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4012,
+            "observationRef": "2517f345-44f0-40ab-86c8-852ac521ba2f",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1516,
+            "shapedBytes": 1516
+          },
+          {
+            "type": "operation.requested",
+            "at": 4015,
+            "operationId": "11fc38d2-7683-4446-b5b4-eb73b04ed5a5",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e15",
+              "element": "textbox \"メールアドレス\"",
+              "text": "misaki@example.com",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 4015,
+            "operationId": "11fc38d2-7683-4446-b5b4-eb73b04ed5a5"
+          },
+          {
+            "type": "operation.result",
+            "at": 4022,
+            "operationId": "11fc38d2-7683-4446-b5b4-eb73b04ed5a5",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4026,
+            "observationRef": "13b46a44-2b79-4dc4-992b-109c0e9cf6b8",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1536,
+            "shapedBytes": 1536
+          },
+          {
+            "type": "operation.requested",
+            "at": 4028,
+            "operationId": "9c443aff-c090-4174-a63e-9334d2321851",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e17",
+              "element": "combobox \"商品\"",
+              "values": [
+                "木のスプーン"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 4028,
+            "operationId": "9c443aff-c090-4174-a63e-9334d2321851"
+          },
+          {
+            "type": "operation.result",
+            "at": 4037,
+            "operationId": "9c443aff-c090-4174-a63e-9334d2321851",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4040,
+            "observationRef": "d78462f8-361f-40c7-a819-8f881a790d70",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1536,
+            "shapedBytes": 1536
+          },
+          {
+            "type": "part.result",
+            "at": 4041,
+            "part": "form.fill",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 5402,
+            "durationMs": 1361,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 149,
+              "cacheRead": 6075,
+              "cacheWrite": 225
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 5403,
+            "accepted": false,
+            "reason": "schema_violation"
+          },
+          {
+            "type": "model.call",
+            "at": 8306,
+            "durationMs": 2902,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 411,
+              "cacheRead": 6300,
+              "cacheWrite": 207
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 8307,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 8308,
+            "part": "form.submit",
+            "args": [
+              "button"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 8325,
+            "observationRef": "5bb9316c-5e84-48a7-902b-b6a426f08c70",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1536,
+            "shapedBytes": 1536
+          },
+          {
+            "type": "operation.requested",
+            "at": 8329,
+            "operationId": "10d5ad60-e0c6-4c37-9696-ecb8e4913476",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e28",
+              "element": "button \"注文する\""
+            },
+            "declaredEffect": "submit",
+            "requiresApproval": true
+          },
+          {
+            "type": "approval.requested",
+            "at": 8329,
+            "approvalId": "c34619ab-71dd-4015-a249-1778038e9fed",
+            "operationId": "10d5ad60-e0c6-4c37-9696-ecb8e4913476"
+          },
+          {
+            "type": "approval.answered",
+            "at": 8329,
+            "approvalId": "c34619ab-71dd-4015-a249-1778038e9fed",
+            "decision": "grant"
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 8332,
+            "operationId": "10d5ad60-e0c6-4c37-9696-ecb8e4913476"
+          },
+          {
+            "type": "operation.result",
+            "at": 8880,
+            "operationId": "10d5ad60-e0c6-4c37-9696-ecb8e4913476",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 8889,
+            "observationRef": "2442be5d-f566-4fc1-a52a-50d4d56b3a7e",
+            "url": "http://127.0.0.1:52104/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1536,
+            "shapedBytes": 1536
+          },
+          {
+            "type": "part.result",
+            "at": 8889,
+            "part": "form.submit",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 10789,
+            "durationMs": 1899,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 212,
+              "cacheRead": 6507,
+              "cacheWrite": 643
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 10791,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 10791,
+            "part": "page.read",
+            "args": [
+              "target",
+              "maxChars"
+            ]
+          },
+          {
+            "type": "part.result",
+            "at": 11312,
+            "part": "page.read",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 13831,
+            "durationMs": 2518,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 403,
+              "cacheRead": 7150,
+              "cacheWrite": 159
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 13831,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 13832,
+            "kind": "failed",
+            "text": "お名前・メールアドレス・商品（木のスプーン）・ギフト包装なしを入力し、「注文する」を送信しました。送信後に同じご注文フォームへ戻り、注文完了の表示は確認できていません。注文が受理されたかは未確認です。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 513,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 6075
+          },
+          "latencyMs": 3319,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdvBXBsYTAjmfukvVUB",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.fill\",\"arguments\":{\"fields\":[{\"item\":\"p1.i7\",\"value\":\"中村美咲\"},{\"item\":\"p1.i8\",\"value\":\"misaki@example.com\"},{\"item\":\"p1.i9\",\"value\":\"木のスプーン\"},{\"item\":\"p1.i10\",\"value\":\"off\"}]},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 149,
+            "cacheReadInputTokens": 6075,
+            "cacheCreationInputTokens": 225
+          },
+          "latencyMs": 1358,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdvS3ZAcfV7ZBRZd5zh",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.submit\",\"arguments\":{\"button\":\"注文する\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 411,
+            "cacheReadInputTokens": 6300,
+            "cacheCreationInputTokens": 207
+          },
+          "latencyMs": 2897,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdvXykJkr7UBckF5wzU",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.submit\",\"arguments\":{\"button\":\"p1.i13\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 212,
+            "cacheReadInputTokens": 6507,
+            "cacheCreationInputTokens": 643
+          },
+          "latencyMs": 1896,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdvnvB4a7baRaHLxhi2",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.read\",\"arguments\":{\"target\":null,\"maxChars\":2000},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 403,
+            "cacheReadInputTokens": 7150,
+            "cacheCreationInputTokens": 159
+          },
+          "latencyMs": 2514,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjdvy9qCsNZ992MwXZ8h",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r2\",\"r3\"],\"outcome\":\"partial\",\"basis\":\"observed\"},\"text\":\"お名前・メールアドレス・商品（木のスプーン）・ギフト包装なしを入力し、「注文する」を送信しました。送信後に同じご注文フォームへ戻り、注文完了の表示は確認できていません。注文が受理されたかは未確認です。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "TypeScriptのunknown型を日本語で説明して",
+      "passed": false,
+      "error": "Error",
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 139,
+            "cacheReadInputTokens": 784,
+            "cacheCreationInputTokens": 0
+          },
+          "latencyMs": 1582,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdwAREtEYHMBJPxK6ix",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"s1\",\"goal\":\"TypeScriptのunknown型の意味、anyとの違い、安全な使い方を日本語で説明する\",\"inputs\":[\"request\"],\"output\":\"summary\",\"browser\":false,\"rationale\":\"外部確認は不要で、依頼は知識の説明のみのため、返答だけで完結する。\",\"keepOpen\":false,\"start\":null,\"completion\":\"response\"}]}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "TypeScriptのunknown型を日本語で説明して",
+      "passed": false,
+      "error": "Error",
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 296,
+            "outputTokens": 92,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1753,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_029bffacc004c36b016aec5cd029e087d1be2b416658a66517",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"explain\",\"goal\":\"TypeScriptのunknown型の意味と使い方を日本語で説明する\",\"inputs\":[\"TypeScriptの基本知識\"],\"output\":\"summary\",\"browser\":false,\"rationale\":\"一般的な言語機能の説明であり、外部確認は不要です。\",\"keepOpen\":false,\"start\":null,\"completion\":\"response\"}]}"
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "Explain the meaning of unknown in plain English without looking anything up.",
+      "expectedBrowser": false,
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "explain-unknown",
+            "goal": "Explain the meaning of the word 'unknown' in plain English.",
+            "inputs": [],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "The request asks for a plain-English explanation without looking anything up, so no browser step is needed.",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "The request asks for a plain-English explanation without looking anything up, so no browser step is needed.",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 123,
+            "cacheReadInputTokens": 787,
+            "cacheCreationInputTokens": 0
+          },
+          "latencyMs": 1192,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdwQmSxVwMdrSMAZy4f",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"explain-unknown\",\"goal\":\"Explain the meaning of the word 'unknown' in plain English.\",\"inputs\":[],\"output\":\"summary\",\"browser\":false,\"rationale\":\"The request asks for a plain-English explanation without looking anything up, so no browser step is needed.\",\"keepOpen\":false,\"start\":null,\"completion\":\"response\"}]}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "Explain the meaning of unknown in plain English without looking anything up.",
+      "passed": false,
+      "error": "ZodError",
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 297,
+            "outputTokens": 91,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1692,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_025962294eb1f547016aec5cd3261487d1a088c9bb0b5fe1b2",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"1\",\"goal\":\"Explain the meaning of “unknown” in plain English.\",\"inputs\":[\"unknown means not known, not identified, or not yet discovered\"],\"output\":\"summary\",\"browser\":false,\"rationale\":\"The user explicitly asks for a plain-English explanation without looking anything up, so no external research is needed.\",\"keepOpen\":false,\"start\":null,\"completion\":\"response\"}]}"
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "https://example.org/ を開いて、題名を教えてください。",
+      "passed": false,
+      "error": "Error",
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 229,
+            "cacheReadInputTokens": 785,
+            "cacheCreationInputTokens": 0
+          },
+          "latencyMs": 1427,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjdwd8qAiW9nunUzb7Ce",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"s1\",\"goal\":\"https://example.org/ を開いて題名を確認する\",\"inputs\":[\"https://example.org/\"],\"output\":\"findings\",\"browser\":true,\"rationale\":\"依頼のURLを開いて画面上の題名を読み取る必要があるため\",\"keepOpen\":false,\"start\":\"https://example.org/\",\"completion\":\"observed\"},{\"id\":\"s2\",\"goal\":\"確認した題名を利用者に伝える\",\"inputs\":[\"s1\"],\"output\":\"summary\",\"browser\":false,\"rationale\":\"ブラウザ操作は不要で、s1の結果を返答するだけで足りるため\",\"keepOpen\":false,\"start\":null,\"completion\":\"response\"}]}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "https://example.org/ を開いて、題名を教えてください。",
+      "passed": false,
+      "error": "Error",
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 301,
+            "outputTokens": 137,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 39
+          },
+          "latencyMs": 2185,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0150917e89fce6d4016aec5cd65c0c87d1a2935b2e3b72647b",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"1\",\"goal\":\"https://example.org/ を開き、ページの題名を確認する\",\"inputs\":[\"https://example.org/\"],\"output\":\"findings\",\"browser\":true,\"rationale\":\"指定された公開ページを開いて、表示される題名を確認する必要がある。\",\"keepOpen\":true,\"start\":\"https://example.org/\",\"completion\":\"observed\"}]}"
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "『価格120円、在庫3個』という結果だけを1文にまとめて",
+      "expectedBrowser": false,
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "s1",
+            "goal": "『価格120円、在庫3個』という結果を1文にまとめて返答する",
+            "inputs": [],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "依頼は与えられた結果の要約のみで、外部確認や操作は不要のため。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼は与えられた結果の要約のみで、外部確認や操作は不要のため。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 125,
+            "cacheReadInputTokens": 790,
+            "cacheCreationInputTokens": 0
+          },
+          "latencyMs": 1264,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjdwtejYFh73ndHQoDrG",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"s1\",\"goal\":\"『価格120円、在庫3個』という結果を1文にまとめて返答する\",\"inputs\":[],\"output\":\"summary\",\"browser\":false,\"rationale\":\"依頼は与えられた結果の要約のみで、外部確認や操作は不要のため。\",\"keepOpen\":false,\"start\":null,\"completion\":\"response\"}]}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "『価格120円、在庫3個』という結果だけを1文にまとめて",
+      "passed": false,
+      "error": "Error",
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 304,
+            "outputTokens": 92,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1565,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0711ba6d5a0f8658016aec5cd9b8fc87d1bdaa0ec459297100",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"steps\":[{\"id\":\"s1\",\"goal\":\"指定された価格と在庫数だけを1文にまとめる\",\"inputs\":[\"価格120円\",\"在庫3個\"],\"output\":\"summary\",\"browser\":false,\"rationale\":\"必要な情報は依頼文に揃っており、外部確認は不要。\",\"keepOpen\":false,\"start\":null,\"completion\":\"response\"}]}"
+        }
+      ]
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 96,
+    "accountedUpperUsd": 6.528971,
+    "unknownCalls": 11
+  }
+}

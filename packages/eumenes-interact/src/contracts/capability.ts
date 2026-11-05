@@ -37,6 +37,8 @@ export type KnownElement = { ref: string; role: string; name: string };
 
 /** Site knowledge: resolves a logical name such as `search.query` on a page, or null when unknown. */
 export type SiteKnowledgePort = {
+	/** A host-maintained URL hint. The executor still applies its ordinary destination policy. */
+	searchUrl?(pageUrl: string, query: string): string | null;
 	resolve(
 		pageUrl: string,
 		body: string,

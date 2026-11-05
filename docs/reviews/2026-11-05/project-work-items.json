@@ -1,0 +1,276 @@
+{
+	"rubric_version": "1.1.0",
+	"baseline_snapshot": "a38f9553acf56715a8c29e170c59ca1829558a4c",
+	"criteria": [
+		{
+			"criterion": "problem.need",
+			"baseline_anchor": 2,
+			"tasks": ["T20"],
+			"required_evidence": "反復する利用課題と対象者の直接観察。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "problem.impact",
+			"baseline_anchor": 2,
+			"tasks": ["T14", "T20", "T24"],
+			"required_evidence": "従来手順との時間・誤り・負担・使用量の比較。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "problem.validation",
+			"baseline_anchor": null,
+			"tasks": ["T19", "T20", "T24"],
+			"required_evidence": "実装担当以外の反復的な利用観察。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "solution.mechanism",
+			"baseline_anchor": 2,
+			"tasks": ["T02", "T07", "T08", "T18", "T19", "T24"],
+			"required_evidence": "通常と実環境の制約下で依頼を達成する。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "solution.experience",
+			"baseline_anchor": 1,
+			"tasks": ["T06", "T10", "T16", "T20"],
+			"required_evidence": "導入から価値・失敗回復までの実利用と負担。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "solution.outcomes",
+			"baseline_anchor": 2,
+			"tasks": ["T19", "T20", "T24"],
+			"required_evidence": "比較対象を固定した反復結果。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "differentiation.alternatives",
+			"baseline_anchor": 2,
+			"tasks": ["T22"],
+			"required_evidence": "同じjobと条件の主要代替と手動の比較。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "differentiation.advantage",
+			"baseline_anchor": 2,
+			"tasks": ["T18", "T20", "T22"],
+			"required_evidence": "特定の内部用途で選択理由になる実測優位。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "differentiation.tradeoffs",
+			"baseline_anchor": 2,
+			"tasks": ["T20", "T22"],
+			"required_evidence": "選ぶ条件と代替の方が良い条件。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "novelty.prior_art",
+			"baseline_anchor": 1,
+			"tasks": ["T22"],
+			"required_evidence": "実際の貢献と既存技術との相違。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "novelty.substance",
+			"baseline_anchor": 2,
+			"tasks": ["T08", "T09", "T19", "T22", "T24"],
+			"required_evidence": "相違する仕組みが有用な効果を持つか。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "novelty.verification",
+			"baseline_anchor": 1,
+			"tasks": ["T19", "T22", "T24"],
+			"required_evidence": "再現または独立比較で新規貢献を裏付ける。新しさがなければ低い段階を維持。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "adoption.entry",
+			"baseline_anchor": 1,
+			"tasks": ["T06", "T10", "T16", "T20"],
+			"required_evidence": "導入と移行と研修と支援の負担。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "adoption.reach",
+			"baseline_anchor": 2,
+			"tasks": ["T18", "T20", "T22"],
+			"required_evidence": "動機のある利用先へ届く実際の経路。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "adoption.retention",
+			"baseline_anchor": null,
+			"tasks": ["T20"],
+			"required_evidence": "自然な反復周期を通じた継続利用と価値。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "defensibility.assets",
+			"baseline_anchor": 2,
+			"tasks": ["T10", "T19", "T21", "T22", "T24"],
+			"required_evidence": "更新できる知識とfixtureと信頼の蓄積。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "defensibility.substitution",
+			"baseline_anchor": 1,
+			"tasks": ["T20", "T22"],
+			"required_evidence": "模倣や標準機能への置換後も残る効用。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "defensibility.incentives",
+			"baseline_anchor": null,
+			"tasks": ["T21", "T22"],
+			"required_evidence": "保守・協力・継続資源の実績。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "execution.delivery",
+			"baseline_anchor": 2,
+			"tasks": ["T10", "T18", "T19", "T24"],
+			"required_evidence": "重要な約束の納品と受入。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "execution.focus",
+			"baseline_anchor": null,
+			"tasks": ["T00", "T21"],
+			"required_evidence": "人員と環境と期間を確認した実行可能な優先順。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "execution.feedback",
+			"baseline_anchor": 3,
+			"tasks": ["T15", "T19", "T20", "T21", "T24"],
+			"required_evidence": "実利用の失敗から修正・検証した複数の記録。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "timing.drivers",
+			"baseline_anchor": 2,
+			"tasks": ["T20", "T22"],
+			"required_evidence": "実行時点の必要性と利用可能技術。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "timing.readiness",
+			"baseline_anchor": 2,
+			"tasks": ["T06", "T16", "T18", "T20"],
+			"required_evidence": "実際の利用環境と統合の準備。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "timing.window",
+			"baseline_anchor": null,
+			"tasks": ["T21", "T22"],
+			"required_evidence": "現実の導入時期と変化への応答余力。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "health.ownership",
+			"baseline_anchor": 2,
+			"tasks": ["T21"],
+			"required_evidence": "責任者と代替担当と引継ぎの実行。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "health.activity",
+			"baseline_anchor": 2,
+			"tasks": ["T10", "T15", "T21"],
+			"required_evidence": "成熟度に応じた保守と更新。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "health.governance",
+			"baseline_anchor": null,
+			"tasks": ["T21"],
+			"required_evidence": "実際の決定権限と継続資源。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "expansion.adjacency",
+			"baseline_anchor": 2,
+			"tasks": ["T18", "T20", "T22", "T23"],
+			"required_evidence": "実証済みの核を再利用する隣接用途と需要。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "expansion.scalability",
+			"baseline_anchor": null,
+			"tasks": ["T14", "T20", "T22", "T23", "T24"],
+			"required_evidence": "拡大時の資源・運用・統合・保守負担。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		},
+		{
+			"criterion": "expansion.path",
+			"baseline_anchor": 1,
+			"tasks": ["T21", "T22", "T23"],
+			"required_evidence": "資源を確保した段階と着手・撤退条件。",
+			"status": "planned",
+			"numeric_target": null,
+			"reason": "Actual outcomes and resources are required; no numeric forecast from code changes."
+		}
+	]
+}

@@ -1,0 +1,885 @@
+{
+  "at": "2026-11-05T11:45:31.065Z",
+  "scope": "author-run development pilot, not holdout or independent acceptance",
+  "snapshot": {
+    "baseCommit": "a38f9553acf56715a8c29e170c59ca1829558a4c",
+    "sourceSha256": "afe3bd25cf76184890a5daec682eb4f8c2f9248c7248cf6495827253d2e9a3ad",
+    "fileCount": 275,
+    "dirty": true
+  },
+  "cases": [
+    "dev-capture-item"
+  ],
+  "conditions": {
+    "repetitions": 1,
+    "browser": "chrome",
+    "headless": true,
+    "effort": "low",
+    "maxOutputTokens": 2048,
+    "httpRetries": 0
+  },
+  "rows": [
+    {
+      "provider": "claude",
+      "case": "dev-capture-item",
+      "runId": "2104ea76-712b-4b0f-b199-c51e95df2548",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "33236b27-a576-46a0-ba45-b3ce2ced6869",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 11425,
+          "operations": 2,
+          "observations": 6,
+          "modelCalls": 4,
+          "inputTokens": 16,
+          "outputTokens": 644,
+          "cacheReadTokens": 20385,
+          "cacheWriteTokens": 7516,
+          "promptTokens": 27917
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "33236b27-a576-46a0-ba45-b3ce2ced6869",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:54967/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/2104ea76-712b-4b0f-b199-c51e95df2548",
+        "startedAt": "2026-11-05T11:45:31.085Z",
+        "timings": {
+          "adapterOpenMs": 738,
+          "totalMs": 11425
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 852,
+            "observationRef": "93b77848-d874-422a-830c-235d4e92ed44",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "model.call",
+            "at": 3051,
+            "durationMs": 2197,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 127,
+              "cacheRead": 0,
+              "cacheWrite": 6235
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 3051,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 3052,
+            "part": "site.search",
+            "args": [
+              "query"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 3058,
+            "observationRef": "c6e90142-11af-4864-a70f-06c724e2ea17",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "operation.requested",
+            "at": 3589,
+            "operationId": "c8e08c98-581b-44f0-a78c-4be5107f1c78",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e14",
+              "element": "searchbox \"商品名・素材\"",
+              "text": "木のスプーン",
+              "submit": true
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3589,
+            "operationId": "c8e08c98-581b-44f0-a78c-4be5107f1c78"
+          },
+          {
+            "type": "operation.result",
+            "at": 4175,
+            "operationId": "c8e08c98-581b-44f0-a78c-4be5107f1c78",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/results.html?q=%E6%9C%A8%E3%81%AE%E3%82%B9%E3%83%97%E3%83%BC%E3%83%B3",
+            "title": "検索結果 | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4180,
+            "observationRef": "62fec695-bfe9-445c-8261-79c1a2679850",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/results.html?q=%E6%9C%A8%E3%81%AE%E3%82%B9%E3%83%97%E3%83%BC%E3%83%B3",
+            "title": "検索結果 | 楓雑貨店",
+            "refCount": 14,
+            "bodyBytes": 848,
+            "shapedBytes": 848
+          },
+          {
+            "type": "part.result",
+            "at": 4181,
+            "part": "site.search",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 5788,
+            "durationMs": 1606,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 40,
+              "cacheRead": 6235,
+              "cacheWrite": 525
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 5789,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 5789,
+            "part": "item.open",
+            "args": [
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 5795,
+            "observationRef": "c78cc201-7c66-4423-9536-d582c0e4f8cd",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/results.html?q=%E6%9C%A8%E3%81%AE%E3%82%B9%E3%83%97%E3%83%BC%E3%83%B3",
+            "title": "検索結果 | 楓雑貨店",
+            "refCount": 14,
+            "bodyBytes": 848,
+            "shapedBytes": 848
+          },
+          {
+            "type": "operation.requested",
+            "at": 6314,
+            "operationId": "16e4863a-e4bc-4270-9720-fda07291949d",
+            "command": {
+              "action": "page.click",
+              "targetRef": "f1e14",
+              "element": "link \"木のスプーン\""
+            },
+            "declaredEffect": "navigation",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6314,
+            "operationId": "16e4863a-e4bc-4270-9720-fda07291949d"
+          },
+          {
+            "type": "operation.result",
+            "at": 6873,
+            "operationId": "16e4863a-e4bc-4270-9720-fda07291949d",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/product.html?id=2",
+            "title": "木のスプーン | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 6877,
+            "observationRef": "32f9387d-4d5a-4633-b6b7-452fc194eb7b",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/product.html?id=2",
+            "title": "木のスプーン | 楓雑貨店",
+            "refCount": 22,
+            "bodyBytes": 1326,
+            "shapedBytes": 1326
+          },
+          {
+            "type": "part.result",
+            "at": 6877,
+            "part": "item.open",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 10155,
+            "durationMs": 3277,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 347,
+              "cacheRead": 6760,
+              "cacheWrite": 630
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 10156,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 10157,
+            "part": "page.capture",
+            "args": [
+              "range",
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 10174,
+            "observationRef": "9eed553b-abd2-4aa7-99cc-7494e67610d0",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/product.html?id=2",
+            "title": "木のスプーン | 楓雑貨店",
+            "refCount": 22,
+            "bodyBytes": 1326,
+            "shapedBytes": 1326
+          },
+          {
+            "type": "capture.saved",
+            "at": 10257,
+            "captureId": "c1",
+            "fileName": "2104ea76-1-item.png",
+            "width": 1240,
+            "height": 382,
+            "bytes": 19585,
+            "mediaType": "image/png",
+            "range": "item",
+            "target": {
+              "role": "article",
+              "nameHash": "fd37f12c8b96a2ee"
+            }
+          },
+          {
+            "type": "part.result",
+            "at": 10257,
+            "part": "page.capture",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 12181,
+            "durationMs": 1924,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 130,
+              "cacheRead": 7390,
+              "cacheWrite": 126
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 12182,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 12279,
+            "kind": "finish",
+            "text": "『木のスプーン』の詳細ページ（product.html?id=2）を開き、商品の詳細（article）の部分だけを画像として保存しました（captureId c1）。おすすめ欄は含めていません。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 127,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 6235
+          },
+          "latencyMs": 2193,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjizg6qoTHP7cdAaZc6s",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"site.search\",\"arguments\":{\"query\":\"木のスプーン\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 40,
+            "cacheReadInputTokens": 6235,
+            "cacheCreationInputTokens": 525
+          },
+          "latencyMs": 1604,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjizuRHSrvHfHWy8riWE",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"item.open\",\"arguments\":{\"item\":\"p2.i7\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 347,
+            "cacheReadInputTokens": 6760,
+            "cacheCreationInputTokens": 630
+          },
+          "latencyMs": 3273,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjj16wq9pANX28hbtXnu",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.capture\",\"arguments\":{\"range\":\"item\",\"item\":\"p3.i7\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 130,
+            "cacheReadInputTokens": 7390,
+            "cacheCreationInputTokens": 126
+          },
+          "latencyMs": 1921,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgjj1MTwkyENhFpoT7637",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r2\",\"r3\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"『木のスプーン』の詳細ページ（product.html?id=2）を開き、商品の詳細（article）の部分だけを画像として保存しました（captureId c1）。おすすめ欄は含めていません。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "dev-capture-item",
+      "runId": "327f9eec-c523-49de-bb37-f1bcd4250277",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "9b4be4e3-b1a1-47d6-bcfa-8d631ee36b0e",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 13225,
+          "operations": 2,
+          "observations": 7,
+          "modelCalls": 5,
+          "inputTokens": 1608,
+          "outputTokens": 302,
+          "cacheReadTokens": 18953,
+          "cacheWriteTokens": 0,
+          "promptTokens": 20561
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "9b4be4e3-b1a1-47d6-bcfa-8d631ee36b0e",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:54967/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/327f9eec-c523-49de-bb37-f1bcd4250277",
+        "startedAt": "2026-11-05T11:45:43.376Z",
+        "timings": {
+          "adapterOpenMs": 548,
+          "totalMs": 13225
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 636,
+            "observationRef": "8af78c5d-3e6f-467f-9c1d-c12054fab440",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "model.call",
+            "at": 2894,
+            "durationMs": 2258,
+            "outcome": "ok",
+            "tokens": {
+              "input": 537,
+              "output": 47,
+              "cacheRead": 2942,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2895,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2895,
+            "part": "site.search",
+            "args": [
+              "query"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2913,
+            "observationRef": "01161446-db58-464e-afd2-e49eda5cf3fc",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "operation.requested",
+            "at": 3448,
+            "operationId": "9d297cdd-7b8b-4c0e-9e43-85f313e05825",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e14",
+              "element": "searchbox \"商品名・素材\"",
+              "text": "木のスプーン",
+              "submit": true
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3448,
+            "operationId": "9d297cdd-7b8b-4c0e-9e43-85f313e05825"
+          },
+          {
+            "type": "operation.result",
+            "at": 4028,
+            "operationId": "9d297cdd-7b8b-4c0e-9e43-85f313e05825",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/results.html?q=%E6%9C%A8%E3%81%AE%E3%82%B9%E3%83%97%E3%83%BC%E3%83%B3",
+            "title": "検索結果 | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4034,
+            "observationRef": "10268618-fe06-4aaf-9e33-91379daee4f7",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/results.html?q=%E6%9C%A8%E3%81%AE%E3%82%B9%E3%83%97%E3%83%BC%E3%83%B3",
+            "title": "検索結果 | 楓雑貨店",
+            "refCount": 14,
+            "bodyBytes": 848,
+            "shapedBytes": 848
+          },
+          {
+            "type": "part.result",
+            "at": 4035,
+            "part": "site.search",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 6180,
+            "durationMs": 2145,
+            "outcome": "ok",
+            "tokens": {
+              "input": 359,
+              "output": 43,
+              "cacheRead": 3476,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6181,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 6181,
+            "part": "item.open",
+            "args": [
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 6198,
+            "observationRef": "5d2e2ae1-6d83-402e-8685-e8427c9d39c8",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/results.html?q=%E6%9C%A8%E3%81%AE%E3%82%B9%E3%83%97%E3%83%BC%E3%83%B3",
+            "title": "検索結果 | 楓雑貨店",
+            "refCount": 14,
+            "bodyBytes": 848,
+            "shapedBytes": 848
+          },
+          {
+            "type": "operation.requested",
+            "at": 6729,
+            "operationId": "2ac8e16f-10d6-4f6e-995d-9f53b17dea7e",
+            "command": {
+              "action": "page.click",
+              "targetRef": "f1e14",
+              "element": "link \"木のスプーン\""
+            },
+            "declaredEffect": "navigation",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6730,
+            "operationId": "2ac8e16f-10d6-4f6e-995d-9f53b17dea7e"
+          },
+          {
+            "type": "operation.result",
+            "at": 7329,
+            "operationId": "2ac8e16f-10d6-4f6e-995d-9f53b17dea7e",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/product.html?id=2",
+            "title": "木のスプーン | 楓雑貨店",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 7334,
+            "observationRef": "66947e4b-fc8a-4b5c-85c4-af7c1ba0e0b1",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/product.html?id=2",
+            "title": "木のスプーン | 楓雑貨店",
+            "refCount": 22,
+            "bodyBytes": 1326,
+            "shapedBytes": 1326
+          },
+          {
+            "type": "part.result",
+            "at": 7334,
+            "part": "item.open",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 9331,
+            "durationMs": 1996,
+            "outcome": "ok",
+            "tokens": {
+              "input": 428,
+              "output": 107,
+              "cacheRead": 3832,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 9332,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 9333,
+            "part": "page.read",
+            "args": [
+              "target",
+              "maxChars"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 9347,
+            "observationRef": "98b5d252-a0b7-4dc2-a4aa-eeaf8fc3b9a0",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/product.html?id=2",
+            "title": "木のスプーン | 楓雑貨店",
+            "refCount": 22,
+            "bodyBytes": 1326,
+            "shapedBytes": 1326
+          },
+          {
+            "type": "part.result",
+            "at": 9868,
+            "part": "page.read",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 11907,
+            "durationMs": 2039,
+            "outcome": "ok",
+            "tokens": {
+              "input": 192,
+              "output": 36,
+              "cacheRead": 4257,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 11908,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 11909,
+            "part": "page.capture",
+            "args": [
+              "range",
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 11925,
+            "observationRef": "f94ae2f3-6c22-4c07-8ab1-c3a5e6f936a7",
+            "url": "http://127.0.0.1:54967/sites/kaede-shop/base/product.html?id=2",
+            "title": "木のスプーン | 楓雑貨店",
+            "refCount": 22,
+            "bodyBytes": 1326,
+            "shapedBytes": 1326
+          },
+          {
+            "type": "capture.saved",
+            "at": 11991,
+            "captureId": "c1",
+            "fileName": "327f9eec-1-item.png",
+            "width": 1240,
+            "height": 382,
+            "bytes": 19585,
+            "mediaType": "image/png",
+            "range": "item",
+            "target": {
+              "role": "article",
+              "nameHash": "fd37f12c8b96a2ee"
+            }
+          },
+          {
+            "type": "part.result",
+            "at": 11991,
+            "part": "page.capture",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "at": 13779,
+            "durationMs": 1788,
+            "outcome": "ok",
+            "tokens": {
+              "input": 92,
+              "output": 69,
+              "cacheRead": 4446,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 13779,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 13861,
+            "kind": "finish",
+            "text": "『木のスプーン』の詳細ページを開き、商品詳細部分を撮影しました。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 537,
+            "outputTokens": 47,
+            "cacheReadInputTokens": 2942,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 12
+          },
+          "latencyMs": 2254,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_015d433fb1a71419016aec6c68a5c487d1a7398b6b9007329b",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"site.search\",\"arguments\":{\"query\":\"木のスプーン\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 359,
+            "outputTokens": 43,
+            "cacheReadInputTokens": 3476,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 9
+          },
+          "latencyMs": 2141,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0c80114f26ed06eb016aec6c6b967c87d18ccb050ea6d3ea1b",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"item.open\",\"arguments\":{\"item\":\"p2.i7\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 428,
+            "outputTokens": 107,
+            "cacheReadInputTokens": 3832,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 68
+          },
+          "latencyMs": 1993,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_09d65cd52da0fa0f016aec6c6ee21c87d1b82ca28fef1885d7",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.read\",\"arguments\":{\"target\":\"p3.i7\",\"maxChars\":2000},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 192,
+            "outputTokens": 36,
+            "cacheReadInputTokens": 4257,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 2035,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_04bff765e7c2fba3016aec6c717b6887d18897c50e78cd37d1",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.capture\",\"arguments\":{\"range\":\"item\",\"item\":\"p3.i7\"},\"text\":null}"
+        },
+        {
+          "kind": "text",
+          "usage": {
+            "inputTokens": 92,
+            "outputTokens": 69,
+            "cacheReadInputTokens": 4446,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1785,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0bda569c35370e79016aec6c738a8487d1ba0cab46e73330e4",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r2\",\"r3\",\"r4\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"『木のスプーン』の詳細ページを開き、商品詳細部分を撮影しました。\"}"
+        }
+      ]
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 313,
+    "accountedUpperUsd": 7.181179,
+    "unknownCalls": 11
+  }
+}

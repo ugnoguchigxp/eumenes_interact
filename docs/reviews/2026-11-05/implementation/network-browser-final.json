@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-05T12:05:09.707250+00:00",
+  "command": [
+    "bun",
+    "test",
+    "lab/test/host/net-guard.browser.test.ts"
+  ],
+  "exit": 0,
+  "log": "network-browser-final.log",
+  "CI": "excluded by user"
+}

@@ -23,18 +23,38 @@ export type InferenceUsage = {
 	/** Prompt-cache reads and writes, when the provider reports them; otherwise absent or null. */
 	cacheReadInputTokens?: number | null;
 	cacheCreationInputTokens?: number | null;
+	reasoningTokens?: number | null;
+};
+
+/** Public provider identifiers only. Never contains a request body, credentials or raw errors. */
+export type InferenceMetadata = {
+	provider: string;
+	requestedModel: string;
+	returnedModel: string | null;
+	responseId: string | null;
+	serviceTier: string | null;
+	httpAttempts: number;
 };
 
 /** Classified per call (plan.md §11 "出力の不正"). */
 export type InferenceOutcome =
-	| { kind: "text"; text: string; usage: InferenceUsage; latencyMs: number }
+	| {
+			kind: "text";
+			text: string;
+			usage: InferenceUsage;
+			latencyMs: number;
+			metadata?: InferenceMetadata;
+	  }
 	| {
 			kind: "refused" | "empty" | "malformed" | "error";
 			code: string;
 			usage: InferenceUsage;
 			latencyMs: number;
+			metadata?: InferenceMetadata;
 	  };
 
 export interface InferencePort {
+	/** Identity of the frozen skill body this trusted adapter actually applies (not provider credentials). */
+	readonly skill?: { ref: string; digest: string };
 	complete(request: InferenceRequest): Promise<InferenceOutcome>;
 }

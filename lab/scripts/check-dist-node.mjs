@@ -10,7 +10,7 @@ const pkg = createRequire(import.meta.url)("eumenes-interact/package.json");
 
 assert.equal(typeof root.startRun, "function");
 const state = root.startRun({
-	arm: "arm0",
+	arm: "arm1",
 	request: "検索欄に「白波」と入力して検索してください",
 	policy: { maxModelCalls: 4, retries: { default: 1 } },
 	nowMs: Date.UTC(2026, 10, 3, 3, 0, 0),
@@ -19,9 +19,9 @@ const prepared = root.prepareStep(state);
 assert.ok(prepared.messages.length >= 3);
 assert.equal(
 	root.parseCoreState(JSON.parse(JSON.stringify(state)))?.arm,
-	"arm0",
+	"arm1",
 );
-const shaped = root.shapeObservation("arm0", {
+const shaped = root.shapeObservation("arm1", {
 	body: '- button "検索" [ref=e1]',
 	truncated: false,
 	missing: [],

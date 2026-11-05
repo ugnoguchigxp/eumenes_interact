@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-05T11:40:23.476927+00:00",
+  "command": [
+    "bun",
+    "run",
+    "check:stack"
+  ],
+  "exit": 0,
+  "log": "stack-final.log",
+  "CI": "excluded by user"
+}

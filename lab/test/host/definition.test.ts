@@ -25,6 +25,7 @@ import {
 } from "../../host/log.ts";
 import { createObservationSink } from "../../host/observations.ts";
 import { LAB_OWNER } from "../../host/run.ts";
+import { reconcileOnStartup } from "../../host/reconcile.ts";
 import {
 	importSeed,
 	loadSeeds,
@@ -82,6 +83,41 @@ const statuses = (r: Awaited<ReturnType<typeof run>>) =>
 	Object.fromEntries(r.steps.map((s) => [s.id, s.status]));
 
 describe("running the Wikipedia sample on a fake browser", () => {
+	for (const table of ["interact_runs", "lab_definition_runs"] as const) {
+		test(`${table} terminal write failure rolls back both records`, async () => {
+			const s = setup();
+			const condition =
+				table === "interact_runs"
+					? "NEW.status='completed'"
+					: "NEW.finished_at IS NOT NULL";
+			s.db.exec(
+				`CREATE TRIGGER injected BEFORE UPDATE ON ${table} WHEN ${condition} BEGIN SELECT RAISE(ABORT,'SYNTHETIC_FINAL_FAILURE'); END`,
+			);
+			try {
+				await expect(run(s, "人工知能")).rejects.toThrow(
+					"run_persistence_failed",
+				);
+				const row = s.db
+					.query("SELECT run_id,status FROM interact_runs")
+					.get() as { run_id: string; status: string };
+				expect(row.status).toBe("running");
+				expect(
+					s.db
+						.query("SELECT finished_at FROM lab_definition_runs WHERE run_id=?")
+						.get(row.run_id),
+				).toEqual({ finished_at: null });
+				s.db.exec("DROP TRIGGER injected");
+				reconcileOnStartup(s.db, LAB_OWNER, s.logger);
+				expect(
+					s.db
+						.query("SELECT status FROM lab_definition_runs WHERE run_id=?")
+						.get(row.run_id),
+				).toEqual({ status: "failed" });
+			} finally {
+				s.db.close();
+			}
+		});
+	}
 	test("search, results, first article, extract: the JSON result", async () => {
 		const s = setup();
 		const r = await run(s, "人工知能");

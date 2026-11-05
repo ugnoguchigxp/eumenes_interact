@@ -1,0 +1,2 @@
+$ bun lab/scripts/check-collab-sync.ts
+collab sync: OK

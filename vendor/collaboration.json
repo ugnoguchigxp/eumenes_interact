@@ -1,0 +1,29 @@
+{
+	"name": "eumenes-collaboration",
+	"version": "0.1.0",
+	"source": "saved baseline-review snapshot (including then-current working files)",
+	"baselineSourceHead": "a23dd54bf1a32ae2b3b953cfd13eae9935b846b3",
+	"archive": "eumenes-collaboration-0.1.0-baseline.tgz",
+	"sha256": "1c1ebdc580bac7e8ea2996e8ee74e8c7561ba59e0d6c8a6393c8cfe86dee24ec",
+	"files": {
+		".s11tnext/catalog.generated.ts": "b069f62b19879df79fe4fbc944df5f1b9e373c5e4e11617712cf2913bd274bb9",
+		".s11tnext/catalog.json": "3170268c441385ccbb59591af329841169f72d4885feddf458aa40c647a2a79e",
+		"LICENSE": "2aba7cd5e26f3fde78adaf402c2ce411654755aa2de8170e26cde5a5870e6379",
+		"contexts/collaboration/correction.context.toml": "f0c0e0a89fc7ca033a885afa8b105d45616d68c7432f739b250e9cfe9d282737",
+		"contexts/collaboration/reference.context.toml": "8531e1faaed461d0f9c2db107b33ee92113092ff859656e29cf5c022f5720c61",
+		"contexts/collaboration/rules.context.toml": "f46f2871862479572980ab9d25b0c2c1ba1bb059c69b975bd41163a0df589cea",
+		"contexts/collaboration/state.context.toml": "ac4529d9ae4ce9a1d89a15ec33cab08c912aa3c8634ef382c5daeb1760480d70",
+		"manifest.json": "01b3f7cb79b6f5e3446a5838292a8d1e5f601c021cef7169519ab52ea4b6b7c4",
+		"package.json": "ed6f326a3c9e1890f270a78b5f56275afe4bc3e7a20c9016298cd0e644f48d35",
+		"src/agent/action.ts": "046f2939d980766cce6ec06dd5beb177d99015966e86332a04463ed18b7ff983",
+		"src/agent/brief.ts": "1c8641f3b9f0321ad4e847393719dc879b4e7ac22cd9f63896f4345ba6e8c2a1",
+		"src/agent/instructions.ts": "ab5723a2195581daed539e9e71f0a0ff62028c4d30d67028e2c56bb94a6b97e0",
+		"src/agent/messages.ts": "c5fa7ff5a18d68d33adb312a9ba66b43c6bfcd70e05a6cb6d55b3630144d4287",
+		"src/agent/plan.ts": "eef695f490bb2d82ed0457093fc266cba0dd2db5f67e5e2a189cc72a21b9b635",
+		"src/agent/session.ts": "f576eabad39a8a95bc9aacb4ebc21f9e9779157f6de25b9571145fef6d21a6d5",
+		"src/agent/state.ts": "d0742ddcd4b85fe35fd50720ecbd15c46fe02b3f1a9ee83feb50a98bb16e38f2",
+		"src/contracts/index.ts": "72c33b52bc13045089ceb8d14e0acbcc31cf468490b64aaf70a2bce92da08ce5",
+		"src/contracts/state.ts": "93840fb7003fa5cab222a93f736d4be2a83a5cd81213ac7cb5cefe4879f1a131",
+		"src/index.ts": "b04fd2a784dd371e3111417dcb5a77f75f5d9163fa7c07be27dcd15556a0032d"
+	}
+}

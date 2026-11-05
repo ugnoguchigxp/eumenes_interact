@@ -45,12 +45,17 @@ const text = (t: string): InferenceOutcome => ({
 	latencyMs: 5,
 });
 const observe = JSON.stringify({
-	part: "page.list",
-	args: { kind: "links", limit: 5 },
+	part: "page.find",
+	args: { text: "メニュー", role: "button" },
 });
 const finish = JSON.stringify({
 	part: "done",
-	args: { answer: "開きました。", evidence: [] },
+	args: {
+		answer: "開きました。",
+		evidence: ["r1"],
+		outcome: "achieved",
+		basis: "observed",
+	},
 });
 
 /** A model that answers the first call at once and holds the second until released or cancelled. */
@@ -115,6 +120,45 @@ const deps = (
 });
 
 describe("startOperate", () => {
+	for (const table of ["interact_runs", "lab_trials"] as const) {
+		test(`a ${table} final write failure rejects done, shows unavailable and releases resources`, async () => {
+			const model = gatedModel();
+			const o = options();
+			const handle = startOperate(o, deps(model.port));
+			await model.blocked;
+			const db = openLabDb(o.dbPath);
+			const trigger =
+				table === "interact_runs"
+					? "UPDATE OF status ON interact_runs WHEN NEW.status='completed'"
+					: "UPDATE OF state ON lab_trials WHEN NEW.state='finished'";
+			db.exec(
+				`CREATE TRIGGER injected BEFORE ${trigger} BEGIN SELECT RAISE(ABORT,'SYNTHETIC_WRITE_FAILURE'); END`,
+			);
+			db.close();
+			model.release();
+			await expect(handle.done).rejects.toThrow("run_persistence_failed");
+			expect(handle.snapshot()).toMatchObject({
+				status: "unavailable",
+				final: { kind: "failed", code: "run_persistence_failed" },
+			});
+			expect(existsSync(`${o.dbPath}.run.lock`)).toBe(false);
+			const reopened = openLabDb(o.dbPath);
+			try {
+				expect(
+					reopened
+						.query("SELECT status FROM interact_runs WHERE run_id=?")
+						.get(handle.runId),
+				).toEqual({ status: "running" });
+				expect(
+					reopened
+						.query("SELECT state FROM lab_trials WHERE run_id=?")
+						.get(handle.runId),
+				).toEqual({ state: "running" });
+			} finally {
+				reopened.close();
+			}
+		});
+	}
 	test("the run's id is known at once; the snapshot follows the run; done is the final snapshot", async () => {
 		const model = gatedModel();
 		const handle = startOperate(options(), deps(model.port));
@@ -323,7 +367,7 @@ describe("startOperate", () => {
 			message = (error as Error).message;
 		}
 		expect(message).toContain("claude_credential_missing");
-		expect(message).toContain("ANTHROPIC_API_KEY=");
+		expect(message).toContain("ANTHROPIC_API_KEY");
 		expect(opened).toBe(false);
 		expect(existsSync(o.dbPath!)).toBe(false);
 		expect(existsSync(`${o.dbPath}.run.lock`)).toBe(false);

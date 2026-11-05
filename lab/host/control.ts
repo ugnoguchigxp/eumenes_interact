@@ -20,6 +20,23 @@ export class RunControl {
 		this.controller.abort(reason);
 	}
 
+	/** A read-only wait cannot hold the run open after cancellation. */
+	async wait<T>(work: Promise<T>): Promise<T> {
+		let abort: (() => void) | undefined;
+		try {
+			const stopped = new Promise<never>((_, reject) => {
+				abort = () => reject(this.ended());
+				this.signal.addEventListener("abort", abort, { once: true });
+				if (this.signal.aborted) abort();
+			});
+			const result = await Promise.race([work, stopped]);
+			if (this.signal.aborted) throw this.ended();
+			return result;
+		} finally {
+			if (abort) this.signal.removeEventListener("abort", abort);
+		}
+	}
+
 	/** The end a cancelled run takes; call only after `cancel`. */
 	ended(): RunEnd {
 		return this.reason === "deadline"

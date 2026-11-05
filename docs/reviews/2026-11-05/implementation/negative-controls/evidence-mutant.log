@@ -1,0 +1,40 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/goal-unmet.test.ts:
+33 | 						basis: "observed",
+34 | 					},
+35 | 				}),
+36 | 			]),
+37 | 		});
+38 | 		expect(result.status).toBe("failed");
+                             ^
+error: expect(received).toBe(expected)
+
+Expected: "failed"
+Received: "completed"
+
+      at <anonymous> (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-o3jonb5p/repo/lab/test/host/goal-unmet.test.ts:38:25)
+(fail) a done that cites only failed results > ends failed with goal_unmet and keeps the answer as the reason [15.43ms]
+(pass) a done that cites only failed results > a browser trial cannot waive evidence by claiming a response-only task before any part call [7.76ms]
+(pass) a done that cites only failed results > omitting failed evidence cannot turn the result into success (response) [5.76ms]
+74 | 							basis,
+75 | 						},
+76 | 					}),
+77 | 				]),
+78 | 			});
+79 | 			expect(result.status).toBe("failed");
+                              ^
+error: expect(received).toBe(expected)
+
+Expected: "failed"
+Received: "completed"
+
+      at <anonymous> (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-o3jonb5p/repo/lab/test/host/goal-unmet.test.ts:79:26)
+(fail) a done that cites only failed results > omitting failed evidence cannot turn the result into success (observed) [5.81ms]
+(pass) a done that cites only failed results > partial is retained as a non-success, independent of answer wording [5.13ms]
+(pass) a done that cites only failed results > unmet is retained as a non-success, independent of answer wording [4.70ms]
+
+ 4 pass
+ 2 fail
+ 10 expect() calls
+Ran 6 tests across 1 file. [96.00ms]

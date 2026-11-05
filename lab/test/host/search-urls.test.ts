@@ -1,9 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import {
-	generalSearchUrl,
-	isChallenge,
-	siteSearchUrl,
-} from "../../host/parts/search-urls.ts";
+import { generalSearchUrl, isChallenge } from "../../host/parts/search-urls.ts";
+import { siteSearchUrl as lookup } from "../../host/site-searches.ts";
+import { freshDb } from "./harness.ts";
+const siteSearchUrl = (page: string, query: string) => {
+	const db = freshDb();
+	try {
+		return lookup(db, "lab", page, query, "2026-11-05T00:00:00.000Z");
+	} finally {
+		db.close();
+	}
+};
 
 describe("search urls (2026-11-04)", () => {
 	test("a known site gets its own search url with the query encoded", () => {

@@ -85,8 +85,8 @@ describe("the credential", () => {
 			message = (error as Error).message;
 		}
 		expect(message).toContain("claude_credential_missing");
-		expect(message).toContain("ANTHROPIC_API_KEY=");
-		expect(message).toContain(join(dir, "absent.env"));
+		expect(message).toContain("ANTHROPIC_API_KEY");
+		expect(message).toContain("login shell");
 	});
 
 	test("the environment is enough, and nothing is read from the file then", () => {

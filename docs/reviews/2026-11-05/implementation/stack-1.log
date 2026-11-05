@@ -1,0 +1,2 @@
+$ bun scripts/check-stack.ts
+check:stack ok (/Users/y.noguchi/Code/eumenes)

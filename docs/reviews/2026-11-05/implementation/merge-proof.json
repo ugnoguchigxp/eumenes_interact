@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-05",
+  "sourceBranch": "feat/collab-agent-integration",
+  "previousMain": "a3519c8",
+  "mergedHead": "a38f9553acf56715a8c29e170c59ca1829558a4c",
+  "method": "fast-forward",
+  "commits": 92,
+  "pushedMain": true,
+  "currentImprovementBranch": "codex/quality-80-improvements",
+  "note": "Improvement work was already based on the feature branch. Stashed and restored without conflicts; existing Grokbot executor, gates, ledger and capability ports are reused."
+}

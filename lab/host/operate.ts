@@ -39,7 +39,12 @@ import {
 } from "./observations.ts";
 import { DEFAULT_CAPTURES_DIR, resolveCaptureDir } from "./parts/capture.ts";
 import { reconcileOnStartup } from "./reconcile.ts";
-import { MAX_MODEL_CALLS, LAB_OWNER, runTrial } from "./run.ts";
+import {
+	MAX_MODEL_CALLS,
+	LAB_OWNER,
+	RunPersistenceError,
+	runTrial,
+} from "./run.ts";
 import { createExperiment } from "./store.ts";
 import {
 	OPERATE_CASE_PREFIX,
@@ -91,11 +96,11 @@ export type OperateOptions = {
 
 export type OperateSnapshot = {
 	runId: string;
-	status: "starting" | RunStatus;
+	status: "starting" | "unavailable" | RunStatus;
 	startedAt: string;
 	finishedAt?: string;
 	final?: {
-		kind: "finish" | "clarify" | "stop" | "failed" | "stopped";
+		kind: "finish" | "partial" | "clarify" | "stop" | "failed" | "stopped";
 		text?: string;
 		code?: string;
 	};
@@ -238,7 +243,7 @@ export function startOperate(
 	const runId = randomUUID();
 	const startedAt = new Date(now()).toISOString();
 	const control = new RunControl();
-	let status: "starting" | RunStatus = "starting";
+	let status: OperateSnapshot["status"] = "starting";
 	let finishedAt: string | undefined;
 	let finalUrl: string | undefined;
 	let final: OperateSnapshot["final"];
@@ -303,9 +308,10 @@ export function startOperate(
 	};
 
 	let closed = false;
+	let persistenceFailure: RunPersistenceError | null = null;
 	const snapshot = (): OperateSnapshot => {
 		// The run row is the truth while the run is going; the connection is closed after the end.
-		if (!closed) {
+		if (!closed && !persistenceFailure) {
 			const run = getRun(db, LAB_OWNER, runId);
 			if (run) status = run.status;
 		}
@@ -442,8 +448,9 @@ export function startOperate(
 			else if (!final && result.code && result.status !== "cancelled")
 				final = { kind: "failed", code: result.code };
 		} catch (error) {
+			if (error instanceof RunPersistenceError) persistenceFailure = error;
 			// An unexpected failure is a failed run with a fixed code; the details are in the logger's codes.
-			status = "failed";
+			status = persistenceFailure ? "unavailable" : "failed";
 			final = {
 				kind: "failed",
 				code:
@@ -464,6 +471,7 @@ export function startOperate(
 		});
 		await attempt(() => db.close());
 		await attempt(() => lock.release());
+		if (persistenceFailure) throw persistenceFailure;
 		return last;
 	})();
 

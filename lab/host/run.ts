@@ -40,6 +40,7 @@ import { TabRegistry } from "./tabs.ts";
 import { scoreAndStore, TrialRecorder } from "./trial.ts";
 import {
 	RunEnd,
+	RunPersistenceError,
 	type InferenceInfo,
 	type RunEndStatus,
 	type TrialCase,
@@ -59,7 +60,6 @@ export const MIN_CALL_MS = 5_000;
 export const MAX_MODEL_CALLS = 10;
 
 export const LAB_OWNER = "lab";
-const ARM1_SKILL_REF = "arm1:parts@1";
 
 const sha256 = (text: string) =>
 	createHash("sha256").update(text).digest("hex");
@@ -128,7 +128,9 @@ export type RunTrialInput = {
 	 * Checked by the host when the model says it is done; a failed check ends the trial as failed with its
 	 * code instead of a false success (chain playback steps: `confirmPlayback`).
 	 */
-	beforeFinish?: () => Promise<{ ok: true } | { ok: false; code: string }>;
+	beforeFinish?: (
+		signal: AbortSignal,
+	) => Promise<{ ok: true } | { ok: false; code: string }>;
 };
 
 export type TrialResult = {
@@ -158,6 +160,8 @@ const endingOf = (status: RunEndStatus, code: string): Ending => ({
 	code,
 });
 
+export { RunPersistenceError } from "./types.ts";
+
 export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const { db, def, adapter, logger } = input;
 	const now = input.now ?? Date.now;
@@ -167,6 +171,10 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	const sessionId = randomUUID();
 	const control = input.control ?? new RunControl();
 	const policy = runPolicy(def);
+	const skillIdentity = input.inference.skill ?? {
+		ref: "arm1:core@2",
+		digest: `sha256:${sha256(prepareStep(startRun({ arm: input.arm, request: def.request, policy, nowMs: now() })).messages[0]!.content)}`,
+	};
 	const arm1 = input.arm === "arm1";
 	// A bad capture directory is refused before the run or anything else is created.
 	const captures = new CaptureStore({
@@ -200,7 +208,12 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			? { code, textLength: text.length, approvals: approvals.length }
 			: { code, text, approvals };
 	const recorder = new TrialRecorder(now, scrub);
-	if (input.onEvent) recorder.onEvent = input.onEvent;
+	let pendingFinal: TranscriptEvent | undefined;
+	// Final results become visible only after the run and trial commit together.
+	recorder.onEvent = (event) => {
+		if (event.type === "step.final") pendingFinal = event;
+		else input.onEvent?.(event);
+	};
 	const tabs = new TabRegistry();
 	const grants = new InputGrants(now, randomUUID);
 	const log = (
@@ -212,8 +225,8 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	write(db, () => {
 		createRun(db, owner, {
 			runId,
-			skillRef: ARM1_SKILL_REF,
-			skillDigest: "arm1-parts:2",
+			skillRef: skillIdentity.ref,
+			skillDigest: skillIdentity.digest,
 			catalogRef: `catalog:${adapter.platform}`,
 			catalogDigest: `sha256:${sha256(JSON.stringify(adapter.catalog()))}`,
 			platform: adapter.platform,
@@ -409,24 +422,39 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				case "continue":
 					continue;
 				case "finish": {
-					const gate = input.beforeFinish
-						? await input.beforeFinish()
-						: ({ ok: true } as const);
-					if (!gate.ok) {
-												recorder.final("failed");
-						return { status: "failed", code: gate.code };
-					}
-					// A done that cites only results that did not complete (e.g. a challenge page reported as
-					// `site_blocked`) has not met the goal: it ends failed with the answer kept as the reason.
-					const cited = step.refs.map((r) => partStatus.get(r));
-					if (cited.length && cited.every((c) => c && (c.status === "failed" || c.status === "indeterminate"))) {
-						recorder.final("failed", step.text);
+					if (control.signal.aborted) return cancelEnding();
+					if (step.outcome !== "achieved") {
+						recorder.final(
+							step.outcome === "partial" ? "partial" : "failed",
+							step.text,
+						);
 						return {
-							status: "failed",
-							code: `goal_unmet.${cited.at(-1)?.code ?? cited.at(-1)?.status}`.slice(0, 64),
+							status: step.outcome === "partial" ? "partial" : "failed",
+							code: `goal_${step.outcome}`,
 						};
 					}
-					recorder.final("finish", step.text);
+					if (
+						(step.basis === "observed" &&
+							(!step.refs.length ||
+								step.refs.some(
+									(id) => partStatus.get(id)?.status !== "completed",
+								))) ||
+						// This host runs browser trials. Response-only steps use the chain's
+						// non-browser path; a model cannot waive the browser evidence contract.
+						step.basis === "response"
+					) {
+						recorder.final("failed", step.text);
+						return { status: "failed", code: "completion_evidence_invalid" };
+					}
+					const gate = input.beforeFinish
+						? await control.wait(input.beforeFinish(control.signal))
+						: ({ ok: true } as const);
+					if (control.signal.aborted) return cancelEnding();
+					if (!gate.ok) {
+						recorder.final("failed");
+						return { status: "failed", code: gate.code };
+					}
+					completedText = step.text;
 					return { status: "completed", code: null };
 				}
 				case "clarify":
@@ -482,6 +510,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		}
 	}
 
+	let completedText: string | undefined;
 	let ending: Ending;
 	let unexpected: unknown;
 	try {
@@ -511,39 +540,72 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 		}
 	} finally {
 		clearTimeout(timer);
-		control.signal.removeEventListener("abort", onAbort);
 		try {
 			// Only what this host started is stopped; the adapter's close is idempotent.
 			if (!input.keepSession) await adapter.close();
 		} catch {
 			// A failing close must not hide how the run ended.
+		} finally {
+			control.signal.removeEventListener("abort", onAbort);
 		}
 	}
+	if (control.signal.aborted) {
+		ending = cancelEnding();
+	}
 
-	// Cancel and expiry already moved the run; any other end moves it now, and a refusal is not hidden.
-	write(db, () => {
-		const current = getRun(db, owner, runId);
-		if (current && !isTerminalRunStatus(current.status))
-			transitionRun(db, owner, runId, ending.status, {
-				nowIso: nowIso(),
-				...(ending.code ? { reason: ending.code } : {}),
+	// Publish run + trial atomically using the existing transaction mechanism.
+	let finalized: {
+		transcript: TrialTranscript;
+		score: TrialScore;
+		scored: boolean;
+	};
+	try {
+		finalized = write(db, () => {
+			const current = getRun(db, owner, runId);
+			if (current && isTerminalRunStatus(current.status))
+				ending = { status: current.status, code: current.statusReason };
+			if (current && !isTerminalRunStatus(current.status))
+				transitionRun(db, owner, runId, ending.status, {
+					nowIso: nowIso(),
+					...(ending.code ? { reason: ending.code } : {}),
+				});
+			if (ending.status === "cancelled" || ending.status === "expired") {
+				for (let i = recorder.events.length - 1; i >= 0; i--)
+					if (recorder.events[i]!.type === "step.final")
+						recorder.events.splice(i, 1);
+				recorder.finalText = undefined;
+				pendingFinal = undefined;
+			}
+			if (ending.status === "completed" && completedText !== undefined)
+				recorder.final("finish", completedText);
+			const transcript = recorder.build({
+				trialId,
+				caseId: def.id,
+				arm: input.arm,
+				fixtureBaseUrl: baseUrl,
+				...(arm1 ? { captureDir: captures.dir } : {}),
 			});
-	});
+			const { score, scored } = scoreAndStore(db, def, transcript, {
+				runStatus: ending.status,
+				stop: ending.stop ?? null,
+				inference: input.inferenceInfo(),
+				nowIso: nowIso(),
+				finalText: recorder.finalText,
+			});
+			return { transcript, score, scored };
+		});
+	} catch {
+		throw new RunPersistenceError();
+	}
+	const { transcript, score, scored } = finalized;
+	if (pendingFinal) {
+		try {
+			input.onEvent?.(pendingFinal);
+		} catch {
+			/* A progress view cannot change a committed result. */
+		}
+	}
 	log("run.status", { code: ending.status });
-	const transcript = recorder.build({
-		trialId,
-		caseId: def.id,
-		arm: input.arm,
-		fixtureBaseUrl: baseUrl,
-		...(arm1 ? { captureDir: captures.dir } : {}),
-	});
-	const { score, scored } = scoreAndStore(db, def, transcript, {
-		runStatus: ending.status,
-		stop: ending.stop ?? null,
-		inference: input.inferenceInfo(),
-		nowIso: nowIso(),
-		finalText: recorder.finalText,
-	});
 	log("trial.finished", {
 		code: !scored ? "unscored" : score.success ? "success" : "failure",
 		count: score.efficiency.modelCalls,

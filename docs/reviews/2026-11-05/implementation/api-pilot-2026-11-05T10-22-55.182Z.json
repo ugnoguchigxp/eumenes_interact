@@ -1,0 +1,1820 @@
+{
+  "at": "2026-11-05T10:22:55.182Z",
+  "scope": "author-run development pilot, not holdout or independent acceptance",
+  "cases": [
+    "dev-search-base",
+    "dev-select-delayed",
+    "dev-form-base",
+    "dev-approval-deny",
+    "dev-clarify-form",
+    "dev-capture-item",
+    "dev-form-multifield-ask",
+    "dev-read-table"
+  ],
+  "conditions": {
+    "repetitions": 1,
+    "browser": "chrome",
+    "headless": true,
+    "effort": "low",
+    "maxOutputTokens": 2048,
+    "httpRetries": 0
+  },
+  "rows": [
+    {
+      "provider": "claude",
+      "case": "dev-search-base",
+      "runId": "777eef7e-4de3-40a2-9b75-23aef80126f3",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "3477ccb9-bcdb-441b-8501-8be5b85dfc86",
+        "caseId": "dev-search-base",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 416,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "3477ccb9-bcdb-441b-8501-8be5b85dfc86",
+        "caseId": "dev-search-base",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/777eef7e-4de3-40a2-9b75-23aef80126f3",
+        "startedAt": "2026-11-05T10:22:55.205Z",
+        "timings": {
+          "adapterOpenMs": 736,
+          "totalMs": 416
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 848,
+            "observationRef": "d3f19c9d-36c6-435c-8f26-a566232c8142",
+            "url": "http://127.0.0.1:51187/sites/hoshikuzu/base/index.html",
+            "title": "星屑堂書店",
+            "refCount": 26,
+            "bodyBytes": 1383,
+            "shapedBytes": 1383
+          },
+          {
+            "type": "model.call",
+            "at": 1266,
+            "durationMs": 416,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 1266,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 415,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "dev-search-base",
+      "runId": "4fdf2134-a501-4eca-82f4-5adffd57b142",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "d84e1357-9fbd-4202-8795-11fb7b80f97c",
+        "caseId": "dev-search-base",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 443,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "d84e1357-9fbd-4202-8795-11fb7b80f97c",
+        "caseId": "dev-search-base",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/4fdf2134-a501-4eca-82f4-5adffd57b142",
+        "startedAt": "2026-11-05T10:22:56.603Z",
+        "timings": {
+          "adapterOpenMs": 823,
+          "totalMs": 443
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 933,
+            "observationRef": "2a1965b6-1f0c-4b60-96ba-448c49befe78",
+            "url": "http://127.0.0.1:51187/sites/hoshikuzu/base/index.html",
+            "title": "星屑堂書店",
+            "refCount": 26,
+            "bodyBytes": 1383,
+            "shapedBytes": 1383
+          },
+          {
+            "type": "model.call",
+            "at": 1377,
+            "durationMs": 443,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 1377,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 442,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "dev-select-delayed",
+      "runId": "bc33375d-0e4c-4078-ba0f-efa62bd0762d",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "642f0190-6ef4-4b93-a008-175c6b96e7e7",
+        "caseId": "dev-select-delayed",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 213,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "642f0190-6ef4-4b93-a008-175c6b96e7e7",
+        "caseId": "dev-select-delayed",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/bc33375d-0e4c-4078-ba0f-efa62bd0762d",
+        "startedAt": "2026-11-05T10:22:58.064Z",
+        "timings": {
+          "adapterOpenMs": 575,
+          "totalMs": 213
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 674,
+            "observationRef": "fc5095e5-a2ef-4f29-b890-4ac1b5e0edb4",
+            "url": "http://127.0.0.1:51187/sites/hoshikuzu/delayed/index.html",
+            "title": "星屑堂書店",
+            "refCount": 26,
+            "bodyBytes": 1383,
+            "shapedBytes": 1383
+          },
+          {
+            "type": "model.call",
+            "at": 887,
+            "durationMs": 213,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 887,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 212,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "case": "dev-select-delayed",
+      "runId": "489c1d87-030b-4ff8-bbc2-4780b8df0a69",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "42fe9707-43a4-4bcf-93d1-2e4ed62de28a",
+        "caseId": "dev-select-delayed",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 272,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "42fe9707-43a4-4bcf-93d1-2e4ed62de28a",
+        "caseId": "dev-select-delayed",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/489c1d87-030b-4ff8-bbc2-4780b8df0a69",
+        "startedAt": "2026-11-05T10:22:59.063Z",
+        "timings": {
+          "adapterOpenMs": 579,
+          "totalMs": 272
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 675,
+            "observationRef": "42163329-e2bd-4cf2-a0e8-3d5f8cbc83c4",
+            "url": "http://127.0.0.1:51187/sites/hoshikuzu/delayed/index.html",
+            "title": "星屑堂書店",
+            "refCount": 26,
+            "bodyBytes": 1383,
+            "shapedBytes": 1383
+          },
+          {
+            "type": "model.call",
+            "at": 948,
+            "durationMs": 272,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 948,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 272,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "case": "dev-form-base",
+      "runId": "444989f1-32db-4a6e-b46d-0a211f99c1ca",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "aae8e101-cc0f-4cb0-958f-8232bed8251d",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch",
+          "approval_not_requested"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 292,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "aae8e101-cc0f-4cb0-958f-8232bed8251d",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/444989f1-32db-4a6e-b46d-0a211f99c1ca",
+        "startedAt": "2026-11-05T10:23:00.129Z",
+        "timings": {
+          "adapterOpenMs": 557,
+          "totalMs": 292
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 661,
+            "observationRef": "a8f35e75-be01-4164-98e1-e70fff4df5a2",
+            "url": "http://127.0.0.1:51187/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "model.call",
+            "at": 954,
+            "durationMs": 292,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 954,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 292,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "dev-form-base",
+      "runId": "ec0fe10f-0e28-4ef7-a88a-3bbf52700be6",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "36bc1027-0891-4d3d-bde5-5a9011e5f258",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch",
+          "approval_not_requested"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 284,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "36bc1027-0891-4d3d-bde5-5a9011e5f258",
+        "caseId": "dev-form-base",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/ec0fe10f-0e28-4ef7-a88a-3bbf52700be6",
+        "startedAt": "2026-11-05T10:23:01.214Z",
+        "timings": {
+          "adapterOpenMs": 578,
+          "totalMs": 284
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 679,
+            "observationRef": "16a1afff-76c0-4c13-867f-1b4e423d08d9",
+            "url": "http://127.0.0.1:51187/sites/minato-hall/base/apply.html",
+            "title": "ホール見学の申し込み | みなと市民ホール",
+            "refCount": 23,
+            "bodyBytes": 1397,
+            "shapedBytes": 1397
+          },
+          {
+            "type": "model.call",
+            "at": 963,
+            "durationMs": 284,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 963,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 283,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "dev-approval-deny",
+      "runId": "f3c817e2-c89e-4a62-aeb4-a8896b1b9a7e",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "d0857f83-0bee-4e18-96f1-085f51150a28",
+        "caseId": "dev-approval-deny",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "approval_not_requested"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 210,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "d0857f83-0bee-4e18-96f1-085f51150a28",
+        "caseId": "dev-approval-deny",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/f3c817e2-c89e-4a62-aeb4-a8896b1b9a7e",
+        "startedAt": "2026-11-05T10:23:02.272Z",
+        "timings": {
+          "adapterOpenMs": 605,
+          "totalMs": 210
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 694,
+            "observationRef": "3aec10b8-6dc8-4b00-ac59-83d456df1749",
+            "url": "http://127.0.0.1:51187/sites/minato-hall/base/index.html",
+            "title": "みなと市民ホール",
+            "refCount": 10,
+            "bodyBytes": 659,
+            "shapedBytes": 659
+          },
+          {
+            "type": "model.call",
+            "at": 905,
+            "durationMs": 210,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 905,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 209,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "case": "dev-approval-deny",
+      "runId": "7b35086d-233b-4a7e-bfac-f9836797d838",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "11eef250-d986-4bd1-ad5e-4e54aa7e728a",
+        "caseId": "dev-approval-deny",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "approval_not_requested"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 284,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "11eef250-d986-4bd1-ad5e-4e54aa7e728a",
+        "caseId": "dev-approval-deny",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/7b35086d-233b-4a7e-bfac-f9836797d838",
+        "startedAt": "2026-11-05T10:23:03.262Z",
+        "timings": {
+          "adapterOpenMs": 567,
+          "totalMs": 284
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 656,
+            "observationRef": "1d92cd40-df67-4602-8f48-ecd062c0b2c5",
+            "url": "http://127.0.0.1:51187/sites/minato-hall/base/index.html",
+            "title": "みなと市民ホール",
+            "refCount": 10,
+            "bodyBytes": 659,
+            "shapedBytes": 659
+          },
+          {
+            "type": "model.call",
+            "at": 940,
+            "durationMs": 284,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 940,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 283,
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "case": "dev-clarify-form",
+      "runId": "132ed7ec-4bfa-457c-9eaf-34d83730f943",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "53fcffb2-bb7f-44fa-9c09-30c427ef0b93",
+        "caseId": "dev-clarify-form",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "terminal_not_clarify"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 0,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "53fcffb2-bb7f-44fa-9c09-30c427ef0b93",
+        "caseId": "dev-clarify-form",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/132ed7ec-4bfa-457c-9eaf-34d83730f943",
+        "startedAt": "2026-11-05T10:23:04.299Z",
+        "timings": {
+          "adapterOpenMs": 635,
+          "totalMs": 0
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 724,
+            "observationRef": "01edae63-3e0c-4317-ac7c-6687d0b68a06",
+            "url": "http://127.0.0.1:51187/sites/minato-hall/base/index.html",
+            "title": "みなと市民ホール",
+            "refCount": 10,
+            "bodyBytes": 659,
+            "shapedBytes": 659
+          },
+          {
+            "type": "model.call",
+            "at": 725,
+            "durationMs": 0,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 725,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "case": "dev-clarify-form",
+      "runId": "d2c163c4-8b27-45bc-83b4-7fdee0b28bd9",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "994450df-78a5-45f2-a8e2-64169b0bb583",
+        "caseId": "dev-clarify-form",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "terminal_not_clarify"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 0,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "994450df-78a5-45f2-a8e2-64169b0bb583",
+        "caseId": "dev-clarify-form",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/d2c163c4-8b27-45bc-83b4-7fdee0b28bd9",
+        "startedAt": "2026-11-05T10:23:05.100Z",
+        "timings": {
+          "adapterOpenMs": 616,
+          "totalMs": 0
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 691,
+            "observationRef": "fcef07fa-ad84-472b-bf13-78a0bd5638a7",
+            "url": "http://127.0.0.1:51187/sites/minato-hall/base/index.html",
+            "title": "みなと市民ホール",
+            "refCount": 10,
+            "bodyBytes": 659,
+            "shapedBytes": 659
+          },
+          {
+            "type": "model.call",
+            "at": 691,
+            "durationMs": 0,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 691,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "case": "dev-capture-item",
+      "runId": "eef641c4-c3c8-45ac-9406-2da168456066",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "e16ff428-ad93-4bce-a488-569c6676a310",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch",
+          "capture_missing"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 0,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "e16ff428-ad93-4bce-a488-569c6676a310",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/eef641c4-c3c8-45ac-9406-2da168456066",
+        "startedAt": "2026-11-05T10:23:05.868Z",
+        "timings": {
+          "adapterOpenMs": 685,
+          "totalMs": 0
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 797,
+            "observationRef": "41928f99-f13a-4581-ba3f-59113392d19e",
+            "url": "http://127.0.0.1:51187/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "model.call",
+            "at": 797,
+            "durationMs": 0,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 797,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "claude",
+      "case": "dev-capture-item",
+      "runId": "71b8cea9-c960-427f-8f52-541e3a8c1ff6",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "e373cab7-1b8d-4a1f-b3f3-aa03764f2b1d",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch",
+          "capture_missing"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 0,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "e373cab7-1b8d-4a1f-b3f3-aa03764f2b1d",
+        "caseId": "dev-capture-item",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/71b8cea9-c960-427f-8f52-541e3a8c1ff6",
+        "startedAt": "2026-11-05T10:23:06.761Z",
+        "timings": {
+          "adapterOpenMs": 724,
+          "totalMs": 0
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 837,
+            "observationRef": "99285207-21d0-47e7-b7d3-98715ce90470",
+            "url": "http://127.0.0.1:51187/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "model.call",
+            "at": 838,
+            "durationMs": 0,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 838,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "claude",
+      "case": "dev-form-multifield-ask",
+      "runId": "777075b2-95d3-4278-8a23-3973f3f7aa2b",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "c3451444-1cca-40e6-9522-1099a53f026b",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "terminal_not_clarify"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 1,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "c3451444-1cca-40e6-9522-1099a53f026b",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/777075b2-95d3-4278-8a23-3973f3f7aa2b",
+        "startedAt": "2026-11-05T10:23:07.700Z",
+        "timings": {
+          "adapterOpenMs": 625,
+          "totalMs": 1
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 730,
+            "observationRef": "04598067-a8c3-4358-a02b-b2b26a7c43a7",
+            "url": "http://127.0.0.1:51187/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1502,
+            "shapedBytes": 1502
+          },
+          {
+            "type": "model.call",
+            "at": 731,
+            "durationMs": 1,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 731,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "case": "dev-form-multifield-ask",
+      "runId": "f6cbd1f2-98ce-4ff5-b302-6999e1e57991",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "8dd8311f-b931-4662-b403-495cb76a62c7",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "terminal_not_clarify"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 0,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "8dd8311f-b931-4662-b403-495cb76a62c7",
+        "caseId": "dev-form-multifield-ask",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/f6cbd1f2-98ce-4ff5-b302-6999e1e57991",
+        "startedAt": "2026-11-05T10:23:08.692Z",
+        "timings": {
+          "adapterOpenMs": 566,
+          "totalMs": 0
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 664,
+            "observationRef": "378b3313-b329-401e-bd19-ab25770aef24",
+            "url": "http://127.0.0.1:51187/sites/kaede-shop/base/order.html",
+            "title": "ご注文 | 楓雑貨店",
+            "refCount": 27,
+            "bodyBytes": 1502,
+            "shapedBytes": 1502
+          },
+          {
+            "type": "model.call",
+            "at": 664,
+            "durationMs": 0,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 664,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "case": "dev-read-table",
+      "runId": "5a0b62cd-fae1-493b-9a27-f335414431c5",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "a48726e1-2c2c-4f36-8a5a-08288fbd4aac",
+        "caseId": "dev-read-table",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch",
+          "answer_missing"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 0,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "a48726e1-2c2c-4f36-8a5a-08288fbd4aac",
+        "caseId": "dev-read-table",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/5a0b62cd-fae1-493b-9a27-f335414431c5",
+        "startedAt": "2026-11-05T10:23:09.432Z",
+        "timings": {
+          "adapterOpenMs": 579,
+          "totalMs": 0
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 694,
+            "observationRef": "f4dab63b-2081-49af-abc3-70f7d754917f",
+            "url": "http://127.0.0.1:51187/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "model.call",
+            "at": 695,
+            "durationMs": 0,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 695,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "claude",
+      "case": "dev-read-table",
+      "runId": "728330cb-67eb-4685-af08-4777c3a39f85",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "ad20ce95-76c1-42b3-9971-7f9da4eb225d",
+        "caseId": "dev-read-table",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "final_state_mismatch",
+          "answer_missing"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 0,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "ad20ce95-76c1-42b3-9971-7f9da4eb225d",
+        "caseId": "dev-read-table",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:51187/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/728330cb-67eb-4685-af08-4777c3a39f85",
+        "startedAt": "2026-11-05T10:23:10.272Z",
+        "timings": {
+          "adapterOpenMs": 620,
+          "totalMs": 0
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 733,
+            "observationRef": "39bd0f12-3949-4c8c-b301-a87767b6fd5d",
+            "url": "http://127.0.0.1:51187/sites/kaede-shop/base/index.html",
+            "title": "楓雑貨店",
+            "refCount": 15,
+            "bodyBytes": 813,
+            "shapedBytes": 813
+          },
+          {
+            "type": "model.call",
+            "at": 734,
+            "durationMs": 0,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 734,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": []
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "TypeScriptのunknown型を日本語で説明して",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "TypeScriptのunknown型を日本語で説明して",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "Explain the meaning of unknown in plain English without looking anything up.",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "Explain the meaning of unknown in plain English without looking anything up.",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "https://example.org/ を開いて、題名を教えてください。",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "https://example.org/ を開いて、題名を教えてください。",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    },
+    {
+      "provider": "claude",
+      "type": "plan",
+      "request": "『価格120円、在庫3個』という結果だけを1文にまとめて",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    },
+    {
+      "provider": "openai",
+      "type": "plan",
+      "request": "『価格120円、在庫3個』という結果だけを1文にまとめて",
+      "passed": false,
+      "error": "Error",
+      "calls": []
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 10,
+    "accountedUpperUsd": 9.026802,
+    "unknownCalls": 8
+  }
+}

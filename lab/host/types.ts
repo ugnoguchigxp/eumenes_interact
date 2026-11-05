@@ -21,6 +21,7 @@ export type TrialVersions = {
 export type InferenceInfo =
 	| { kind: "scripted" }
 	| { kind: "larm"; profile: string; model: string | null }
+	| { kind: "openai"; provider: "openai"; model: string; effort: string }
 	| {
 			kind: "claude";
 			provider: "anthropic";
@@ -58,26 +59,12 @@ export type TrialConditions = {
 	knowledge: "none";
 };
 
-/** A refusal before anything was sent: the code goes back to the model as the tool's result. */
-export class Refusal extends Error {
-	constructor(
-		readonly code: string,
-		readonly retryable = true,
-	) {
-		super(code);
-		this.name = "Refusal";
-	}
-}
+export { Refusal, RunEnd, type RunEndStatus } from "eumenes-interact/parts";
 
-/** Why a run ends from inside the executor, not through the core. */
-export type RunEndStatus = "cancelled" | "expired" | "indeterminate" | "failed";
-
-export class RunEnd extends Error {
-	constructor(
-		readonly status: RunEndStatus,
-		readonly code: string,
-	) {
-		super(`${status}:${code}`);
-		this.name = "RunEnd";
+/** Terminal state and host record did not commit; no result may be adopted. */
+export class RunPersistenceError extends Error {
+	constructor() {
+		super("run_persistence_failed");
+		this.name = "RunPersistenceError";
 	}
 }

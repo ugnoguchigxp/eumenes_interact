@@ -1,0 +1,274 @@
+bun test v1.4.4 (38afee6c8)
+
+packages/eumenes-interact/test/core/arm1.test.ts:
+(pass) startRun > a system text, REFERENCE and the request, in plain JSON state [11.94ms]
+(pass) startRun > a brief that differs from the request is shown beside it [0.76ms]
+(pass) startRun > the system text is the same whatever the run [0.28ms]
+(pass) startRun > unknown parts and out-of-bound policies are errors; an offered subset narrows the schema [3.38ms]
+(pass) parseStep: valid parts > a part becomes a host call, with the tool name and the budget [1.21ms]
+(pass) parseStep: valid parts > an item the REFERENCE showed can be named [1.08ms]
+(pass) parseStep: valid parts > done is finish with its evidence and ask is clarify [1.75ms]
+(pass) parseStep: valid parts > JSON in a fence or with a trailing comma is read like Arm 0's output [0.28ms]
+(pass) parseStep: rejections > not JSON, and not a part [1.71ms]
+(pass) parseStep: rejections > page.find needs text or role [0.34ms]
+(pass) parseStep: rejections > page.wait needs text or seconds [0.24ms]
+(pass) parseStep: rejections > page.capture of an item needs an item [0.24ms]
+(pass) parseStep: rejections > an item the AI was not shown is refused, and so is an item of an older page [0.24ms]
+(pass) parseStep: rejections > done may cite only results the AI was shown [0.12ms]
+(pass) parseStep: rejections > the issues never echo what the output said (only the short preview does, as in Arm 0) [0.13ms]
+(pass) parseStep: rejections > wrong arg names come back with the part's args shape; a bad part name or bad JSON does not [0.34ms]
+(pass) parseStep: rejections > one repair per output, then the run fails [0.11ms]
+(pass) parseStep: rejections > a valid call resets the repair [0.58ms]
+(pass) content blocks > the REFERENCE page's blocks are known as blocks [0.30ms]
+(pass) content blocks > page.read and page.capture accept a block as well as a control [2.87ms]
+(pass) content blocks > item.open refuses a block, naming the rule, and accepts a control [0.41ms]
+(pass) content blocks > blocks from a result are remembered per page and forgotten with the page [0.36ms]
+(pass) content blocks > the system text says what blocks are for [0.02ms]
+(pass) budget > the last call is reserved for done or ask [0.76ms]
+(pass) budget > an invalid last call cannot be repaired [0.19ms]
+(pass) budget > repairs and results share the budget [0.25ms]
+(pass) budget > a call cannot be parsed while the previous call has no result [0.18ms]
+(pass) applyResult > the result is appended as one PART_RESULT after the AI's own output [0.38ms]
+(pass) applyResult > earlier messages are never rewritten: the start stays byte-identical across steps [0.25ms]
+(pass) applyResult > a repair notice is appended too, and nothing before it changes [0.10ms]
+(pass) applyResult > page text is enclosed as data and the message stays bounded [2.49ms]
+(pass) applyResult > the AI may name the items of the latest page and cite the results it saw [2.52ms]
+(pass) applyResult > candidates, list entries and form fields add ids of the same page [1.90ms]
+(pass) applyResult > an indeterminate part ends the run and never invites a retry [0.60ms]
+(pass) applyResult > a part that needs approval stops the run [0.45ms]
+(pass) applyResult > a failed or partial part is data for the AI, not the end [0.81ms]
+(pass) applyResult > stop relays the host's words and ends the run [0.31ms]
+(pass) applyResult > a refusal counts against the part's retries; retryable false ends the run [0.47ms]
+(pass) applyResult > outcomes of Arm 0 are not Arm 1's, and a result needs a call in flight [0.17ms]
+(pass) applyResult > the input state is never mutated [0.22ms]
+(pass) state and dispatch > parseCoreState reads Arm 1 states and rejects foreign ones [0.76ms]
+(pass) state and dispatch > every function dispatches by the state's arm, and an unknown one is an error [0.47ms]
+(pass) state and dispatch > shapeObservation keeps the whole body for Arm 1 [0.13ms]
+(pass) state and dispatch > coreApi still has the six functions [0.01ms]
+
+packages/eumenes-interact/test/core/parts.test.ts:
+(pass) summarizePage (Playwright MCP) > title, place of the url, headings and regions [0.05ms]
+(pass) summarizePage (Playwright MCP) > items get ids in document order, a region and the link's url [0.06ms]
+(pass) summarizePage (Playwright MCP) > neither refs nor paragraph text reach the summary [0.04ms]
+(pass) summarizePage (Playwright MCP) > records keep the ref, the position among equal items and their number [0.08ms]
+(pass) summarizePage (Playwright MCP) > ids are deterministic and depend on the page id only by the prefix [0.79ms]
+(pass) summarizePage (Playwright MCP) > maxItems and maxHeadings cap the summary and say so [0.76ms]
+(pass) summarizePage (Playwright MCP) > long names are clipped [0.11ms]
+(pass) summarizePage (bracketed attributes) > items, urls and refs are read from the attribute lists [0.10ms]
+(pass) content blocks > articles, named regions, tables, named images, figures and main are items, in document order [0.04ms]
+(pass) content blocks > an unnamed image, complementary or region is not an item [0.03ms]
+(pass) content blocks > a block resolves like any item, and can be found by role [1.47ms]
+(pass) content blocks > buttons inside an article are still form-scanned and listed as controls [0.48ms]
+(pass) content blocks > a capped summary keeps the controls first > a quarter of the room, at most 20, goes to blocks; the rest to controls [0.57ms]
+(pass) content blocks > a capped summary keeps the controls first > room the controls leave unused goes back to blocks, up to 20 [2.66ms]
+(pass) content blocks > a capped summary keeps the controls first > items stay in document order and never exceed maxItems [3.56ms]
+(pass) resolveItem > finds the same element again, wherever its ref moved [0.60ms]
+(pass) resolveItem > picks nth among equal elements while their number is unchanged [1.82ms]
+(pass) resolveItem > is ambiguous, with candidates, when the number of equal elements changed [0.48ms]
+(pass) resolveItem > is none when nothing matches, and never picks the first of several [0.37ms]
+(pass) findItems > matches names case-insensitively and by NFKC, in document order [0.86ms]
+(pass) findItems > the role is exact and may stand alone; the limit applies [0.59ms]
+(pass) findItems > works on bracketed attributes too [0.06ms]
+(pass) listEntries > results are the named links of list items in main, with their short text [1.95ms]
+(pass) listEntries > navigation and the footer are not results [0.40ms]
+(pass) listEntries > a compact tree falls back to the named links of main [0.16ms]
+(pass) listEntries > a link with an empty name is named by its inner text, else its URL (MDN results, 2026-11-04) [0.53ms]
+(pass) listEntries > links are every named link; the limit marks truncation [0.28ms]
+(pass) listEntries > a table is one entry per row, cells joined by ' | ' [0.69ms]
+(pass) formFields > the first form: fields with label, kind, required, options and filled [0.28ms]
+(pass) formFields > a given form item scopes the fields to it [0.58ms]
+(pass) formFields > without a form the main region is scanned [0.07ms]
+(pass) formFields > without a form and with several, none is chosen: the whole page is shown [0.04ms]
+(pass) formFields > "page" scans every field of the page, wherever it sits [0.04ms]
+(pass) formFields > a form item is always found again by what it is, not by an old ref another form now has [0.08ms]
+(pass) formFields > bracketed attributes: checked state [0.03ms]
+(pass) partCallJsonSchema > the root is one closed object with a part enum and a union of arguments [0.06ms]
+(pass) partCallJsonSchema > contains no keyword the structured-output subset lacks [0.55ms]
+(pass) partCallJsonSchema > every object is closed and lists all its properties as required [0.11ms]
+(pass) partCallJsonSchema > equal argument objects are listed once [0.03ms]
+(pass) partCallJsonSchema > a narrowed set narrows the enum and the arguments [0.12ms]
+(pass) partCallJsonSchema > is a fresh copy and part of partsApi [0.09ms]
+(pass) findText and the main-first cap (2026-11-04) > text in the body is found with the item of its list item [0.37ms]
+(pass) findText and the main-first cap (2026-11-04) > a hit outside a container names the item just before it; no match is empty [0.24ms]
+(pass) findText and the main-first cap (2026-11-04) > a capped summary keeps the main content before the banner's links [0.11ms]
+(pass) findText widens a label to its row (2026-11-04) > a cell's name is searched, and the label comes back with its value [0.10ms]
+(pass) findText: a link in a table row brings its row (World Bank, 2026-11-04) > the row's values come back with the link [0.08ms]
+(pass) findText: an infobox label row brings the rows below it (Wikipedia 日本, 2026-11-04) > the figures come back with the label [0.10ms]
+(pass) result order and inline code (2026-11-04) > tabs, bare category links and ads go below the real results, which keep their order [0.26ms]
+(pass) result order and inline code (2026-11-04) > a sentence with inline code is found whole, not cut at the code [0.20ms]
+(pass) result order and inline code (2026-11-04) > a long sentence is cut around the hit [0.07ms]
+(pass) result order and inline code (2026-11-04) > product cards outside list items come before the site's own list items, filters and [PR] (kakaku.com, 2026-11-05) [0.22ms]
+(pass) result order and inline code (2026-11-04) > a row of related-search links goes below the results, however long its titles [0.11ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > footer notice and site-root logo go below product cards [0.26ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > YouTube Now playing rows and channel links go below the video title [0.16ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > entry text drops Open Library quote crumbs [0.23ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > inline code wrapped in ASCII quotes is joined without the quotes [0.54ms]
+(pass) result chrome and entry text cleanup (2026-11-05 review) > inlineSentence drops lone quote crumbs between prose and code [0.08ms]
+(pass) quoted text and unnamed duplicate links (L8) > a YAML-quoted text node reads without its quotes [0.28ms]
+(pass) quoted text and unnamed duplicate links (L8) > an unnamed link beside a named one to the same address is not listed [0.44ms]
+(pass) quoted text and unnamed duplicate links (L8) > a YAML-quoted link address reads without its quotes or spaces [0.17ms]
+
+packages/eumenes-interact/test/sqlite/runs.test.ts:
+(pass) createRun and getRun > a run starts queued with its versions, policy and deadline frozen [4.09ms]
+(pass) createRun and getRun > the same run id twice is refused [1.76ms]
+(pass) createRun and getRun > a workflow revision's digest is frozen into the run [2.29ms]
+(pass) createRun and getRun > inputs are validated [1.66ms]
+(pass) createRun and getRun > owners only see their own runs [2.20ms]
+(pass) transitionRun > every pair follows RUN_TRANSITIONS [78.75ms]
+(pass) transitionRun > the table keeps terminal states closed and indeterminate to running/needs_input [0.13ms]
+(pass) transitionRun > times and reason are recorded [1.86ms]
+(pass) transitionRun > a reason must be a fixed code [1.32ms]
+(pass) saveCoreState > saves with the expected revision and bumps it [2.02ms]
+(pass) saveCoreState > a stale revision is a conflict and changes nothing [1.04ms]
+(pass) saveCoreState > a finished run refuses and another owner cannot save [0.65ms]
+(pass) saveCoreState > the state's formatVersion must be the frozen one [0.59ms]
+(pass) plan revisions > are numbered per run and keep reason and diff [0.76ms]
+(pass) plan revisions > a finished run takes no more revisions [0.59ms]
+
+packages/eumenes-interact/test/sqlite/site-knowledge.test.ts:
+(pass) scopes and page profiles > a scope is unique per owner and origin; upsert returns the same row [0.84ms]
+(pass) scopes and page profiles > origins are validated by format [0.59ms]
+(pass) scopes and page profiles > profiles need an existing scope, replace on upsert and are scoped [1.65ms]
+(pass) site objects > create, find and revise with candidates [1.74ms]
+(pass) site objects > a stale or wrong expected revision is a conflict and writes nothing [1.15ms]
+(pass) site objects > invalid parts reject the whole call before anything is written [0.83ms]
+(pass) site objects > needs an existing profile of this owner and origin [0.58ms]
+(pass) site objects > the same logical name exists per profile and per origin, never resolved by name alone [0.81ms]
+(pass) site objects > owner A never sees owner B's knowledge [0.98ms]
+(pass) candidates > adding the same candidate again returns the stored one [1.77ms]
+(pass) candidates > status changes one candidate at a time; verified needs a recorded match [1.41ms]
+(pass) candidates > evidence status effects must fit the outcome [0.78ms]
+(pass) evidence > needs a reference, belongs to the object's candidates and the owner's runs [1.11ms]
+(pass) evidence > operation and run references must agree; evidence is listed newest first [1.56ms]
+(pass) evidence > forgetting a run keeps the evidence row but cuts the link [0.88ms]
+(pass) one call keeps revision, candidates and evidence together > discover, save, reuse, mismatch, revise [1.86ms]
+(pass) one call keeps revision, candidates and evidence together > a failing evidence part leaves no revision, candidate or evidence behind [1.48ms]
+(pass) no secrets > URL values with a query or fragment, or userinfo, are refused; plain values stay [0.77ms]
+(pass) no secrets > the tables hold no typed value even when it is offered in a locator [0.58ms]
+
+packages/eumenes-interact/test/sqlite/transaction-guard.test.ts:
+(pass) writers refuse outside a transaction > every writer throws not_in_transaction and writes nothing [0.65ms]
+(pass) writers refuse outside a transaction > readers work outside a transaction [0.59ms]
+(pass) writers refuse outside a transaction > a missing table is reported as schema_missing [0.58ms]
+
+packages/eumenes-interact/test/sqlite/migrations.test.ts:
+(pass) migrations > apply to an empty database in order and are the only SQL [0.54ms]
+(pass) migrations > do not touch tables outside the interact_ prefix [0.43ms]
+(pass) migrations > assertInteractSchema accepts the migrated database and refuses an empty one [0.47ms]
+(pass) migrations > a missing table is reported [0.44ms]
+(pass) CHECK enums match the contract vocabularies > run statuses [0.59ms]
+(pass) CHECK enums match the contract vocabularies > platforms [0.55ms]
+(pass) CHECK enums match the contract vocabularies > operation statuses, effects and candidate sources [1.07ms]
+(pass) constraints > origin must be a bare lowercase http(s) origin [0.55ms]
+(pass) constraints > foreign keys: an operation needs its run, an object needs a profile of its own scope [0.61ms]
+(pass) constraints > a logical name is unique inside a page profile only [0.57ms]
+(pass) constraints > candidates need a known kind, adapter and a bounded via; JSON must be an object [1.46ms]
+(pass) constraints > a run's workflow columns come together and the revision must exist [1.70ms]
+(pass) constraints > a finished run needs finished_at and an unfinished run must not have it [1.79ms]
+(pass) constraints > operation settle columns agree with the status [1.33ms]
+(pass) immutability triggers > a finished run and a settled operation cannot be updated; a workflow revision never [0.71ms]
+
+packages/eumenes-interact/test/sqlite/frozen-shape.test.ts:
+(pass) migration bodies match the recorded sha256 list [0.24ms]
+
+packages/eumenes-interact/test/sqlite/workflows.test.ts:
+(pass) workflow revisions > register and read back [0.71ms]
+(pass) workflow revisions > registering the identical revision again is a no-op [1.39ms]
+(pass) workflow revisions > the same id and revision with a different digest, refs or format is a conflict [0.52ms]
+(pass) workflow revisions > key order alone is not a difference [0.45ms]
+(pass) workflow revisions > a published revision cannot be updated even with raw SQL [0.45ms]
+(pass) workflow revisions > a new revision is a new row; latest is the highest [0.47ms]
+(pass) workflow revisions > workflows are per owner [0.45ms]
+(pass) workflow revisions > input is validated [0.42ms]
+
+packages/eumenes-interact/test/sqlite/operations.test.ts:
+(pass) recordOperationIntent > records not_dispatched, numbered in order per run [0.92ms]
+(pass) recordOperationIntent > typed text, select values, wait text and URL paths are never stored [0.99ms]
+(pass) recordOperationIntent > redactCommand keeps named keys and drops non-http URLs [0.01ms]
+(pass) recordOperationIntent > needs a running run [0.71ms]
+(pass) recordOperationIntent > an operation id is used once, and another owner's run is not reachable [0.59ms]
+(pass) dispatch and settle > dispatched is written first, then the operation settles [0.74ms]
+(pass) dispatch and settle > a refusal before sending ends not_dispatched as failed [0.64ms]
+(pass) dispatch and settle > an indeterminate result is never retryable [1.55ms]
+(pass) dispatch and settle > dispatching needs a running run [1.28ms]
+(pass) dispatch and settle > every pair follows OPERATION_TRANSITIONS [13.33ms]
+(pass) dispatch and settle > settled states are closed [0.04ms]
+(pass) dispatch and settle > another owner cannot dispatch or settle [0.57ms]
+(pass) restart reconciliation > lists dispatched and indeterminate operations of the owner and writes nothing [1.20ms]
+(pass) restart reconciliation > an unsettled operation of a finished run is still reported [0.68ms]
+(pass) an unknown operation is never followed by another > after an indeterminate operation no identical operation can be recorded or sent [0.66ms]
+(pass) an unknown operation is never followed by another > while one is dispatched, nothing else is recorded or dispatched [0.67ms]
+(pass) an unknown operation is never followed by another > confirmed and failed operations do not block the next one [1.03ms]
+(pass) an unknown operation is never followed by another > another run is not blocked [0.67ms]
+(pass) an unknown operation is never followed by another > raw SQL cannot move a sent operation back to not_dispatched [0.60ms]
+(pass) an unknown operation is never followed by another > a run does not complete or end partial with an open operation [13.82ms]
+(pass) an unknown operation is never followed by another > a run completes once its operations are confirmed or failed [1.07ms]
+
+packages/eumenes-interact/test/definitions/definitions.test.ts:
+(pass) parseDefinition > accepts a valid definition [1.62ms]
+(pass) parseDefinition > schema violations get a fixed code and a path [0.30ms]
+(pass) parseDefinition > step ids are unique [0.05ms]
+(pass) parseDefinition > every $input names a declared property [0.04ms]
+(pass) parseDefinition > required is a subset of properties [0.03ms]
+(pass) parseDefinition > minLength is not above maxLength [0.04ms]
+(pass) parseDefinition > a literal navigate url > must be https [0.08ms]
+(pass) parseDefinition > a literal navigate url > has no userinfo [0.05ms]
+(pass) parseDefinition > a literal navigate url > has its origin in allowedOrigins [0.08ms]
+(pass) parseDefinition > a literal navigate url > is read with the scheme and host lowercased and the default port dropped [0.03ms]
+(pass) parseDefinition > a literal navigate url > hosts a browser could read differently are refused [0.17ms]
+(pass) parseDefinition > an allowed wildcard origin with a port is refused [0.03ms]
+(pass) parseDefinition > optional steps > need a targetObject, and only fill, click and extract may be optional [0.20ms]
+(pass) parseDefinition > the first step should be browser.navigate [0.03ms]
+(pass) parseDefinition > issues never echo a literal of the definition [0.05ms]
+(pass) resolveDefinition > replaces every $input and leaves literals as they are [0.19ms]
+(pass) resolveDefinition > does not change the definition [0.05ms]
+(pass) resolveDefinition > inputs are exactly the declared properties [0.08ms]
+(pass) resolveDefinition > required inputs are present [0.06ms]
+(pass) resolveDefinition > an optional input may be left out [0.04ms]
+(pass) resolveDefinition > values are strings within the lengths, counted in characters [0.22ms]
+(pass) resolveDefinition > control characters other than tab are refused [0.40ms]
+(pass) resolveDefinition > strings are normalised to NFC before the length is checked and the value is used [0.27ms]
+(pass) resolveDefinition > a url from an input must pass the https and origin rules again [0.12ms]
+(pass) resolveDefinition > issues never contain an input value [0.16ms]
+(pass) sha256Hex > known vectors [28.85ms]
+(pass) sha256Hex > agrees with node:crypto around the padding boundaries and on multibyte text [0.79ms]
+(pass) definitionDigest > is the sha256 of the canonical JSON [0.41ms]
+(pass) definitionDigest > does not depend on key order [0.20ms]
+(pass) definitionDigest > changes with any content change, and with step order [0.14ms]
+(pass) definitionDigest > canonical JSON sorts keys recursively without whitespace [0.05ms]
+(pass) originAllowed > https://example.org allows https://example.org
+(pass) originAllowed > https://example.org allows https://example.org:443
+(pass) originAllowed > https://example.org allows HTTPS://Example.ORG
+(pass) originAllowed > https://example.org refuses https://www.example.org
+(pass) originAllowed > https://example.org refuses http://example.org
+(pass) originAllowed > https://example.org refuses https://example.org:8443
+(pass) originAllowed > https://example.org:8443 allows https://example.org:8443
+(pass) originAllowed > https://example.org:8443 refuses https://example.org
+(pass) originAllowed > https://*.example.org allows https://example.org
+(pass) originAllowed > https://*.example.org allows https://www.example.org
+(pass) originAllowed > https://*.example.org allows https://a.b.c.example.org
+(pass) originAllowed > https://*.example.org allows https://example.org:443
+(pass) originAllowed > https://*.example.org refuses https://www.example.org:8443
+(pass) originAllowed > https://*.example.org refuses http://www.example.org
+(pass) originAllowed > https://*.example.org refuses https://evilexample.org
+(pass) originAllowed > https://*.example.org refuses https://example.org.evil.com
+(pass) originAllowed > https://*.example.org refuses https://www.example.org.evil.com
+(pass) originAllowed > https://*.example.org refuses https://xexample.org
+(pass) originAllowed > https://*.example.org refuses https://example.org@evil.com
+(pass) originAllowed > https://*.example.org refuses https://example.org/path
+(pass) originAllowed > https://*.example.org refuses https://example.org\@evil.com
+(pass) originAllowed > https://*.example.org refuses https://.example.org
+(pass) originAllowed > https://*.example.org refuses https://example.org.
+(pass) originAllowed > https://*.example.org refuses 
+(pass) originAllowed > https://*.example.org:8443 refuses https://www.example.org:8443
+(pass) originAllowed > https://a.example.org,https://*.wikipedia.org allows https://ja.wikipedia.org
+(pass) originAllowed > https://a.example.org,https://*.wikipedia.org refuses https://b.example.org
+(pass) originAllowed >  refuses https://example.org
+(pass) originAllowed > not an origin refuses https://example.org
+(pass) definitionJsonSchema and definitionApi > the JSON Schema describes the definition [0.62ms]
+(pass) definitionJsonSchema and definitionApi > definitionApi is the contract's DefinitionApi [0.01ms]
+
+ 248 pass
+ 0 fail
+ 2024 expect() calls
+Ran 248 tests across 10 files. [520.00ms]

@@ -1,0 +1,10 @@
+{
+  "at": "2026-11-05T12:05:55.529464+00:00",
+  "command": [
+    "python3",
+    "scripts/check-negative-controls.py"
+  ],
+  "exit": 0,
+  "log": "negative-controls-final.log",
+  "CI": "excluded by user"
+}

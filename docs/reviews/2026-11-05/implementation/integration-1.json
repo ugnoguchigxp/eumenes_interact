@@ -1,0 +1,11 @@
+{
+	"command": [
+		"bun",
+		"test",
+		"lab/test/host",
+		"lab/test/inference",
+		"packages/eumenes-interact/test"
+	],
+	"exit": 1,
+	"durationS": 7.323265075683594
+}

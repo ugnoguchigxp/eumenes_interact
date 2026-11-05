@@ -26,24 +26,72 @@ describe("a done that cites only failed results", () => {
 				}),
 				JSON.stringify({
 					part: "done",
-					args: { answer: "見つかりませんでした。", evidence: ["r1"] },
+					args: {
+						answer: "見つかりませんでした。",
+						evidence: ["r1"],
+						outcome: "achieved",
+						basis: "observed",
+					},
 				}),
 			]),
 		});
 		expect(result.status).toBe("failed");
-		expect(result.code).toMatch(/^goal_unmet\./);
+		expect(result.code).toBe("completion_evidence_invalid");
 		expect(result.finalText).toBe("見つかりませんでした。");
 	});
 
-	test("a done with no evidence, or citing a completed result, still completes", async () => {
+	test("a browser trial cannot waive evidence by claiming a response-only task before any part call", async () => {
 		const { result } = await runScripted("dev-clarify-form", {
 			inference: sequence([
 				JSON.stringify({
 					part: "done",
-					args: { answer: "済み", evidence: [] },
+					args: {
+						answer: "済み",
+						evidence: [],
+						outcome: "achieved",
+						basis: "response",
+					},
 				}),
 			]),
 		});
-		expect(result.status).toBe("completed");
+		expect(result.status).toBe("failed");
+		expect(result.code).toBe("completion_evidence_invalid");
 	});
+	for (const basis of ["response", "observed"] as const) {
+		test(`omitting failed evidence cannot turn the result into success (${basis})`, async () => {
+			const { result } = await runScripted("dev-clarify-form", {
+				inference: sequence([
+					JSON.stringify({
+						part: "page.find",
+						args: { text: "存在しない項目zzzz", role: null },
+					}),
+					JSON.stringify({
+						part: "done",
+						args: {
+							answer: "見つかりませんでした。",
+							evidence: [],
+							outcome: "achieved",
+							basis,
+						},
+					}),
+				]),
+			});
+			expect(result.status).toBe("failed");
+			expect(result.code).toBe("completion_evidence_invalid");
+		});
+	}
+	for (const outcome of ["partial", "unmet"] as const) {
+		test(`${outcome} is retained as a non-success, independent of answer wording`, async () => {
+			const { result } = await runScripted("dev-clarify-form", {
+				inference: sequence([
+					JSON.stringify({
+						part: "done",
+						args: { answer: "ok", evidence: [], outcome, basis: "response" },
+					}),
+				]),
+			});
+			expect(result.status).toBe(outcome === "partial" ? "partial" : "failed");
+			expect(result.code).toBe(`goal_${outcome}`);
+		});
+	}
 });

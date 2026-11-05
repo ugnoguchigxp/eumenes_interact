@@ -40,7 +40,12 @@ const call = (part: string, args: Record<string, unknown> = {}) =>
 	JSON.stringify({ part, args });
 const open = (item: string) => call("item.open", { item });
 const done = (evidence: string[] = []) =>
-	call("done", { answer: "確認しました", evidence });
+	call("done", {
+		answer: "確認しました",
+		evidence,
+		outcome: "achieved",
+		basis: evidence.length ? "observed" : "response",
+	});
 const result = (patch: Partial<PartResult> = {}): PartResult => ({
 	part: "page.open",
 	status: "completed",
@@ -149,6 +154,8 @@ describe("parseStep: valid parts", () => {
 			kind: "finish",
 			text: "確認しました",
 			refs: ["r7"],
+			outcome: "achieved",
+			basis: "observed",
 		});
 		const ask = parseStep(
 			start(),

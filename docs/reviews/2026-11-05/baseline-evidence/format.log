@@ -1,0 +1,21 @@
+$ bun fmt --check
+lab/cli/run-command.ts
+lab/cli/session.ts
+lab/config/action-allowlist.json
+lab/host/allowlist.ts
+lab/host/net-guard.ts
+lab/host/parts/search-urls.ts
+lab/host/playback.ts
+lab/host/policy.ts
+lab/host/run.ts
+lab/test/host/live.test.ts
+lab/test/host/net-guard.browser.test.ts
+lab/test/host/net-guard.test.ts
+lab/test/host/parts.test.ts
+lab/test/host/playback.test.ts
+lab/test/host/surrounding.test.ts
+packages/eumenes-interact/src/adapters/mcp/extract.ts
+packages/eumenes-interact/test/adapters/playwright-mcp/adapter.test.ts
+packages/eumenes-interact/test/adapters/playwright-mcp/extract.test.ts
+18 files need formatting. Run bun fmt to fix them.
+error: script "format:check" exited with code 1

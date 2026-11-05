@@ -1,12 +1,8 @@
+import { Database } from "bun:sqlite";
+import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
-
-/**
- * One runner at a time. Reconciliation settles every dispatched operation as `indeterminate`, which is only
- * right when no other process is running one, so `run` takes this lock before it reconciles and holds it
- * until it ends. The lock is a file holding the owner's pid, created exclusively; a lock whose pid is gone is
- * stale and taken over. Read-only commands never take it.
- */
+import { basename, dirname } from "node:path";
 
 export class RunnerActiveError extends Error {
 	constructor(readonly pid: number) {
@@ -14,64 +10,82 @@ export class RunnerActiveError extends Error {
 		this.name = "RunnerActiveError";
 	}
 }
-
-/** Whether a process exists. EPERM means it exists but is not ours. */
 export function processAlive(pid: number): boolean {
 	try {
 		process.kill(pid, 0);
 		return true;
-	} catch (error) {
-		return (error as NodeJS.ErrnoException).code === "EPERM";
+	} catch (e) {
+		return (e as NodeJS.ErrnoException).code === "EPERM";
 	}
 }
-
-/**
- * Whether a live pid is a runner (bun or node). A pid that the system reused for another program after the
- * runner died leaves a stale lock; without /proc (not Linux) a live pid is taken as a runner.
- */
+function identity(pid: number): string | null {
+	const p = spawnSync(
+		"/bin/ps",
+		["-p", String(pid), "-o", "lstart=", "-o", "comm="],
+		{ encoding: "utf8" },
+	);
+	return p.status === 0 && p.stdout.trim() ? p.stdout.trim() : null;
+}
+/** OS process identity only; failure to inspect a live process is conservative. */
 export function runnerAlive(pid: number): boolean {
 	if (!processAlive(pid)) return false;
-	try {
-		const cmd = readFileSync(`/proc/${pid}/cmdline`, "utf8");
-		return /\b(bun|node)\b/.test(cmd);
-	} catch {
-		return true;
-	}
+	const p = spawnSync("/bin/ps", ["-p", String(pid), "-o", "comm="], {
+		encoding: "utf8",
+	});
+	if (p.status !== 0) return true;
+	return ["bun", "node"].includes(basename(p.stdout.trim()));
 }
-
-export type RunLock = { release(): void };
-
-function ownerOf(path: string): number | null {
+type Owner = { pid: number; generation?: string; identity?: string | null };
+function ownerOf(path: string): Owner | null {
 	try {
-		const pid = Number(readFileSync(path, "utf8").trim());
-		return Number.isInteger(pid) && pid > 0 ? pid : null;
+		const raw = JSON.parse(readFileSync(path, "utf8"));
+		if (Number.isSafeInteger(raw) && raw > 0) return { pid: raw }; // legacy lock
+		return Number.isSafeInteger(raw?.pid) && raw.pid > 0 ? raw : null;
 	} catch {
 		return null;
 	}
 }
-
+export type RunLock = { release(): void };
+/** SQLite's OS lock serializes reclamation and is released by the OS on a crash. Never unlink its file. */
 export function acquireRunLock(
 	path: string,
-	isAlive: (pid: number) => boolean = runnerAlive,
-	pid: number = process.pid,
+	isAlive = runnerAlive,
+	pid = process.pid,
 ): RunLock {
 	mkdirSync(dirname(path), { recursive: true });
-	for (let attempt = 0; attempt < 2; attempt++) {
-		try {
-			writeFileSync(path, `${pid}\n`, { flag: "wx", mode: 0o600 });
-			return {
-				release() {
-					// Only the owner removes it.
-					if (ownerOf(path) === pid) unlinkSync(path);
-				},
-			};
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-		}
-		const owner = ownerOf(path);
-		if (owner !== null && isAlive(owner)) throw new RunnerActiveError(owner);
-		// Stale (the owner is gone, or the file is unreadable): remove it unless it changed meanwhile.
-		if (ownerOf(path) === owner) unlinkSync(path);
+	const guard = new Database(`${path}.guard.sqlite`);
+	try {
+		guard.exec("PRAGMA busy_timeout=0; BEGIN EXCLUSIVE");
+	} catch {
+		guard.close();
+		throw new RunnerActiveError(ownerOf(path)?.pid ?? 0);
 	}
-	throw new RunnerActiveError(ownerOf(path) ?? 0);
+	try {
+		const old = ownerOf(path);
+		if (
+			old &&
+			isAlive(old.pid) &&
+			(!old.identity || old.identity === identity(old.pid))
+		)
+			throw new RunnerActiveError(old.pid);
+		const owner = { pid, generation: randomUUID(), identity: identity(pid) };
+		writeFileSync(path, JSON.stringify(owner) + "\n", { mode: 0o600 });
+		let released = false;
+		return {
+			release() {
+				if (released) return;
+				released = true;
+				try {
+					if (ownerOf(path)?.generation === owner.generation) unlinkSync(path);
+				} finally {
+					guard.exec("ROLLBACK");
+					guard.close();
+				}
+			},
+		};
+	} catch (e) {
+		guard.exec("ROLLBACK");
+		guard.close();
+		throw e;
+	}
 }

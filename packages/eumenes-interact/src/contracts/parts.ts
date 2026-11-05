@@ -77,6 +77,8 @@ export const partCallSchema = z.discriminatedUnion("part", [
 	call("done", {
 		answer: z.string().min(1).max(4000),
 		evidence: z.array(z.string().max(40)).max(16),
+		outcome: z.enum(["achieved", "partial", "unmet"]),
+		basis: z.enum(["observed", "response"]),
 	}),
 	call("ask", { question: z.string().min(1).max(1000) }),
 ]);

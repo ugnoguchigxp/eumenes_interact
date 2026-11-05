@@ -37,7 +37,7 @@ describe("the single-runner lock", () => {
 	test("a second runner is refused while the lock is held, and may start after release", () => {
 		const path = join(dir, "a.lock");
 		const first = acquireRunLock(path);
-		expect(readFileSync(path, "utf8").trim()).toBe(String(process.pid));
+		expect(JSON.parse(readFileSync(path, "utf8")).pid).toBe(process.pid);
 		expect(() => acquireRunLock(path)).toThrow(RunnerActiveError);
 		first.release();
 		expect(existsSync(path)).toBe(false);
@@ -48,7 +48,7 @@ describe("the single-runner lock", () => {
 		const path = join(dir, "b.lock");
 		writeFileSync(path, "999999\n");
 		const lock = acquireRunLock(path, () => false, 4242);
-		expect(readFileSync(path, "utf8").trim()).toBe("4242");
+		expect(JSON.parse(readFileSync(path, "utf8")).pid).toBe(4242);
 		lock.release();
 		expect(existsSync(path)).toBe(false);
 	});
@@ -78,7 +78,7 @@ describe("the single-runner lock", () => {
 			expect(runnerAlive(other.pid)).toBe(false);
 			expect(runnerAlive(process.pid)).toBe(true);
 			const lock = acquireRunLock(path);
-			expect(readFileSync(path, "utf8").trim()).toBe(String(process.pid));
+			expect(JSON.parse(readFileSync(path, "utf8")).pid).toBe(process.pid);
 			lock.release();
 		} finally {
 			other.kill();

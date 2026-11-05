@@ -42,7 +42,7 @@ import { LAB_OWNER } from "./run.ts";
 import { finishDefinitionRun, insertDefinitionRun } from "./store.ts";
 import { TabRegistry } from "./tabs.ts";
 import { TrialRecorder } from "./trial.ts";
-import { Refusal, RunEnd } from "./types.ts";
+import { Refusal, RunEnd, RunPersistenceError } from "./types.ts";
 
 /**
  * Runs a work definition (plan.md §6) on a platform adapter without a model: the steps in order, each
@@ -660,34 +660,42 @@ export async function runDefinition(
 		}
 	} finally {
 		clearTimeout(timer);
-		control.signal.removeEventListener("abort", onAbort);
 		try {
 			// Only what this host started is stopped; the adapter's close is idempotent.
 			await adapter.close();
 		} catch {
 			// A failing close must not hide how the run ended.
+		} finally {
+			control.signal.removeEventListener("abort", onAbort);
 		}
 	}
+	if (control.signal.aborted) ending = cancelEnding();
 
 	// Cancel and expiry already moved the run; any other end moves it now.
-	write(db, () => {
-		const current = getRun(db, owner, runId);
-		if (current && !isTerminalRunStatus(current.status))
-			transitionRun(db, owner, runId, ending.status, {
+	try {
+		write(db, () => {
+			const current = getRun(db, owner, runId);
+			if (current && isTerminalRunStatus(current.status))
+				ending = { status: current.status, code: current.statusReason };
+			if (current && !isTerminalRunStatus(current.status))
+				transitionRun(db, owner, runId, ending.status, {
+					nowIso: nowIso(),
+					...(ending.code ? { reason: ending.code } : {}),
+				});
+			finishDefinitionRun(db, runId, {
+				status: ending.status,
+				// The URL may carry the search keyword: the stored summary keeps origin and path only.
+				summary: {
+					finalUrl: finalUrl === null ? null : originAndPath(finalUrl),
+					steps: reports,
+				},
+				tool,
 				nowIso: nowIso(),
-				...(ending.code ? { reason: ending.code } : {}),
 			});
-	});
-	finishDefinitionRun(db, runId, {
-		status: ending.status,
-		// The URL may carry the search keyword: the stored summary keeps origin and path only.
-		summary: {
-			finalUrl: finalUrl === null ? null : originAndPath(finalUrl),
-			steps: reports,
-		},
-		tool,
-		nowIso: nowIso(),
-	});
+		});
+	} catch {
+		throw new RunPersistenceError();
+	}
 	log("definition.finished", { code: ending.status, count: reports.length });
 	if (unexpected !== undefined) throw unexpected;
 	const prompt = approver instanceof StopApprover ? approver.prompt : null;

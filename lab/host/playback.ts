@@ -21,12 +21,14 @@ export type PlaybackVerdict =
 	| { ok: true; samples: MediaSample[]; adSeen: boolean }
 	| {
 			ok: false;
-			code: "playback_no_video" | "playback_not_advancing" | "playback_ad_too_long";
+			code:
+				"playback_no_video" | "playback_not_advancing" | "playback_ad_too_long";
 			samples: MediaSample[];
 			adSeen: boolean;
 	  };
 
 export type PlaybackGateOptions = {
+	signal?: AbortSignal;
 	sample: () => Promise<MediaSample>;
 	sleep: (ms: number) => Promise<void>;
 	/** Told once when an ad starts and once when the main video takes over. */
@@ -59,12 +61,15 @@ export async function confirmPlayback(
 	let last: number | null = null;
 	let advances = 0;
 	for (;;) {
+		o.signal?.throwIfAborted();
 		let s: MediaSample;
 		try {
 			s = await o.sample();
 		} catch {
+			o.signal?.throwIfAborted();
 			s = { found: false };
 		}
+		o.signal?.throwIfAborted();
 		samples.push(s);
 		if (!s.found) {
 			stallMs += interval;
@@ -97,18 +102,12 @@ export async function confirmPlayback(
 				if (last !== null || s.paused || s.ended) stallMs += interval;
 			}
 			last = s.paused || s.ended ? null : t;
-			if (advances >= PLAYBACK_ADVANCES)
-				return { ok: true, samples, adSeen };
+			if (advances >= PLAYBACK_ADVANCES) return { ok: true, samples, adSeen };
 			if (stallMs > maxStall)
 				return { ok: false, code: "playback_not_advancing", samples, adSeen };
 		}
 		await o.sleep(interval);
 	}
-}
-
-/** A step whose result is playback (the planner's keep-open steps that play something). */
-export function isPlaybackGoal(goal: string): boolean {
-	return /再生|流して|play|watch|視聴/iu.test(goal);
 }
 
 /**

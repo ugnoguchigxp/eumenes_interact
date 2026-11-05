@@ -1,0 +1,11 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/run.test.ts:
+(pass) cancel and deadline at the edges > cancel interrupts an unresolved finish gate and agrees with the stored run and trial [17.16ms]
+(pass) cancel and deadline at the edges > deadline interrupts an unresolved finish gate and agrees with the stored run and trial [8.45ms]
+
+ 2 pass
+ 22 filtered out
+ 0 fail
+ 8 expect() calls
+Ran 2 tests across 1 file. [82.00ms]

@@ -1,0 +1,22 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/inference/call-budget.test.ts:
+21 | 		signal: new AbortController().signal,
+22 | 	};
+23 | 	await b.port(inner, "plan", 1).complete(request);
+24 | 	await b.port(inner, "s1", 2).complete(request);
+25 | 	await b.port(inner, "s1", 2).complete(request);
+26 | 	await expect(b.port(inner, "s1", 2).complete(request)).rejects.toThrow(
+                                                                     ^
+error: expect(received).rejects.toThrow(expected)
+
+Expected promise that rejects
+Received promise that resolved: Promise { <resolved> }
+
+      at <anonymous> (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-_04f93y2/repo/lab/test/inference/call-budget.test.ts:26:65)
+(fail) planning, choices, reruns and summaries consume the same total and step allowances [0.35ms]
+
+ 0 pass
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [13.00ms]

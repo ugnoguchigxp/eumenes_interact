@@ -313,6 +313,8 @@ export function parseStep(
 				kind: "finish",
 				text: part.args.answer,
 				refs: part.args.evidence,
+				outcome: part.args.outcome,
+				basis: part.args.basis,
 			},
 			record: { accepted: true },
 		};

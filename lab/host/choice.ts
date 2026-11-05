@@ -11,7 +11,7 @@ import { printable } from "./approval.ts";
  *   file    `<run dir>/choice-<step>.json`  (the same JSON, for a host that watches files)
  *
  * The reply is the next stdin line (the chain's own input, the fifo in manual mode): a number, the option's
- * words (exact, or a unique part), or `0`/`中止`. Policy: there is no default. An unclear reply is asked again
+ * complete words (exact), or `0`. Policy: there is no default. An unclear reply is asked again
  * (3 tries); a timeout (LAB_CHOICE_TIMEOUT_S, 600 s) or end of input stops the step as `needs_input`
  * (`choice_timeout` / `choice_unanswered`), so a choice is never made silently for the user.
  */
@@ -47,8 +47,7 @@ const norm = (s: string) =>
 export function matchReply(reply: string, options: readonly string[]): Reply {
 	const r = norm(reply);
 	if (!r) return { kind: "unclear" };
-	if (r === "0" || r === "中止" || r === "キャンセル" || r === "cancel")
-		return { kind: "cancel" };
+	if (r === "0") return { kind: "cancel" };
 	if (/^\d+$/u.test(r)) {
 		const n = Number(r);
 		return n >= 1 && n <= options.length
@@ -57,13 +56,7 @@ export function matchReply(reply: string, options: readonly string[]): Reply {
 	}
 	const exact = options.findIndex((o) => norm(o) === r);
 	if (exact >= 0) return { kind: "chosen", index: exact };
-	// A unique start wins over a unique part: "新幹線" picks "新幹線を使う", not also "在来線のみ（新幹線なし）".
-	const starts = options.flatMap((o, i) => (norm(o).startsWith(r) ? [i] : []));
-	if (starts.length === 1) return { kind: "chosen", index: starts[0]! };
-	const partial = options.flatMap((o, i) => (norm(o).includes(r) ? [i] : []));
-	return partial.length === 1
-		? { kind: "chosen", index: partial[0]! }
-		: { kind: "unclear" };
+	return { kind: "unclear" };
 }
 
 export type Asked =
@@ -95,7 +88,11 @@ export async function askChoice(input: {
 		options,
 		timeoutS: Math.round(timeoutMs / 1000),
 	};
-	if (input.file) writeFileSync(input.file, `${JSON.stringify(payload)}\n`);
+	if (input.file)
+		writeFileSync(input.file, `${JSON.stringify(payload)}\n`, {
+			flag: "wx",
+			mode: 0o600,
+		});
 	input.print(`choice\t${JSON.stringify(payload)}`);
 	input.print(`choice\t${question}`);
 	options.forEach((o, i) => input.print(`choice\t  ${i + 1}) ${o}`));

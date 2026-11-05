@@ -4,11 +4,13 @@ import {
 	keptMediaNotice,
 	jstIso,
 	probeKeptMedia,
-	isPlaybackGoal,
 	type MediaSample,
 } from "../../host/playback.ts";
 
-const v = (currentTime: number, extra: Partial<MediaSample> = {}): MediaSample =>
+const v = (
+	currentTime: number,
+	extra: Partial<MediaSample> = {},
+): MediaSample =>
 	({
 		found: true,
 		currentTime,
@@ -69,10 +71,6 @@ describe("playback done check", () => {
 		expect(r.ok).toBe(false);
 		if (!r.ok) expect(r.code).toBe("playback_no_video");
 	});
-	test("which goals are playback", () => {
-		expect(isPlaybackGoal("YouTubeでその曲を再生して")).toBe(true);
-		expect(isPlaybackGoal("まとめる")).toBe(false);
-	});
 });
 
 test("an ad's limit is wall-clock time, not the count of samples", async () => {
@@ -80,7 +78,15 @@ test("an ad's limit is wall-clock time, not the count of samples", async () => {
 	const v = await confirmPlayback({
 		sample: async () => {
 			t += 7000;
-			return { found: true, currentTime: 1, duration: 30, paused: false, ended: false, readyState: 4, adShowing: true };
+			return {
+				found: true,
+				currentTime: 1,
+				duration: 30,
+				paused: false,
+				ended: false,
+				readyState: 4,
+				adShowing: true,
+			};
 		},
 		sleep: async () => {},
 		notify: () => {},
@@ -104,7 +110,9 @@ describe("while kept open", () => {
 	test("a mid-roll ad start and its end are told once each, and the video's end", () => {
 		expect(keptMediaNotice(s(false), s(true))).toContain("広告が始まりました");
 		expect(keptMediaNotice(s(true), s(true))).toBeNull();
-		expect(keptMediaNotice(s(true), s(false))).toContain("本編の再生に戻りました");
+		expect(keptMediaNotice(s(true), s(false))).toContain(
+			"本編の再生に戻りました",
+		);
 		expect(keptMediaNotice(s(false), s(false))).toBeNull();
 		expect(keptMediaNotice(s(false), s(false, true))).toContain("最後まで");
 		expect(keptMediaNotice(null, { found: false })).toBeNull();
@@ -125,12 +133,19 @@ describe("kept-tab probe (chain-command)", () => {
 
 	test("times are shown in JST", () => {
 		expect(jstIso(at())).toBe("2026-11-04T22:15:03+09:00");
-		expect(jstIso(new Date("2026-12-31T20:00:00Z"))).toBe("2027-01-01T05:00:00+09:00");
+		expect(jstIso(new Date("2026-12-31T20:00:00Z"))).toBe(
+			"2027-01-01T05:00:00+09:00",
+		);
 	});
 
 	test("an ad starting prints a media line and a notice, and the sample becomes prev", async () => {
 		const lines: string[] = [];
-		const next = await probeKeptMedia(async () => sample(true), sample(false), (l) => lines.push(l), at);
+		const next = await probeKeptMedia(
+			async () => sample(true),
+			sample(false),
+			(l) => lines.push(l),
+			at,
+		);
 		expect(lines[0]).toStartWith("media\t2026-11-04T22:15:03+09:00\t{");
 		expect(lines[1]).toContain("広告が始まりました");
 		expect(next).toEqual(sample(true));
@@ -139,14 +154,28 @@ describe("kept-tab probe (chain-command)", () => {
 	test("a failed read prints unread and keeps the previous sample, so no transition is invented", async () => {
 		const lines: string[] = [];
 		const prev = sample(true);
-		const next = await probeKeptMedia(async () => { throw new Error("closed"); }, prev, (l) => lines.push(l), at);
-		expect(lines).toEqual(["media\t2026-11-04T22:15:03+09:00\tunread:Error: closed"]);
+		const next = await probeKeptMedia(
+			async () => {
+				throw new Error("closed");
+			},
+			prev,
+			(l) => lines.push(l),
+			at,
+		);
+		expect(lines).toEqual([
+			"media\t2026-11-04T22:15:03+09:00\tunread:Error: closed",
+		]);
 		expect(next).toBe(prev);
 	});
 
 	test("no change prints only the media line", async () => {
 		const lines: string[] = [];
-		await probeKeptMedia(async () => sample(false), sample(false), (l) => lines.push(l), at);
+		await probeKeptMedia(
+			async () => sample(false),
+			sample(false),
+			(l) => lines.push(l),
+			at,
+		);
 		expect(lines).toHaveLength(1);
 	});
 });

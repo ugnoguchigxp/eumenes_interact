@@ -1,0 +1,9 @@
+{
+  "command": [
+    "bun",
+    "run",
+    "verify"
+  ],
+  "exit": 0,
+  "durationS": 9.066765069961548
+}

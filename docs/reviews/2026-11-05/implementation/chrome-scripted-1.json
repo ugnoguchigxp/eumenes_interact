@@ -1,0 +1,18 @@
+{
+  "command": [
+    "bun",
+    "lab/cli/main.ts",
+    "run",
+    "--split",
+    "dev",
+    "--inference",
+    "scripted",
+    "--browser",
+    "chrome",
+    "--headless",
+    "--db",
+    "lab/data/improvement-scripted.sqlite"
+  ],
+  "exit": 0,
+  "durationS": 47.149617195129395
+}

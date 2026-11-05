@@ -12,6 +12,19 @@ import { runScripted } from "./harness.ts";
 
 const types = (events: { type: string }[]) => events.map((e) => e.type);
 
+test("the persisted run identifies the actual inference skill body", async () => {
+	const { createArm1ScriptedInference, loadArm1Script } =
+		await import("../../scripted/arm1.ts");
+	const skill = { ref: "skill:test@2", digest: "sha256:test-body-v2" };
+	const inference = {
+		...createArm1ScriptedInference(await loadArm1Script("dev-search-base")),
+		skill,
+	};
+	const { db, result } = await runScripted("dev-search-base", { inference });
+	expect(getRun(db, LAB_OWNER, result.runId)?.skill).toEqual(skill);
+	db.close();
+});
+
 describe("scripted run of a fake search flow", () => {
 	test("finishes, is scored a success from the end state, and is stored", async () => {
 		const { db, def, adapter, result } = await runScripted("dev-search-base");
@@ -215,6 +228,46 @@ describe("cancel", () => {
 });
 
 describe("cancel and deadline at the edges", () => {
+	for (const reason of ["cancel", "deadline"] as const) {
+		test(`${reason} interrupts an unresolved finish gate and agrees with the stored run and trial`, async () => {
+			const control = new RunControl();
+			const { db, result } = await runScripted("dev-search-base", {
+				control,
+				beforeFinish: async (signal) => {
+					queueMicrotask(() => control.cancel(reason));
+					await new Promise<void>(() => {});
+					signal.throwIfAborted();
+					return { ok: true };
+				},
+			});
+			const status = reason === "cancel" ? "cancelled" : "expired";
+			expect(result.status).toBe(status);
+			expect(getRun(db, LAB_OWNER, result.runId)?.status).toBe(status);
+			expect(listTrials(db)[0]?.runStatus).toBe(status);
+			expect(
+				result.transcript.events.some((e) => e.type === "step.final"),
+			).toBe(false);
+		});
+	}
+
+	test("cancel during cleanup revokes a pending completion before it is published", async () => {
+		const control = new RunControl();
+		const adapter = new FakeBrowser();
+		adapter.close = async () => {
+			control.cancel();
+		};
+		const { db, result } = await runScripted("dev-search-base", {
+			control,
+			adapter,
+		});
+		expect(result.status).toBe("cancelled");
+		expect(getRun(db, LAB_OWNER, result.runId)?.status).toBe("cancelled");
+		expect(listTrials(db)[0]?.runStatus).toBe("cancelled");
+		expect(result.transcript.events.some((e) => e.type === "step.final")).toBe(
+			false,
+		);
+	});
+
 	test("a cancel while the adapter opens ends the run as cancelled everywhere, with no failed final", async () => {
 		const control = new RunControl();
 		const adapter = new FakeBrowser();

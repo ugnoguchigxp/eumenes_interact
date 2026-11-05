@@ -1,0 +1,38 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/run.test.ts:
+39 | 
+40 | 	/** The end a cancelled run takes; call only after `cancel`. */
+41 | 	ended(): RunEnd {
+42 | 		return this.reason === "deadline"
+43 | 			? new RunEnd("expired", "deadline")
+44 | 			: new RunEnd("cancelled", "cancel");
+          ^
+RunEnd: cancelled:cancel
+ status: "cancelled",
+   code: "cancel"
+
+      at ended (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-zmf094lu/repo/lab/host/control.ts:44:6)
+      at abort (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-zmf094lu/repo/lab/host/control.ts:28:31)
+      at cancel (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-zmf094lu/repo/lab/host/control.ts:20:19)
+(fail) cancel and deadline at the edges > cancel interrupts an unresolved finish gate and agrees with the stored run and trial [16.81ms]
+38 | 	}
+39 | 
+40 | 	/** The end a cancelled run takes; call only after `cancel`. */
+41 | 	ended(): RunEnd {
+42 | 		return this.reason === "deadline"
+43 | 			? new RunEnd("expired", "deadline")
+          ^
+RunEnd: expired:deadline
+ status: "expired",
+   code: "deadline"
+
+      at ended (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-zmf094lu/repo/lab/host/control.ts:43:6)
+      at abort (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-zmf094lu/repo/lab/host/control.ts:28:31)
+      at cancel (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-zmf094lu/repo/lab/host/control.ts:20:19)
+(fail) cancel and deadline at the edges > deadline interrupts an unresolved finish gate and agrees with the stored run and trial [7.90ms]
+
+ 0 pass
+ 22 filtered out
+ 2 fail
+Ran 2 tests across 1 file. [74.00ms]

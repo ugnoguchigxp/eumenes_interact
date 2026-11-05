@@ -19,7 +19,8 @@
 			"eumenes-interact/sqlite": ["./packages/eumenes-interact/src/sqlite.ts"],
 			"eumenes-interact/adapters/playwright-mcp": [
 				"./packages/eumenes-interact/src/adapters/playwright-mcp.ts"
-			]
+			],
+			"eumenes-interact/parts": ["./packages/eumenes-interact/src/parts.ts"]
 		}
 	},
 	"include": ["packages/*/src", "packages/*/test", "lab", "scripts"],

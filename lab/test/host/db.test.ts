@@ -21,6 +21,34 @@ import {
 const NOW = "2026-11-03T00:00:00.000Z";
 
 describe("migrations", () => {
+	test("a pre-OpenAI database upgrades without changing its recorded migrations or existing experiments", () => {
+		const db = new Database(":memory:");
+		db.exec(
+			"CREATE TABLE lab_migrations (id TEXT PRIMARY KEY, sha256 TEXT NOT NULL, applied_at TEXT NOT NULL)",
+		);
+		for (const m of plannedMigrations().slice(0, -1)) {
+			db.exec(m.sql);
+			db.query("INSERT INTO lab_migrations VALUES(?,?,?)").run(
+				m.id,
+				new Bun.CryptoHasher("sha256").update(m.sql).digest("hex"),
+				NOW,
+			);
+		}
+		db.exec(
+			`INSERT INTO lab_experiments VALUES ('old','original','${NOW}','[]','d',0,1,'[]','{}','{}','{}','claude',0)`,
+		);
+		expect(applyMigrations(db, NOW)).toEqual(["lab/0007"]);
+		expect(
+			db
+				.query("SELECT name,inference_kind FROM lab_experiments WHERE id='old'")
+				.get(),
+		).toEqual({ name: "original", inference_kind: "claude" });
+		db.exec(
+			`INSERT INTO lab_experiments VALUES ('new','Luna','${NOW}','[]','d',0,1,'[]','{}','{}','{}','openai',0)`,
+		);
+		expect(db.query("PRAGMA foreign_key_check").all()).toEqual([]);
+		db.close();
+	});
 	test("the package's and the lab's apply to an empty database, with ids recorded", () => {
 		const db = openLabDb(":memory:", NOW);
 		const ids = (

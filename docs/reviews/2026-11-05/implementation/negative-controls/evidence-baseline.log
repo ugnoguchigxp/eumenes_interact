@@ -1,0 +1,14 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/goal-unmet.test.ts:
+(pass) a done that cites only failed results > ends failed with goal_unmet and keeps the answer as the reason [15.14ms]
+(pass) a done that cites only failed results > a browser trial cannot waive evidence by claiming a response-only task before any part call [7.12ms]
+(pass) a done that cites only failed results > omitting failed evidence cannot turn the result into success (response) [5.87ms]
+(pass) a done that cites only failed results > omitting failed evidence cannot turn the result into success (observed) [5.41ms]
+(pass) a done that cites only failed results > partial is retained as a non-success, independent of answer wording [4.90ms]
+(pass) a done that cites only failed results > unmet is retained as a non-success, independent of answer wording [5.01ms]
+
+ 6 pass
+ 0 fail
+ 13 expect() calls
+Ran 6 tests across 1 file. [101.00ms]

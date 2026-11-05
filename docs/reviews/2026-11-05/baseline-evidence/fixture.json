@@ -1,0 +1,21 @@
+{
+	"command": [
+		"bun",
+		"lab/cli/main.ts",
+		"run",
+		"--split",
+		"dev",
+		"--inference",
+		"scripted",
+		"--browser",
+		"chrome",
+		"--headless",
+		"--db",
+		"/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/review-fixture.sqlite"
+	],
+	"cwd": "/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact",
+	"exit": 0,
+	"seconds": 45.17,
+	"conditions": "actual isolated headless Chrome; local dev fixtures; scripted inference; no real LLM, real sites, credentials, or holdout runs",
+	"log": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/fixture.log"
+}

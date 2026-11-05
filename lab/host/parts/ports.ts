@@ -2,6 +2,7 @@ import type { Database } from "bun:sqlite";
 import type { PartEventsPort, SiteKnowledgePort } from "eumenes-interact";
 import { lookupObject, resolveObject } from "../candidates.ts";
 import type { LabLogger } from "../log.ts";
+import { siteSearchUrl } from "../site-searches.ts";
 
 /** The lab's implementations of the part capability's ports (its SQLite site knowledge and its logger). */
 export function labKnowledgePort(
@@ -9,6 +10,8 @@ export function labKnowledgePort(
 	owner: string,
 ): SiteKnowledgePort {
 	return {
+		searchUrl: (url, query) =>
+			siteSearchUrl(db, owner, url, query, new Date().toISOString()),
 		resolve(pageUrl, body, logicalName) {
 			const known = lookupObject(db, owner, pageUrl, logicalName);
 			if (known.kind !== "defined") return null;

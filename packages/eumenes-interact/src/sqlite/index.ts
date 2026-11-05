@@ -4,6 +4,12 @@
  * refuses outside a transaction and takes ISO timestamps as arguments.
  */
 export { migrations, INTERACT_TABLES } from "./migrations.ts";
+export { forgetSiteScope } from "./site-knowledge.ts";
+export {
+	putSearchTemplate,
+	getSearchUrl,
+	type SearchTemplate,
+} from "./search-templates.ts";
 export { assertInteractSchema } from "./schema-check.ts";
 export {
 	InteractStoreError,

@@ -1,0 +1,94 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/parts.test.ts:
+823 | 		const executed = await s.run(
+824 | 			call("form.submit", {
+825 | 				button: idOf(s.summary.items, "button", "注文する"),
+826 | 			}),
+827 | 		);
+828 | 		expect(executed).toMatchObject({
+                         ^
+error: expect(received).toMatchObject(expected)
+
+  {
+    "kind": "outcome",
+    "outcome": {
+-     "code": "approval_denied",
+-     "kind": "stop",
++     "kind": "part",
++     "result": {
++       "page": {
++         "headings": [
++           "ご注文を受け付けました",
++         ],
++         "itemCount": 6,
++         "items": [
++           {
++             "item": "p2.i1",
++             "name": "楓雑貨店",
++             "region": "banner",
++             "role": "link",
++             "url": "index.html",
++           },
++           {
++             "item": "p2.i2",
++             "name": "ホーム",
++             "region": "navigation メイン",
++             "role": "link",
++             "url": "index.html",
++           },
++           {
++             "item": "p2.i3",
++             "name": "全商品",
++             "region": "navigation メイン",
++             "role": "link",
++             "url": "catalog.html",
++           },
++           {
++             "item": "p2.i4",
++             "name": "お手入れガイド",
++             "region": "navigation メイン",
++             "role": "link",
++             "url": "care.html",
++           },
++           {
++             "item": "p2.i5",
++             "name": "ご注文フォーム",
++             "region": "navigation メイン",
++             "role": "link",
++             "url": "order.html",
++           },
++           {
++             "item": "p2.i6",
++             "name": "",
++             "role": "main",
++           },
++         ],
++         "page": "p2",
++         "regions": [
++           "banner",
++           "navigation メイン",
++           "main",
++         ],
++         "title": "ご注文を受け付けました | 楓雑貨店",
++         "truncated": false,
++         "url": "http://127.0.0.1:41234/sites/kaede-shop/base/ordered.html",
++       },
++       "part": "form.submit",
++       "resultId": "r1",
++       "status": "completed",
++     },
+    },
+  }
+
+- Expected  - 2
++ Received  + 63
+
+      at <anonymous> (/private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/interact-negative-hfnq_1t3/repo/lab/test/host/parts.test.ts:828:20)
+(fail) form.submit > is asked first: a denial sends nothing and stops the run [11.18ms]
+
+ 0 pass
+ 61 filtered out
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [64.00ms]

@@ -1,0 +1,10 @@
+{
+  "at": "2026-11-05T11:40:23.420836+00:00",
+  "command": [
+    "bun",
+    "audit"
+  ],
+  "exit": 0,
+  "log": "dependency-audit-final.log",
+  "CI": "excluded by user"
+}

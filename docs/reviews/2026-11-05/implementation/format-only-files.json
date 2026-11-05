@@ -1,0 +1,12 @@
+[
+  "lab/cli/session.ts",
+  "lab/config/action-allowlist.json",
+  "lab/host/allowlist.ts",
+  "lab/host/net-guard.ts",
+  "lab/host/policy.ts",
+  "lab/test/host/live.test.ts",
+  "lab/test/host/net-guard.test.ts",
+  "lab/test/host/surrounding.test.ts",
+  "packages/eumenes-interact/src/adapters/mcp/extract.ts",
+  "packages/eumenes-interact/test/adapters/playwright-mcp/extract.test.ts"
+]

@@ -1,0 +1,21 @@
+{
+  "at": "2026-11-05T10:31:49.915Z",
+  "before": {
+    "limitUsd": 10,
+    "attempts": 11,
+    "accountedUpperUsd": 9.654362,
+    "unknownCalls": 9
+  },
+  "changed": 8,
+  "after": {
+    "limitUsd": 10,
+    "attempts": 11,
+    "accountedUpperUsd": 4.998378,
+    "unknownCalls": 9
+  },
+  "basis": [
+    "https://platform.claude.com/docs/en/models/haiku-5-5/overview",
+    "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  ],
+  "note": "Unknown calls retain full model-window bounds; old upper bounds are preserved in spend_bound_audit. No assumed free requests, no reset of usage or $10 cap."
+}

@@ -7,12 +7,15 @@ import { createHash, randomUUID } from "node:crypto";
 import { createInterface } from "node:readline";
 import { join } from "node:path";
 import type { Database } from "bun:sqlite";
+import { stepResultFact } from "eumenes-collaboration";
+import { CallBudget } from "../inference/call-budget.ts";
 import {
-	decideSession,
-	browserChoicePrompt,
-	parseBrowserChoice,
-	stepResultFact,
-} from "eumenes-collaboration";
+	startClaude,
+	startLuna,
+	ensureClaudeCredential,
+	type ClaudeSession,
+} from "../host/claude.ts";
+import type { InferencePort } from "eumenes-interact";
 import { asCollabAgent } from "../host/collab.ts";
 import {
 	DEFAULT_KEEP_OPEN_IDLE_S,
@@ -38,7 +41,6 @@ import { askChoice, chosenLine, parseChoices } from "../host/choice.ts";
 import { runTrial } from "../host/run.ts";
 import {
 	confirmPlayback,
-	isPlaybackGoal,
 	probeKeptMedia,
 	type MediaSample,
 } from "../host/playback.ts";
@@ -46,8 +48,6 @@ import { createExperiment } from "../host/store.ts";
 import {
 	DEFAULT_BROWSER_HISTORY,
 	loadBrowserHistory,
-	noBrowserProvedWrong,
-	recordMisjudgment,
 } from "../host/browser-history.ts";
 import { collectVersions } from "../host/versions.ts";
 import { createManualInference } from "../inference/manual.ts";
@@ -57,8 +57,8 @@ import { createSession } from "./session.ts";
 
 export type ChainOptions = {
 	request: string;
-	/** Only `manual` for now: the summary step needs a plain-text call the other ports do not expose here. */
-	inference: "manual";
+	/** Planning, operations and summary share this inference provider. */
+	inference: "manual" | "claude" | "openai";
 	keepOpenIdleS: number;
 	keepOpenMaxS: number;
 	headed: boolean;
@@ -88,15 +88,51 @@ export async function chainCommand(
 	o: ChainOptions,
 	logger: LabLogger,
 ): Promise<number> {
+	let apiSession: ClaudeSession | null = null;
+	if (o.inference === "claude") {
+		ensureClaudeCredential();
+		apiSession = startClaude(
+			{ model: "claude-haiku-5-5", effort: "low" },
+			logger,
+			"chain",
+		);
+	}
+	if (o.inference === "openai") apiSession = startLuna();
+	try {
+		return await executeChain(db, o, logger, apiSession);
+	} finally {
+		await apiSession?.dispose();
+	}
+}
+export async function executeChain(
+	db: Database,
+	o: ChainOptions,
+	logger: LabLogger,
+	apiSession: ClaudeSession | null,
+	createBrowser: typeof createSession = createSession,
+): Promise<number> {
 	const dir = process.env.LAB_MANUAL_DIR;
-	if (!dir) throw new Error("manual_needs_LAB_MANUAL_DIR");
+	if (o.inference === "manual" && !dir)
+		throw new Error("manual_needs_LAB_MANUAL_DIR");
+	const calls = new CallBudget(30);
+	const rawPort = (id: string): InferencePort =>
+		apiSession?.raw ?? createManualInference(dir!, id);
+	const stepScope = (id: string) => `step:${id}`;
+	const portFor = (id: string, scope = id) =>
+		calls.port(rawPort(id), stepScope(scope), 10);
 	const captureDir = parseCaptureDir(o.captureDir);
 	const historyPath =
 		process.env.LAB_BROWSER_HISTORY ?? DEFAULT_BROWSER_HISTORY;
-	const plan = chainPlan(o.request, loadBrowserHistory(historyPath));
+	const plan = await chainPlan(
+		o.request,
+		calls.port(rawPort("plan"), "planning", 1),
+		AbortSignal.timeout(120_000),
+		loadBrowserHistory(historyPath),
+	);
 	/** Steps whose own inference chose the browser. */
 	const routed = new Set<string>();
 	const budget = planBudget(plan.steps.length);
+	calls.constrain(budget.overall);
 	console.error(
 		`plan\t${plan.steps.map((s) => `${s.id}${toBrowser(s) ? (s.keepOpen ? "[browser,keep-open]" : "[browser]") : s.browser.by === "agent" ? "[step decides]" : "[no browser]"} ${s.goal}`).join(" | ")}`,
 	);
@@ -113,8 +149,11 @@ export async function chainCommand(
 		includesLive: true,
 		repetitions: 1,
 		arms: ["arm1"],
-		budget: { maxModelCalls: budget.overall, inference: { kind: "scripted" } },
-		inferenceKind: "scripted",
+		budget: {
+			maxModelCalls: budget.overall,
+			inference: apiSession?.info() ?? { kind: "scripted" },
+		},
+		inferenceKind: o.inference === "manual" ? "scripted" : o.inference,
 		nowIso: new Date().toISOString(),
 	});
 	// Host-approved clicks (lab/config/action-allowlist.json, or LAB_ACTION_ALLOWLIST); the rest stays gated.
@@ -134,7 +173,7 @@ export async function chainCommand(
 	const onInputGone = () => runControl.cancel("cancel");
 	process.stdin.once("end", onInputGone);
 	process.stdin.once("close", onInputGone);
-	const session = await createSession(
+	const session = await createBrowser(
 		{
 			headed: o.headed,
 			...(o.browser ? { browser: o.browser } : {}),
@@ -148,7 +187,6 @@ export async function chainCommand(
 	const results = new Map<string, string>();
 	const facts = [...plan.facts];
 	const outcomes: ChainStepOutcome[] = [];
-	let used = 0;
 	let keep = false;
 	/** Where the browser was left by the last browser step; an agent-routed step continues there (L9). */
 	let lastPage: string | null = null;
@@ -164,32 +202,40 @@ export async function chainCommand(
 	process.once("SIGTERM", onSignal);
 	try {
 		for (const [index, step] of plan.steps.entries()) {
-			const check = budgetCheck(used, budget);
+			const check = budgetCheck(calls.used, budget);
 			if (check.decision === "stop") {
 				stopped = "budget_exhausted";
 				break;
 			}
-			if (check.decision === "ask") {
+			if (check.decision === "ask" && index > 0) {
 				console.log(
 					`partial\t残り推論 ${check.remaining} 回。ここまでの結果:\n${[...results].map(([k, v]) => `[${k}] ${v}`).join("\n")}`,
 				);
-				console.log("ask\t続けますか？ (はい/いいえ)");
+				console.log(
+					"ask\t続行する場合は1、終了する場合は2を入力してください。",
+				);
 				const answer = (await nextLine()) ?? "";
-				if (!/^(はい|yes|y|続け)/iu.test(answer.trim())) {
+				if (answer.trim() !== "1") {
 					stopped = "user_stopped_at_budget";
 					break;
 				}
 			}
-			let maxCalls = Math.min(budget.perStep, check.remaining);
-			let def = chainCases(plan, o.request, results, maxCalls, routed)[index]!
-				.def;
+			let maxCalls = calls.remaining(stepScope(step.id), budget.perStep);
+			let def = chainCases(
+				plan,
+				o.request,
+				results,
+				maxCalls,
+				routed,
+				lastPage,
+			)[index]!.def;
 			let decided: string | null = null;
 			let answered: { text: string; code: string | null } | null = null;
 			if (!def) {
 				const decision = step.browser;
 				const deciding = decision.by === "agent";
 				// Its own file name: a browser trial for the same step (chain-<id>) must not read this answer.
-				const port = createManualInference(dir, `decide-${step.id}`);
+				const port = portFor(`decide-${step.id}`, step.id);
 				const out = await port.complete({
 					messages: [
 						{
@@ -201,38 +247,50 @@ export async function chainCommand(
 						{
 							role: "user",
 							content: deciding
-								? `${summaryPrompt(step, o.request, results)}\n\n${browserChoicePrompt(decision.signals)}`
+								? `${summaryPrompt(step, o.request, results)}\n外部確認が必要ならbrowser=true。不要ならbrowser=falseで答え、達成できた範囲をoutcomeで明示してください。`
 								: summaryPrompt(step, o.request, results),
 						},
 					],
 					maxOutputTokens: 2048,
+					outputSchema: {
+						type: "object",
+						properties: {
+							browser: { type: "boolean" },
+							answer: { type: "string" },
+							rationale: { type: "string" },
+							outcome: {
+								type: "string",
+								enum: ["achieved", "partial", "unmet"],
+							},
+						},
+						required: ["browser", "answer", "rationale", "outcome"],
+						additionalProperties: false,
+					},
 					signal: AbortSignal.any([
 						runControl.signal,
 						AbortSignal.timeout(30 * 60_000),
 					]),
 				});
-				used += 1;
 				const raw = out.kind === "text" ? out.text : "";
-				let choice = deciding
-					? parseBrowserChoice(raw)
-					: { browser: false, rationale: "plan", answer: raw };
-				// "No browser" that could not answer was the wrong call: it is remembered for alike goals, and this
-				// step fetches after all (the tie-break goes to fresh information).
-				if (
-					deciding &&
-					!choice.browser &&
-					noBrowserProvedWrong(choice.answer)
-				) {
-					recordMisjudgment(historyPath, { goal: step.goal, browser: false });
-					console.error(
-						`history\t${step.id}\tno_was_wrong\t${choice.rationale}`,
-					);
-					choice = {
-						browser: true,
-						rationale: `no_answer_fallback: ${choice.rationale}`,
-						answer: "",
-					};
+				let choice: {
+					browser: boolean;
+					answer: string;
+					rationale: string;
+					outcome: string;
+				};
+				try {
+					choice = JSON.parse(raw);
+				} catch {
+					throw new Error("step_decision_invalid");
 				}
+				if (
+					typeof choice.browser !== "boolean" ||
+					typeof choice.answer !== "string" ||
+					typeof choice.rationale !== "string" ||
+					!["achieved", "partial", "unmet"].includes(choice.outcome)
+				)
+					throw new Error("step_decision_invalid");
+
 				// The decision and its reason are logged, so a misjudgment can be found and fed back as history.
 				console.error(
 					`browser\t${step.id}\t${choice.browser ? "yes" : "no"}\t${choice.rationale}`,
@@ -250,35 +308,54 @@ export async function chainCommand(
 					)[index]!.def;
 					decided = choice.rationale;
 				} else {
-					answered = { text: choice.answer, code: out.kind };
+					answered = {
+						text: choice.answer,
+						code:
+							choice.outcome === "achieved" ? null : `goal_${choice.outcome}`,
+					};
 				}
 			}
 			if (!def || answered) {
 				const text = answered?.text ?? "";
-				results.set(step.id, text);
+				if (text && !answered?.code) results.set(step.id, text);
 				outcomes.push({
 					id: step.id,
 					goal: step.goal,
 					browser: false,
 					keepOpen: false,
-					status: text ? "completed" : "failed",
-					code: text ? null : (answered?.code ?? "no_route"),
+					status: text && !answered?.code ? "completed" : "failed",
+					code: answered?.code ?? (text ? null : "no_route"),
 					modelCalls: 1,
 					result: text,
 				});
+				if (!text || answered?.code) {
+					stopped = `step_failed:${step.id}`;
+					break;
+				}
 				continue;
 			}
 			let result: Awaited<ReturnType<typeof runTrial>>;
+			if (calls.remaining(stepScope(step.id), budget.perStep) === 0) {
+				stopped = "budget_exhausted";
+				break;
+			}
 			// The text choice channel (lab/host/choice.ts): an `ask` with numbered options is put to the user,
 			// and the step runs again from the same page with the pick; no option is ever chosen for them.
 			let asked = 0;
-			let earlierCalls = 0;
 			let choiceStop: string | null = null;
 			const picked: string[] = [];
 			for (;;) {
 				result = await runTrial({
 					db,
-					def,
+					def: {
+						...def,
+						budget: {
+							maxModelCalls: calls.remaining(
+								stepScope(step.id),
+								budget.perStep,
+							),
+						},
+					},
 					arm: "arm1",
 					experimentId,
 					// A rerun after a choice is its own trial row (experiment, case, arm, repetition is unique).
@@ -286,9 +363,9 @@ export async function chainCommand(
 					orderIndex: index,
 					adapter: hold.adapter,
 					inference: asCollabAgent(
-						createManualInference(dir, asked ? `${def.id}-c${asked}` : def.id),
+						portFor(asked ? `${def.id}-c${asked}` : def.id, step.id),
 					),
-					inferenceInfo: () => ({ kind: "scripted" }),
+					inferenceInfo: apiSession?.info ?? (() => ({ kind: "scripted" })),
 					approver: new AllowlistApprover(
 						allowlist,
 						new StopApprover(),
@@ -306,17 +383,18 @@ export async function chainCommand(
 					sources: [...results.values(), ...picked],
 					goal: step.goal,
 					keepSession: true,
-					...(step.keepOpen && isPlaybackGoal(step.goal)
+					...(step.completion === "playback"
 						? {
-								beforeFinish: async () => {
+								beforeFinish: async (signal) => {
 									const verdict = await confirmPlayback({
+										signal,
 										sample: async () =>
 											(await session.adapter.inspect(
 												"inspectMedia",
 												null,
-												AbortSignal.timeout(5000),
+												AbortSignal.any([signal, AbortSignal.timeout(5000)]),
 											)) as unknown as MediaSample,
-										sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+										sleep: (ms) => Bun.sleep(ms),
 										notify: (m) => console.log(`notice\t${m}`),
 									});
 									console.log(
@@ -349,7 +427,14 @@ export async function chainCommand(
 					choices,
 					nextLine,
 					print: (line) => console.log(line),
-					file: join(dir, `choice-${step.id}.json`),
+					...(dir
+						? {
+								file: join(
+									dir,
+									`choice-${experimentId}-${step.id}-${asked}.json`,
+								),
+							}
+						: {}),
 				});
 				if (pick.kind === "stopped") {
 					console.log(`choice\tstopped\t${pick.code}`);
@@ -357,8 +442,10 @@ export async function chainCommand(
 					break;
 				}
 				asked += 1;
-				earlierCalls += result.score.efficiency.modelCalls;
-				used += result.score.efficiency.modelCalls;
+				if (calls.remaining(stepScope(step.id), budget.perStep) === 0) {
+					choiceStop = "budget_exhausted";
+					break;
+				}
 				picked.push(pick.option);
 				const here = await currentPage(hold.adapter);
 				def = {
@@ -367,9 +454,8 @@ export async function chainCommand(
 					...(here && /^https?:/u.test(here) ? { start: here } : {}),
 				};
 			}
-			used += result.score.efficiency.modelCalls;
 			lastPage = await currentPage(hold.adapter);
-			results.set(step.id, result.finalText);
+			if (result.status === "completed") results.set(step.id, result.finalText);
 			if (result.status === "completed")
 				facts.push(stepResultFact(step.id, result.finalText, [result.runId]));
 			outcomes.push({
@@ -380,10 +466,7 @@ export async function chainCommand(
 				status: result.status,
 				code: choiceStop ?? result.code,
 				// The step's own inference that chose the browser counts too.
-				modelCalls:
-					result.score.efficiency.modelCalls +
-					earlierCalls +
-					(decided === null ? 0 : 1),
+				modelCalls: calls.scopeUsed(stepScope(step.id)),
 				result: result.finalText,
 				runId: result.runId,
 				...(decided === null ? {} : { routedBy: decided }),
@@ -397,14 +480,21 @@ export async function chainCommand(
 		}
 		console.log(
 			JSON.stringify(
-				{ request: o.request, used, budget, stopped, outcomes, facts },
+				{
+					request: o.request,
+					used: calls.used,
+					budget,
+					stopped,
+					outcomes,
+					facts,
+				},
 				null,
 				1,
 			),
 		);
 		if (keep) {
 			console.log(
-				`kept\tブラウザを開いたままにしています。閉じるときは「完了」と入力してください（再生が止まって無操作 ${o.keepOpenIdleS} 秒、または最長 ${o.keepOpenMaxS} 秒で自動的に閉じます）。`,
+				`kept\tブラウザを開いたままにしています。閉じるときは0を入力してください（再生が止まって無操作 ${o.keepOpenIdleS} 秒、または最長 ${o.keepOpenMaxS} 秒で自動的に閉じます）。`,
 			);
 			// While kept, the largest video's playback position is read (read-only) every 10 s and an ad start/end or the end is told, so "it keeps
 			// playing" is a measured fact rather than a guess from screenshots.
@@ -429,7 +519,7 @@ export async function chainCommand(
 			const timer = setInterval(() => void probe(), MEDIA_PROBE_MS);
 			const why = await holdUntil(
 				input,
-				(line) => decideSession(line, false).decision === "close",
+				(line) => line.trim() === "0",
 				o.keepOpenIdleS * 1000,
 				{ lastActive: () => lastActive, maxMs: o.keepOpenMaxS * 1000 },
 			);

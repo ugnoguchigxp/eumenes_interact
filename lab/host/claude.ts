@@ -9,6 +9,16 @@ import {
 } from "../inference/index.ts";
 import { asCollabAgent } from "./collab.ts";
 import type { InferenceInfo } from "./types.ts";
+import { SpendLedger, budgetedInference } from "../inference/spend.ts";
+import { createOpenAIInference, LUNA_MODEL } from "../inference/openai.ts";
+
+export function paidLedger() {
+	return new SpendLedger(
+		process.env.LAB_SPEND_DB ??
+			fileURLToPath(new URL("../data/api-spend.sqlite", import.meta.url)),
+		Number(process.env.LAB_SPEND_LIMIT_USD ?? 10),
+	);
+}
 
 /**
  * Choosing and starting the Claude inference (plan.md §10.5): the model and the effort are frozen per run like
@@ -85,6 +95,8 @@ export function ensureClaudeCredential(
 	env: Record<string, string | undefined> = process.env,
 	envFile: string = REPO_ENV,
 ): void {
+	if (!env.ANTHROPIC_API_KEY && env.CLAUDE_API_KEY)
+		env.ANTHROPIC_API_KEY = env.CLAUDE_API_KEY;
 	if (has(env)) return;
 	try {
 		const file = parseDotenv(readFileSync(envFile, "utf8"));
@@ -96,12 +108,13 @@ export function ensureClaudeCredential(
 	}
 	if (!has(env))
 		throw new Error(
-			`claude_credential_missing: put ANTHROPIC_API_KEY=<your key> in ${envFile} (the file is gitignored)`,
+			"claude_credential_missing: export ANTHROPIC_API_KEY or CLAUDE_API_KEY in your login shell",
 		);
 }
 
 export type ClaudeSession = {
 	port: InferencePort;
+	raw: InferencePort;
 	info: () => InferenceInfo;
 	dispose(): Promise<void>;
 };
@@ -113,8 +126,12 @@ export function startClaude(
 	correlationId: string,
 ): ClaudeSession {
 	const inference = createClaudeInference({ settings, logger, correlationId });
+	if (settings.model !== "claude-haiku-5-5") throw new Error("unpriced_model");
+	const ledger = paidLedger();
+	const raw = budgetedInference(inference, ledger, settings.model);
 	return {
-		port: asCollabAgent(inference),
+		port: asCollabAgent(raw),
+		raw,
 		info: () => ({
 			kind: "claude",
 			...inference.describe(),
@@ -122,6 +139,42 @@ export function startClaude(
 				? {}
 				: { maxTokens: settings.maxTokens }),
 		}),
-		dispose: async () => {},
+		dispose: async () => {
+			ledger.close();
+		},
+	};
+}
+
+export function lunaSettings(flags: {
+	model?: string;
+	effort?: string;
+	maxTokens?: string | number;
+}) {
+	if (flags.model !== undefined && flags.model !== LUNA_MODEL)
+		throw new Error("luna_model_required");
+	const effort = flags.effort ?? "low";
+	if (!["none", ...EFFORTS].includes(effort)) throw new Error("invalid_effort");
+	return {
+		model: LUNA_MODEL,
+		effort: effort as "none" | ClaudeEffort,
+		maxTokens: parseMaxTokens(flags.maxTokens),
+	};
+}
+export function startLuna(settings = lunaSettings({})): ClaudeSession {
+	const inner = createOpenAIInference(settings);
+	const ledger = paidLedger();
+	const raw = budgetedInference(inner, ledger, LUNA_MODEL);
+	return {
+		port: asCollabAgent(raw),
+		raw,
+		info: () => ({
+			kind: "openai",
+			provider: "openai",
+			model: LUNA_MODEL,
+			effort: settings.effort,
+		}),
+		dispose: async () => {
+			ledger.close();
+		},
 	};
 }

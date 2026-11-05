@@ -1,0 +1,3 @@
+$ oxlint --deny-warnings
+Found 0 warnings and 0 errors.
+Finished in 29ms on 219 files with 163 rules using 10 threads.

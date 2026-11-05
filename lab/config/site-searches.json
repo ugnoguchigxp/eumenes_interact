@@ -1,0 +1,258 @@
+{
+	"formatVersion": 1,
+	"note": "Observed baseline URL hints, not authority grants or newly verified official specifications. Expired entries are not used.",
+	"entries": [
+		{
+			"origin": "https://www.google.com",
+			"pathPrefix": "/finance",
+			"template": "https://www.google.com/finance/?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://cookpad.com",
+			"pathPrefix": "/",
+			"template": "https://cookpad.com/jp/search/{q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.openstreetmap.org",
+			"pathPrefix": "/",
+			"template": "https://www.openstreetmap.org/search?query={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://developer.mozilla.org",
+			"pathPrefix": "/",
+			"template": "https://developer.mozilla.org/en-US/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://tenki.jp",
+			"pathPrefix": "/",
+			"template": "https://tenki.jp/search/?keyword={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://docs.python.org",
+			"pathPrefix": "/",
+			"template": "https://docs.python.org/3/search.html?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.artic.edu",
+			"pathPrefix": "/",
+			"template": "https://www.artic.edu/collection?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://arxiv.org",
+			"pathPrefix": "/",
+			"template": "https://arxiv.org/search/?query={q}&searchtype=all",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.npmjs.com",
+			"pathPrefix": "/",
+			"template": "https://www.npmjs.com/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.youtube.com",
+			"pathPrefix": "/",
+			"template": "https://www.youtube.com/results?search_query={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://openlibrary.org",
+			"pathPrefix": "/",
+			"template": "https://openlibrary.org/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://data.worldbank.org",
+			"pathPrefix": "/",
+			"template": "https://data.worldbank.org/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.google.com",
+			"pathPrefix": "/",
+			"template": "https://www.google.com/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://en.wikipedia.org",
+			"pathPrefix": "/",
+			"template": "https://en.wikipedia.org/w/index.php?search={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://ja.wikipedia.org",
+			"pathPrefix": "/",
+			"template": "https://ja.wikipedia.org/w/index.php?search={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://github.com",
+			"pathPrefix": "/",
+			"template": "https://github.com/search?q={q}&type=repositories",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.reddit.com",
+			"pathPrefix": "/",
+			"template": "https://www.reddit.com/search/?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://news.ycombinator.com",
+			"pathPrefix": "/",
+			"template": "https://hn.algolia.com/?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://stackoverflow.com",
+			"pathPrefix": "/",
+			"template": "https://stackoverflow.com/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.amazon.co.jp",
+			"pathPrefix": "/",
+			"template": "https://www.amazon.co.jp/s?k={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://zenn.dev",
+			"pathPrefix": "/",
+			"template": "https://zenn.dev/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://qiita.com",
+			"pathPrefix": "/",
+			"template": "https://qiita.com/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://pypi.org",
+			"pathPrefix": "/",
+			"template": "https://pypi.org/search/?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://crates.io",
+			"pathPrefix": "/",
+			"template": "https://crates.io/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.bbc.com",
+			"pathPrefix": "/",
+			"template": "https://www.bbc.com/search?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://ndlsearch.ndl.go.jp",
+			"pathPrefix": "/",
+			"template": "https://ndlsearch.ndl.go.jp/search?cs=bib&keyword={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.e-stat.go.jp",
+			"pathPrefix": "/",
+			"template": "https://www.e-stat.go.jp/stat-search?page=1&query={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		},
+		{
+			"origin": "https://www.nhk.or.jp",
+			"pathPrefix": "/",
+			"template": "https://www3.nhk.or.jp/news/word/search.html?q={q}",
+			"revision": 1,
+			"sourceRef": "baseline:a38f955:live-observation-2026-11-04",
+			"checkedAt": "2026-11-04T00:00:00.000Z",
+			"expiresAt": "2026-12-04T00:00:00.000Z"
+		}
+	]
+}

@@ -1,0 +1,1015 @@
+{
+	"rubric_version": "1.1.0",
+	"mode": "full",
+	"depth": "deep",
+	"technical_profile": "agent",
+	"assessment_kind": "current",
+	"target": {
+		"locator": "/Users/y.noguchi/Code/eumenes_interact",
+		"snapshot": "a38f9553acf56715a8c29e170c59ca1829558a4c",
+		"reviewed_at": "2026-11-05",
+		"stage": "研究用prototype（ブラウザ部品・CLI・MCP。Eumenes統合とDesktopは未受入）",
+		"scope": "Current/full/deep/agent。core/SQLite/Playwright adapter、labの通常・異常・承認・取消・chain経路、固定fixtureと記録、導入/配布境界、公式代替3件を調査。隔離コピー・Bun1.4.4/macOS arm64/Node24.11.1/headless Chrome、隣接collaboration a23dd54bf1a32ae2b3b953cfd13eae9935b846b3。実LLM・実サイト・holdout・OSアプリ・本番Eumenes・独立ユーザー評価・長期負荷・脆弱性監査・全依存の権利調査は未実施。既存製品コードは変更しない。外部対照は文書比較のみで直接ベンチマークなし。"
+	},
+	"evidence": [
+		{
+			"id": "E01",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/plan.md:7-61,149-177,578-598,640-688,747-760,882-920 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "研究用ホストと純粋な1手処理核を分け、比較測定しEumenesへ取り込む設計。macOSと単一runnerが主対象。統合の承認・lease・receipt等は将来段階。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E02",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/src/contracts/core.ts; src/contracts/db.ts; src/core/dispatch.ts; src/index.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "schema検査と1手状態を公開し、DBはホスト所有の構造的port。coreからlabを参照しない。現在はArm1のみ。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E03",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/executor.ts:350-670; packages/eumenes-interact/src/sqlite/operations.ts; lab/host/reconcile.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "操作意図→承認→送出済みcommit→外部dispatch→settle。未知結果は再送しない。取消後の操作結果は採用しない通常経路がある。再起動時の不明操作の隔離がある。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E04",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/gate.ts; lab/host/policy.ts; lab/host/net-guard.ts; lab/host/allowlist.ts; lab/cli/session.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "固定inspectによる承認、入力出所、URL規則、DNS解決済みアドレスへのproxy接続、限定origin/媒体動作allowlistを持つ。Playwright側のブラウザ隔離とdownload拒否を併用。",
+			"scope": "source追跡+既存negative tests。実ブラウザを用いたネットワークguard専用試験は未実行。ゼロ漏洩の保証ではない。"
+		},
+		{
+			"id": "E05",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/src/core/arm1/run.ts; src/core/parts/schema.ts; lab/host/parts/executor.ts; skills/browse/SKILL.md @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "既知IDと登録部品だけを実行。出力補正・リトライ・モデル呼出しを制限。page textをデータと指示で区別するSkillと結果包装。",
+			"scope": "promptは命令系統分離を指示するが、LLMを攻撃する実験は未実行。"
+		},
+		{
+			"id": "E06",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/partial.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/partial.log",
+			"observed_at": "2026-11-05",
+			"observation": "核・SQLite・定義の248試験成功、0失敗。",
+			"scope": "command=[\"bun\", \"test\", \"packages/eumenes-interact/test/core\", \"packages/eumenes-interact/test/sqlite\", \"packages/eumenes-interact/test/definitions\"]; exit=0; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E07",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/full.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/full.log",
+			"observed_at": "2026-11-05",
+			"observation": "全体1120成功/1失敗/1スキップ、7202 assertions。失敗はmacOSの/proc不在とPID再利用試験の期待不一致。最初のintegrationで発生したHOME不在の別失敗は元HOMEの保持により解消。",
+			"scope": "command=[\"bun\", \"test\"]; exit=1; isolated snapshot; frozen dependencies; existing HOME preserved; real Node 24.11.1 path; no credentials/.env; probes added outside test discovery"
+		},
+		{
+			"id": "E08",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/fixture.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/fixture.log",
+			"observed_at": "2026-11-05",
+			"observation": "実際の隔離headless Chrome、scripted inference、dev全20ケースが成功。承認拒否と聞返しはneeds_inputが期待状態。約45.17秒、性能SLOやLLM判断精度は検証しない。",
+			"scope": "command=[\"bun\", \"lab/cli/main.ts\", \"run\", \"--split\", \"dev\", \"--inference\", \"scripted\", \"--browser\", \"chrome\", \"--headless\", \"--db\", \"/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/review-fixture.sqlite\"]; exit=0; actual isolated headless Chrome; local dev fixtures; scripted inference; no real LLM, real sites, credentials, or holdout runs"
+		},
+		{
+			"id": "E09",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/typecheck.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/typecheck.log",
+			"observed_at": "2026-11-05",
+			"observation": "全体型検査はplaywright-coreの型import未解決で失敗。",
+			"scope": "command=[\"bun\", \"run\", \"typecheck\"]; exit=1; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E10",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/core-types.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/core-types.log",
+			"observed_at": "2026-11-05",
+			"observation": "core専用型検査はsummary.tsのURLを参照できず3エラーで失敗。",
+			"scope": "command=[\"bun\", \"run\", \"typecheck:core\"]; exit=1; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E11",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/lint.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/lint.log",
+			"observed_at": "2026-11-05",
+			"observation": "219ファイルlintは警告・エラー0。",
+			"scope": "command=[\"bun\", \"run\", \"lint\"]; exit=0; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E12",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/format.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/format.log",
+			"observed_at": "2026-11-05",
+			"observation": "format:checkは18ファイルで失敗。",
+			"scope": "command=[\"bun\", \"run\", \"format:check\"]; exit=1; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E13",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/stack.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/stack.log",
+			"observed_at": "2026-11-05",
+			"observation": "check:stackはeumenes-collaborationのfile:参照を非固定versionとして拒否。",
+			"scope": "command=[\"bun\", \"run\", \"check:stack\"]; exit=1; isolated snapshot; no credentials/.env; stack reads adjacent original Eumenes settings only"
+		},
+		{
+			"id": "E14",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-dist.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-dist.log",
+			"observed_at": "2026-11-05",
+			"observation": "実Node24.11.1でも既存check-dist-node.mjsがarm0を指定しunknown_armで失敗。",
+			"scope": "command=[\"node\", \"lab/scripts/check-dist-node.mjs\"]; exit=1; isolated snapshot; frozen dependencies; existing HOME preserved; real Node 24.11.1 path; no credentials/.env; probes added outside test discovery"
+		},
+		{
+			"id": "E15",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-valid.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-valid.log",
+			"observed_at": "2026-11-05",
+			"observation": "ビルド済distを実Node24.11.1から直接importし、現行arm1 startRun/prepareStep、sqlite migration、adapter exportは利用可能。既存gateの代わりにはしない。",
+			"scope": "command=[\"node\", \"--input-type=module\", \"-e\", \"import * as core from \\\"./packages/eumenes-interact/dist/index.js\\\"; import * as sql from \\\"./packages/eumenes-interact/dist/sqlite.js\\\"; import * as adapter from \\\"./packages/eumenes-interact/dist/adapters/playwright-mcp.js\\\"; const s=core.startRun({arm:\\\"arm1\\\",request:\\\"read\\\",policy:{maxModelCalls:4,retries:{default:1}},nowMs:0});console.log(JSON.stringify({node:process.version,arm:s.arm,callsLeft:core.prepareStep(s).callsLeft,migrations:sql.migrations.length,adapter:typeof adapter.createPlaywrightMcpAdapter}));\"]; exit=0; actual Node24.11.1; built dist direct imports and currently supported arm1; diagnostic control, does not replace failing check:dist"
+		},
+		{
+			"id": "E16",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/probes.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/probes.log",
+			"observed_at": "2026-11-05",
+			"observation": "同じtarget_not_foundの後のdoneはevidence=[r1]ならfailed、[]ならcompleted。NOT_ANSWEREDはunknown型の説明を誤って失敗扱いし、同じ不回答を別表現にすると検出しない。briefも単語依存の過検出を再現。",
+			"scope": "command=[\"bun\", \"review-probes.ts\"]; exit=0; isolated snapshot; frozen dependencies; existing HOME preserved; real Node 24.11.1 path; no credentials/.env; probes added outside test discovery"
+		},
+		{
+			"id": "E17",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/boundaries.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/boundaries.log",
+			"observed_at": "2026-11-05",
+			"observation": "beforeFinish中の取消を再現し、返り値completed/DB cancelledの食い違いを確認。明示https://example.org/とUNESCOの依頼は、browserへrouteしてもstep_site_unknown。",
+			"scope": "command=[\"bun\", \"review-boundaries.ts\"]; exit=0; isolated snapshot and in-memory DB; FakeBrowser; no external effects"
+		},
+		{
+			"id": "E18",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/collab.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/collab.log",
+			"observed_at": "2026-11-05",
+			"observation": "隣接collaborationの今回コピーとinstalled srcの一致はcheck:collabで成功。依存snapshotを恒久固定する証拠にはならない。",
+			"scope": "command=[\"bun\", \"run\", \"check:collab\"]; exit=0; isolated snapshot; no credentials/.env; stack reads adjacent original Eumenes settings only"
+		},
+		{
+			"id": "E19",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/chain.ts:22-253; lab/host/brief.ts; lab/host/browser-history.ts:61-71; lab/host/parts/search-urls.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "サイト名辞書と正規表現でサイト/開始URLを決め、brief個人情報/時点や回答充足を語句で判定する。新サイト追加が製品コード編集を要求する箇所がある。",
+			"scope": "安全制約のURL/IP/契約検査はこの指摘から除外。検索URLテンプレートは外部仕様データとして分離可能で、それ自体を全て意味判断と断定しない。"
+		},
+		{
+			"id": "E20",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/run.ts:411-430,518-562; lab/cli/chain-command.ts:370-392 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "beforeFinish awaitの後に取消再確認がなく、返り値にはending.statusを返す。chainは返されたcompletedをstepResultFactとして採用。done evidence=[]もacceptedで、failed-only gateが適用されない。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E21",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/cli/chain-command.ts:176-194,274-370 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "外側のstep開始時にだけbudgetCheck。askへの回答後は同じdef.budgetで最大2回runTrialをやり直し、累積usedは増やすがdef.budgetを減らさない。",
+			"scope": "sourceで確定した分岐。実サイトを使ったchoice全体の再現は未実行。1 trial最大10でも同じstepのtrial合計は最大30呼出しになりうる。"
+		},
+		{
+			"id": "E22",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/lock.ts:30-39; lab/test/host/lock.test.ts:73-89 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "macOSでは/procを読めず生存PIDをrunnerと扱う保守的fallback。PIDを別プログラムが再利用するとstale lockを回収できない。",
+			"scope": "誤って他runnerのロックを奪わない安全側の動作は保たれる。通常のプロセス死亡/新PIDなしの回復は成功。"
+		},
+		{
+			"id": "E23",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/package.json; lab/package.json; bun.lock; README.md; lab/scripts/check-dist-node.mjs @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "packageはprivate/version0.0.0。buildはtscのみ、manifest exportは宣言されているがdistribution-manifest.json生成・実体を確認できない。部品executor/capture/registry/runnerはlab側にあり配布対象外。labは相対file:のcollaboration checkoutが必要。READMEはArm0とLARMなど旧手順を掲載。",
+			"scope": "研究段階の未完成範囲。現行distのArm1 importは実行成功しており、パッケージ全体が実行不能とはしない。"
+		},
+		{
+			"id": "E24",
+			"kind": "primary_doc",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/plan.md:330-338,654-688 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "作者記録では旧共通17ケースでArm0 44/51からArm1修正後50/51、入力トークン中央値約31.7K→11.6K。",
+			"scope": "2026-11-03の過去計測。約63%減。今回未再現、dev/同一作者/現行commit以前。現行モデル性能・他製品優位・採用効果へ外挿しない。"
+		},
+		{
+			"id": "E25",
+			"kind": "primary_doc",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/cases/live/multistep_results_2026-11-04.txt @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "live記録は失敗・部分達成・原因・修正の紐付けを残し、manual/non-blind/既知URL利用/未測定を明示。",
+			"scope": "作者による記録。現行の独立したblind評価ではなく、manual呼出しのtokenは未計測。"
+		},
+		{
+			"id": "E26",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/usage.ts; lab/host/trial.ts; lab/host/versions.ts; lab/host/compare.ts; lab/inference/manual.ts; lab/scorer/score.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "実験条件/モデル/effort/各手/使用量を記録する。未知tokenをnull扱いしmanualはscriptedとして記録。fixture scorerはモデルの完了申告とは別に到達状態を検査。",
+			"scope": "現在のlatency/cost実LLM比較や代表負荷のp95測定は未実施。"
+		},
+		{
+			"id": "E27",
+			"kind": "primary_doc",
+			"locator": "https://github.com/microsoft/playwright-mcp (main, observed 2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "公式READMEはaccessibility snapshotsとMCP、CLI+Skillsを提供し、MCP自体はsecurity boundaryでないと明記。",
+			"scope": "公式の機能記述のみ。第三者比較/採用/性能の検証ではない。mainは可変でローカル固定versionとは別。"
+		},
+		{
+			"id": "E28",
+			"kind": "primary_doc",
+			"locator": "https://github.com/browser-use/browser-use (main, observed 2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "公式READMEはPython Agentによる自然言語task、custom tools、保存/replayを示す。",
+			"scope": "公式の機能記述のみ。第三者比較/採用/性能の検証ではない。mainは可変でローカル固定versionとは別。"
+		},
+		{
+			"id": "E29",
+			"kind": "primary_doc",
+			"locator": "https://github.com/browserbase/stagehand (main, observed 2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "公式READMEはobserveでselectorを解決し、通常のpage APIで値を埋め、act等と組み合わせる方法を示す。",
+			"scope": "公式の機能記述のみ。第三者比較/採用/性能の検証ではない。mainは可変でローカル固定versionとは別。"
+		},
+		{
+			"id": "E30",
+			"kind": "code",
+			"locator": "git shortlog -sne HEAD / tracked file inventory @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "確認できた101コミットのauthorは1人。MITのLICENSE、固定版依存、minimumReleaseAge=7日、Skill digest照合、collab drift照合がある。tracked .github workflowはない。",
+			"scope": "commit数から品質・需要・人的資源を推測しない。協力者の実人数、継続資金、全依存ライセンス/脆弱性到達性は未確認。"
+		}
+	],
+	"claims": [
+		{
+			"id": "C01",
+			"type": "Fact",
+			"statement": "固定応答の実ブラウザdev20ケースは再現できた。",
+			"evidence_ids": ["E08"],
+			"limitations": "LLMの意味判断/初見サイトの成功率を示さない。"
+		},
+		{
+			"id": "C02",
+			"type": "Inference",
+			"statement": "内部向けの安全な操作・実験部品として改善継続の価値があり、汎用自律操作としての完成度は限定的。",
+			"evidence_ids": ["E01", "E03", "E08", "E17", "E23", "E24", "E25"],
+			"limitations": "独立利用・採用費用・外部代替とのmatched比較は不明。"
+		},
+		{
+			"id": "C03",
+			"type": "Unknown",
+			"statement": "第三者の継続利用、導入時短、保守負担、現行LLMのblind成功率。",
+			"evidence_ids": [],
+			"limitations": "今回の入力資料と安全な実行範囲にこれらの証拠がない。"
+		},
+		{
+			"id": "C04",
+			"type": "Assumption",
+			"statement": "次の12か月はEumenes内部への統合とブラウザ操作基盤としての価値を主に評価する。",
+			"evidence_ids": [],
+			"limitations": "一般販売・市場規模・事業投資の評価は要求されていない。"
+		}
+	],
+	"findings": [
+		{
+			"id": "F01",
+			"status": "confirmed",
+			"severity": "High",
+			"priority": "P0",
+			"priority_reason": "Eumenes側で結果採用に頼る前に必要。",
+			"confidence": "High",
+			"title": "完了前チェック中の取消が返り値と保存状態を分裂させる",
+			"root_cause": "beforeFinish await後のcancelチェックがなく、terminal DB状態よりローカルendingを返す。",
+			"evidence_ids": ["E17", "E20"],
+			"condition": "再生確認等のawait中にcancel/expiryが起き、その後gateがokを返す。",
+			"consequence": "DB cancelledでもcompletedとfinalTextを返し、chainは確認済みfactとして取り込める。",
+			"counterevidence": "通常のadapter.dispatch後のcancel制御はあり、今回それ以外の送出が起きるとは主張しない。",
+			"fix": "既存RunControlとDB状態を正本に、awaitの後/最終結果確定前に停止状態を再確認し返り値・転写・後段採用を一致させる。",
+			"verification": "beforeFinishをdeferredにし、その途中でcancel/expiryしてresolve。DB・返り値・trial・chain factsが一致し、完了結果を採用しないこと。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "concurrency",
+					"reason": "非同期取消と完了の順序不変条件に再現可能な違反。"
+				},
+				{
+					"track": "technical",
+					"dimension": "reliability",
+					"criterion": "failure",
+					"reason": "expectedな取消中に状態が一致しない。"
+				}
+			]
+		},
+		{
+			"id": "F02",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "failed結果の引用を空にするとcompletedになる",
+			"root_cause": "failed-only検査をcited.length>0の場合にしか適用しない。",
+			"evidence_ids": ["E16", "E20"],
+			"condition": "page.findが失敗後、done.evidence=[]を返す。",
+			"consequence": "失敗して取得できなかった作業でもcompletedとなり、後段が確認済み結果と扱いうる。",
+			"counterevidence": "[]は純粋な返答で意図的に許されている。空配列を全面禁止するだけでは適正な回答を壊す。",
+			"fix": "共通の結果契約で作業達成/未達/質問と根拠をLLMに明示させ、実行したtaskの成功状態と保存済みresult状態を検証する。文章の正規表現判定を増やさない。",
+			"verification": "同じfailed結果に対して、引用の有無だけで未達が完了に変わらず、ブラウザ不要の正当な返答は許可されること。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "contracts",
+					"reason": "外部から見えるcompletedの契約が根拠配列に依存して破れる。"
+				}
+			]
+		},
+		{
+			"id": "F03",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "開始サイトと回答充足の意味判断が固定語句に依存する",
+			"root_cause": "CHAIN_SITES・PERSONAL/TIME・NOT_ANSWEREDが意味判断を代行。",
+			"evidence_ids": ["E17", "E19", "E16"],
+			"condition": "未登録URLの最初のchain step、unknownを含む技術説明、同じ不回答の別表現。",
+			"consequence": "明示URLでもstep_site_unknown、不要な追加ブラウザ利用や誤った履歴、追加サイトごとのコード変更を招く。",
+			"counterevidence": "操作部品page.openや明示start-urlのoperateは開ける。URL/IP等の安全境界検査は必要な専用実装であり削除対象ではない。",
+			"fix": "既存collaborationの計画/推論portへURL・不足情報・browser要否を構造化して渡しLLMに選ばせる。コードはschema/URL政策/authorityを検証。検索テンプレート等の外部仕様は知識データへ移す。",
+			"verification": "未登録ドメイン、和英の言い換え、部分回答で新しい語句分岐を足さず正しい計画/質問となる。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "architecture",
+					"criterion": "fit",
+					"reason": "汎用適用の要件に対しサイト登録が必要。"
+				},
+				{
+					"track": "technical",
+					"dimension": "maintainability",
+					"criterion": "debt",
+					"reason": "語句/個別シナリオ変更が条件追加を要求。"
+				},
+				{
+					"track": "project",
+					"dimension": "solution",
+					"criterion": "mechanism",
+					"reason": "明示URLを持つ一般的chain taskに適用制限。"
+				}
+			]
+		},
+		{
+			"id": "F04",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "標準の型検査が通らない",
+			"root_cause": "純粋coreの型境界へURL利用が入り、testのplaywright-core型を直接解決できる依存がない。",
+			"evidence_ids": ["E09", "E10"],
+			"condition": "READMEに記載のtypecheckとtypecheck:coreを現snapshot/frozen依存で実行。",
+			"consequence": "型検査を満たした状態での受入ができず、新規型不具合の回帰確認を妨げる。",
+			"counterevidence": "通常buildとNodeでの現行arm1動作は成功。URL自体の実行時不存在/ネットワークIOとは主張しない。",
+			"fix": "URL解析の環境契約とcore型設定の整合、testで参照する依存型の明示を修正する。純粋性要件を検討せずDOM全体を追加しない。",
+			"verification": "両typecheckがexit0。coreはBun/DOM IOに意図せず依存しない。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "testing",
+					"criterion": "automation",
+					"reason": "公開チェックが普通の開発環境で失敗。"
+				}
+			]
+		},
+		{
+			"id": "F05",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "廃止したArm0が配布検証と導入説明に残る",
+			"root_cause": "Arm1移行時にcheck-dist-node.mjsとREADMEが追従していない。",
+			"evidence_ids": ["E14", "E15", "E23"],
+			"condition": "READMEのcheck:distまたは旧LARM/Arm0の手順を実行。",
+			"consequence": "配布物の正常性を公開手順で判定できず、新規利用者を現行非対応の経路へ誘導する。",
+			"counterevidence": "Nodeで現行Arm1の直接importは成功する。修正は現行契約を検証する更新であり失敗する期待を弱めることではない。",
+			"fix": "現行Arm1と全部分exportに合わせsmokeを更新しREADMEに実装済/未実装/推論方式を反映。",
+			"verification": "既存check:distが実Nodeでexit0し、記載の最短セットアップからdevを実行できる。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "supply_chain",
+					"criterion": "build_release",
+					"reason": "現行配布物の公式検証経路が失敗。"
+				},
+				{
+					"track": "technical",
+					"dimension": "operability",
+					"criterion": "lifecycle",
+					"reason": "旧手順が導入経路を壊す。"
+				}
+			]
+		},
+		{
+			"id": "F06",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "隣接checkoutの可変依存が再現条件とstack規則に合わない",
+			"root_cause": "lab/package.jsonが相対file:でcollaborationを参照し、stack検査は固定semver以外を拒否。",
+			"evidence_ids": ["E13", "E18", "E23"],
+			"condition": "checkoutを別環境へ移す、隣接ソースが変わる、check:stackを実行。",
+			"consequence": "単体checkoutでは必要ソースが揃わず、同じinteract commitでも依存実体が変わりうる。持帰り用stack gateは必ず失敗する。",
+			"counterevidence": "check:collabでローカルdriftを検出し今回のコピーは一致。これだけでは永続snapshot固定にはならない。",
+			"fix": "既存の版/digest付きtarball機構で依存snapshotを固定、または研究workspace契約で依存commitを明示しstack検査と整合させる。file:を無条件除外して済ませない。",
+			"verification": "隣接開発checkoutなしの再構築、依存digest不一致の拒否、check:stack成功。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "supply_chain",
+					"criterion": "dependencies",
+					"reason": "バージョンと取得物の再現性が固定version検査を満たさない。"
+				},
+				{
+					"track": "project",
+					"dimension": "adoption",
+					"criterion": "entry",
+					"reason": "導入時に別checkoutの準備と整合確認を要する。"
+				}
+			]
+		},
+		{
+			"id": "F07",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P2",
+			"priority_reason": "macOSでの障害回復手順と併せ計画的に改善。",
+			"confidence": "High",
+			"title": "macOSでPID再利用後の古いロックを回収できない",
+			"root_cause": "runnerAliveがLinuxの/procを前提にし、非Linuxは生存PIDならrunnerとみなす。",
+			"evidence_ids": ["E07", "E22"],
+			"condition": "runner終了後、lock PIDが別プログラムに再利用される。",
+			"consequence": "実行中runnerがなくてもrunner_activeとなり、新規実行が停止する。",
+			"counterevidence": "生きた別runnerのロックを奪わない保守的fallback。死亡PIDの通常回収は成功。",
+			"fix": "macOSでプロセスの開始識別も検証できる既存OS機構とlockの世代情報を用い、安全にstaleを判別する。",
+			"verification": "macOSで別プロセスへのPID再利用を模した回復と、実runnerのlock保護が共に通る。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "reliability",
+					"criterion": "recovery",
+					"reason": "主対象OSの限定的なrestart/retry条件で回復しない。"
+				}
+			]
+		},
+		{
+			"id": "F08",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "Medium",
+			"title": "choice回答後の再試行が累積予算を減らさない",
+			"root_cause": "askedループが同じdef.budgetで新規runTrialを作り、usedの再検査は外側stepのみ。",
+			"evidence_ids": ["E21"],
+			"condition": "10callのstepが選択質問で止まり、回答後に再実行される。",
+			"consequence": "同じstepが最大3trial分を消費し、perStep/overall予算を越えて推論・操作を継続しうる。",
+			"counterevidence": "trialごとは10call上限とasked<2があり無制限ではない。source traceによる判定。",
+			"fix": "既存planBudget/budgetCheckでchoice後も残予算を確認し、次trialのmaxModelCallsを累積使用量で減らす。",
+			"verification": "予算境界で0/1/2回choiceを返すテストで累積呼出しが上限内となり、続行同意が必要な場合はその契約が機能する。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "performance",
+					"criterion": "budget",
+					"reason": "declaredモデル使用量制限が通常のchoice経路で破れる。"
+				},
+				{
+					"track": "technical",
+					"dimension": "reliability",
+					"criterion": "resilience",
+					"reason": "依存LLMへの使用量制限がchain内で保たれない。"
+				}
+			]
+		}
+	],
+	"tracks": {
+		"technical": {
+			"dimensions": {
+				"architecture": {
+					"criteria": {
+						"boundaries": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02", "E03", "E08"],
+							"rationale": "純粋核・DB接続port・ホスト・adapterを複数経路で追跡でき、coreの入出力をNodeでも実行。配布に含まれないlab側機構は残る。",
+							"countercheck": "通常経路だけでなくnegative testsと別経路のcaller/契約を読み、実fixtureで異常系を確認。未実行のLLM/本番経路は除外。"
+						},
+						"flow": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E03", "E20", "E06"],
+							"rationale": "意図/送出/settle/state revisionは明示。finish中取消の整合性不足が残り3には届かない。"
+						},
+						"fit": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E08", "E17", "E23"],
+							"rationale": "単一macOS研究runnerとfixture用途では適合。汎用初見chainと製品統合には制限。"
+						}
+					}
+				},
+				"correctness": {
+					"criteria": {
+						"contracts": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E16", "E20"],
+							"rationale": "失敗結果を引用しないだけでcompletedとなる普通のモデル出力境界が壊れる。"
+						},
+						"edge_cases": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E05", "E06", "E07", "E08"],
+							"rationale": "未知参照・古いページ・同名候補・form provenance・遅延・重複tabのnegative testsと実fixtureがある。取消/完了不具合は別criterion。",
+							"countercheck": "通常経路だけでなくnegative testsと別経路のcaller/契約を読み、実fixtureで異常系を確認。未実行のLLM/本番経路は除外。"
+						},
+						"concurrency": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E17", "E20"],
+							"rationale": "beforeFinish中の取消でDBと返答が再現可能に食い違う。"
+						}
+					}
+				},
+				"security": {
+					"criteria": {
+						"access": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E03", "E04", "E07", "E08"],
+							"rationale": "権限判断と実行を分けたgateと再確認、実ブラウザで拒否停止を確認。ネットワークproxyはDNS/addressを自ら検査。",
+							"countercheck": "許可listはbutton名だけでは広げずorigin限定、拒否URLや再起動をnegative testsで照合。実ブラウザのネットワークguard専用試験未実行のため4でない。"
+						},
+						"input_secrets": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E03", "E04", "E05", "E07"],
+							"rationale": "引用/承認入力、capture保存先検査、値/ページ本文の非保存、子process env制限の試験がある。",
+							"countercheck": "HOME欠落による検証由来の失敗は元環境保持で解消。実tokenを使わずfake secret testsでlogger/DBへの伝搬を確認。"
+						},
+						"abuse": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E04", "E05", "E07"],
+							"rationale": "閉じたMCP tool、私有アドレス検査、未知input/ref拒否、回数制限という基本制約を確認。実LLM注入耐性は未測定。"
+						}
+					}
+				},
+				"reliability": {
+					"criteria": {
+						"failure": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E17", "E20"],
+							"rationale": "取消が起きた完了前チェックの結果をcompletedで返す。"
+						},
+						"recovery": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E03", "E06", "E07", "E22"],
+							"rationale": "通常restartはdispatchedを不明として隔離し再送しない。macOS PID再利用時の回収制限が残る。"
+						},
+						"resilience": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E03", "E07", "E21", "E26"],
+							"rationale": "RPC timeout/abort/子process終了とrun上限を処理。choice後の累積予算は破れるため強い評価はしない。"
+						}
+					}
+				},
+				"maintainability": {
+					"criteria": {
+						"clarity": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02", "E23"],
+							"rationale": "契約と主経路を追えるがREADMEの版ずれと大きな実行器がある。"
+						},
+						"change": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E05", "E07", "E25"],
+							"rationale": "修正に紐付く回帰試験が多数あり、portの置換も可能。外部仕様/サイト知識の変化が複数箇所へ波及。"
+						},
+						"debt": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E19", "E17", "E23"],
+							"rationale": "汎用化に対し単語/サイト名の追加編集が必要で、現行移行時の消し忘れも検査に残る。"
+						}
+					}
+				},
+				"common_components": {
+					"criteria": {
+						"duplication": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E05"],
+							"rationale": "definitionとtrialが共通executorを使い権限・状態を共有。Skillとcore textは別形式を持ち重複のコストあり。"
+						},
+						"reuse": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E07", "E08"],
+							"rationale": "SQLiteとadapter/partsをCLI・MCP・definitionで再利用し、共通契約のnegative testsが通る。",
+							"countercheck": "caller別のURL政策や承認を追い、同じexecutor経路に入ることを確認。packageにlab部品実装は未収録。"
+						},
+						"abstraction": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E05"],
+							"rationale": "DBとinference/adapterのportは現実の複数用途に対応し、coreはhost runtimeを選ばない。"
+						}
+					}
+				},
+				"testing": {
+					"criteria": {
+						"risk_coverage": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E06", "E07", "E08"],
+							"rationale": "正負の境界・持続状態・adapter/stdin・本物Chromeの20fixtureがある。",
+							"countercheck": "今回のfalse-completion/cancelを既存suiteが検出しないことも確認。全重要経路網羅とはしない。"
+						},
+						"quality": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E06", "E07", "E08", "E16", "E17"],
+							"rationale": "到達状態を独立scorerで確認し、送信未実行/秘密非保存等の具体assertion。未検出の重要バグとnon-blind評価が限界。"
+						},
+						"automation": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E07", "E09", "E10", "E11", "E12", "E30"],
+							"rationale": "標準typecheck/formatとmacOS単体試験が失敗。CI継続実行の証拠はなくローカル公開gateも通らない。"
+						}
+					}
+				},
+				"supply_chain": {
+					"criteria": {
+						"dependencies": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E13", "E18", "E23", "E30"],
+							"rationale": "多数の依存は固定版/lock/7日制限だが、collaborationは可変隣接sourceでstack gateが失敗。"
+						},
+						"build_release": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E14", "E15", "E23"],
+							"rationale": "buildは成功するが公式dist検証は廃止Arm0で失敗。版付きmanifest/持帰りの一連経路は未完成。"
+						},
+						"license": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "本体MITと直接依存の識別はあるが、配布時に必要な全依存のprovenance/権利・責任の確認は今回未実施。"
+						}
+					}
+				},
+				"performance": {
+					"criteria": {
+						"budget": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E21", "E26"],
+							"rationale": "予算計測はあるがchoiceで累積call上限を守れない。実LLM latency/cost目標達成も未測定。"
+						},
+						"hot_path": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "現行の大規模snapshot/長時間セッションのCPU・メモリ・I/O測定がない。20fixture成功だけで期待する量への適合を十分確認しない。"
+						},
+						"measurement": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E08", "E24", "E25", "E26"],
+							"rationale": "実験条件/呼出し/token/失敗分類の記録機構とbaselineがある。今回は固定fixture20件を測定。manualのtoken nullを隠していない。"
+						}
+					}
+				},
+				"operability": {
+					"criteria": {
+						"signals": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E07", "E08", "E25", "E26"],
+							"rationale": "CLI/MCPは状態・code・各手・使用量を表示。cancel後の返答不一致はcorrectnessで評価しここを高評価しない。"
+						},
+						"lifecycle": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E13", "E14", "E23"],
+							"rationale": "手順に従うと旧Arm0、不可のLARM、別checkout依存等で詰まる。現行開発環境は追加依存を揃えれば20件成功。"
+						},
+						"interaction": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E07", "E08", "E26"],
+							"rationale": "主対象の開発者はCLI/MCPから操作・停止・明示質問を利用できる。chainはmanual-onlyで利用者検証はない。"
+						}
+					}
+				}
+			}
+		},
+		"project": {
+			"dimensions": {
+				"problem": {
+					"criteria": {
+						"need": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E25"],
+							"rationale": "Eumenesのブラウザ操作を安全に改善して統合する内部開発者の具体的jobがある。"
+						},
+						"impact": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E24", "E26"],
+							"rationale": "過去dev比較に呼出し/トークン負担の改善機会が明示。業務時短や人件費効果への外挿はしない。"
+						},
+						"validation": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "作者の記録以外の利用者観察/反復的運用による問題検証がない。"
+						}
+					}
+				},
+				"solution": {
+					"criteria": {
+						"mechanism": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E08", "E17"],
+							"rationale": "部品と要約/実行契約はfixtureの実ブラウザ経路で働く。初見サイトchainは制限。"
+						},
+						"experience": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E13", "E14", "E23", "E26"],
+							"rationale": "現行説明からの導入とchain manual-onlyが、依頼から結果までの普通の経路に負担を残す。"
+						},
+						"outcomes": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E08", "E24", "E25"],
+							"rationale": "研究用途の固定fixture達成と過去比較の成果はある。現行LLM/外部利用の結果ではない。"
+						}
+					}
+				},
+				"differentiation": {
+					"criteria": {
+						"alternatives": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E02", "E03"],
+							"rationale": "raw MCP、Agent型library、AI+明示操作SDKに対し、Eumenesの状態/承認を共有する選択肢は現実的。性能比較は未測定。"
+						},
+						"advantage": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E27"],
+							"rationale": "Eumenes所有DBと純粋な1手coreを共有する内部統合条件では具体的な再利用利益がある。一般製品優位は主張しない。"
+						},
+						"tradeoffs": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E23", "E27", "E28", "E29"],
+							"rationale": "独自の権限/状態/測定を管理する利益と、既製library導入に比べ自前抽出/保守/統合の負担が特定できる。"
+						}
+					}
+				},
+				"novelty": {
+					"criteria": {
+						"prior_art": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E02", "E05"],
+							"rationale": "構造化操作・要約・Skill・replay/部品は既存手法と重なり、確認範囲で大きな新規アルゴリズムは立証されない。"
+						},
+						"substance": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E24", "E26", "E03"],
+							"rationale": "部品化の内部効果と安全な状態記録には具体的な用途がある。効果の全てを新規性へ帰属しない。"
+						},
+						"verification": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29"],
+							"rationale": "主要技術は公式代替の既存機構と重なり、比較調査が確認したのは限定的な組合せ/適用の差。"
+						}
+					}
+				},
+				"adoption": {
+					"criteria": {
+						"entry": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E13", "E23"],
+							"rationale": "別repo checkout/version整合、古いREADME、manual chainという実際の導入負担がある。"
+						},
+						"reach": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02"],
+							"rationale": "Eumenesという明確な内部導入先があり、公開contract/DB portが接続経路を提供。実導入完了の証明ではない。"
+						},
+						"retention": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "独立利用者または本番Eumenesでの継続使用と価値実現が未確認。"
+						}
+					}
+				},
+				"defensibility": {
+					"criteria": {
+						"assets": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E06", "E08", "E25"],
+							"rationale": "回帰fixture・失敗分類・サイト知識・承認契約を保守可能な資産として蓄積。"
+						},
+						"substitution": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E23"],
+							"rationale": "一般のブラウザ操作要素は代替しやすく、現段階で大きな乗換障壁や独立優位はない。"
+						},
+						"incentives": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "継続的な担当/協力/予算の実績は未確認。"
+						}
+					}
+				},
+				"execution": {
+					"criteria": {
+						"delivery": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E07", "E08", "E23"],
+							"rationale": "ブラウザ研究部分の重要な機能を実行可能。Desktop/本体持帰りは未受入の段階。"
+						},
+						"focus": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "現在の人員/時間/依存関係に対して計画が実行可能かを判断する十分なリソース情報がない。"
+						},
+						"feedback": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E25", "E07", "E08"],
+							"rationale": "live観測→失敗分類→修正commit→回帰試験という複数の学習ループを記録と実装で照合。",
+							"countercheck": "再生広告/表/同名参照等の複数例を照合。ただし作者自身のnon-blind確認で、現行LLM改善幅は未確定。"
+						}
+					}
+				},
+				"timing": {
+					"criteria": {
+						"drivers": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E01"],
+							"rationale": "現時点のMCP/agent/AI browser SDKは実用上の組込み環境を提供し、内部の必要も具体的。市場需要規模は不明。"
+						},
+						"readiness": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E08", "E15", "E27"],
+							"rationale": "Bun/Node/Chrome/SQLiteの必要要素は実際に取得・実行可能。持帰り統合は別途必要。"
+						},
+						"window": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "投入期間/本体統合予定/代替変化への応答余力が未確認。"
+						}
+					}
+				},
+				"health": {
+					"criteria": {
+						"ownership": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02", "E30"],
+							"rationale": "責任あるauthorと契約/設計の所在が判別できる。引継ぎや複数保守者は未検証。"
+						},
+						"activity": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E25", "E30", "E07"],
+							"rationale": "失敗修正と回帰検証が研究段階に応じ実行されている。commit量から加点しない。"
+						},
+						"governance": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "設計上の決定はあるが、継続資源と引継ぎ/決定権限の実運用は未確認。"
+						}
+					}
+				},
+				"expansion": {
+					"criteria": {
+						"adjacency": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E08"],
+							"rationale": "free操作と定義実行/MCPは実装済の同じbrowser coreを再利用する隣接用途。Desktop適用は仮説に留める。"
+						},
+						"scalability": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "複数利用者/サイト/長期運転へ広げた際の資源/保守コストを未測定。"
+						},
+						"path": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E23"],
+							"rationale": "段階と受入基準はあるがリソース割当/現行baseline/配布境界の完了確認が不足し、広範な拡大を約束できない。"
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -27,6 +27,8 @@ import {
 	claudeSettings,
 	ensureClaudeCredential,
 	startClaude,
+	startLuna,
+	lunaSettings,
 } from "../host/claude.ts";
 import { checkArmInference, parseCaptureDir } from "./arm.ts";
 import { createSession } from "./session.ts";
@@ -38,7 +40,7 @@ export type RunOptions = {
 	includeHoldout: boolean;
 	includeLive: boolean;
 	repeat: number;
-	inference: "scripted" | "larm" | "claude" | "manual";
+	inference: "scripted" | "larm" | "claude" | "openai" | "manual";
 	/** `--inference claude`: the model (default `claude-haiku-5-5`) and effort (default `low`). */
 	model?: string;
 	effort?: string;
@@ -127,6 +129,10 @@ function inferenceFactory(
 		ensureClaudeCredential();
 		return async (def) => startClaude(settings, logger, def.id);
 	}
+	if (options.inference === "openai") {
+		const settings = lunaSettings(options);
+		return async () => startLuna(settings);
+	}
 	const start = larmFactory(db, logger);
 	return async (def) => start(def.id);
 }
@@ -138,6 +144,7 @@ export async function runCommand(
 ) {
 	if (
 		options.inference !== "claude" &&
+		options.inference !== "openai" &&
 		(options.model || options.effort || options.maxTokens)
 	)
 		throw new Error("model_and_effort_are_for_claude");
@@ -193,7 +200,9 @@ export async function runCommand(
 				options.inference === "manual" ? "scripted" : options.inference,
 			...(options.inference === "claude"
 				? { frozenInference: claudeSettings(options) }
-				: {}),
+				: options.inference === "openai"
+					? { frozenInference: lunaSettings(options) }
+					: {}),
 			includesHoldout: holdout,
 			includesLive: live,
 			logger,
@@ -228,7 +237,11 @@ export async function runCommand(
 					approver === "cli"
 						? new CliApprover()
 						: new FixtureApprover(def.approvalScript),
-				adapter: () => createSession({ ...options, ...(live ? { netGuard: true } : {}) }, logger),
+				adapter: () =>
+					createSession(
+						{ ...options, ...(live ? { netGuard: true } : {}) },
+						logger,
+					),
 			},
 		});
 		console.log(`experiment\t${done.experimentId}`);

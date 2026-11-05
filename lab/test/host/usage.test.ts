@@ -219,7 +219,12 @@ const cachingModel = (texts: string[]): InferencePort => {
 describe("through a run, the report and the comparison", () => {
 	const finish = JSON.stringify({
 		part: "done",
-		args: { answer: "検索結果を表示しました。", evidence: [] },
+		args: {
+			answer: "検索結果を表示しました。",
+			evidence: [],
+			outcome: "achieved",
+			basis: "response",
+		},
 	});
 
 	const clarify = JSON.stringify({

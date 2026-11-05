@@ -1,6 +1,13 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import {
+	constants,
+	closeSync,
+	mkdirSync,
+	openSync,
+	realpathSync,
+	writeFileSync,
+} from "node:fs";
 import { lstat, readdir, rm } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
@@ -27,20 +34,42 @@ export type ObservationSink = (
 
 /** Writes `<dir>/<trialId>/<seq>.txt`, readable by the owner only. */
 export function createObservationSink(dir: string): ObservationSink {
+	if (!isAbsolute(dir)) throw new Error("observation_root_not_absolute");
 	return (trialId, seq, observation) => {
+		if (
+			!/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(trialId) ||
+			!Number.isSafeInteger(seq) ||
+			seq < 1
+		)
+			throw new Error("observation_id_invalid");
+		mkdirSync(dir, { recursive: true, mode: 0o700 });
+		const root = realpathSync(dir);
 		const trialDir = join(dir, trialId);
 		mkdirSync(trialDir, { recursive: true, mode: 0o700 });
-		writeFileSync(
-			join(trialDir, `${seq}.txt`),
-			[
-				`url: ${observation.url ?? ""}`,
-				`title: ${observation.title ?? ""}`,
-				"",
-				observation.body,
-				"",
-			].join("\n"),
-			{ mode: 0o600 },
+		const actual = realpathSync(trialDir);
+		if (dirname(actual) !== root) throw new Error("observation_dir_changed");
+		const fd = openSync(
+			join(actual, `${seq}.txt`),
+			constants.O_WRONLY |
+				constants.O_CREAT |
+				constants.O_EXCL |
+				constants.O_NOFOLLOW,
+			0o600,
 		);
+		try {
+			writeFileSync(
+				fd,
+				[
+					`url: ${observation.url ?? ""}`,
+					`title: ${observation.title ?? ""}`,
+					"",
+					observation.body,
+					"",
+				].join("\n"),
+			);
+		} finally {
+			closeSync(fd);
+		}
 	};
 }
 

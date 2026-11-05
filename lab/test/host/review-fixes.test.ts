@@ -378,8 +378,28 @@ describe("the report", () => {
 describe("a real site's stored record keeps no page-derived text", () => {
 	const finishText = JSON.stringify({
 		part: "done",
-		args: { answer: "ページにはこう書いてありました。", evidence: [] },
+		args: {
+			answer: "ページにはこう書いてありました。",
+			evidence: ["r1"],
+			outcome: "achieved",
+			basis: "observed",
+		},
 	});
+	const finishingInference = (): InferencePort => {
+		let first = true;
+		return {
+			complete: (request) => {
+				const text = first
+					? JSON.stringify({
+							part: "page.read",
+							args: { target: null, maxChars: 2000 },
+						})
+					: finishText;
+				first = false;
+				return claudeLike(text).complete(request);
+			},
+		};
+	};
 	const finalOf = (events: readonly TranscriptEvent[]) =>
 		events.filter((e) => e.type === "step.final").at(-1);
 
@@ -390,7 +410,7 @@ describe("a real site's stored record keeps no page-derived text", () => {
 		const seen: TranscriptEvent[] = [];
 		const { result, db } = await runScripted(live.id, {
 			def: live,
-			inference: claudeLike(finishText),
+			inference: finishingInference(),
 			onEvent: (e) => void seen.push(e),
 		});
 		const stored = finalOf(result.transcript.events);
@@ -420,7 +440,7 @@ describe("a real site's stored record keeps no page-derived text", () => {
 			).find((c) => c.split === "live")!;
 			const kept = await runScripted(live.id, {
 				def: live,
-				inference: claudeLike(finishText),
+				inference: finishingInference(),
 				observationSink: createObservationSink(dir),
 			});
 			expect(finalOf(kept.result.transcript.events)).toMatchObject({

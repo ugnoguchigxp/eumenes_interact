@@ -1,0 +1,11 @@
+$ bun lab/scripts/verify.ts
+$ bun check
+✓ No type errors in 251 files [80.46ms]
+$ bun check --project packages/eumenes-interact/tsconfig.core.json
+✓ No type errors in 36 files [17.35ms]
+$ oxlint --deny-warnings
+$ bun fmt --check
+docs/reviews/2026-11-05/implementation/verify-1.json
+1 file needs formatting. Run bun fmt to fix it.
+error: script "format:check" exited with code 1
+error: script "verify" exited with code 1

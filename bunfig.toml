@@ -21,6 +21,7 @@ ignorePatterns = [
 	"node_modules/**",
 	"**/dist/**",
 	"lab/data/**",
+	"docs/reviews/**/implementation/**",
 	"lab/arm0-golden/golden/**",
 	".serena/**",
 	".claude/**",

@@ -1,88 +1,51 @@
 # eumenes_interact
 
-EumenesのOS・ブラウザ操作を、独立した研究プロジェクトで実装と測定を繰り返しながら育てるための実験基盤です。成果は版付きtarball（`eumenes-interact`）としてEumenesへ持ち帰り、EumenesのSQLiteへ統合します。設計は[plan.md](plan.md)を正本とします。
+LLMがブラウザ部品を選び、ホストが入力・承認・取消・保存・権限を検査する実験基盤です。現在はArm 1のブラウザ操作を実装しています。設計の正本は[plan.md](plan.md)、改善の進捗は[改善計画](docs/improvement-plan.md)と検証記録で管理します。Eumenes本体への統合とDesktop操作は受入前です。
 
-## 構成
+## 始める
 
-| 場所 | 内容 | 持ち帰るか |
-| --- | --- | --- |
-| `packages/eumenes-interact/src/contracts` | 公開契約（処理核のAPI、adapterのport、操作・観測、DB接続、推論port、run状態） | 入る |
-| `packages/eumenes-interact/src/core` | 1手の処理核。Arm 0はEumenesのブラウザ担当（commit `98b188d2`）の移植 | 入る |
-| `packages/eumenes-interact/src/sqlite` | ホストが渡すDB接続上で動くmigrationと保存関数（`interact_`テーブル） | 入る |
-| `packages/eumenes-interact/src/adapters/playwright-mcp` | Playwright MCPとの接続（隔離ブラウザ） | 入る |
-| `lab/host`、`lab/cli` | 研究用ホスト（実行ループ、承認、URL方針、記録）とCLI | 入らない |
-| `lab/inference` | LARMのチャット推論接続 | 入らない |
-| `lab/scripted` | 固定応答の受入用の台本推論 | 入らない |
-| `lab/fixtures`、`lab/cases`、`lab/scorer` | 静的fixture、dev/holdoutのケース、採点器 | 入らない |
-| `lab/arm0-golden` | Arm 0とEumenesの実関数の出力を突き合わせるgolden | 入らない |
-
-パッケージの実行時依存は`zod`と`jsonrepair`だけです。処理核と`/sqlite`はIO・時計・bun固有APIを持たず、distはbunとNodeの両方から読めます。
-
-## 必要なもの
-
-- bun 1.4.4
-- Node（`check:dist`でdistの読込みを確かめるとき。版は固定しない）
-- 隣のディレクトリにあるEumenesのcheckout（`../eumenes`）。`check:stack`がEumenesと技術スタックを照合し、`lab/arm0-golden/generate.ts`がgoldenを作るときに読み取り専用で使います。場所は`EUMENES_DIR`で変えられます
-- 実ブラウザで動かすときはGoogle Chrome（`--browser chrome`）
-
-## セットアップと検証
+Bun 1.4.4とNode 24.11.1、実ブラウザ検証にはGoogle Chromeを使います。隣の開発checkoutなしで依存を導入できます。
 
 ```sh
-bun install
-bun test                 # 全試験
-bun run typecheck        # 型検査
-bun run typecheck:core   # 処理核と/sqliteを bun・node・DOM の型なしで検査
-bun run lint
-bun run format:check
-bun run check:stack      # Eumenesと版・設定が一致するか
-bun run check:dist       # ビルドしてNodeからdistを読めるか
+bun install --frozen-lockfile --ignore-scripts
+bun run verify
+bun run lab run --case dev-search-base --inference scripted --browser chrome --headless
 ```
 
-## 研究用CLI
+`verify`は型、核の型、lint、整形、固定依存の内容、全試験、Nodeのdist読込み、tgzを単独導入したNode/Bun consumerを検査します。実Chromeの権限境界は `LAB_BROWSER_TESTS=1 bun test lab/test/host/net-guard.browser.test.ts`、20ケースの通しは `bun run lab run --split dev --inference scripted --browser chrome --headless` で実行できます。API呼出しはこれらの検証に含めません。
+
+## 共通のAPIキーを使う
+
+ログインシェルに設定した `CLAUDE_API_KEY` と `OPEN_AI_API_KEY` をそのまま使えます。標準名の `ANTHROPIC_API_KEY`、`OPENAI_API_KEY` があればそちらを優先します。プロジェクトごとの.envは不要です。設定後の古いターミナルでは、一度 `source ~/.zprofile` で環境を読み直します。CLIが毎回シェル設定を実行することはありません。
 
 ```sh
-bun run lab cases                                  # devケースの一覧（holdoutは --include-holdout）
-bun run lab run --case dev-search-base --inference scripted --browser chrome
-bun run lab run --split dev --inference scripted --browser chrome
-bun run lab trials
-bun run lab report --experiment <実験id>
+bun run lab run --case dev-search-base --inference claude --browser chrome --headless
+bun run lab run --case dev-search-base --inference openai --model gpt-6-luna --browser chrome --headless
 ```
 
-- `run`は、試行の間だけfixtureを`http://127.0.0.1:<空きポート>/`で配信し、隔離したブラウザをPlaywright MCPで起動して、終わると両方を止めます。既定はheadedで画面を表示します（interactはheadありで使う想定）。headlessにしたいときだけ`--headless`を付けます。`--headed`は受け付けますが何も変えません。
-- 試行中の宛先はfixtureの配信元と`about:blank`だけです。
-- 研究用DBとログは`lab/data/`（git管理外）に置きます。`run`は同時に一つだけ動きます。
+有料呼出しは、両provider共通の `lab/data/api-spend.sqlite` で最大10USDまで送信前に費用枠を確保します。出力上限を守り、自動retryを行いません。応答や使用量が不明な呼出しを無料として扱いません。検証途中に台帳を消したり、別の台帳へ切り替えたりしないでください。実行結果・失敗・確保額は[検証記録](docs/reviews/2026-11-05/implementation/)に残します。
 
-### 作業定義のサンプル（検索語を変数にして本文を取得）
+## 公開パッケージ
 
-`lab/definitions/`の作業定義を、検索語を入力にして実行します。サイトごとの検索欄やリンクの見つけ方は、コードではなくサイト知識（`lab/knowledge/`、実行時に研究用DBへ取り込む）として持ちます。
+| 入口 | 内容 |
+| --- | --- |
+| eumenes-interact | 純粋な1手の処理核と公開契約 |
+| eumenes-interact/sqlite | ホスト所有の接続上で使うmigrationと保存・サイト知識 |
+| eumenes-interact/parts | 同じ部品実装、registry、capture、注入する実行port |
+| eumenes-interact/adapters/playwright-mcp | 隔離したPlaywright MCP接続 |
 
-```sh
-bun run lab task list
-bun run lab task run wikipedia-article --input query=量子コンピュータ --json --browser chrome
-bun run lab task run gizmodo-article --input query=iPhone --json --browser chrome
-bun run lab task run slashdot-story --input query=rust --json --browser chrome
-bun run lab task run biggo-product --input query=マウス --json --browser chrome
-```
+`bun run check:package` は配布tgzを作り、空のconsumerへ導入して全公開部分、SQLite、部品の通常・拒否・承認、改変検出をNode/Bunで確認します。配布物にはSkill、migrationのdigest、実体のhash、実行時依存のライセンスを含めます。packageは勝手にDBやブラウザ、推論ループを起動しません。
 
-- `--json`で、最終URL・各手順の状態・取得した本文（`extracts`）をJSONで標準出力に出します。終了コードは0が成功、1が完了しなかった、2が実行前の拒否です。TypeScriptからは`lab/host/definition-run.ts`の`runDefinition()`で呼べます。
-- 承認が要る操作に当たると、既定では何も送らずに止まります（`--approver cli`で端末から答えられます）。
-- BigGoは、headlessの自動化ブラウザだとアクセスを拒否されるため、`--headless`を付けずに（既定のheadedで）動かします。
-- 詳しくは[lab/definitions/README.md](lab/definitions/README.md)を参照してください。
+研究用CLI・MCP・実験scorerはlabに置きます。`run`のDB・ログ・撮影は `lab/data/` に保存し、Gitへ入れません。通常は隔離ブラウザを使い、操作終了時に閉じます。`chain`は元依頼からLLMが計画し、結果を見せる段だけ期限付きでブラウザを残します。
 
-LARMで実LLMを使う場合:
+## 運用と状態
 
-```sh
-LARM_API_TOKEN=... bun run lab larm profiles --base-url <LARMのURL>
-LARM_API_TOKEN=... bun run lab larm set --base-url <LARMのURL> --profile <Profile名>
-LARM_API_TOKEN=... bun run lab run --case dev-search-base --inference larm --browser chrome
-```
+[CLIの使い方](lab/README.md)、[MCP](lab/mcp/README.md)、[更新・復旧・削除](docs/operations.md)、[Eumenes統合案](docs/integration-design.md)を参照してください。completed、partial、needs_input、cancelled、expired、indeterminateを区別し、部分結果や不明な送出を成功として採用しません。
 
-トークンは環境変数からだけ読み、DBやログには保存しません。接続先はローカルかプライベートLANのアドレスに限ります。
+LARMの設定用コマンドは残っていますが、現在のArm 1が必要とする構造化出力への接続は未対応です。Claude、OpenAI、scriptedまたはmanualを使います。Eumenesとのスタック比較は本体checkoutがある環境で `bun run check:stack` を実行します。Zodの安全修正に伴う差は[依存の記録](docs/security-dependency-overrides.md)に明示しています。
 
-## 状態
-
-S1（核とArm 0）を実装済みです。実ブラウザでの台本推論の実走と、実LLMによる基準線の測定はこれからです。段階と完了条件は[plan.md](plan.md)の§15を参照してください。
+技術品質80点以上の正式な再評価は、改善と受入が揃った時点で行います。計画の目標値を実測値として扱いません。
 
 ## ライセンス
 
-[MIT](LICENSE)
+[MIT](LICENSE)。配布依存の通知は生成するdist/licensesとdist/third-party.jsonに含みます。

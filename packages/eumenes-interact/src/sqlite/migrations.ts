@@ -262,11 +262,21 @@ CREATE INDEX interact_object_evidence_by_candidate ON interact_object_evidence (
 
 export const migrations: readonly string[] = Object.freeze([
 	siteAndRunTables.trim() + "\n",
+	`CREATE TABLE interact_site_search_templates (
+	 scope_id INTEGER NOT NULL REFERENCES interact_site_scopes(id) ON DELETE CASCADE,
+	 path_prefix TEXT NOT NULL CHECK(length(path_prefix) BETWEEN 1 AND 256),
+	 template TEXT NOT NULL CHECK(length(template) BETWEEN 1 AND 2000),
+	 revision INTEGER NOT NULL CHECK(revision >= 1),
+	 source_ref TEXT NOT NULL CHECK(length(source_ref) BETWEEN 1 AND 1000),
+	 checked_at TEXT NOT NULL, expires_at TEXT NOT NULL,
+	 PRIMARY KEY(scope_id,path_prefix)
+	);\n`,
 ]);
 
 /** Every table the migrations create; `assertInteractSchema` checks these. */
 export const INTERACT_TABLES = Object.freeze([
 	"interact_site_scopes",
+	"interact_site_search_templates",
 	"interact_page_profiles",
 	"interact_site_objects",
 	"interact_locator_candidates",

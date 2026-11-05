@@ -1,8 +1,14 @@
 node_modules/
 dist/
 *.tgz
+!vendor/*.tgz
 lab/data/
 .serena/
 .env
 .env.*
 !.env.example
+
+packages/eumenes-interact/distribution-manifest.json
+
+# OS-owned sidecar for runner locks
+*.run.lock.guard.sqlite*

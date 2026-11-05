@@ -87,6 +87,7 @@ export async function runScripted(
 		arm?: ArmId;
 		captureDir?: string;
 		captureRoot?: string;
+		beforeFinish?: Parameters<typeof runTrial>[0]["beforeFinish"];
 	} = {},
 ): Promise<Harness> {
 	const def = options.def ?? (await devCase(caseId));
@@ -114,6 +115,7 @@ export async function runScripted(
 		...(options.control ? { control: options.control } : {}),
 		...(options.deadlineMs ? { deadlineMs: options.deadlineMs } : {}),
 		...(options.now ? { now: options.now } : {}),
+		...(options.beforeFinish ? { beforeFinish: options.beforeFinish } : {}),
 		...(options.onEvent ? { onEvent: options.onEvent } : {}),
 		...(options.observationSink
 			? { observationSink: options.observationSink }

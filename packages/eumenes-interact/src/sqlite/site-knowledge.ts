@@ -118,6 +118,22 @@ export function getSiteScope(
 	return row == null ? null : readScope(row);
 }
 
+/** Forget an owner's origin-scoped knowledge and its dependent profiles, candidates and evidence. */
+export function forgetSiteScope(
+	db: InteractDb,
+	owner: string,
+	origin: string,
+): void {
+	assertWritable(db);
+	requireId(owner, "owner");
+	requireOrigin(origin);
+	guarded(() =>
+		db
+			.query("DELETE FROM interact_site_scopes WHERE owner=? AND origin=?")
+			.run(owner, origin),
+	);
+}
+
 /** Creates the scope for an owner and a normalized origin, or returns the existing one. */
 export function upsertSiteScope(
 	db: InteractDb,

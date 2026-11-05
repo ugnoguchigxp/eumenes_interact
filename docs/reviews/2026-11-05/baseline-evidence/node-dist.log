@@ -1,0 +1,10 @@
+file:///private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/packages/eumenes-interact/dist/core/arm1/run.js:52
+        throw new Error("unknown_arm");
+              ^
+
+Error: unknown_arm
+    at Module.startRun (file:///private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/packages/eumenes-interact/dist/core/arm1/run.js:52:15)
+    at Module.startRun (file:///private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/packages/eumenes-interact/dist/core/dispatch.js:5:41)
+    at file:///private/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/lab/scripts/check-dist-node.mjs:12:20
+
+Node.js v24.11.1

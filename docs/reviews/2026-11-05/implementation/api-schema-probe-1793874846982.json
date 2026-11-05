@@ -1,0 +1,69 @@
+{
+  "at": "2026-11-05T10:34:06.982Z",
+  "rows": [
+    {
+      "provider": "claude",
+      "outcome": {
+        "kind": "text",
+        "text": "{\"part\":\"done\",\"args\":{\"answer\":\"接続確認\",\"evidence\":[],\"outcome\":\"achieved\",\"basis\":\"response\"}}",
+        "metadata": {
+          "provider": "anthropic",
+          "requestedModel": "claude-haiku-5-5",
+          "returnedModel": "claude-haiku-5-5",
+          "responseId": "msg_011CgjdYVP7j9ZGZVoEHsPtn",
+          "serviceTier": "standard",
+          "httpAttempts": 1
+        },
+        "usage": {
+          "inputTokens": 4,
+          "outputTokens": 56,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 5385
+        },
+        "latencyMs": 2444
+      },
+      "step": {
+        "kind": "finish",
+        "text": "接続確認",
+        "refs": [],
+        "outcome": "achieved",
+        "basis": "response"
+      },
+      "passed": true
+    },
+    {
+      "provider": "openai",
+      "outcome": {
+        "kind": "text",
+        "text": "{\"part\":\"ask\",\"args\":{\"question\":\"接続確認\"}}",
+        "usage": {
+          "inputTokens": 2862,
+          "outputTokens": 59,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "reasoningTokens": 30
+        },
+        "latencyMs": 1806,
+        "metadata": {
+          "provider": "openai",
+          "requestedModel": "gpt-6-luna",
+          "returnedModel": "gpt-6-luna",
+          "responseId": "resp_08361a34ca51b109016aec5b9d631c87d1ad27155e77c0c91f",
+          "serviceTier": "default",
+          "httpAttempts": 1
+        }
+      },
+      "step": {
+        "kind": "clarify",
+        "text": "接続確認"
+      },
+      "passed": false
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 15,
+    "accountedUpperUsd": 6.258483,
+    "unknownCalls": 11
+  }
+}

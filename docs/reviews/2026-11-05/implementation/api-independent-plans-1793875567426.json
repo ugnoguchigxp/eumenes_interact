@@ -1,0 +1,499 @@
+{
+  "at": "2026-11-05T10:46:07.426Z",
+  "authorship": "Independent validation agent; existing holdout files were not read. All four cases retained without selection.",
+  "scope": "Independent-authored planning cases; implementation author executed all cases. No real website visit or independent user claim.",
+  "rows": [
+    {
+      "provider": "claude",
+      "case": "independent-text-edit",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "s1",
+            "goal": "架空のログ2行「画面を開く」「最新ボタンを押す」を、操作せずに1文へ言い換える",
+            "inputs": [],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "依頼は文章編集のみで、Web閲覧や画面操作は不要のため、ブラウザを使わず要約として返答する。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼は文章編集のみで、Web閲覧や画面操作は不要のため、ブラウザを使わず要約として返答する。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      }
+    },
+    {
+      "provider": "openai",
+      "case": "independent-text-edit",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "s1",
+            "goal": "指定された架空のログ2行を、操作を実行せずに1文へ言い換えて返す。",
+            "inputs": [],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "依頼は提示された文章の編集のみで、Web閲覧や画面操作は求めていない。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼は提示された文章の編集のみで、Web閲覧や画面操作は求めていない。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      }
+    },
+    {
+      "provider": "claude",
+      "case": "independent-explicit-iri",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "s1",
+            "goal": "https://catalogue.example.net/archive/?tag=海洋 を開き、ページ内の公開年を確認する",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "依頼のURLを開いて公開年を確かめる必要があるため、ブラウザで観測する。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼のURLを開いて公開年を確かめる必要があるため、ブラウザで観測する。",
+            "keepOpen": false,
+            "start": "https://catalogue.example.net/archive/?tag=海洋",
+            "completion": "observed"
+          },
+          {
+            "id": "s2",
+            "goal": "確認した公開年を利用者に伝える",
+            "inputs": [
+              "s1"
+            ],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "s1の観測結果をもとに返答するだけで、外部操作は不要。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [
+                  "s1"
+                ],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "s1の観測結果をもとに返答するだけで、外部操作は不要。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      }
+    },
+    {
+      "provider": "openai",
+      "case": "independent-explicit-iri",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "check_publication_year",
+            "goal": "指定されたアーカイブページを開き、ページ内に記載された公開年を確認して伝える。",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "公開年の確認には指定URLのページを閲覧する必要がある。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "公開年の確認には指定URLのページを閲覧する必要がある。",
+            "keepOpen": false,
+            "start": "https://catalogue.example.net/archive/?tag=海洋",
+            "completion": "observed"
+          }
+        ],
+        "facts": []
+      }
+    },
+    {
+      "provider": "claude",
+      "case": "independent-three-stage-comparison",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "s1",
+            "goal": "https://a.example.net/spec の仕様を読み、主要な内容を把握する",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "外部ページの仕様確認が必要なためブラウザで開いて読む。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "外部ページの仕様確認が必要なためブラウザで開いて読む。",
+            "keepOpen": false,
+            "start": "https://a.example.net/spec",
+            "completion": "observed"
+          },
+          {
+            "id": "s2",
+            "goal": "https://b.example.net/spec の仕様を読み、主要な内容を把握する",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "外部ページの仕様確認が必要なためブラウザで開いて読む。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "外部ページの仕様確認が必要なためブラウザで開いて読む。",
+            "keepOpen": false,
+            "start": "https://b.example.net/spec",
+            "completion": "observed"
+          },
+          {
+            "id": "s3",
+            "goal": "第1段と第2段の結果だけから、両仕様の違いを二つまとめる",
+            "inputs": [
+              "s1",
+              "s2"
+            ],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "依頼どおり新しいページは開かず、既存の結果のみから比較要約を作る。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [
+                  "s1",
+                  "s2"
+                ],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼どおり新しいページは開かず、既存の結果のみから比較要約を作る。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      }
+    },
+    {
+      "provider": "openai",
+      "case": "independent-three-stage-comparison",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "step1",
+            "goal": "https://a.example.net/spec の仕様を読む。",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "依頼された公開ページを開いて仕様を確認する。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼された公開ページを開いて仕様を確認する。",
+            "keepOpen": false,
+            "start": "https://a.example.net/spec",
+            "completion": "observed"
+          },
+          {
+            "id": "step2",
+            "goal": "https://b.example.net/spec の仕様を読む。",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "依頼された公開ページを開いて仕様を確認する。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼された公開ページを開いて仕様を確認する。",
+            "keepOpen": false,
+            "start": "https://b.example.net/spec",
+            "completion": "observed"
+          },
+          {
+            "id": "step3",
+            "goal": "第1段と第2段で確認した仕様だけを比較し、違いを二つまとめる。新しいページは開かない。",
+            "inputs": [
+              "step1",
+              "step2"
+            ],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "比較に必要な情報は先行する二段の結果に限られる。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [
+                  "step1",
+                  "step2"
+                ],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "比較に必要な情報は先行する二段の結果に限られる。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      }
+    },
+    {
+      "provider": "claude",
+      "case": "independent-observed-destination",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "s1",
+            "goal": "https://museum.example.org/exhibitions/ を開き、掲載されている展示一覧を観測して、一つの展示とその詳細ページURLを特定する",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "依頼で指定された一覧ページを実際に開いて掲載内容を確認する必要があるため、ブラウザ操作が必要。詳細URLは一覧の観測結果から得る。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼で指定された一覧ページを実際に開いて掲載内容を確認する必要があるため、ブラウザ操作が必要。詳細URLは一覧の観測結果から得る。",
+            "keepOpen": false,
+            "start": "https://museum.example.org/exhibitions/",
+            "completion": "observed"
+          },
+          {
+            "id": "s2",
+            "goal": "s1で観測した詳細ページURLを開き、その展示の会期を確認する",
+            "inputs": [
+              "s1"
+            ],
+            "output": "screen",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "会期は詳細ページ上の表示を確かめる必要があるため、ブラウザで開いて観測する。URLは前段の観測結果に依存する。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [
+                  "s1"
+                ],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "会期は詳細ページ上の表示を確かめる必要があるため、ブラウザで開いて観測する。URLは前段の観測結果に依存する。",
+            "keepOpen": true,
+            "start": null,
+            "completion": "observed"
+          },
+          {
+            "id": "s3",
+            "goal": "s2で確認できた会期のみを返答として提示する。確認できなかった場合はその旨を伝える",
+            "inputs": [
+              "s2"
+            ],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "最終的に確認できた会期だけを返す必要があるため、観測結果を要約して返答する。ブラウザ操作は不要。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [
+                  "s2"
+                ],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "最終的に確認できた会期だけを返す必要があるため、観測結果を要約して返答する。ブラウザ操作は不要。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      }
+    },
+    {
+      "provider": "openai",
+      "case": "independent-observed-destination",
+      "passed": true,
+      "plan": {
+        "steps": [
+          {
+            "id": "list",
+            "goal": "https://museum.example.org/exhibitions/ を開き、一覧に掲載されている展示を一つ選んで、その展示名と一覧上の詳細ページへのリンク先を確認する。",
+            "inputs": [],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "展示と詳細ページURLは一覧を実際に観測して得る必要がある。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "展示と詳細ページURLは一覧を実際に観測して得る必要がある。",
+            "keepOpen": false,
+            "start": "https://museum.example.org/exhibitions/",
+            "completion": "observed"
+          },
+          {
+            "id": "date",
+            "goal": "前段で確認した詳細ページを開き、選んだ展示の会期を確認する。",
+            "inputs": [
+              "list"
+            ],
+            "output": "findings",
+            "browser": {
+              "by": "plan",
+              "browser": true,
+              "rationale": "詳細ページのURLは一覧の観測結果から取得し、会期を確認する。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [
+                  "list"
+                ],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "詳細ページのURLは一覧の観測結果から取得し、会期を確認する。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "observed"
+          },
+          {
+            "id": "reply",
+            "goal": "確認できた会期だけを返す。",
+            "inputs": [
+              "date"
+            ],
+            "output": "summary",
+            "browser": {
+              "by": "plan",
+              "browser": false,
+              "rationale": "依頼は会期のみの返答を求めている。",
+              "signals": {
+                "explicitSite": false,
+                "explicitAction": false,
+                "freshness": false,
+                "priorResults": [
+                  "date"
+                ],
+                "pastMisjudged": []
+              }
+            },
+            "rationale": "依頼は会期のみの返答を求めている。",
+            "keepOpen": false,
+            "start": null,
+            "completion": "response"
+          }
+        ],
+        "facts": []
+      }
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 128,
+    "accountedUpperUsd": 6.596823,
+    "unknownCalls": 11
+  }
+}

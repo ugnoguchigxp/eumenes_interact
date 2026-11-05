@@ -1,0 +1,19 @@
+{
+  "reviewer": "independent_validation Codex validation agent",
+  "method": "read-only source falsification; no API, browser, secret files or other chats accessed",
+  "findings": [
+    "paid chain provider incorrectly recorded as scripted",
+    "non-browser failed step continued into dependent steps",
+    "public CaptureStore path traversal and pre-existing directory symlink",
+    "OpenAI cached input counted twice",
+    "partial mapped to failed despite public RunStatus contract"
+  ],
+  "followUp": "Source trace confirmed the five root causes addressed; no new High issue identified in that read-only pass. Runtime proof comes from separate tests.",
+  "unverifiedByReviewer": [
+    "concurrent directory replacement",
+    "packaged consumer execution",
+    "whole CLI provider persistence and stop behavior"
+  ],
+  "independentCaseCount": 4,
+  "casePolicy": "All cases retained and executed with both providers; no existing holdout read by the author."
+}

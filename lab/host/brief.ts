@@ -10,19 +10,6 @@ const DEFAULTS = {
 	how: "部品を一つずつ使う。開けるURLはホストの方針で決まり（他のサイトへ移ることもある）、拒否されたURLは開かない。送信・購入などは承認で止まる",
 } as const;
 
-/** Words that mark a time in the request (the request then states `when`). */
-const TIME =
-	/今日|明日|昨日|今週|来週|先週|今月|来月|\d+\s*(年|月|日|時|分)|\d{4}-\d{2}-\d{2}/;
-/**
- * Personal data or payment: who the data belongs to must not be guessed. A bare 名前 is not personal data
- * (「レシピの名前」「曲の名前」); only a person's name is (氏名, 私の名前, 名前を入力する).
- */
-const PERSONAL =
-	/氏名|(?:私|自分|僕|俺|わたし|あなた|本人|家族|子ども|子供)の(?:お)?名前|(?:お)?名前(?:を|は)?(?:入力|記入|登録|書いて|書く)|住所|電話|メールアドレス|生年月日|カード|口座|パスワード|支払|決済|購入|注文/;
-
-/** A name the request gives for the person (`名前は山田花子`): then `who` is stated, not asked. */
-const NAMED = /(?:お名前|名前|氏名)(?:は|：|:)\s*([^、，,。\s]+)/;
-
 function pageUrl(reference: unknown): string | undefined {
 	const page = (reference as { page?: { url?: unknown } } | null)?.page;
 	return typeof page?.url === "string" ? page.url : undefined;
@@ -30,8 +17,8 @@ function pageUrl(reference: unknown): string | undefined {
 
 /**
  * The 5W1H of one browser request (v3 decision 4, M5). `what` is the request, `where` the start page; the
- * rest is inferred unless the request states it. Only personal data or payment without a named owner is
- * a question. Deterministic, no model call.
+ * rest is explicitly marked as inferred. Meaning, identity and missing information stay with the model;
+ * this function only packages supplied data and labeled defaults.
  */
 export function browseBrief(
 	request: string,
@@ -39,26 +26,11 @@ export function browseBrief(
 	sourceRef = "request",
 ): Brief {
 	const where = pageUrl(reference);
-	const when = request.match(TIME)?.[0];
-	const who = request.match(NAMED)?.[1];
 	return completeBrief({
 		sourceRef,
-		given: {
-			what: request,
-			...(where ? { where } : {}),
-			...(when ? { when } : {}),
-			...(who ? { who } : {}),
-		},
+		given: { what: request, ...(where ? { where } : {}) },
 		defaults: DEFAULTS,
-		mustAsk:
-			PERSONAL.test(request) && !who
-				? [
-						{
-							slot: "who",
-							reason: "個人情報や支払いに関わるため、誰の情報かを推測しない",
-						},
-					]
-				: [],
+		mustAsk: [],
 	});
 }
 

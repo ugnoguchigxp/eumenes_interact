@@ -57,16 +57,3 @@ export function recordMisjudgment(
 	renameSync(tmp, path);
 	return next;
 }
-
-/** An answer that says it could not answer from what it had. */
-const NOT_ANSWERED =
-	/分かりません|わかりません|不明です|確認できません|確認できない|見つかりません|含まれていません|結果にありません|情報がありません|調べる必要|最新の情報|cannot (?:tell|answer)|not (?:in|found in) the results|unknown/iu;
-
-/**
- * Whether a step answered without the browser proved that wrong: it gave no answer, or its answer says the
- * results did not hold it (the missing information had to be fetched).
- */
-export function noBrowserProvedWrong(answer: string): boolean {
-	const text = answer.trim();
-	return text.length === 0 || NOT_ANSWERED.test(text);
-}

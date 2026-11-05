@@ -4,12 +4,13 @@
 	"type": "module",
 	"dependencies": {
 		"@anthropic-ai/sdk": "0.131.0",
-		"@modelcontextprotocol/sdk": "1.31.0",
+		"@modelcontextprotocol/sdk": "1.32.0",
 		"@playwright/mcp": "0.0.83",
 		"agent-desktop": "0.11.1",
-		"eumenes-collaboration": "file:../../eumenes_collaboration",
+		"eumenes-collaboration": "file:../vendor/eumenes-collaboration-0.1.0-baseline.tgz",
 		"eumenes-interact": "workspace:*",
 		"pino": "10.3.1",
-		"zod": "4.4.3"
+		"zod": "4.6.6",
+		"playwright-core": "1.64.0-alpha-1790635538000"
 	}
 }
