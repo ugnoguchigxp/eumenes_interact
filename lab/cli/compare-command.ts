@@ -139,9 +139,14 @@ export async function compareCommand(
 			items,
 			definitions: byId,
 			cases: new Map(cases.map((c) => [c.id, c])),
-			createSession: (platform) =>
+			createSession: (platform, kind = "definition") =>
 				createSession(
-					{ headed: options.headed, platform: platform as BrowserPlatform },
+					{
+						headed: options.headed,
+						platform: platform as BrowserPlatform,
+						// Real sites only: a fixture case is on loopback and must not go through the guard.
+						...(kind === "definition" ? { netGuard: true } : {}),
+					},
 					logger,
 				),
 			commit: packageCommit(),

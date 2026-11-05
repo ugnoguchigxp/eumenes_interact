@@ -386,7 +386,7 @@ export function startOperate(
 					: larmFactory(db, logger)(runId));
 			inferenceInfo = inference.info();
 			session = await (deps.createSession ?? createSession)(
-				{ headed: o.headed !== false },
+				{ headed: o.headed !== false, netGuard: true },
 				logger,
 			);
 			const def: TrialCase = {

@@ -228,7 +228,7 @@ export async function runCommand(
 					approver === "cli"
 						? new CliApprover()
 						: new FixtureApprover(def.approvalScript),
-				adapter: () => createSession(options, logger),
+				adapter: () => createSession({ ...options, ...(live ? { netGuard: true } : {}) }, logger),
 			},
 		});
 		console.log(`experiment\t${done.experimentId}`);

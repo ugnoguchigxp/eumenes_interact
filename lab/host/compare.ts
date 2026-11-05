@@ -204,6 +204,8 @@ export type RunCompareOptions = {
 	/** A fresh session on the platform; the run closes it. */
 	createSession(
 		platform: string,
+		/** `definition` visits a real site (needs the network guard); `case` is the fixture server. */
+		kind?: "definition" | "case",
 	): Promise<{ adapter: PlatformAdapter; dispose(): Promise<void> }>;
 	/** The kind of inference answering the cases (frozen into each platform's experiment); default `scripted`. */
 	inferenceKind?: InferenceKind;
@@ -290,7 +292,7 @@ export async function runCompare(
 			const began = now();
 			let session: Awaited<ReturnType<RunCompareOptions["createSession"]>>;
 			try {
-				session = await options.createSession(item.platform);
+				session = await options.createSession(item.platform, item.kind);
 			} catch {
 				sample = {
 					...blank(),

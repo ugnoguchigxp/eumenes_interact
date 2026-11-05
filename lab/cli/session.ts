@@ -39,24 +39,30 @@ export async function createSession(
 					: {},
 			)
 		: null;
-	const launch = playwrightLaunch({
-		...(options.browser ? { channel: options.browser } : {}),
-		...(options.executablePath ? { executablePath: options.executablePath } : {}),
-	});
-	if (guard) launch.args = [...launch.args, "--proxy-server", guard.url];
-	const adapter = createPlaywrightMcpAdapter({
-		launch,
-		workDir,
-		logger,
-		correlationId: randomUUID(),
-		browser: { mode: "isolated", headless: !options.headed },
-	});
-	return {
-		adapter,
-		dispose: async () => {
-			await adapter.close();
-			await guard?.close();
-			await rm(workDir, { recursive: true, force: true });
-		},
-	};
+	try {
+		const launch = playwrightLaunch({
+			...(options.browser ? { channel: options.browser } : {}),
+			...(options.executablePath ? { executablePath: options.executablePath } : {}),
+		});
+		if (guard) launch.args = [...launch.args, "--proxy-server", guard.url];
+		const adapter = createPlaywrightMcpAdapter({
+			launch,
+			workDir,
+			logger,
+			correlationId: randomUUID(),
+			browser: { mode: "isolated", headless: !options.headed },
+		});
+		return {
+			adapter,
+			dispose: async () => {
+				await adapter.close();
+				await guard?.close();
+				await rm(workDir, { recursive: true, force: true });
+			},
+		};
+	} catch (error) {
+		await guard?.close();
+		await rm(workDir, { recursive: true, force: true });
+		throw error;
+	}
 }
