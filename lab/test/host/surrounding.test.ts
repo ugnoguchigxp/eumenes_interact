@@ -3,7 +3,8 @@ import { surrounding, withSortControls } from "../../host/parts/executor.ts";
 
 describe("surrounding", () => {
 	test("returns the row around a line that is the name alone", () => {
-		const text = "Jamaica\n\n2025\n\n2,837.08\n\nJapan\n\n2025\n\n123,366.73\n\nJordan";
+		const text =
+			"Jamaica\n\n2025\n\n2,837.08\n\nJapan\n\n2025\n\n123,366.73\n\nJordan";
 		const out = surrounding(text, "Japan", 200);
 		expect(out).toContain("Japan\n2025\n123,366.73");
 	});

@@ -133,7 +133,10 @@ export function capKeepingSide(text: string, cap: number): string {
 	const at = text.lastIndexOf(SIDE_MARK);
 	if (at < 0) return clip(text, cap);
 	const side = text.slice(at);
-	const sideKeep = clip(side, Math.min(side.length, Math.max(200, Math.floor(cap * 0.4)), cap));
+	const sideKeep = clip(
+		side,
+		Math.min(side.length, Math.max(200, Math.floor(cap * 0.4)), cap),
+	);
 	const room = cap - sideKeep.length - 2;
 	if (room <= 0) return clip(text, cap);
 	return `${clip(text.slice(0, at), room)}\n…${sideKeep}`;

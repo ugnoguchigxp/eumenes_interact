@@ -1,7 +1,13 @@
 {
 	"$comment": "Host-approved clicks that need no y/N: an origin and the fixed action kinds granted there (lab/host/allowlist.ts). Anything else stays behind the approval gate.",
 	"entries": [
-		{ "origin": "https://www.youtube.com", "actions": ["media.play", "media.pause"] },
-		{ "origin": "https://m.youtube.com", "actions": ["media.play", "media.pause"] }
+		{
+			"origin": "https://www.youtube.com",
+			"actions": ["media.play", "media.pause"]
+		},
+		{
+			"origin": "https://m.youtube.com",
+			"actions": ["media.play", "media.pause"]
+		}
 	]
 }

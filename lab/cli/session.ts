@@ -42,7 +42,9 @@ export async function createSession(
 	try {
 		const launch = playwrightLaunch({
 			...(options.browser ? { channel: options.browser } : {}),
-			...(options.executablePath ? { executablePath: options.executablePath } : {}),
+			...(options.executablePath
+				? { executablePath: options.executablePath }
+				: {}),
 		});
 		if (guard) launch.args = [...launch.args, "--proxy-server", guard.url];
 		const adapter = createPlaywrightMcpAdapter({

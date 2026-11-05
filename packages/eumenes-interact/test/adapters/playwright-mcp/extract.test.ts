@@ -167,7 +167,12 @@ test("a sidebar beside the article in main, and an aside, follow under [side] (n
 		h(
 			"MAIN",
 			{},
-			h("ARTICLE", {}, h("H1", {}, "zod"), h("P", {}, "TypeScript-first schema validation.")),
+			h(
+				"ARTICLE",
+				{},
+				h("H1", {}, "zod"),
+				h("P", {}, "TypeScript-first schema validation."),
+			),
 			h("DIV", {}, h("H3", {}, "License"), h("P", {}, "MIT")),
 		),
 		h("ASIDE", {}, "Weekly Downloads 44M"),

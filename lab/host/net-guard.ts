@@ -31,7 +31,13 @@ function ipv6Groups(raw: string): number[] | null {
 	const halves = host.split("::");
 	if (halves.length > 2) return null;
 	const part = (s: string) =>
-		s === "" ? [] : s.split(":").map((g) => (/^[0-9a-f]{1,4}$/.test(g) ? Number.parseInt(g, 16) : Number.NaN));
+		s === ""
+			? []
+			: s
+					.split(":")
+					.map((g) =>
+						/^[0-9a-f]{1,4}$/.test(g) ? Number.parseInt(g, 16) : Number.NaN,
+					);
 	const head = part(halves[0]!);
 	const rest = halves.length === 2 ? part(halves[1]!) : [];
 	const fill = halves.length === 2 ? 8 - head.length - rest.length : 0;
@@ -66,7 +72,9 @@ export type Resolve = (host: string) => Promise<string[]>;
 export function cidrMatcher(list: string): (address: string) => boolean {
 	const nets = list
 		.split(",")
-		.map((e) => /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/.exec(e.trim()))
+		.map((e) =>
+			/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/.exec(e.trim()),
+		)
 		.filter((m): m is RegExpExecArray => m !== null)
 		.map((m) => {
 			const bits = Number(m[5]);
@@ -107,14 +115,16 @@ export async function resolvePublic(
 		return isPrivateAddress(host)
 			? { ok: false, code: "navigation_private_blocked" }
 			: { ok: true, address: host };
-	if (isPrivateHost(host)) return { ok: false, code: "navigation_private_blocked" };
+	if (isPrivateHost(host))
+		return { ok: false, code: "navigation_private_blocked" };
 	let addresses: string[];
 	try {
 		addresses = await resolve(host);
 	} catch {
 		return { ok: false, code: "navigation_dns_failed" };
 	}
-	if (addresses.length === 0) return { ok: false, code: "navigation_dns_failed" };
+	if (addresses.length === 0)
+		return { ok: false, code: "navigation_dns_failed" };
 	if (addresses.some((a) => isPrivateAddress(a) && !egress(a)))
 		return { ok: false, code: "navigation_private_resolved" };
 	return { ok: true, address: addresses[0]! };
@@ -150,7 +160,8 @@ export async function startNetGuard(
 		if (blocked.length < 200) blocked.push(b);
 		options.onBlock?.(b);
 	};
-	const check = (host: string) => resolvePublic(host, options.resolve, options.egress);
+	const check = (host: string) =>
+		resolvePublic(host, options.resolve, options.egress);
 	const server = http.createServer(async (req, res) => {
 		let url: URL;
 		try {
@@ -167,7 +178,9 @@ export async function startNetGuard(
 		const verdict = await check(url.hostname);
 		if (!verdict.ok) {
 			block(url.hostname, verdict.code);
-			res.writeHead(403, { "content-type": "text/plain" }).end(`blocked: ${verdict.code}`);
+			res
+				.writeHead(403, { "content-type": "text/plain" })
+				.end(`blocked: ${verdict.code}`);
 			return;
 		}
 		const headers = { ...req.headers };
@@ -192,30 +205,33 @@ export async function startNetGuard(
 		});
 		req.pipe(upstream);
 	});
-	server.on("connect", async (req: http.IncomingMessage, client: Duplex, head: Buffer) => {
-		client.on("error", () => {});
-		const m = /^\[?([^\]]+?)\]?:(\d{1,5})$/.exec(req.url ?? "");
-		if (!m) {
-			client.end("HTTP/1.1 400 Bad Request\r\n\r\n");
-			return;
-		}
-		const host = m[1]!;
-		const port = Number(m[2]);
-		const verdict = await check(host);
-		if (!verdict.ok) {
-			block(host, verdict.code);
-			client.end("HTTP/1.1 403 Forbidden\r\n\r\n");
-			return;
-		}
-		const up = net.connect(port, verdict.address, () => {
-			client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
-			if (head.length) up.write(head);
-			up.pipe(client);
-			client.pipe(up);
-		});
-		up.on("error", () => client.end("HTTP/1.1 502 Bad Gateway\r\n\r\n"));
-		client.on("close", () => up.destroy());
-	});
+	server.on(
+		"connect",
+		async (req: http.IncomingMessage, client: Duplex, head: Buffer) => {
+			client.on("error", () => {});
+			const m = /^\[?([^\]]+?)\]?:(\d{1,5})$/.exec(req.url ?? "");
+			if (!m) {
+				client.end("HTTP/1.1 400 Bad Request\r\n\r\n");
+				return;
+			}
+			const host = m[1]!;
+			const port = Number(m[2]);
+			const verdict = await check(host);
+			if (!verdict.ok) {
+				block(host, verdict.code);
+				client.end("HTTP/1.1 403 Forbidden\r\n\r\n");
+				return;
+			}
+			const up = net.connect(port, verdict.address, () => {
+				client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
+				if (head.length) up.write(head);
+				up.pipe(client);
+				client.pipe(up);
+			});
+			up.on("error", () => client.end("HTTP/1.1 502 Bad Gateway\r\n\r\n"));
+			client.on("close", () => up.destroy());
+		},
+	);
 	await new Promise<void>((ok) => server.listen(0, "127.0.0.1", ok));
 	const port = (server.address() as net.AddressInfo).port;
 	return {
