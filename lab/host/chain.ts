@@ -187,6 +187,19 @@ export const CHAIN_SITES: readonly {
 
 export const GENERAL_SEARCH_ORIGIN = "https://html.duckduckgo.com";
 
+/** Whether a goal names one of the sites a step may start on. */
+export const namesChainSite = (goal: string) =>
+	CHAIN_SITES.some((s) => s.pattern.test(goal));
+
+/** The plan of a request, with this lab's sites as the named ones. */
+export const chainPlan = (request: string) =>
+	planSteps(request, "request", { siteNamed: namesChainSite });
+
+/** Whether the plan already gives the step the browser; `routed` holds steps their own inference gave it. */
+export const toBrowser = (step: PlanStep, routed?: ReadonlySet<string>) =>
+	(step.browser.by === "plan" && step.browser.browser) ||
+	(routed?.has(step.id) ?? false);
+
 export type ChainStepCase = { step: PlanStep; def: TrialCase | null };
 
 /** The site a step names, else the one the step before it used (「そのページで…」). */
@@ -195,10 +208,11 @@ export function chainCases(
 	request: string,
 	results: ReadonlyMap<string, string>,
 	maxModelCalls: number,
+	routed?: ReadonlySet<string>,
 ): ChainStepCase[] {
 	let previous: (typeof CHAIN_SITES)[number] | undefined;
 	return plan.steps.map((step) => {
-		if (!step.needsBrowser) return { step, def: null };
+		if (!toBrowser(step, routed)) return { step, def: null };
 		const site = CHAIN_SITES.find((s) => s.pattern.test(step.goal)) ?? previous;
 		if (!site) throw new Error(`step_site_unknown:${step.id}`);
 		previous = site;

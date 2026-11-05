@@ -1,20 +1,26 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createInterface } from "node:readline";
 import type { Database } from "bun:sqlite";
-import { decideSession, stepResultFact } from "eumenes-collaboration";
+import {
+	decideSession,
+	browserChoicePrompt,
+	parseBrowserChoice,
+	stepResultFact,
+} from "eumenes-collaboration";
 import { asCollabAgent } from "../host/collab.ts";
 import {
 	DEFAULT_KEEP_OPEN_IDLE_S,
 	DEFAULT_KEEP_OPEN_MAX_S,
 	budgetCheck,
+	chainPlan,
 	chainCases,
 	holdSession,
 	holdUntil,
 	settleWithin,
 	playbackAdvanced,
 	planBudget,
-	planSteps,
 	summaryPrompt,
+	toBrowser,
 } from "../host/chain.ts";
 import type { LabLogger } from "../host/log.ts";
 import {
@@ -72,10 +78,12 @@ export async function chainCommand(
 	const dir = process.env.LAB_MANUAL_DIR;
 	if (!dir) throw new Error("manual_needs_LAB_MANUAL_DIR");
 	const captureDir = parseCaptureDir(o.captureDir);
-	const plan = planSteps(o.request, "request");
+	const plan = chainPlan(o.request);
+	/** Steps whose own inference chose the browser. */
+	const routed = new Set<string>();
 	const budget = planBudget(plan.steps.length);
 	console.error(
-		`plan\t${plan.steps.map((s) => `${s.id}${s.needsBrowser ? (s.keepOpen ? "[browser,keep-open]" : "[browser]") : "[no browser]"} ${s.goal}`).join(" | ")}`,
+		`plan\t${plan.steps.map((s) => `${s.id}${toBrowser(s) ? (s.keepOpen ? "[browser,keep-open]" : "[browser]") : s.browser.by === "agent" ? "[step decides]" : "[no browser]"} ${s.goal}`).join(" | ")}`,
 	);
 	console.error(
 		`budget\tper step ${budget.perStep}\toverall ${budget.overall}`,
@@ -151,18 +159,29 @@ export async function chainCommand(
 					break;
 				}
 			}
-			const maxCalls = Math.min(budget.perStep, check.remaining);
-			const def = chainCases(plan, o.request, results, maxCalls)[index]!.def;
+			let maxCalls = Math.min(budget.perStep, check.remaining);
+			let def = chainCases(plan, o.request, results, maxCalls, routed)[index]!
+				.def;
+			let decided: string | null = null;
+			let answered: { text: string; code: string | null } | null = null;
 			if (!def) {
+				const decision = step.browser;
+				const deciding = decision.by === "agent";
 				const port = createManualInference(dir, `chain-${step.id}`);
 				const out = await port.complete({
 					messages: [
 						{
 							role: "system",
-							content:
-								"あなたは依頼者のために結果をまとめます。与えられた確認済みの結果だけを使い、日本語で簡潔に答えてください。",
+							content: deciding
+								? "あなたは依頼者のためにこのステップを進めます。与えられた確認済みの結果で答えられるならそれだけを使い、日本語で簡潔に答えます。新しく調べる必要があればブラウザを使います。"
+								: "あなたは依頼者のために結果をまとめます。与えられた確認済みの結果だけを使い、日本語で簡潔に答えてください。",
 						},
-						{ role: "user", content: summaryPrompt(step, o.request, results) },
+						{
+							role: "user",
+							content: deciding
+								? `${summaryPrompt(step, o.request, results)}\n\n${browserChoicePrompt(decision.signals)}`
+								: summaryPrompt(step, o.request, results),
+						},
 					],
 					maxOutputTokens: 2048,
 					signal: AbortSignal.any([
@@ -171,7 +190,26 @@ export async function chainCommand(
 					]),
 				});
 				used += 1;
-				const text = out.kind === "text" ? out.text : "";
+				const raw = out.kind === "text" ? out.text : "";
+				const choice = deciding
+					? parseBrowserChoice(raw)
+					: { browser: false, rationale: "plan", answer: raw };
+				// The decision and its reason are logged, so a misjudgment can be found and fed back as history.
+				console.error(
+					`browser\t${step.id}\t${choice.browser ? "yes" : "no"}\t${choice.rationale}`,
+				);
+				if (choice.browser) {
+					routed.add(step.id);
+					maxCalls = Math.min(budget.perStep, check.remaining) - 1;
+					def = chainCases(plan, o.request, results, maxCalls, routed)[index]!
+						.def;
+					decided = choice.rationale;
+				} else {
+					answered = { text: choice.answer, code: out.kind };
+				}
+			}
+			if (!def || answered) {
+				const text = answered?.text ?? "";
 				results.set(step.id, text);
 				outcomes.push({
 					id: step.id,
@@ -179,7 +217,7 @@ export async function chainCommand(
 					browser: false,
 					keepOpen: false,
 					status: text ? "completed" : "failed",
-					code: text ? null : out.kind,
+					code: text ? null : (answered?.code ?? "no_route"),
 					modelCalls: 1,
 					result: text,
 				});
@@ -224,7 +262,9 @@ export async function chainCommand(
 								console.log(
 									`playback\t${verdict.ok ? "confirmed" : verdict.code}\t${JSON.stringify(verdict.samples.slice(-3))}`,
 								);
-								return verdict.ok ? { ok: true } : { ok: false, code: verdict.code };
+								return verdict.ok
+									? { ok: true }
+									: { ok: false, code: verdict.code };
 							},
 						}
 					: {}),
@@ -244,9 +284,12 @@ export async function chainCommand(
 				keepOpen: step.keepOpen,
 				status: result.status,
 				code: result.code,
-				modelCalls: result.score.efficiency.modelCalls,
+				// The step's own inference that chose the browser counts too.
+				modelCalls:
+					result.score.efficiency.modelCalls + (decided === null ? 0 : 1),
 				result: result.finalText,
 				runId: result.runId,
+				...(decided === null ? {} : { routedBy: decided }),
 			});
 			// The browser stays when this step's result is the screen; a later browser step reuses it.
 			keep = step.keepOpen && result.status === "completed";
