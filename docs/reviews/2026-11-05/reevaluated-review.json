@@ -1,0 +1,1279 @@
+{
+	"rubric_version": "1.1.0",
+	"mode": "full",
+	"depth": "deep",
+	"technical_profile": "agent",
+	"assessment_kind": "re-evaluated",
+	"target": {
+		"locator": "/Users/y.noguchi/Code/eumenes_interact",
+		"snapshot": "5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+		"reviewed_at": "2026-11-05",
+		"stage": "単一利用者・macOS・隔離Chromeの研究用prototype。Eumenes統合前の単体版。",
+		"scope": "full/deep/agent, rubric 1.1.0。基準30項目と全配点・適用を維持。core/parts/SQLite/CLI/MCP/定義・配布境界・Claude Haiku 5.5/Lunaを確認。Bun1.4.4/実Node24.11.1/macOS arm64/実Chrome、固定synthetic fixture。Eumenes本体・認証済みresume・receipt・製品画面・Desktop・実利用定着は後段。CIはユーザー指示で実施しないがautomation項目は残す。本番公開・実サイト一般精度・複数利用者・敵対的な別ローカルprocess・長期負荷は保証対象外。外部製品比較は同日baselineの公式仕様のみ。Project Potentialは独立の未確認項目を残し、技術点へ合算しない。"
+	},
+	"evidence": [
+		{
+			"id": "E01",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/plan.md:7-61,149-177,578-598,640-688,747-760,882-920 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "研究用ホストと純粋な1手処理核を分け、比較測定しEumenesへ取り込む設計。macOSと単一runnerが主対象。統合の承認・lease・receipt等は将来段階。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E02",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/src/contracts/core.ts; src/contracts/db.ts; src/core/dispatch.ts; src/index.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "schema検査と1手状態を公開し、DBはホスト所有の構造的port。coreからlabを参照しない。現在はArm1のみ。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E03",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/executor.ts:350-670; packages/eumenes-interact/src/sqlite/operations.ts; lab/host/reconcile.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "操作意図→承認→送出済みcommit→外部dispatch→settle。未知結果は再送しない。取消後の操作結果は採用しない通常経路がある。再起動時の不明操作の隔離がある。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E04",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/gate.ts; lab/host/policy.ts; lab/host/net-guard.ts; lab/host/allowlist.ts; lab/cli/session.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "固定inspectによる承認、入力出所、URL規則、DNS解決済みアドレスへのproxy接続、限定origin/媒体動作allowlistを持つ。Playwright側のブラウザ隔離とdownload拒否を併用。",
+			"scope": "source追跡+既存negative tests。実ブラウザを用いたネットワークguard専用試験は未実行。ゼロ漏洩の保証ではない。"
+		},
+		{
+			"id": "E05",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/src/core/arm1/run.ts; src/core/parts/schema.ts; lab/host/parts/executor.ts; skills/browse/SKILL.md @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "既知IDと登録部品だけを実行。出力補正・リトライ・モデル呼出しを制限。page textをデータと指示で区別するSkillと結果包装。",
+			"scope": "promptは命令系統分離を指示するが、LLMを攻撃する実験は未実行。"
+		},
+		{
+			"id": "E06",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/partial.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/partial.log",
+			"observed_at": "2026-11-05",
+			"observation": "核・SQLite・定義の248試験成功、0失敗。",
+			"scope": "command=[\"bun\", \"test\", \"packages/eumenes-interact/test/core\", \"packages/eumenes-interact/test/sqlite\", \"packages/eumenes-interact/test/definitions\"]; exit=0; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E07",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/full.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/full.log",
+			"observed_at": "2026-11-05",
+			"observation": "全体1120成功/1失敗/1スキップ、7202 assertions。失敗はmacOSの/proc不在とPID再利用試験の期待不一致。最初のintegrationで発生したHOME不在の別失敗は元HOMEの保持により解消。",
+			"scope": "command=[\"bun\", \"test\"]; exit=1; isolated snapshot; frozen dependencies; existing HOME preserved; real Node 24.11.1 path; no credentials/.env; probes added outside test discovery"
+		},
+		{
+			"id": "E08",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/fixture.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/fixture.log",
+			"observed_at": "2026-11-05",
+			"observation": "実際の隔離headless Chrome、scripted inference、dev全20ケースが成功。承認拒否と聞返しはneeds_inputが期待状態。約45.17秒、性能SLOやLLM判断精度は検証しない。",
+			"scope": "command=[\"bun\", \"lab/cli/main.ts\", \"run\", \"--split\", \"dev\", \"--inference\", \"scripted\", \"--browser\", \"chrome\", \"--headless\", \"--db\", \"/var/folders/mx/jbv8qfwd52z14q0mby_273lhlp5gd2/T/eumenes-review-cou6lrp9/eumenes_interact/review-fixture.sqlite\"]; exit=0; actual isolated headless Chrome; local dev fixtures; scripted inference; no real LLM, real sites, credentials, or holdout runs"
+		},
+		{
+			"id": "E09",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/typecheck.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/typecheck.log",
+			"observed_at": "2026-11-05",
+			"observation": "全体型検査はplaywright-coreの型import未解決で失敗。",
+			"scope": "command=[\"bun\", \"run\", \"typecheck\"]; exit=1; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E10",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/core-types.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/core-types.log",
+			"observed_at": "2026-11-05",
+			"observation": "core専用型検査はsummary.tsのURLを参照できず3エラーで失敗。",
+			"scope": "command=[\"bun\", \"run\", \"typecheck:core\"]; exit=1; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E11",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/lint.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/lint.log",
+			"observed_at": "2026-11-05",
+			"observation": "219ファイルlintは警告・エラー0。",
+			"scope": "command=[\"bun\", \"run\", \"lint\"]; exit=0; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E12",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/format.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/format.log",
+			"observed_at": "2026-11-05",
+			"observation": "format:checkは18ファイルで失敗。",
+			"scope": "command=[\"bun\", \"run\", \"format:check\"]; exit=1; isolated snapshot; existing dependencies copied then frozen-lockfile install; no credentials or .env"
+		},
+		{
+			"id": "E13",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/stack.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/stack.log",
+			"observed_at": "2026-11-05",
+			"observation": "check:stackはeumenes-collaborationのfile:参照を非固定versionとして拒否。",
+			"scope": "command=[\"bun\", \"run\", \"check:stack\"]; exit=1; isolated snapshot; no credentials/.env; stack reads adjacent original Eumenes settings only"
+		},
+		{
+			"id": "E14",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-dist.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-dist.log",
+			"observed_at": "2026-11-05",
+			"observation": "実Node24.11.1でも既存check-dist-node.mjsがarm0を指定しunknown_armで失敗。",
+			"scope": "command=[\"node\", \"lab/scripts/check-dist-node.mjs\"]; exit=1; isolated snapshot; frozen dependencies; existing HOME preserved; real Node 24.11.1 path; no credentials/.env; probes added outside test discovery"
+		},
+		{
+			"id": "E15",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-valid.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/node-valid.log",
+			"observed_at": "2026-11-05",
+			"observation": "ビルド済distを実Node24.11.1から直接importし、現行arm1 startRun/prepareStep、sqlite migration、adapter exportは利用可能。既存gateの代わりにはしない。",
+			"scope": "command=[\"node\", \"--input-type=module\", \"-e\", \"import * as core from \\\"./packages/eumenes-interact/dist/index.js\\\"; import * as sql from \\\"./packages/eumenes-interact/dist/sqlite.js\\\"; import * as adapter from \\\"./packages/eumenes-interact/dist/adapters/playwright-mcp.js\\\"; const s=core.startRun({arm:\\\"arm1\\\",request:\\\"read\\\",policy:{maxModelCalls:4,retries:{default:1}},nowMs:0});console.log(JSON.stringify({node:process.version,arm:s.arm,callsLeft:core.prepareStep(s).callsLeft,migrations:sql.migrations.length,adapter:typeof adapter.createPlaywrightMcpAdapter}));\"]; exit=0; actual Node24.11.1; built dist direct imports and currently supported arm1; diagnostic control, does not replace failing check:dist"
+		},
+		{
+			"id": "E16",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/probes.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/probes.log",
+			"observed_at": "2026-11-05",
+			"observation": "同じtarget_not_foundの後のdoneはevidence=[r1]ならfailed、[]ならcompleted。NOT_ANSWEREDはunknown型の説明を誤って失敗扱いし、同じ不回答を別表現にすると検出しない。briefも単語依存の過検出を再現。",
+			"scope": "command=[\"bun\", \"review-probes.ts\"]; exit=0; isolated snapshot; frozen dependencies; existing HOME preserved; real Node 24.11.1 path; no credentials/.env; probes added outside test discovery"
+		},
+		{
+			"id": "E17",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/boundaries.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/boundaries.log",
+			"observed_at": "2026-11-05",
+			"observation": "beforeFinish中の取消を再現し、返り値completed/DB cancelledの食い違いを確認。明示https://example.org/とUNESCOの依頼は、browserへrouteしてもstep_site_unknown。",
+			"scope": "command=[\"bun\", \"review-boundaries.ts\"]; exit=0; isolated snapshot and in-memory DB; FakeBrowser; no external effects"
+		},
+		{
+			"id": "E18",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/collab.json; /Users/y.noguchi/.codex/visualizations/2026/11/05/01a1aac4-4a9b-7832-9afd-115952865c5c/project-review/collab.log",
+			"observed_at": "2026-11-05",
+			"observation": "隣接collaborationの今回コピーとinstalled srcの一致はcheck:collabで成功。依存snapshotを恒久固定する証拠にはならない。",
+			"scope": "command=[\"bun\", \"run\", \"check:collab\"]; exit=0; isolated snapshot; no credentials/.env; stack reads adjacent original Eumenes settings only"
+		},
+		{
+			"id": "E19",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/chain.ts:22-253; lab/host/brief.ts; lab/host/browser-history.ts:61-71; lab/host/parts/search-urls.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "サイト名辞書と正規表現でサイト/開始URLを決め、brief個人情報/時点や回答充足を語句で判定する。新サイト追加が製品コード編集を要求する箇所がある。",
+			"scope": "安全制約のURL/IP/契約検査はこの指摘から除外。検索URLテンプレートは外部仕様データとして分離可能で、それ自体を全て意味判断と断定しない。"
+		},
+		{
+			"id": "E20",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/run.ts:411-430,518-562; lab/cli/chain-command.ts:370-392 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "beforeFinish awaitの後に取消再確認がなく、返り値にはending.statusを返す。chainは返されたcompletedをstepResultFactとして採用。done evidence=[]もacceptedで、failed-only gateが適用されない。",
+			"scope": "現在snapshotのソース追跡。実行証拠とは区別。"
+		},
+		{
+			"id": "E21",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/cli/chain-command.ts:176-194,274-370 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "外側のstep開始時にだけbudgetCheck。askへの回答後は同じdef.budgetで最大2回runTrialをやり直し、累積usedは増やすがdef.budgetを減らさない。",
+			"scope": "sourceで確定した分岐。実サイトを使ったchoice全体の再現は未実行。1 trial最大10でも同じstepのtrial合計は最大30呼出しになりうる。"
+		},
+		{
+			"id": "E22",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/lock.ts:30-39; lab/test/host/lock.test.ts:73-89 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "macOSでは/procを読めず生存PIDをrunnerと扱う保守的fallback。PIDを別プログラムが再利用するとstale lockを回収できない。",
+			"scope": "誤って他runnerのロックを奪わない安全側の動作は保たれる。通常のプロセス死亡/新PIDなしの回復は成功。"
+		},
+		{
+			"id": "E23",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/package.json; lab/package.json; bun.lock; README.md; lab/scripts/check-dist-node.mjs @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "packageはprivate/version0.0.0。buildはtscのみ、manifest exportは宣言されているがdistribution-manifest.json生成・実体を確認できない。部品executor/capture/registry/runnerはlab側にあり配布対象外。labは相対file:のcollaboration checkoutが必要。READMEはArm0とLARMなど旧手順を掲載。",
+			"scope": "研究段階の未完成範囲。現行distのArm1 importは実行成功しており、パッケージ全体が実行不能とはしない。"
+		},
+		{
+			"id": "E24",
+			"kind": "primary_doc",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/plan.md:330-338,654-688 @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "作者記録では旧共通17ケースでArm0 44/51からArm1修正後50/51、入力トークン中央値約31.7K→11.6K。",
+			"scope": "2026-11-03の過去計測。約63%減。今回未再現、dev/同一作者/現行commit以前。現行モデル性能・他製品優位・採用効果へ外挿しない。"
+		},
+		{
+			"id": "E25",
+			"kind": "primary_doc",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/cases/live/multistep_results_2026-11-04.txt @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "live記録は失敗・部分達成・原因・修正の紐付けを残し、manual/non-blind/既知URL利用/未測定を明示。",
+			"scope": "作者による記録。現行の独立したblind評価ではなく、manual呼出しのtokenは未計測。"
+		},
+		{
+			"id": "E26",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/host/usage.ts; lab/host/trial.ts; lab/host/versions.ts; lab/host/compare.ts; lab/inference/manual.ts; lab/scorer/score.ts @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "実験条件/モデル/effort/各手/使用量を記録する。未知tokenをnull扱いしmanualはscriptedとして記録。fixture scorerはモデルの完了申告とは別に到達状態を検査。",
+			"scope": "現在のlatency/cost実LLM比較や代表負荷のp95測定は未実施。"
+		},
+		{
+			"id": "E27",
+			"kind": "primary_doc",
+			"locator": "https://github.com/microsoft/playwright-mcp (main, observed 2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "公式READMEはaccessibility snapshotsとMCP、CLI+Skillsを提供し、MCP自体はsecurity boundaryでないと明記。",
+			"scope": "公式の機能記述のみ。第三者比較/採用/性能の検証ではない。mainは可変でローカル固定versionとは別。"
+		},
+		{
+			"id": "E28",
+			"kind": "primary_doc",
+			"locator": "https://github.com/browser-use/browser-use (main, observed 2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "公式READMEはPython Agentによる自然言語task、custom tools、保存/replayを示す。",
+			"scope": "公式の機能記述のみ。第三者比較/採用/性能の検証ではない。mainは可変でローカル固定versionとは別。"
+		},
+		{
+			"id": "E29",
+			"kind": "primary_doc",
+			"locator": "https://github.com/browserbase/stagehand (main, observed 2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "公式READMEはobserveでselectorを解決し、通常のpage APIで値を埋め、act等と組み合わせる方法を示す。",
+			"scope": "公式の機能記述のみ。第三者比較/採用/性能の検証ではない。mainは可変でローカル固定versionとは別。"
+		},
+		{
+			"id": "E30",
+			"kind": "code",
+			"locator": "git shortlog -sne HEAD / tracked file inventory @ a38f9553acf56715a8c29e170c59ca1829558a4c",
+			"observed_at": "2026-11-05",
+			"observation": "確認できた101コミットのauthorは1人。MITのLICENSE、固定版依存、minimumReleaseAge=7日、Skill digest照合、collab drift照合がある。tracked .github workflowはない。",
+			"scope": "commit数から品質・需要・人的資源を推測しない。協力者の実人数、継続資金、全依存ライセンス/脆弱性到達性は未確認。"
+		},
+		{
+			"id": "R01",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/verify-local-final.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/verify-local-final.log @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "bun run verify exit0。全体型・core専用型・lint・整形・固定collaboration照合、1174pass/2skip/0fail・7572assertions、実Node dist、実tgz別ホストの検証。",
+			"scope": "Bun1.4.4/macOS arm64/Node24.11.1。2skipはopt-in実Chrome通信試験、R03で別実行。API精度や本番可用性を示す件数ではない。"
+		},
+		{
+			"id": "R02",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/lab/test/host/crash.test.ts; /Users/y.noguchi/Code/eumenes_interact/lab/test/host/persistence-failure.test.ts; /Users/y.noguchi/Code/eumenes_interact/lab/test/host/operate.test.ts; /Users/y.noguchi/Code/eumenes_interact/lab/test/host/definition-runner.test.ts; /Users/y.noguchi/Code/eumenes_interact/lab/test/host/run.test.ts; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/verify-local-final.log @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "実Bun子processを7境界でSIGKILLし、独立HTTP受信側0/1回、再照合後も再送0・ロック回収を確認。SQL settle/terminal失敗を注入し、run/trial/definitionの原子的保存、未commitの完了非公開、取消/cleanup/期限を検証。",
+			"scope": "bun run verify exit0の収録試験。単一runnerとSQLite、実HTTPは試験receiver。外部サービスのreceipt/冪等キーは本体側の未受入範囲。"
+		},
+		{
+			"id": "R03",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/network-browser-final.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/network-browser-final.log; /Users/y.noguchi/Code/eumenes_interact/lab/test/host/net-guard.browser.test.ts @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "LAB_BROWSER_TESTS=1 bun test lab/test/host/net-guard.browser.test.ts exit0、2pass/5assertions。実Chromeでprivate TCP到達0、download拒否、STUN UDP方針あり0・方針を外す負の対照は到達。",
+			"scope": "HTTP/HTTPS、iframe、fetch、worker、WebSocket、redirect、download、STUN。Chrome設定による境界。OS全体・全transport・他browserを保証しない。該当実装は以降不変。"
+		},
+		{
+			"id": "R04",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/package-consumer.json; /Users/y.noguchi/Code/eumenes_interact/scripts/check-package.mjs; /Users/y.noguchi/Code/eumenes_interact/scripts/distribution-manifest.mjs @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/package-immutable-final.json",
+			"observed_at": "2026-11-05",
+			"observation": "実tgzを隣接checkoutなしの別consumerへ導入。Node24.11.1/Bun1.4.4で134filesのhash・parts通常/拒否/承認・SQLite owner/transactionを検証、ファイル改変を検出。生成manifest sourceSha256 aca40df377dc19c676ed953f72e28178360bb6ac65497c8f221f51af15b5447e。",
+			"scope": "R01/check:package exit0に加え、candidate commit確定後に同じsource digestで再生成・再検証。archiveSha256 c54a89b4449446eb5d74ea50bd63feac6efd3ee32c1be525049f1a471f8c4c89。manifest commitは5bdef97。外部公開・code signing・ネット配信元の認証は未実施。"
+		},
+		{
+			"id": "R05",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/negative-controls/results.json @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "隔離コピーで取消・根拠・累積予算・承認・Skill改変の5負の対照。全baseline exit0、全mutant exit1。",
+			"scope": "入力digest98585fa13198067cb18e640ea651e5cb30a36dffedba5f99dcdd2060a95b7052。rawlog保持。試験の欠陥検出を確認する有限の対照で、全分岐のmutation scoreではない。"
+		},
+		{
+			"id": "R06",
+			"kind": "external_observation",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/independent-validation.json; /Users/y.noguchi/Code/eumenes_interact/lab/evaluation/independent-plan-cases.json; /Users/y.noguchi/Code/eumenes_interact/lab/evaluation/independent-browser-cases.json @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "別担当がソース反証と計画4件・ブラウザ6件の依頼を作成。provider誤記録・CaptureStore境界・cache二重計上・保存失敗・予算・元依頼権限を指摘し修正後に再点検。最終dual接続に新たなHigh相当なし。20万字準備失敗もpartialへ修正・回帰試験。",
+			"scope": "独立担当はread-only。rootが実装と全APIを実行したため独立受入機関ではない。全ケースを保持。既知の候補抽出heuristicとmetadata欠落は残る。"
+		},
+		{
+			"id": "R07",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/src/index.ts; /Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/src/contracts/inference.ts; /Users/y.noguchi/Code/eumenes_interact/packages/eumenes-interact/src/host/parts/executor.ts; /Users/y.noguchi/Code/eumenes_interact/lab/host/executor.ts; /Users/y.noguchi/Code/eumenes_interact/lab/host/run.ts; /Users/y.noguchi/Code/eumenes_interact/lab/host/completion.ts; /Users/y.noguchi/Code/eumenes_interact/lab/cli/chain-command.ts @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "公開partsと共通executor/grants/RunControl/transaction/CallBudgetを再利用。原依頼の入力許可とページ結果を分離。doneにoutcome/basis、既知成功IDが必要。有料ブラウザ完了は新文脈のClaude/Luna両方がachievedの場合のみ。確認呼出しも元の回数・費用制限内。",
+			"scope": "ソース追跡とR01/R02/R04/R06の反証。core側は純粋な1手処理を維持。意味の達成判断はLLM、コードは型・出所・状態・権限の検証。core port自体の任意ホストにdual適用を強制する設計ではない。"
+		},
+		{
+			"id": "R08",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-independent-plans-1793875567426.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-chain-final.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-pilot-2026-11-05T11-28-06.443Z.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-pilot-2026-11-05T12-14-08.566Z.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-pilot-2026-11-05T12-34-28.247Z.json @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "実API計画4件×2は8/8、実CLIブラウザ不要応答は両provider成功。旧single構成dev20はClaude20/20・Luna19/20。旧holdout9は8/9・6/9。独立6件の初回は6/6・5/6。誤完了を含む全失敗を保持。",
+			"scope": "過去snapshotを各ファイルのbaseCommit/sourceSha256で識別。実Chrome・synthetic fixture、各1反復、low/output2048/retry0。同一ケースの修正後再試行を新しいholdoutと呼ばない。"
+		},
+		{
+			"id": "R09",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-acceptance-final.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-pilot-2026-11-05T13-16-44.337Z.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-pilot-2026-11-05T13-22-55.738Z.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-injection-1793885138344.json",
+			"observed_at": "2026-11-05",
+			"observation": "固定commit5bdef97・dirty false・同じruntime source hashで実Chromeの独立6件×2は11/12到達成功、入力回帰2件×2は4/4。計16件は15/16到達成功、falseFinish/必須契約違反0、completed11/needs_input2/partial3。5注入経路×2は回答形式と境界10/10。",
+			"scope": "新dual構成、各1反復。既知ケースのmatched再評価で、未見holdoutや統計的非劣性試験ではない。"
+		},
+		{
+			"id": "R10",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-completion-replay-1793883105971.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-completion-replay-1793883334937.json @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "誤撮影2件の保存済みtraceを追加操作なしで再審査。lowでもmediumでもClaude2件拒否、Lunaは広範囲1件拒否・画像のみ1件を誤承認。両方を拒否させるprobeはexit1として保持。",
+			"scope": "Luna単独確認やeffort増加だけでは解決しない反証。実測判定と共通AND gateの回帰試験からdualの選定を説明するが、将来の全誤完了を防げる証明ではない。"
+		},
+		{
+			"id": "R11",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/benchmark-baseline.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/benchmark-current.json; /Users/y.noguchi/Code/eumenes_interact/lab/scripts/benchmark.ts @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "core 100/1000/10000項目×30反復、3warmup。現行最大入力716677B、p95最大15.88ms、sampledRSS最大145949512B、設定した500ms/512MiB上限内。baselineと再現条件を保存。",
+			"scope": "Bun1.4.4/macOSarm64/M4。summary/find/listのみ。browser/process-tree peak・長期負荷・本番SLOなし。baselineは他試験と同時実行のため厳密な改善率を主張しない。"
+		},
+		{
+			"id": "R12",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/dependency-audit-final.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/dependency-audit-final.log; /Users/y.noguchi/Code/eumenes_interact/vendor/collaboration.json; /Users/y.noguchi/Code/eumenes_interact/vendor/eumenes-collaboration-0.1.0-baseline.tgz; /Users/y.noguchi/Code/eumenes_interact/docs/security-dependency-overrides.md; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/stack-final.json @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "bun audit exit0、163packages既知脆弱性0。MCP/Zodを固定更新、collaboration dirty snapshotを出所・全hash付きtgzへ凍結、check:collab/check:stack成功。配布runtime依存2件のMIT/ISCライセンスと一覧を同梱。",
+			"scope": "レジストリ既知情報の監査で未発見の脆弱性ゼロ保証ではない。runtime配布の権利を確認、lab全transitive依存の包括的法務監査ではない。隣接collaboration変更を取り込まない。"
+		},
+		{
+			"id": "R13",
+			"kind": "code",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/README.md; /Users/y.noguchi/Code/eumenes_interact/lab/README.md; /Users/y.noguchi/Code/eumenes_interact/docs/operations.md; /Users/y.noguchi/Code/eumenes_interact/docs/improvement-progress.md; /Users/y.noguchi/Code/eumenes_interact/docs/integration-design.md @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "現行Arm1、標準/別名credential、導入/更新/取消/不明結果/削除/保持、10USD台帳とdual費用nullの意味を記載。Eumenes設計は別文書・未実装扱い。",
+			"scope": "R01/R04で導入と現行手順を検証。実利用者の引継ぎ、長期保守、全体forget/認証済みresumeの製品検証は未実施。"
+		},
+		{
+			"id": "R14",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/api-spend-final.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/attempt-cap-audit.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/spend-bounds-reconciliation.json; /Users/y.noguchi/Code/eumenes_interact/lab/inference/spend.ts @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "全579回、usage既知の保守的上限1.770745USD、不明11回の確保6.25332USD、合計上限8.024065USD<=10。過去のschema失敗と再審査を全件含める。",
+			"scope": "全有料試行を同じSQLite台帳で継続。各HTTP前に公式最大入力と出力上限を予約し、未知usageを0にしない。cap10USD維持、HTTP上限500→600のみ監査付き。請求書ではなく保守的上限。"
+		},
+		{
+			"id": "R15",
+			"kind": "execution",
+			"locator": "/Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/scripted-browser-final.json; /Users/y.noguchi/Code/eumenes_interact/docs/reviews/2026-11-05/implementation/scripted-browser-final.log @ 5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+			"observed_at": "2026-11-05",
+			"observation": "実Chromeでscripted dev20件すべて期待状態。",
+			"scope": "モデル判断を固定したブラウザ/host結合確認。実LLMの一般精度と混同しない。"
+		}
+	],
+	"claims": [
+		{
+			"id": "RC01",
+			"type": "Fact",
+			"statement": "ローカルverifyと独立境界試験で単体版の構造・保存・権限契約を検証した。",
+			"evidence_ids": ["R01", "R02", "R03", "R04", "R05"],
+			"limitations": "本体製品のrelease certificationではない。"
+		},
+		{
+			"id": "RC02",
+			"type": "Inference",
+			"statement": "主要8指摘の原因は既存機構の修正・再利用で解消し、残る制限を別記した。",
+			"evidence_ids": ["R01", "R02", "R06", "R07", "R09", "R10"],
+			"limitations": "LLMの将来の全誤判断や未知の外部サイトを保証しない。"
+		},
+		{
+			"id": "RC03",
+			"type": "Unknown",
+			"statement": "単体の高い技術評価が利用定着・競合優位・製品価値に結び付くか。",
+			"limitations": "本体統合・独立ユーザーの長期利用は後段。Project Potentialの正式総合点を保留する。"
+		}
+	],
+	"findings": [
+		{
+			"id": "F01",
+			"status": "withdrawn",
+			"severity": "High",
+			"priority": "P0",
+			"priority_reason": "Eumenes側で結果採用に頼る前に必要。",
+			"confidence": "High",
+			"title": "完了前チェック中の取消が返り値と保存状態を分裂させる",
+			"root_cause": "beforeFinish await後のcancelチェックがなく、terminal DB状態よりローカルendingを返す。",
+			"evidence_ids": ["E17", "E20", "R01", "R02"],
+			"condition": "再生確認等のawait中にcancel/expiryが起き、その後gateがokを返す。",
+			"consequence": "DB cancelledでもcompletedとfinalTextを返し、chainは確認済みfactとして取り込める。",
+			"counterevidence": "通常のadapter.dispatch後のcancel制御はあり、今回それ以外の送出が起きるとは主張しない。",
+			"fix": "既存RunControlとDB状態を正本に、awaitの後/最終結果確定前に停止状態を再確認し返り値・転写・後段採用を一致させる。",
+			"verification": "beforeFinishをdeferredにし、その途中でcancel/expiryしてresolve。DB・返り値・trial・chain factsが一致し、完了結果を採用しないこと。 修正後の記録は R01, R02。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "concurrency",
+					"reason": "非同期取消と完了の順序不変条件に再現可能な違反。"
+				},
+				{
+					"track": "technical",
+					"dimension": "reliability",
+					"criterion": "failure",
+					"reason": "expectedな取消中に状態が一致しない。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F02",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "failed結果の引用を空にするとcompletedになる",
+			"root_cause": "failed-only検査をcited.length>0の場合にしか適用しない。",
+			"evidence_ids": ["E16", "E20", "R01", "R07", "R09", "R10"],
+			"condition": "page.findが失敗後、done.evidence=[]を返す。",
+			"consequence": "失敗して取得できなかった作業でもcompletedとなり、後段が確認済み結果と扱いうる。",
+			"counterevidence": "[]は純粋な返答で意図的に許されている。空配列を全面禁止するだけでは適正な回答を壊す。",
+			"fix": "共通の結果契約で作業達成/未達/質問と根拠をLLMに明示させ、実行したtaskの成功状態と保存済みresult状態を検証する。文章の正規表現判定を増やさない。",
+			"verification": "同じfailed結果に対して、引用の有無だけで未達が完了に変わらず、ブラウザ不要の正当な返答は許可されること。 修正後の記録は R09, R10。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "contracts",
+					"reason": "外部から見えるcompletedの契約が根拠配列に依存して破れる。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F03",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "開始サイトと回答充足の意味判断が固定語句に依存する",
+			"root_cause": "CHAIN_SITES・PERSONAL/TIME・NOT_ANSWEREDが意味判断を代行。",
+			"evidence_ids": ["E17", "E19", "E16", "R07", "R08"],
+			"condition": "未登録URLの最初のchain step、unknownを含む技術説明、同じ不回答の別表現。",
+			"consequence": "明示URLでもstep_site_unknown、不要な追加ブラウザ利用や誤った履歴、追加サイトごとのコード変更を招く。",
+			"counterevidence": "操作部品page.openや明示start-urlのoperateは開ける。URL/IP等の安全境界検査は必要な専用実装であり削除対象ではない。",
+			"fix": "既存collaborationの計画/推論portへURL・不足情報・browser要否を構造化して渡しLLMに選ばせる。コードはschema/URL政策/authorityを検証。検索テンプレート等の外部仕様は知識データへ移す。",
+			"verification": "未登録ドメイン、和英の言い換え、部分回答で新しい語句分岐を足さず正しい計画/質問となる。 修正後の記録は R07, R08。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "architecture",
+					"criterion": "fit",
+					"reason": "汎用適用の要件に対しサイト登録が必要。"
+				},
+				{
+					"track": "technical",
+					"dimension": "maintainability",
+					"criterion": "debt",
+					"reason": "語句/個別シナリオ変更が条件追加を要求。"
+				},
+				{
+					"track": "project",
+					"dimension": "solution",
+					"criterion": "mechanism",
+					"reason": "明示URLを持つ一般的chain taskに適用制限。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F04",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "標準の型検査が通らない",
+			"root_cause": "純粋coreの型境界へURL利用が入り、testのplaywright-core型を直接解決できる依存がない。",
+			"evidence_ids": ["E09", "E10", "R01"],
+			"condition": "READMEに記載のtypecheckとtypecheck:coreを現snapshot/frozen依存で実行。",
+			"consequence": "型検査を満たした状態での受入ができず、新規型不具合の回帰確認を妨げる。",
+			"counterevidence": "通常buildとNodeでの現行arm1動作は成功。URL自体の実行時不存在/ネットワークIOとは主張しない。",
+			"fix": "URL解析の環境契約とcore型設定の整合、testで参照する依存型の明示を修正する。純粋性要件を検討せずDOM全体を追加しない。",
+			"verification": "両typecheckがexit0。coreはBun/DOM IOに意図せず依存しない。 修正後の記録は E10, R01。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "testing",
+					"criterion": "automation",
+					"reason": "公開チェックが普通の開発環境で失敗。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F05",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "廃止したArm0が配布検証と導入説明に残る",
+			"root_cause": "Arm1移行時にcheck-dist-node.mjsとREADMEが追従していない。",
+			"evidence_ids": ["E14", "E15", "E23", "R01", "R04", "R13"],
+			"condition": "READMEのcheck:distまたは旧LARM/Arm0の手順を実行。",
+			"consequence": "配布物の正常性を公開手順で判定できず、新規利用者を現行非対応の経路へ誘導する。",
+			"counterevidence": "Nodeで現行Arm1の直接importは成功する。修正は現行契約を検証する更新であり失敗する期待を弱めることではない。",
+			"fix": "現行Arm1と全部分exportに合わせsmokeを更新しREADMEに実装済/未実装/推論方式を反映。",
+			"verification": "既存check:distが実Nodeでexit0し、記載の最短セットアップからdevを実行できる。 修正後の記録は R04, R13。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "supply_chain",
+					"criterion": "build_release",
+					"reason": "現行配布物の公式検証経路が失敗。"
+				},
+				{
+					"track": "technical",
+					"dimension": "operability",
+					"criterion": "lifecycle",
+					"reason": "旧手順が導入経路を壊す。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F06",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "High",
+			"title": "隣接checkoutの可変依存が再現条件とstack規則に合わない",
+			"root_cause": "lab/package.jsonが相対file:でcollaborationを参照し、stack検査は固定semver以外を拒否。",
+			"evidence_ids": ["E13", "E18", "E23", "R04", "R12"],
+			"condition": "checkoutを別環境へ移す、隣接ソースが変わる、check:stackを実行。",
+			"consequence": "単体checkoutでは必要ソースが揃わず、同じinteract commitでも依存実体が変わりうる。持帰り用stack gateは必ず失敗する。",
+			"counterevidence": "check:collabでローカルdriftを検出し今回のコピーは一致。これだけでは永続snapshot固定にはならない。",
+			"fix": "既存の版/digest付きtarball機構で依存snapshotを固定、または研究workspace契約で依存commitを明示しstack検査と整合させる。file:を無条件除外して済ませない。",
+			"verification": "隣接開発checkoutなしの再構築、依存digest不一致の拒否、check:stack成功。 修正後の記録は R04, R12。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "supply_chain",
+					"criterion": "dependencies",
+					"reason": "バージョンと取得物の再現性が固定version検査を満たさない。"
+				},
+				{
+					"track": "project",
+					"dimension": "adoption",
+					"criterion": "entry",
+					"reason": "導入時に別checkoutの準備と整合確認を要する。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F07",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P2",
+			"priority_reason": "macOSでの障害回復手順と併せ計画的に改善。",
+			"confidence": "High",
+			"title": "macOSでPID再利用後の古いロックを回収できない",
+			"root_cause": "runnerAliveがLinuxの/procを前提にし、非Linuxは生存PIDならrunnerとみなす。",
+			"evidence_ids": ["E07", "E22", "R01", "R02"],
+			"condition": "runner終了後、lock PIDが別プログラムに再利用される。",
+			"consequence": "実行中runnerがなくてもrunner_activeとなり、新規実行が停止する。",
+			"counterevidence": "生きた別runnerのロックを奪わない保守的fallback。死亡PIDの通常回収は成功。",
+			"fix": "macOSでプロセスの開始識別も検証できる既存OS機構とlockの世代情報を用い、安全にstaleを判別する。",
+			"verification": "macOSで別プロセスへのPID再利用を模した回復と、実runnerのlock保護が共に通る。 修正後の記録は R01, R02。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "reliability",
+					"criterion": "recovery",
+					"reason": "主対象OSの限定的なrestart/retry条件で回復しない。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F08",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "次の関連release/受入前に修正。",
+			"confidence": "Medium",
+			"title": "choice回答後の再試行が累積予算を減らさない",
+			"root_cause": "askedループが同じdef.budgetで新規runTrialを作り、usedの再検査は外側stepのみ。",
+			"evidence_ids": ["E21", "R01", "R07", "R14"],
+			"condition": "10callのstepが選択質問で止まり、回答後に再実行される。",
+			"consequence": "同じstepが最大3trial分を消費し、perStep/overall予算を越えて推論・操作を継続しうる。",
+			"counterevidence": "trialごとは10call上限とasked<2があり無制限ではない。source traceによる判定。",
+			"fix": "既存planBudget/budgetCheckでchoice後も残予算を確認し、次trialのmaxModelCallsを累積使用量で減らす。",
+			"verification": "予算境界で0/1/2回choiceを返すテストで累積呼出しが上限内となり、続行同意が必要な場合はその契約が機能する。 修正後の記録は R07, R14。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "performance",
+					"criterion": "budget",
+					"reason": "declaredモデル使用量制限が通常のchoice経路で破れる。"
+				},
+				{
+					"track": "technical",
+					"dimension": "reliability",
+					"criterion": "resilience",
+					"reason": "依存LLMへの使用量制限がchain内で保たれない。"
+				}
+			],
+			"resolution": "対応実装と受入を記録。原評価を改変せず、このsnapshotで再評価。"
+		},
+		{
+			"id": "F09",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P2",
+			"priority_reason": "単体の主要受入を妨げない限定条件。次の関連改訂で扱う。",
+			"confidence": "Medium",
+			"title": "部品の候補抽出には固定語句の優先付けが残る",
+			"root_cause": "SEARCH/PAGING/SORT等の既存規則が候補の絞込み・順序に関与",
+			"condition": "未知の表現/ページ構造で部品の候補を探す場合",
+			"consequence": "候補が適切でなくLLMに渡す情報や部品の汎用性を制限する可能性",
+			"counterevidence": "plannerとdoneの意味判断はLLMへ移した。対象の語句に対する新しい製品分岐は追加しない。",
+			"fix": "実タスクの未解決例を独立に蓄積し、観測とLLM指示/共通部品の改善から候補規則を段階的に除く。",
+			"verification": "未知語・別構造の固定ケースと実APIを同じscorerで比較。既存成功を維持し専用辞書を増やさない。",
+			"evidence_ids": ["R06", "R07"],
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "architecture",
+					"criterion": "fit",
+					"reason": "候補が適切でなくLLMに渡す情報や部品の汎用性を制限する可能性"
+				},
+				{
+					"track": "technical",
+					"dimension": "maintainability",
+					"criterion": "debt",
+					"reason": "候補が適切でなくLLMに渡す情報や部品の汎用性を制限する可能性"
+				}
+			]
+		},
+		{
+			"id": "F10",
+			"status": "confirmed",
+			"severity": "Low",
+			"priority": "P2",
+			"priority_reason": "単体の主要受入を妨げない限定条件。次の関連改訂で扱う。",
+			"confidence": "Medium",
+			"title": "一部APIエラー応答で呼出しprovider metadataが欠ける",
+			"root_cause": "成功応答中心のmetadata構築で早期error/empty等の戻りに同じ付加がない",
+			"condition": "HTTP error/拒否/形式不正等の一部経路",
+			"consequence": "試行全体のproviderは記録されるが混合構成の個別障害診断は不完全",
+			"counterevidence": "共通費用台帳にはproviderとmodelを予約し未知usageを保持するため費用を0と誤採用しない。",
+			"fix": "失敗結果も共通の記録経路で要求model/effortと既知のattempt情報を付ける。返却model不明を捏造しない。",
+			"verification": "注入HTTP/empty/refused/abortでmetadataとusage未知、10USD予約が一致すること。",
+			"evidence_ids": ["R06", "R07", "R14"],
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "operability",
+					"criterion": "signals",
+					"reason": "試行全体のproviderは記録されるが混合構成の個別障害診断は不完全"
+				}
+			]
+		},
+		{
+			"id": "F11",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P2",
+			"priority_reason": "単体の主要受入を妨げない限定条件。次の関連改訂で扱う。",
+			"confidence": "Medium",
+			"title": "モデルによる撮影対象の選択が一部依頼で不正確",
+			"root_cause": "ページの包含関係と依頼された撮影範囲をモデルが十分に照合できない場合がある",
+			"condition": "独立作成の商品の紹介欄だけを保存する依頼でLunaがmain領域を選択",
+			"consequence": "成果物の範囲が依頼より広く、目的の撮影を完了できない。dual確認はpartialで止めた。",
+			"counterevidence": "新dualの全12件にfalseFinish/必須権限違反なし。Claudeは同じケースで到達条件を満たしたが写真の包含を確信せずpartial。安全な停止とタスク達成を別に数える。",
+			"fix": "観測にある包含関係・対象情報をLLMへ十分に渡す改善を先に検討し、共通の対象照合と修復計画を評価する。商品語や特定IDの分岐を追加しない。",
+			"verification": "全独立ケースを保持し、範囲一致・全要素包含・不要領域除外を固定scorerで比較。誤完了だけでなく誤拒否とタスク成功も測る。",
+			"evidence_ids": ["R09", "R10"],
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "contracts",
+					"reason": "有限の意味判断の精度に残る制約。構造上の成功と目的達成は別。"
+				},
+				{
+					"track": "technical",
+					"dimension": "operability",
+					"criterion": "interaction",
+					"reason": "撮影が安全なpartialで止まり再依頼の負担を残す。"
+				}
+			]
+		},
+		{
+			"id": "F12",
+			"status": "confirmed",
+			"severity": "Medium",
+			"priority": "P2",
+			"priority_reason": "現candidateのclean再生成は確認済み。次の配布更新前に来歴の検証対象を広げる。",
+			"confidence": "High",
+			"title": "配布source hashにビルド設定・生成scriptが含まれない",
+			"root_cause": "sourceTreeSha256の入力はsrc/package.json/Skill/bun.lockに限定され、root/packageのtsconfigと生成script自体が対象外。commitはHEADのみでdirty検査なし。",
+			"evidence_ids": ["R04", "R06", "R07"],
+			"condition": "tsconfigやmanifest生成処理だけを作業木で変えて同じHEADからbuildする場合",
+			"consequence": "同じcommit/source hashへ異なるdistを対応付けることができ、consumerのmanifest自己整合検査ではその来歴差を検出しない。",
+			"counterevidence": "今回のcandidateは製品sourceがcleanの5bdef97で再生成し、全file hash・tgz導入・実行・改変拒否を確認。外部から既存artifactを変える経路ではない。",
+			"fix": "既存source digestの対象へ実際のbuild入力と生成処理を含め、dirtyまたは入力不一致を記録/拒否する。新しい署名基盤は追加しない。",
+			"verification": "tsconfig/生成scriptの各変更を隔離コピーで行い、manifestのsource identityが変わるかbuildが拒否すること。通常のclean再buildとNode/Bun consumerも維持。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "supply_chain",
+					"criterion": "build_release",
+					"reason": "ビルド入力の変更を含むsource drift保護に限定的な欠落。"
+				}
+			]
+		}
+	],
+	"tracks": {
+		"technical": {
+			"dimensions": {
+				"architecture": {
+					"criteria": {
+						"boundaries": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R04", "R06", "R07"],
+							"rationale": "coreの純粋portとIO/権限hostを分離し、部品をlab外へ移して実consumerでも同じ契約を維持。",
+							"countercheck": "core型へDOM全体やBun依存を足して隠さず、Node/Bunの別consumerとtamper拒否を確認。",
+							"anchor_support": "core専用型検査、独立source追跡、公開parts実tgzの通常/拒否/承認が対応。Eumenes消費側は含めない。"
+						},
+						"flow": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R02", "R06", "R07"],
+							"rationale": "意図・送出・settle・取消・終端publishを跨いで保存正本を維持。",
+							"countercheck": "SQL保存失敗、cleanup中取消、SIGKILLで成功の先行公開と自動再送を否定。",
+							"anchor_support": "実子process/SQLite/独立HTTP受信側の7境界とterminal write障害注入。単一runner以外は未確認。"
+						},
+						"fit": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R04", "R07", "R11", "R13"],
+							"rationale": "単一runner/SQLite/macOSと部分移植の制約に合う。任意URLの計画をLLMに移し、巨大な新基盤を追加しない。",
+							"countercheck": "10k入力と別consumerを検証したが、候補抽出heuristic、複数利用者・本体統合は範囲外。"
+						}
+					}
+				},
+				"correctness": {
+					"criteria": {
+						"contracts": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R07", "R08", "R09", "R10"],
+							"rationale": "有効ID・outcome/basis・原依頼の出所・保存済み終端を契約化し、意味の達成はdual照合で判定。",
+							"countercheck": "旧singleの誤完了を保持しdualで再試験。有限のLLM照合で一般精度を保証せず、正しい操作でも部分判定になる可能性を残す。"
+						},
+						"edge_cases": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R05", "R06", "R07"],
+							"rationale": "空根拠・未知ID・引用外値・1文字入力・改変ID・path traversal・二重決定・予算境界を具体検証。",
+							"countercheck": "独立担当の反例と5負の対照で、正例だけ通す専用分岐を避けて検出を確認。",
+							"anchor_support": "既存schema/出所/保存検査の境界を実行。過大な確認文脈は追加API0回でpartial、取消も完了非採用。LLM意味精度はcontractsで制限。"
+						},
+						"concurrency": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R02", "R06"],
+							"rationale": "OS排他、generation、transactionとcommit後公開で同時取得・取消・永続化順序を維持。",
+							"countercheck": "lockの生存PID保護、stale回収、terminal SQL失敗と遅いモデル結果を確認。",
+							"anchor_support": "macOSの実child kill7境界、保存失敗、beforeFinish/cleanup取消、返り値/DB/trial一致。敵対的な別processのdirectory差替えは未保証。"
+						}
+					}
+				},
+				"security": {
+					"criteria": {
+						"access": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R02", "R03", "R04", "R05", "R06", "R07"],
+							"rationale": "単一所有者のDB/origin/action/approval/入力出所をhostが強制し、LLMは許可を拡大できない。",
+							"countercheck": "未承認送信、期限後送出、page結果の入力許可昇格、private宛先・UDPを反証。",
+							"anchor_support": "異なるownerのDB拒否、承認負の対照、実Chrome独立TCP/UDP receiver、別tgz caller拒否を対応。OS全体の隔離や悪意あるローカル利用者を含めない。"
+						},
+						"input_secrets": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R03", "R06", "R07", "R13"],
+							"rationale": "APIキーの標準環境とaliasを再利用し子browserへ渡さない。ID/保存先/権限/上書きを検査し通常観測を本文非保存にする。",
+							"countercheck": "実際のpath/symlink拒否、本文非保存を検査。ログ全系統の形式的非漏洩証明や同一userのTOCTOU隔離はない。"
+						},
+						"abuse": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R03", "R05", "R09", "R14"],
+							"rationale": "origin/DNS固定proxy、承認、予算・出力・response上限、注入の命令系統分離を組み合わせる。",
+							"countercheck": "5注入経路×両APIとprivate TCP/UDP対照。外部全攻撃やLLM誤判断を完全に防ぐ主張はしない。"
+						}
+					}
+				},
+				"reliability": {
+					"criteria": {
+						"failure": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R02", "R06", "R07"],
+							"rationale": "外部副作用前/送出後/settle後/終端保存/取消時の失敗が確定成功を捏造しない。",
+							"countercheck": "settle失敗はindeterminate、保存失敗はunavailable/reject、確認失敗はpartial。",
+							"anchor_support": "実SQL障害注入・中断・7crash境界で状態/返り値/イベント/外部件数を照合。外部本体receiptは未受入。"
+						},
+						"recovery": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R02"],
+							"rationale": "不明送出の隔離・自動再送禁止・再照合の冪等性とmacOSロック回収を確認。",
+							"countercheck": "実runnerのlockは奪わず、停止childのsidecar排他だけ解放。成功不明を未送信へ戻さない。",
+							"anchor_support": "SIGKILL→再起動照合→もう一度照合まで独立HTTP件数を保持。一般的な認証済みresumeは実装しないと明記。"
+						},
+						"resilience": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R07", "R14"],
+							"rationale": "model・page・cleanupの期限/取消、global+step予算、bounded responseと不明費用予約で依存障害を閉じ込める。",
+							"countercheck": "無応答の確認担当でも取消可能。実CLI choice累積とscope衝突を再現検査。長期outage/ブラウザ飽和のsoakはない。"
+						}
+					}
+				},
+				"maintainability": {
+					"criteria": {
+						"clarity": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R06", "R07", "R13"],
+							"rationale": "状態と権限の責任を型・port・運用説明に対応付け、誤った旧Arm0の公開手順を修正。",
+							"countercheck": "別担当が実行/公開/復旧経路を追跡。巨大executorと既存候補heuristicは残り、引継ぎ利用者の実証はない。"
+						},
+						"change": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R04", "R05", "R06"],
+							"rationale": "契約・公開parts・共通予算の変更を複数callerと回帰試験で検証可能。",
+							"countercheck": "単なる成功件数ではなく既存失敗とmutantの検出を確認。CI継続履歴はない。"
+						},
+						"debt": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["R06", "R07", "R13"],
+							"rationale": "主要plannerの固定サイト/語句依存は除去し、残るSEARCH/PAGING/SORT候補抽出等を明示して範囲を限定。大規模な全面再設計を足さない。"
+						}
+					}
+				},
+				"common_components": {
+					"criteria": {
+						"duplication": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R04", "R07"],
+							"rationale": "free/定義/CLI/MCPが共通executor・grants・保存・予算を使い、部品を公開経路へ集約。",
+							"countercheck": "新たな確認層も既存InferencePort/CallBudgetを通す。複数hostのlifecycle adapter差分は残る。"
+						},
+						"reuse": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R04", "R05", "R07"],
+							"rationale": "標準SQLite transaction、Zod、既存Skill/RunControl/partsを実際の複数callerと持帰りconsumerで再利用。",
+							"countercheck": "packageだけ別実装にせず通常/拒否/承認/tamper契約を外部consumerで確認。",
+							"anchor_support": "Node/Bunの実tgzとlab双方で共通契約を検証。Eumenes本体での効果は未確認。"
+						},
+						"abstraction": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R04", "R07"],
+							"rationale": "構造的portと公開partsに具体的consumerがあり、意味判断はLLM・制約は共通hostに集中。",
+							"countercheck": "型検査と別consumerを確認し、将来のためだけのframeworkを追加しない。独立host lifecycleの統一は未完。"
+						}
+					}
+				},
+				"testing": {
+					"criteria": {
+						"risk_coverage": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R02", "R03", "R05", "R06", "R09", "R15"],
+							"rationale": "取消/保存失敗/実crash/承認/通信/配布/APIの重要な交差境界に検出能力がある。",
+							"countercheck": "実効果の件数・独立scorer・mutantを併用し、脚本だけの成功とLLM精度を分離。",
+							"anchor_support": "1174pass、実Chrome通信対照、20scripted、独立依頼、5負の対照。実サイト一般性・全OS・長期負荷は未検証。"
+						},
+						"quality": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["R01", "R02", "R05", "R06", "R08", "R09", "R10"],
+							"rationale": "具体的な誤公開/再送/過予算/入力逸脱を実行記録と到達状態から判定し、負の対照で検出する。",
+							"countercheck": "初期API失敗・旧holdout失敗・Lunaの誤承認を削除せず、修正後再試行を新holdoutへ改称しない。",
+							"anchor_support": "rootと別担当の反例、5mutation、独立receiver/goal-state scorerで自己申告成功を反証。作者実行・1反復で独立受入や非劣性試験ではない。"
+						},
+						"automation": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R13"],
+							"rationale": "ローカルverify一つで型/整形/test/dist/実tgzを再現できる。実Chromeと有料APIは明示した別gate。ユーザー指示によりCIを作成・実行しない。継続的CI証拠がないため4や3にしない。"
+						}
+					}
+				},
+				"supply_chain": {
+					"criteria": {
+						"dependencies": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R04", "R12"],
+							"rationale": "依存固定と脆弱性更新、collaborationの出所付きimmutable archive・全内容照合で再構築可能。",
+							"countercheck": "audit0だけを安全保証とせず、隣接dirty snapshotの由来とoverride例外を明記。全依存の到達性別監査はない。"
+						},
+						"build_release": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R04", "R05", "R12"],
+							"rationale": "版・source・Skill・migration・配布fileのdigestを実生成物で照合し、実tgzの通常/拒否/承認/改変を確認。ただしsource hashのビルド入力一覧は不完全。",
+							"countercheck": "別担当がtsconfigとmanifest生成scriptのhash対象漏れ、dirty検査欠落を反証。現candidateはclean再生成して一致するが、将来のbuild-input drift保護を4と評価しない。"
+						},
+						"license": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["R04", "R12"],
+							"rationale": "本体MIT、実配布runtime依存2件のMIT/ISC・出所・license全文を同梱し責任を識別。labの全transitive権利を包括監査したとはしない。"
+						}
+					}
+				},
+				"performance": {
+					"criteria": {
+						"budget": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R09", "R11", "R14"],
+							"rationale": "coreの入力/時間/RSS上限と実API費用/回数を測定・強制。計画とchoice再開も累積枠内。",
+							"countercheck": "unknown usageを予約し続け、旧過大上限修正とattempt変更を監査。browser全体のtail/peakを未測定なので4ではない。"
+						},
+						"hot_path": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R11"],
+							"rationale": "summary/find/listを100〜10k項目で測り、最大716kB・p95約16msの範囲を確認。",
+							"countercheck": "baselineも保存。browser/network IOは別の主経路で遅延を記録するが、全体bottleneck最適化やsoakは未実施。"
+						},
+						"measurement": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["R08", "R09", "R11", "R14"],
+							"rationale": "再現workloadとbaseline、API全失敗の時間/token/costを保持。core負荷以外のprocess-tree peak/継続負荷や統計的比較は未実施。"
+						}
+					}
+				},
+				"operability": {
+					"criteria": {
+						"signals": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R02", "R07", "R13"],
+							"rationale": "RunStatus・code・provider/目的・cancel/indeterminate/unavailableと診断を返し、保存と公開の順序を揃える。",
+							"countercheck": "保存失敗を実診断。dual比較名と費用nullを区別するが一部APIエラーのprovider metadataは欠ける。"
+						},
+						"lifecycle": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R02", "R04", "R12", "R13"],
+							"rationale": "単独導入・現行Arm1・global credential・migration/update integrity・復旧・期限/forget手順を整備して実consumerで確認。",
+							"countercheck": "別Node/Bun導入とcrash復旧、改変拒否を実行。第三者引継ぎと本体の全体forgetは未確認。"
+						},
+						"interaction": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R08", "R09", "R13"],
+							"rationale": "CLI/MCPで開始/状態/取消・承認・不足情報・失敗が区別できる。実APIの一般タスク精度・誤拒否・対話続行は限界があり、独立利用者/a11y試験なし。"
+						}
+					}
+				}
+			}
+		},
+		"project": {
+			"dimensions": {
+				"problem": {
+					"criteria": {
+						"need": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E25"],
+							"rationale": "Eumenesのブラウザ操作を安全に改善して統合する内部開発者の具体的jobがある。"
+						},
+						"impact": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E24", "E26"],
+							"rationale": "過去dev比較に呼出し/トークン負担の改善機会が明示。業務時短や人件費効果への外挿はしない。"
+						},
+						"validation": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "作者の記録以外の利用者観察/反復的運用による問題検証がない。"
+						}
+					}
+				},
+				"solution": {
+					"criteria": {
+						"mechanism": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R04", "R07", "R09"],
+							"rationale": "実体のある共通部品・権限・LLM計画/達成照合が複数callerで作動する。",
+							"countercheck": "単体prototypeの実測。市場の価値/採用/継続/競合優位へ換算しない。失敗と未受入範囲を併記。"
+						},
+						"experience": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["R08", "R09", "R13"],
+							"rationale": "固定fixtureとCLIの主要経路は利用可能。本体画面/認証済み続行/長期の利用品質は未受入。"
+						},
+						"outcomes": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R08", "R09", "R15"],
+							"rationale": "独立scorerと全失敗保持で測定する仕組みが実APIまで到達。",
+							"countercheck": "単体prototypeの実測。市場の価値/採用/継続/競合優位へ換算しない。失敗と未受入範囲を併記。"
+						}
+					}
+				},
+				"differentiation": {
+					"criteria": {
+						"alternatives": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E02", "E03"],
+							"rationale": "raw MCP、Agent型library、AI+明示操作SDKに対し、Eumenesの状態/承認を共有する選択肢は現実的。性能比較は未測定。"
+						},
+						"advantage": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E27"],
+							"rationale": "Eumenes所有DBと純粋な1手coreを共有する内部統合条件では具体的な再利用利益がある。一般製品優位は主張しない。"
+						},
+						"tradeoffs": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E23", "E27", "E28", "E29"],
+							"rationale": "独自の権限/状態/測定を管理する利益と、既製library導入に比べ自前抽出/保守/統合の負担が特定できる。"
+						}
+					}
+				},
+				"novelty": {
+					"criteria": {
+						"prior_art": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E02", "E05"],
+							"rationale": "構造化操作・要約・Skill・replay/部品は既存手法と重なり、確認範囲で大きな新規アルゴリズムは立証されない。"
+						},
+						"substance": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E24", "E26", "E03"],
+							"rationale": "部品化の内部効果と安全な状態記録には具体的な用途がある。効果の全てを新規性へ帰属しない。"
+						},
+						"verification": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29"],
+							"rationale": "主要技術は公式代替の既存機構と重なり、比較調査が確認したのは限定的な組合せ/適用の差。"
+						}
+					}
+				},
+				"adoption": {
+					"criteria": {
+						"entry": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R04", "R12", "R13"],
+							"rationale": "隣接checkout不要、実tgz導入と環境キー再利用を確認。"
+						},
+						"reach": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02"],
+							"rationale": "Eumenesという明確な内部導入先があり、公開contract/DB portが接続経路を提供。実導入完了の証明ではない。"
+						},
+						"retention": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "独立利用者または本番Eumenesでの継続使用と価値実現が未確認。"
+						}
+					}
+				},
+				"defensibility": {
+					"criteria": {
+						"assets": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E06", "E08", "E25"],
+							"rationale": "回帰fixture・失敗分類・サイト知識・承認契約を保守可能な資産として蓄積。"
+						},
+						"substitution": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E23"],
+							"rationale": "一般のブラウザ操作要素は代替しやすく、現段階で大きな乗換障壁や独立優位はない。"
+						},
+						"incentives": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "継続的な担当/協力/予算の実績は未確認。"
+						}
+					}
+				},
+				"execution": {
+					"criteria": {
+						"delivery": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["R01", "R02", "R04", "R09"],
+							"rationale": "実装からローカル検証・配布・API評価まで接続。",
+							"countercheck": "単体prototypeの実測。市場の価値/採用/継続/競合優位へ換算しない。失敗と未受入範囲を併記。"
+						},
+						"focus": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "現在の人員/時間/依存関係に対して計画が実行可能かを判断する十分なリソース情報がない。"
+						},
+						"feedback": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E25", "E07", "E08"],
+							"rationale": "live観測→失敗分類→修正commit→回帰試験という複数の学習ループを記録と実装で照合。",
+							"countercheck": "再生広告/表/同名参照等の複数例を照合。ただし作者自身のnon-blind確認で、現行LLM改善幅は未確定。"
+						}
+					}
+				},
+				"timing": {
+					"criteria": {
+						"drivers": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E27", "E28", "E29", "E01"],
+							"rationale": "現時点のMCP/agent/AI browser SDKは実用上の組込み環境を提供し、内部の必要も具体的。市場需要規模は不明。"
+						},
+						"readiness": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E08", "E15", "E27"],
+							"rationale": "Bun/Node/Chrome/SQLiteの必要要素は実際に取得・実行可能。持帰り統合は別途必要。"
+						},
+						"window": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "投入期間/本体統合予定/代替変化への応答余力が未確認。"
+						}
+					}
+				},
+				"health": {
+					"criteria": {
+						"ownership": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02", "E30"],
+							"rationale": "責任あるauthorと契約/設計の所在が判別できる。引継ぎや複数保守者は未検証。"
+						},
+						"activity": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E25", "E30", "E07"],
+							"rationale": "失敗修正と回帰検証が研究段階に応じ実行されている。commit量から加点しない。"
+						},
+						"governance": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "設計上の決定はあるが、継続資源と引継ぎ/決定権限の実運用は未確認。"
+						}
+					}
+				},
+				"expansion": {
+					"criteria": {
+						"adjacency": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E08"],
+							"rationale": "free操作と定義実行/MCPは実装済の同じbrowser coreを再利用する隣接用途。Desktop適用は仮説に留める。"
+						},
+						"scalability": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "複数利用者/サイト/長期運転へ広げた際の資源/保守コストを未測定。"
+						},
+						"path": {
+							"status": "assessed",
+							"value": 1,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E23"],
+							"rationale": "段階と受入基準はあるがリソース割当/現行baseline/配布境界の完了確認が不足し、広範な拡大を約束できない。"
+						}
+					}
+				}
+			}
+		}
+	}
+}

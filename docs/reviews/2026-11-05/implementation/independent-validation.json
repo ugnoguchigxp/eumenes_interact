@@ -34,5 +34,13 @@
       "boundedContext": "Over-200000-character completion input now becomes partial before a paid review; targeted persisted-state regression passes."
     }
   ],
-  "independentBrowserCaseCount": 6
+  "independentBrowserCaseCount": 6,
+  "anchorAudit": {
+    "method": "independent read-only evidence/rubric countercheck",
+    "reviewed": "all 30 technical anchors; especially anchor4",
+    "recommendedChange": "supply_chain.build_release4 to3",
+    "reason": "source digest omits build configs and generator; HEAD-only commit without dirty detection",
+    "rootDecision": "accepted; actual score recomputed, current clean candidate retained; future distribution-input coverage recorded as F12",
+    "otherAnchor4Concerns": "No other evidence-backed downgrade identified in this pass."
+  }
 }

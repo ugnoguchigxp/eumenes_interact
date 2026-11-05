@@ -1,0 +1,35 @@
+{
+  "at": "2026-11-05T13:32:30.271048+00:00",
+  "credentialPresence": {
+    "CLAUDE_API_KEY": true,
+    "OPEN_AI_API_KEY": true,
+    "ANTHROPIC_API_KEY": true,
+    "OPENAI_API_KEY": true
+  },
+  "aliasesEqual": true,
+  "credentialValuesPrinted": false,
+  "scannedFiles": 530,
+  "credentialOccurrences": 0,
+  "jsonFilesParsed": 73,
+  "localLinksChecked": 16,
+  "runtimeSourceSha256": "957b6300ad3ed6b4db44681a59d2660e203e9247a92ed7d9e1436ff264863fbb",
+  "runtimeSourceCount": 276,
+  "matchesPaidCandidate": true,
+  "baselineLedgerPreserved": true,
+  "scoreRecomputed": true,
+  "technicalScore": 81.9,
+  "all30TechnicalAssessed": true,
+  "CI": "excluded by user",
+  "Eumenes": "not modified by this work",
+  "productTestsNotRepeated": "Only evidence/docs changed after candidate verification; source fingerprint matches final paid API candidate.",
+  "formatCheck": "passed after formatting five new/updated review JSON files",
+  "diffCheck": "passed",
+  "independentAnchorAudit": "build_release4->3 reflected,81.9final",
+  "LLMNativeDiffReview": "New meaning/intent/completion decisions are in LLM prompts/structured results; code additions enforce source/state/budgets/IO. Existing candidate heuristics remain recorded as F09. No case-specific product response branches added.",
+  "remainingFindings": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 3,
+    "Low": 1
+  }
+}

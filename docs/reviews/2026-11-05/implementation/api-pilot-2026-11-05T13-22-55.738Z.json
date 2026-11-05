@@ -1,0 +1,2486 @@
+{
+  "at": "2026-11-05T13:22:55.738Z",
+  "scope": "author-run holdout measurement, one repetition; not independent acceptance or a noninferiority study",
+  "snapshot": {
+    "baseCommit": "5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+    "sourceSha256": "957b6300ad3ed6b4db44681a59d2660e203e9247a92ed7d9e1436ff264863fbb",
+    "fileCount": 276,
+    "dirty": false
+  },
+  "developmentRegression": true,
+  "caseFileSha256": null,
+  "cases": [
+    "holdout-search-stale",
+    "holdout-form-register-library"
+  ],
+  "conditions": {
+    "repetitions": 1,
+    "browser": "chrome",
+    "headless": true,
+    "effort": "low",
+    "maxOutputTokens": 2048,
+    "httpRetries": 0,
+    "completionReview": "Claude + Luna; both must approve, inside the original per-run call budget"
+  },
+  "rows": [
+    {
+      "provider": "claude",
+      "case": "holdout-search-stale",
+      "runId": "5893f756-0f5d-44e4-ad69-8371a7009e4d",
+      "status": "partial",
+      "code": "completion_review_partial",
+      "success": true,
+      "score": {
+        "trialId": "8d5e75fe-2af2-40cd-8063-40c59a52c2b3",
+        "caseId": "holdout-search-stale",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "partial",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 11469,
+          "operations": 2,
+          "observations": 6,
+          "modelCalls": 5,
+          "inputTokens": 20,
+          "outputTokens": 1093,
+          "cacheReadTokens": 20714,
+          "cacheWriteTokens": 9988,
+          "promptTokens": 30722
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "8d5e75fe-2af2-40cd-8063-40c59a52c2b3",
+        "caseId": "holdout-search-stale",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:59333/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/5893f756-0f5d-44e4-ad69-8371a7009e4d",
+        "startedAt": "2026-11-05T13:22:55.760Z",
+        "timings": {
+          "adapterOpenMs": 581,
+          "totalMs": 11469
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 677,
+            "observationRef": "e1dc16db-2d00-46d4-af73-bb50f13c9c81",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrRVoymJkxKupqM3Dz5",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 2889,
+            "durationMs": 2210,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 206,
+              "cacheRead": 0,
+              "cacheWrite": 6735
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2890,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2890,
+            "part": "form.inspect",
+            "args": [
+              "form"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2895,
+            "observationRef": "24a4d4c6-0d7f-425a-a1d7-20cc299dd6a7",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "part.result",
+            "at": 2895,
+            "part": "form.inspect",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrReQAmJ7zwHn7fr4De",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 3802,
+            "durationMs": 906,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 66,
+              "cacheRead": 6735,
+              "cacheWrite": 196
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 3805,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 3805,
+            "part": "form.fill",
+            "args": [
+              "fields"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 3823,
+            "observationRef": "4754ae24-59e5-49a2-8396-eff8f47cfd9f",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "operation.requested",
+            "at": 3831,
+            "operationId": "1748a449-dbc1-4148-bca6-0a424f5fb06a",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e12",
+              "element": "combobox \"所蔵\"",
+              "values": [
+                "東分館"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 3831,
+            "operationId": "1748a449-dbc1-4148-bca6-0a424f5fb06a"
+          },
+          {
+            "type": "operation.result",
+            "at": 3855,
+            "operationId": "1748a449-dbc1-4148-bca6-0a424f5fb06a",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3859,
+            "observationRef": "2c6bd4ee-fe82-4ace-8f22-1ff2ac3f20d2",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "part.result",
+            "at": 3859,
+            "part": "form.fill",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrRiTkG2BSrsSGZFJsD",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 5746,
+            "durationMs": 1887,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 145,
+              "cacheRead": 6931,
+              "cacheWrite": 117
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 5747,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 5748,
+            "part": "site.search",
+            "args": [
+              "query"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 5763,
+            "observationRef": "8a0ff498-a352-4fb5-8776-16a87d0b2f66",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "operation.requested",
+            "at": 6286,
+            "operationId": "7e58ca06-cfc0-48a5-80fb-ac24a9ceb06a",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e10",
+              "element": "searchbox \"検索語\"",
+              "text": "森",
+              "submit": true
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6286,
+            "operationId": "7e58ca06-cfc0-48a5-80fb-ac24a9ceb06a"
+          },
+          {
+            "type": "operation.result",
+            "at": 6844,
+            "operationId": "7e58ca06-cfc0-48a5-80fb-ac24a9ceb06a",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/search.html?keyword=%E6%A3%AE&library=east",
+            "title": "検索結果 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 6850,
+            "observationRef": "1b01690c-fbe8-4c1a-95d3-7be895d2378a",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/search.html?keyword=%E6%A3%AE&library=east",
+            "title": "検索結果 | つばめ図書館",
+            "refCount": 11,
+            "bodyBytes": 539,
+            "shapedBytes": 539
+          },
+          {
+            "type": "part.result",
+            "at": 6851,
+            "part": "site.search",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrRwGfcHaXnHxmk4Duu",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 9656,
+            "durationMs": 2804,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 402,
+              "cacheRead": 7048,
+              "cacheWrite": 411
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 9656,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrS9E1M9LmiXdrBPQvZ",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 12148,
+            "durationMs": 2491,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 274,
+              "cacheRead": 0,
+              "cacheWrite": 2529
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 12148,
+            "kind": "partial",
+            "text": "所蔵を東分館に設定し、検索語「森」で検索した記録(r2, r3)はあり、結果一覧に「森の鳥たち」(東分館、item.html?id=5)が表示されています。ただし一覧にはナビゲーション用の「蔵書検索へ戻る」リンクも含まれており、資料は1件のみです。検索結果の表示は確認できますが、絞り込みが東分館に限定されたことを示す結果ページ上の証拠(所蔵フィルタ適用の表示)は記録になく、資料の一覧としては確認できる範囲で依頼を満たしています。実際には東分館の資料のみが表示されたと判断できる根拠は、「森の鳥たち」のtextが東分館である点に限られます。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 206,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 6735
+          },
+          "latencyMs": 2207,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrRVoymJkxKupqM3Dz5",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.inspect\",\"arguments\":{\"form\":null},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 66,
+            "cacheReadInputTokens": 6735,
+            "cacheCreationInputTokens": 196
+          },
+          "latencyMs": 903,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrReQAmJ7zwHn7fr4De",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.fill\",\"arguments\":{\"fields\":[{\"item\":\"p1.i5\",\"value\":\"東分館\",\"quote\":\"東分館にある\"}]},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 145,
+            "cacheReadInputTokens": 6931,
+            "cacheCreationInputTokens": 117
+          },
+          "latencyMs": 1883,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrRiTkG2BSrsSGZFJsD",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"site.search\",\"arguments\":{\"query\":\"森\"},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 402,
+            "cacheReadInputTokens": 7048,
+            "cacheCreationInputTokens": 411
+          },
+          "latencyMs": 2799,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrRwGfcHaXnHxmk4Duu",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r3\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"所蔵を東分館に設定して「森」を検索しました。検索結果一覧には「森の鳥たち」（東分館、item.html?id=5）が1件表示されています。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 274,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 2529
+          },
+          "latencyMs": 2488,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrS9E1M9LmiXdrBPQvZ",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"partial\",\"explanation\":\"所蔵を東分館に設定し、検索語「森」で検索した記録(r2, r3)はあり、結果一覧に「森の鳥たち」(東分館、item.html?id=5)が表示されています。ただし一覧にはナビゲーション用の「蔵書検索へ戻る」リンクも含まれており、資料は1件のみです。検索結果の表示は確認できますが、絞り込みが東分館に限定されたことを示す結果ページ上の証拠(所蔵フィルタ適用の表示)は記録になく、資料の一覧としては確認できる範囲で依頼を満たしています。実際には東分館の資料のみが表示されたと判断できる根拠は、「森の鳥たち」のtextが東分館である点に限られます。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "holdout-search-stale",
+      "runId": "8182cbf7-fa6d-4409-a0bb-1d6e9981f19e",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "e3eefb5e-016d-4b14-819f-60092bfd2c85",
+        "caseId": "holdout-search-stale",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 16883,
+          "operations": 3,
+          "observations": 8,
+          "modelCalls": 7,
+          "inputTokens": 2564,
+          "outputTokens": 888,
+          "cacheReadTokens": 19831,
+          "cacheWriteTokens": 2730,
+          "promptTokens": 25125
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 1,
+          "unneededApprovals": 1
+        }
+      },
+      "transcript": {
+        "trialId": "e3eefb5e-016d-4b14-819f-60092bfd2c85",
+        "caseId": "holdout-search-stale",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:59333/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/8182cbf7-fa6d-4409-a0bb-1d6e9981f19e",
+        "startedAt": "2026-11-05T13:23:07.992Z",
+        "timings": {
+          "adapterOpenMs": 579,
+          "totalMs": 16883
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 675,
+            "observationRef": "594117e0-3482-4d2e-a3d9-0a2d4d4faabf",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_06582fea9b5ad85c016aec833d29a487d1a82cf7ba98bb7960",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2838,
+            "durationMs": 2162,
+            "outcome": "ok",
+            "tokens": {
+              "input": 489,
+              "output": 56,
+              "cacheRead": 3405,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2838,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2838,
+            "part": "form.inspect",
+            "args": [
+              "form"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2843,
+            "observationRef": "d70753d3-0513-4547-8735-c1f722f81e74",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "part.result",
+            "at": 2843,
+            "part": "form.inspect",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0aa8d8eda4ce60a0016aec833f0b0c87d181ffea8b1b5f58b6",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 5318,
+            "durationMs": 2475,
+            "outcome": "ok",
+            "tokens": {
+              "input": 141,
+              "output": 98,
+              "cacheRead": 3891,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 5319,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 5320,
+            "part": "form.fill",
+            "args": [
+              "fields"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 5335,
+            "observationRef": "553b5d25-ea72-4dd5-a73c-6b50fc5b3a7d",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 660,
+            "shapedBytes": 660
+          },
+          {
+            "type": "operation.requested",
+            "at": 5341,
+            "operationId": "33260697-ef5c-4b7b-a4d1-93559609df43",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e10",
+              "element": "searchbox \"検索語\"",
+              "text": "森",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 5341,
+            "operationId": "33260697-ef5c-4b7b-a4d1-93559609df43"
+          },
+          {
+            "type": "operation.result",
+            "at": 5367,
+            "operationId": "33260697-ef5c-4b7b-a4d1-93559609df43",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 5371,
+            "observationRef": "82aff69c-2dac-4e8a-a1f5-ad8accbb4c80",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 665,
+            "shapedBytes": 665
+          },
+          {
+            "type": "operation.requested",
+            "at": 5373,
+            "operationId": "6dac8f33-85ea-4ced-8b4b-a8f9f7c01f3c",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e12",
+              "element": "combobox \"所蔵\"",
+              "values": [
+                "東分館"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 5374,
+            "operationId": "6dac8f33-85ea-4ced-8b4b-a8f9f7c01f3c"
+          },
+          {
+            "type": "operation.result",
+            "at": 5381,
+            "operationId": "6dac8f33-85ea-4ced-8b4b-a8f9f7c01f3c",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 5384,
+            "observationRef": "c95179b8-c254-4f2d-a9d0-c45988e51628",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 665,
+            "shapedBytes": 665
+          },
+          {
+            "type": "part.result",
+            "at": 5384,
+            "part": "form.fill",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0a11a0cd94ab2870016aec8341960c87d1bae994092f91bdc7",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 7756,
+            "durationMs": 2371,
+            "outcome": "ok",
+            "tokens": {
+              "input": 114,
+              "output": 53,
+              "cacheRead": 4029,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 7758,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 7758,
+            "part": "form.submit",
+            "args": [
+              "button"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 7772,
+            "observationRef": "85675200-d152-4c40-9a3d-706d9cc6cd6a",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/index.html",
+            "title": "つばめ図書館",
+            "refCount": 14,
+            "bodyBytes": 665,
+            "shapedBytes": 665
+          },
+          {
+            "type": "operation.requested",
+            "at": 7777,
+            "operationId": "89176497-2654-441d-b22b-fa49dcbb8bcb",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e14",
+              "element": "button \"蔵書を検索\""
+            },
+            "declaredEffect": "submit",
+            "requiresApproval": true
+          },
+          {
+            "type": "approval.requested",
+            "at": 7777,
+            "approvalId": "602da78e-7e63-4a2c-8d41-68487b6b7df4",
+            "operationId": "89176497-2654-441d-b22b-fa49dcbb8bcb"
+          },
+          {
+            "type": "approval.answered",
+            "at": 7777,
+            "approvalId": "602da78e-7e63-4a2c-8d41-68487b6b7df4",
+            "decision": "grant"
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 7781,
+            "operationId": "89176497-2654-441d-b22b-fa49dcbb8bcb"
+          },
+          {
+            "type": "operation.result",
+            "at": 8359,
+            "operationId": "89176497-2654-441d-b22b-fa49dcbb8bcb",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/search.html?keyword=%E6%A3%AE&library=east",
+            "title": "検索結果 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 8365,
+            "observationRef": "4f94f2ba-6823-4323-bcca-c57c4454a1ec",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/search.html?keyword=%E6%A3%AE&library=east",
+            "title": "検索結果 | つばめ図書館",
+            "refCount": 11,
+            "bodyBytes": 539,
+            "shapedBytes": 539
+          },
+          {
+            "type": "part.result",
+            "at": 8365,
+            "part": "form.submit",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_020bc73337348d8c016aec8344888c87d18675d943f6ad753e",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 10281,
+            "durationMs": 1915,
+            "outcome": "ok",
+            "tokens": {
+              "input": 229,
+              "output": 51,
+              "cacheRead": 4140,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 10282,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 10282,
+            "part": "page.read",
+            "args": [
+              "target",
+              "maxChars"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 10293,
+            "observationRef": "426766b3-a308-44d2-81b3-bde8781620c3",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/stale/search.html?keyword=%E6%A3%AE&library=east",
+            "title": "検索結果 | つばめ図書館",
+            "refCount": 11,
+            "bodyBytes": 539,
+            "shapedBytes": 539
+          },
+          {
+            "type": "part.result",
+            "at": 10812,
+            "part": "page.read",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0fae8b769e95062d016aec8346fff487d19cc2ab78f65eaae5",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 12638,
+            "durationMs": 1825,
+            "outcome": "ok",
+            "tokens": {
+              "input": 154,
+              "output": 68,
+              "cacheRead": 4366,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 12639,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrTGLR1qA34mRdijZFH",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 15931,
+            "durationMs": 3291,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 499,
+              "cacheRead": 0,
+              "cacheWrite": 2730
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_055174e73ad0c916016aec834c131887d18192d4ca3010de34",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 17455,
+            "durationMs": 1524,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1433,
+              "output": 63,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 17559,
+            "kind": "finish",
+            "text": "東分館所蔵の「森」の検索結果一覧を表示しました（1件：「森の鳥たち」）。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 489,
+            "outputTokens": 56,
+            "cacheReadInputTokens": 3405,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 26
+          },
+          "latencyMs": 2160,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_06582fea9b5ad85c016aec833d29a487d1a82cf7ba98bb7960",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.inspect\",\"arguments\":{\"form\":null},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 141,
+            "outputTokens": 98,
+            "cacheReadInputTokens": 3891,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 28
+          },
+          "latencyMs": 2471,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0aa8d8eda4ce60a0016aec833f0b0c87d181ffea8b1b5f58b6",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.fill\",\"arguments\":{\"fields\":[{\"item\":\"p1.i4\",\"value\":\"森\",\"quote\":\"「森」の資料\"},{\"item\":\"p1.i5\",\"value\":\"東分館\",\"quote\":\"東分館にある\"}]},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 114,
+            "outputTokens": 53,
+            "cacheReadInputTokens": 4029,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 19
+          },
+          "latencyMs": 2367,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0a11a0cd94ab2870016aec8341960c87d1bae994092f91bdc7",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.submit\",\"arguments\":{\"button\":\"p1.i6\"},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 229,
+            "outputTokens": 51,
+            "cacheReadInputTokens": 4140,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 12
+          },
+          "latencyMs": 1912,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_020bc73337348d8c016aec8344888c87d18675d943f6ad753e",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.read\",\"arguments\":{\"target\":\"p2.i2\",\"maxChars\":3000},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 154,
+            "outputTokens": 68,
+            "cacheReadInputTokens": 4366,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1821,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0fae8b769e95062d016aec8346fff487d19cc2ab78f65eaae5",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r4\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"東分館所蔵の「森」の検索結果一覧を表示しました（1件：「森の鳥たち」）。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 499,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 2730
+          },
+          "latencyMs": 3287,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrTGLR1qA34mRdijZFH",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"trace上で検索語「森」と所蔵「東分館」を入力し（r2）、検索を送信して検索結果ページ（p2）に遷移しています（r3）。r4の読み取りでは「1件」「森の鳥たち 東分館」が確認でき、URLにもkeyword=森とlibrary=eastが記録されています。回答の「1件：森の鳥たち」は依頼の対象・範囲と一致し、根拠となる観測も揃っています。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1433,
+            "outputTokens": 63,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1520,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_055174e73ad0c916016aec834c131887d18192d4ca3010de34",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"検索語「森」と所蔵「東分館」で検索を実行し、結果一覧に「森の鳥たち」（東分館）が1件表示されていることを確認しました。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "case": "holdout-form-register-library",
+      "runId": "1c0fb72a-26a9-4700-9607-4a04823b56c1",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "2a063b2f-831e-4160-aebd-845098ec0264",
+        "caseId": "holdout-form-register-library",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 17130,
+          "operations": 6,
+          "observations": 10,
+          "modelCalls": 6,
+          "inputTokens": 2836,
+          "outputTokens": 899,
+          "cacheReadTokens": 16104,
+          "cacheWriteTokens": 3014,
+          "promptTokens": 21954
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 1,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "2a063b2f-831e-4160-aebd-845098ec0264",
+        "caseId": "holdout-form-register-library",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:59333/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/1c0fb72a-26a9-4700-9607-4a04823b56c1",
+        "startedAt": "2026-11-05T13:23:25.562Z",
+        "timings": {
+          "adapterOpenMs": 545,
+          "totalMs": 17130
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 642,
+            "observationRef": "7f51092b-24a3-45e3-b1bf-37f4208b6fdd",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1104,
+            "shapedBytes": 1104
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_092469a4d310052d016aec834e5ddc87d1893aff7776474b04",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2087,
+            "durationMs": 1445,
+            "outcome": "ok",
+            "tokens": {
+              "input": 618,
+              "output": 39,
+              "cacheRead": 3405,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2087,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2088,
+            "part": "form.inspect",
+            "args": [
+              "form"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2103,
+            "observationRef": "e0f34020-7295-4ac2-a9d6-8547666708ec",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1104,
+            "shapedBytes": 1104
+          },
+          {
+            "type": "part.result",
+            "at": 2104,
+            "part": "form.inspect",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0de4cc222f576d4c016aec834fd49887d191c31842eb6aadd1",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 4915,
+            "durationMs": 2811,
+            "outcome": "ok",
+            "tokens": {
+              "input": 227,
+              "output": 147,
+              "cacheRead": 4020,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 4915,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 4915,
+            "part": "form.fill",
+            "args": [
+              "fields"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 4923,
+            "observationRef": "50c36d0f-0358-44b9-99b2-2543b5aa7bd2",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1104,
+            "shapedBytes": 1104
+          },
+          {
+            "type": "operation.requested",
+            "at": 4926,
+            "operationId": "09277b9f-7b88-4e4c-9b05-cb3da3f3da79",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e8",
+              "element": "textbox \"お名前\"",
+              "text": "森田健",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 4926,
+            "operationId": "09277b9f-7b88-4e4c-9b05-cb3da3f3da79"
+          },
+          {
+            "type": "operation.result",
+            "at": 4948,
+            "operationId": "09277b9f-7b88-4e4c-9b05-cb3da3f3da79",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4952,
+            "observationRef": "3ba5ad18-304d-4fb7-bc33-f4d7eae753b5",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1115,
+            "shapedBytes": 1115
+          },
+          {
+            "type": "operation.requested",
+            "at": 4953,
+            "operationId": "bcede9cb-822d-4b30-b648-2c62f984d3cb",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e10",
+              "element": "textbox \"メールアドレス\"",
+              "text": "ken@example.com",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 4954,
+            "operationId": "bcede9cb-822d-4b30-b648-2c62f984d3cb"
+          },
+          {
+            "type": "operation.result",
+            "at": 4959,
+            "operationId": "bcede9cb-822d-4b30-b648-2c62f984d3cb",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4963,
+            "observationRef": "e084eaec-4bc3-462a-be45-20202454c828",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1132,
+            "shapedBytes": 1132
+          },
+          {
+            "type": "operation.requested",
+            "at": 4965,
+            "operationId": "0f3fb0c1-666e-4066-bb6d-08beca827ee6",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e12",
+              "element": "combobox \"よく使う館\"",
+              "values": [
+                "東分館"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 4965,
+            "operationId": "0f3fb0c1-666e-4066-bb6d-08beca827ee6"
+          },
+          {
+            "type": "operation.result",
+            "at": 4971,
+            "operationId": "0f3fb0c1-666e-4066-bb6d-08beca827ee6",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 4974,
+            "observationRef": "2f4fc9f3-ab8a-4fd2-9845-8d01616f0cf5",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1132,
+            "shapedBytes": 1132
+          },
+          {
+            "type": "operation.requested",
+            "at": 5487,
+            "operationId": "b1864e00-f8c9-448f-9790-057f935e6d0b",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e15",
+              "element": "checkbox \"メールで新着案内を受け取る\""
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 5487,
+            "operationId": "b1864e00-f8c9-448f-9790-057f935e6d0b"
+          },
+          {
+            "type": "operation.result",
+            "at": 6051,
+            "operationId": "b1864e00-f8c9-448f-9790-057f935e6d0b",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 6061,
+            "observationRef": "287b4682-b0e9-4e95-9679-bbf2a938eb62",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1142,
+            "shapedBytes": 1142
+          },
+          {
+            "type": "operation.requested",
+            "at": 6576,
+            "operationId": "1d5afd0b-8e31-483b-9a23-96f38ff9fde6",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e21",
+              "element": "radio \"アプリのカード\""
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6576,
+            "operationId": "1d5afd0b-8e31-483b-9a23-96f38ff9fde6"
+          },
+          {
+            "type": "operation.result",
+            "at": 7112,
+            "operationId": "1d5afd0b-8e31-483b-9a23-96f38ff9fde6",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 7120,
+            "observationRef": "19917196-fb25-4e02-b2be-d7161d9d663e",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1152,
+            "shapedBytes": 1152
+          },
+          {
+            "type": "part.result",
+            "at": 7120,
+            "part": "form.fill",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_007f541551d1080e016aec8354da6887d1871608420237039b",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 8510,
+            "durationMs": 1389,
+            "outcome": "ok",
+            "tokens": {
+              "input": 194,
+              "output": 42,
+              "cacheRead": 4244,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 8510,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 8510,
+            "part": "form.submit",
+            "args": [
+              "button"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 8520,
+            "observationRef": "f7aa40f2-3c7e-46cb-bc3b-42ed0333cb45",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1152,
+            "shapedBytes": 1152
+          },
+          {
+            "type": "operation.requested",
+            "at": 8524,
+            "operationId": "cdbe6d3f-7740-4d82-89a9-4a758c7743b6",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e23",
+              "element": "button \"登録する\""
+            },
+            "declaredEffect": "submit",
+            "requiresApproval": true
+          },
+          {
+            "type": "approval.requested",
+            "at": 8524,
+            "approvalId": "e1118f54-4a04-4e45-9edf-ff71bada411b",
+            "operationId": "cdbe6d3f-7740-4d82-89a9-4a758c7743b6"
+          },
+          {
+            "type": "approval.answered",
+            "at": 8524,
+            "approvalId": "e1118f54-4a04-4e45-9edf-ff71bada411b",
+            "decision": "grant"
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 8526,
+            "operationId": "cdbe6d3f-7740-4d82-89a9-4a758c7743b6"
+          },
+          {
+            "type": "operation.result",
+            "at": 9088,
+            "operationId": "cdbe6d3f-7740-4d82-89a9-4a758c7743b6",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/registered.html?fullname=%E6%A3%AE%E7%94%B0%E5%81%A5&email=ken%40example.com&home=east&notify=1&card=app",
+            "title": "登録完了 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 9091,
+            "observationRef": "b5d2a4df-a093-4515-b730-54b7870b8806",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/registered.html?fullname=%E6%A3%AE%E7%94%B0%E5%81%A5&email=ken%40example.com&home=east&notify=1&card=app",
+            "title": "登録完了 | つばめ図書館",
+            "refCount": 18,
+            "bodyBytes": 744,
+            "shapedBytes": 744
+          },
+          {
+            "type": "part.result",
+            "at": 9091,
+            "part": "form.submit",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_007df55872138b27016aec83571e7087d18a4ccb9f7d5074a5",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 10888,
+            "durationMs": 1796,
+            "outcome": "ok",
+            "tokens": {
+              "input": 206,
+              "output": 63,
+              "cacheRead": 4435,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 10888,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrURxdttexTX199pLq3",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 15945,
+            "durationMs": 5056,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 525,
+              "cacheRead": 0,
+              "cacheWrite": 3014
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_067f505afaa92373016aec835daeac87d1b774aeaf9718ab5d",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 17709,
+            "durationMs": 1763,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1587,
+              "output": 83,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 17772,
+            "kind": "finish",
+            "text": "つばめ図書館から「利用者登録を受け付けました」と表示されました。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 618,
+            "outputTokens": 39,
+            "cacheReadInputTokens": 3405,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 9
+          },
+          "latencyMs": 1441,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_092469a4d310052d016aec834e5ddc87d1893aff7776474b04",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.inspect\",\"arguments\":{\"form\":null},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 227,
+            "outputTokens": 147,
+            "cacheReadInputTokens": 4020,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 30
+          },
+          "latencyMs": 2807,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0de4cc222f576d4c016aec834fd49887d191c31842eb6aadd1",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.fill\",\"arguments\":{\"fields\":[{\"item\":\"p1.i3\",\"value\":\"森田健\",\"quote\":null},{\"item\":\"p1.i4\",\"value\":\"ken@example.com\",\"quote\":null},{\"item\":\"p1.i5\",\"value\":\"東分館\",\"quote\":null},{\"item\":\"p1.i6\",\"value\":\"on\",\"quote\":null},{\"item\":\"p1.i8\",\"value\":\"on\",\"quote\":\"カードはアプリでお願いします\"}]},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 194,
+            "outputTokens": 42,
+            "cacheReadInputTokens": 4244,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 8
+          },
+          "latencyMs": 1385,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_007f541551d1080e016aec8354da6887d1871608420237039b",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.submit\",\"arguments\":{\"button\":\"p1.i9\"},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 206,
+            "outputTokens": 63,
+            "cacheReadInputTokens": 4435,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1792,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_007df55872138b27016aec83571e7087d18a4ccb9f7d5074a5",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r3\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"つばめ図書館から「利用者登録を受け付けました」と表示されました。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 525,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 3014
+          },
+          "latencyMs": 5054,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrURxdttexTX199pLq3",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"trace上のform.fillでお名前(森田健)、メールアドレス(ken@example.com)、よく使う館(東分館)、メールでの新着案内チェック、アプリのカード選択がいずれもfilledと記録されています。その後form.submitがp1.i9(登録する)に対してcompletedとなり、遷移先p2の見出しが「利用者登録を受け付けました」で、r3がその根拠です。依頼内容と到達状態が一致し、回答の表示文言もtraceと一致します。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1587,
+            "outputTokens": 83,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1763,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_067f505afaa92373016aec835daeac87d1b774aeaf9718ab5d",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"指定された氏名、メールアドレス、東分館、メール案内の受信、アプリのカードがすべてフォームに入力されたことが記録されています。登録ボタンの実行後、「利用者登録を受け付けました」と表示されたことも確認できます。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "claude",
+      "case": "holdout-form-register-library",
+      "runId": "28e81c09-c0b1-462e-ad03-f1ea04dc9c46",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "d5fd5dd7-c48d-462b-9802-570cacf56c8f",
+        "caseId": "holdout-form-register-library",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 18353,
+          "operations": 6,
+          "observations": 10,
+          "modelCalls": 6,
+          "inputTokens": 1689,
+          "outputTokens": 1694,
+          "cacheReadTokens": 21710,
+          "cacheWriteTokens": 10978,
+          "promptTokens": 34377
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 1,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "d5fd5dd7-c48d-462b-9802-570cacf56c8f",
+        "caseId": "holdout-form-register-library",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:59333/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/28e81c09-c0b1-462e-ad03-f1ea04dc9c46",
+        "startedAt": "2026-11-05T13:23:43.345Z",
+        "timings": {
+          "adapterOpenMs": 525,
+          "totalMs": 18353
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 620,
+            "observationRef": "55faaa59-2261-4fc0-8d96-b2531e1aa7ef",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1104,
+            "shapedBytes": 1104
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrUz6fkXZ91Cz6aPnek",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 3088,
+            "durationMs": 2467,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 36,
+              "cacheRead": 0,
+              "cacheWrite": 6910
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 3088,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 3089,
+            "part": "form.inspect",
+            "args": [
+              "form"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 3103,
+            "observationRef": "ad4be32d-c2e4-4faf-bfa7-f848a5d76834",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1104,
+            "shapedBytes": 1104
+          },
+          {
+            "type": "part.result",
+            "at": 3104,
+            "part": "form.inspect",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrVAguJqyL9kF75tkCr",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 6814,
+            "durationMs": 3710,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 669,
+              "cacheRead": 6910,
+              "cacheWrite": 327
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6814,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 6815,
+            "part": "form.fill",
+            "args": [
+              "fields"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 6831,
+            "observationRef": "2d249b1a-6f33-47a7-ac8c-da8a0b73a346",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1104,
+            "shapedBytes": 1104
+          },
+          {
+            "type": "operation.requested",
+            "at": 6835,
+            "operationId": "b2680f50-a7b3-4141-8fa8-fd006cb60a53",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e8",
+              "element": "textbox \"お名前\"",
+              "text": "森田健",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6835,
+            "operationId": "b2680f50-a7b3-4141-8fa8-fd006cb60a53"
+          },
+          {
+            "type": "operation.result",
+            "at": 6861,
+            "operationId": "b2680f50-a7b3-4141-8fa8-fd006cb60a53",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 6865,
+            "observationRef": "3125f6ed-cf12-4519-86bf-f67c806f3a9f",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1115,
+            "shapedBytes": 1115
+          },
+          {
+            "type": "operation.requested",
+            "at": 6867,
+            "operationId": "7ec333e8-fce1-4ef2-98bd-97b98b8200e8",
+            "command": {
+              "action": "page.fill",
+              "targetRef": "e10",
+              "element": "textbox \"メールアドレス\"",
+              "text": "ken@example.com",
+              "submit": false
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6867,
+            "operationId": "7ec333e8-fce1-4ef2-98bd-97b98b8200e8"
+          },
+          {
+            "type": "operation.result",
+            "at": 6873,
+            "operationId": "7ec333e8-fce1-4ef2-98bd-97b98b8200e8",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 6877,
+            "observationRef": "39d06684-4aa8-4f9d-bc06-cfd8df299609",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1132,
+            "shapedBytes": 1132
+          },
+          {
+            "type": "operation.requested",
+            "at": 6878,
+            "operationId": "468c4c65-40ac-4734-b7f3-9c05b87604d2",
+            "command": {
+              "action": "page.select",
+              "targetRef": "e12",
+              "element": "combobox \"よく使う館\"",
+              "values": [
+                "東分館"
+              ]
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 6878,
+            "operationId": "468c4c65-40ac-4734-b7f3-9c05b87604d2"
+          },
+          {
+            "type": "operation.result",
+            "at": 6885,
+            "operationId": "468c4c65-40ac-4734-b7f3-9c05b87604d2",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 6888,
+            "observationRef": "0da4a691-bfea-4548-a108-53b8ff537d03",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1132,
+            "shapedBytes": 1132
+          },
+          {
+            "type": "operation.requested",
+            "at": 7402,
+            "operationId": "1696e2cc-0170-4158-9ea5-bd0d74255488",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e15",
+              "element": "checkbox \"メールで新着案内を受け取る\""
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 7402,
+            "operationId": "1696e2cc-0170-4158-9ea5-bd0d74255488"
+          },
+          {
+            "type": "operation.result",
+            "at": 7966,
+            "operationId": "1696e2cc-0170-4158-9ea5-bd0d74255488",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 7977,
+            "observationRef": "f4b27509-7a2d-46c3-8594-76afa20a6e44",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1142,
+            "shapedBytes": 1142
+          },
+          {
+            "type": "operation.requested",
+            "at": 8494,
+            "operationId": "c8922ba5-bd46-41c6-8e0d-04841f7e444f",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e21",
+              "element": "radio \"アプリのカード\""
+            },
+            "declaredEffect": "input",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 8494,
+            "operationId": "c8922ba5-bd46-41c6-8e0d-04841f7e444f"
+          },
+          {
+            "type": "operation.result",
+            "at": 9034,
+            "operationId": "c8922ba5-bd46-41c6-8e0d-04841f7e444f",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 9046,
+            "observationRef": "f955e417-c482-49dd-b303-8b881ef14723",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1152,
+            "shapedBytes": 1152
+          },
+          {
+            "type": "part.result",
+            "at": 9046,
+            "part": "form.fill",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrVc96PbzYq1NtbMcqN",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 11179,
+            "durationMs": 2133,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 256,
+              "cacheRead": 7237,
+              "cacheWrite": 326
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 11179,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 11179,
+            "part": "form.submit",
+            "args": [
+              "button"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 11187,
+            "observationRef": "da610719-058f-43d5-aeb4-739b4dc452e1",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/register.html",
+            "title": "利用者登録 | つばめ図書館",
+            "refCount": 22,
+            "bodyBytes": 1152,
+            "shapedBytes": 1152
+          },
+          {
+            "type": "operation.requested",
+            "at": 11189,
+            "operationId": "6157a473-7509-453d-b422-0b87c0aa82b9",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e23",
+              "element": "button \"登録する\""
+            },
+            "declaredEffect": "submit",
+            "requiresApproval": true
+          },
+          {
+            "type": "approval.requested",
+            "at": 11189,
+            "approvalId": "b153210d-c4b4-4cf5-83b2-c5149e372072",
+            "operationId": "6157a473-7509-453d-b422-0b87c0aa82b9"
+          },
+          {
+            "type": "approval.answered",
+            "at": 11189,
+            "approvalId": "b153210d-c4b4-4cf5-83b2-c5149e372072",
+            "decision": "grant"
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 11191,
+            "operationId": "6157a473-7509-453d-b422-0b87c0aa82b9"
+          },
+          {
+            "type": "operation.result",
+            "at": 11768,
+            "operationId": "6157a473-7509-453d-b422-0b87c0aa82b9",
+            "status": "confirmed",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/registered.html?fullname=%E6%A3%AE%E7%94%B0%E5%81%A5&email=ken%40example.com&home=east&notify=1&card=app",
+            "title": "登録完了 | つばめ図書館",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 11772,
+            "observationRef": "483e90fe-c0a1-4ac3-bb0f-300cd141f96c",
+            "url": "http://127.0.0.1:59333/sites/tsubame-library/base/registered.html?fullname=%E6%A3%AE%E7%94%B0%E5%81%A5&email=ken%40example.com&home=east&notify=1&card=app",
+            "title": "登録完了 | つばめ図書館",
+            "refCount": 18,
+            "bodyBytes": 744,
+            "shapedBytes": 744
+          },
+          {
+            "type": "part.result",
+            "at": 11773,
+            "part": "form.submit",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrVooKMkdfZHjeVf4G8",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 13270,
+            "durationMs": 1497,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 155,
+              "cacheRead": 7563,
+              "cacheWrite": 282
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 13270,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011CgjrVv7aNeY8R1y2o9ULp",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 16822,
+            "durationMs": 3551,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 498,
+              "cacheRead": 0,
+              "cacheWrite": 3133
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0c746c962399b055016aec8370539087d189709f60b17aa10f",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 18882,
+            "durationMs": 2060,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1669,
+              "output": 80,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 18974,
+            "kind": "finish",
+            "text": "利用者登録を送信し、登録完了ページ（利用者登録を受け付けました）が表示されたことを確認しました。入力は、お名前：森田健、メールアドレス：ken@example.com、よく使う館：東分館、新着案内：受け取る、カード：アプリのカードです。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 36,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 6910
+          },
+          "latencyMs": 2463,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrUz6fkXZ91Cz6aPnek",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.inspect\",\"arguments\":{\"form\":null},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 669,
+            "cacheReadInputTokens": 6910,
+            "cacheCreationInputTokens": 327
+          },
+          "latencyMs": 3705,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrVAguJqyL9kF75tkCr",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.fill\",\"arguments\":{\"fields\":[{\"item\":\"p1.i3\",\"value\":\"森田健\",\"quote\":\"お名前は森田健、\"},{\"item\":\"p1.i4\",\"value\":\"ken@example.com\",\"quote\":\"メールアドレスは ken@example.com、\"},{\"item\":\"p1.i5\",\"value\":\"東分館\",\"quote\":null},{\"item\":\"p1.i6\",\"value\":\"on\",\"quote\":\"メールでの新着案内は受け取ります\"},{\"item\":\"p1.i8\",\"value\":\"on\",\"quote\":\"カードはアプリでお願いします。\"}]},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 256,
+            "cacheReadInputTokens": 7237,
+            "cacheCreationInputTokens": 326
+          },
+          "latencyMs": 2129,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrVc96PbzYq1NtbMcqN",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"form.submit\",\"arguments\":{\"button\":\"p1.i9\"},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 155,
+            "cacheReadInputTokens": 7563,
+            "cacheCreationInputTokens": 282
+          },
+          "latencyMs": 1495,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrVooKMkdfZHjeVf4G8",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r3\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"利用者登録を送信し、登録完了ページ（利用者登録を受け付けました）が表示されたことを確認しました。入力は、お名前：森田健、メールアドレス：ken@example.com、よく使う館：東分館、新着案内：受け取る、カード：アプリのカードです。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 498,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 3133
+          },
+          "latencyMs": 3547,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011CgjrVv7aNeY8R1y2o9ULp",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"trace上で、お名前「森田健」、メールアドレス「ken@example.com」、よく使う館「東分館」、新着案内チェック、アプリのカードの各項目がform.fillで入力済みと記録されています（r2）。form.submitはr3でcompletedとなり、遷移先ページの見出しは「利用者登録を受け付けました」で、登録完了を確認できます。依頼された値と答えの内容は一致しています。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1669,
+            "outputTokens": 80,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 2055,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0c746c962399b055016aec8370539087d189709f60b17aa10f",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"指定された氏名・メールアドレス・よく使う館・新着案内の受信・アプリカードがフォームへの入力完了として記録され、登録送信後に「利用者登録を受け付けました」と表示されたことも確認できます。\"}"
+        }
+      ]
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "attempts": 539,
+    "accountedUpperUsd": 7.937806,
+    "unknownCalls": 11
+  }
+}

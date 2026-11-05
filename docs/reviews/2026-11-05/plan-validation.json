@@ -16,10 +16,14 @@
 	"fresh_login_shell_key_presence": "passed",
 	"key_values_printed": false,
 	"key_values_copied_to_project": false,
-	"api_calls_sent": 313,
-	"product_checks": "implemented: verify 1160 pass, 2 opt-in skipped and separately 2 real Chrome pass; package consumer Node/Bun; dev scripted 20 pass; negative controls 5 detected",
-	"tracked_product_source_changes": [],
-	"final_acceptance": "in progress",
+	"api_calls_sent": 579,
+	"product_checks": "verify1174pass/2opt-in skip separately2 realChrome pass; realNode/Bun package; scripted20; negative controls5; crash7; SQL publication faults; dual browser goal-state15/16 and falseFinish0; injection10/10",
+	"final_acceptance": "standalone technical81.9/100, coverage100%, all30 criteria, independent anchor audit reflected; Eumenes/noninferiority/user acceptance deferred",
 	"CI": "excluded by user",
-	"scope": "standalone repo first; Eumenes integration deferred by user"
+	"scope": "standalone repo first; Eumenes integration deferred by user",
+	"api_accounted_upper_usd": 8.024065,
+	"api_unknown_calls": 11,
+	"final_source_commit": "5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+	"reevaluated_technical_score": 81.9,
+	"independent_anchor_audit": "accepted build_release4->3 for incomplete build-input provenance"
 }

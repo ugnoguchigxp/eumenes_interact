@@ -1,0 +1,15 @@
+{
+  "at": "2026-11-05T13:25:02.258027+00:00",
+  "command": [
+    "bun",
+    "run",
+    "check:package"
+  ],
+  "exit": 0,
+  "candidateCommit": "5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+  "manifestCommit": "5bdef97d9d3cf1c9dac3819e628bb2c74336d644",
+  "sourceSha256": "aca40df377dc19c676ed953f72e28178360bb6ac65497c8f221f51af15b5447e",
+  "archiveSha256": "c54a89b4449446eb5d74ea50bd63feac6efd3ee32c1be525049f1a471f8c4c89",
+  "log": "package-immutable-final.log",
+  "reason": "Rebuild once after committing the already tested source so the generated manifest commit identifies the immutable candidate; source digest unchanged."
+}

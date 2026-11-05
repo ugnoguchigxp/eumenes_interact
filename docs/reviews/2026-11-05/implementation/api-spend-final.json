@@ -1,0 +1,4724 @@
+{
+  "at": "2026-11-05T13:25:54.953855+00:00",
+  "scope": "All shared-ledger paid API calls, including failed initial schema probes, replay probes and all later regressions. Not an invoice.",
+  "limitUsd": 10.0,
+  "maxAttempts": 600,
+  "attempts": 579,
+  "accountedUpperUsd": 8.024065,
+  "usageKnownConservativeUpperUsd": 1.770745,
+  "unknownCalls": 11,
+  "unknownReservationsUsd": 6.25332,
+  "byModel": {
+    "claude-haiku-5-5": {
+      "attempts": 293,
+      "accountedUpperUsd": 5.625678
+    },
+    "gpt-6-luna": {
+      "attempts": 286,
+      "accountedUpperUsd": 2.398387
+    }
+  },
+  "audit": {
+    "spend_bound_audit": [
+      {
+        "id": "2a814f35-a089-488a-b6f2-9bb87dabbbc3",
+        "old_bound": 1255120,
+        "new_bound": 630123,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      },
+      {
+        "id": "130eeb33-3308-4731-b4a6-3b305c97dea3",
+        "old_bound": 1001536,
+        "new_bound": 462537,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      },
+      {
+        "id": "37a9b634-aba1-492b-bdc5-015786ab67d0",
+        "old_bound": 1001536,
+        "new_bound": 462537,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      },
+      {
+        "id": "ea811265-af27-4127-89a2-f8c3fa98f3bb",
+        "old_bound": 1255120,
+        "new_bound": 630123,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      },
+      {
+        "id": "8411bca3-e2ab-46ca-aeac-c868e3d48db3",
+        "old_bound": 1255120,
+        "new_bound": 630123,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      },
+      {
+        "id": "5fdb3188-2cf5-4dbd-8402-0c2834da7e2c",
+        "old_bound": 1001536,
+        "new_bound": 462537,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      },
+      {
+        "id": "13689547-bd0b-405f-9d5d-2119114d28b6",
+        "old_bound": 1001536,
+        "new_bound": 462537,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      },
+      {
+        "id": "83fe4c98-d69b-4333-8253-c1f4603ac0fb",
+        "old_bound": 1255120,
+        "new_bound": 630123,
+        "basis": "official model max input/context, same original token rates; 2026-11-05",
+        "at": "2026-11-05T10:31:49.915Z"
+      }
+    ],
+    "spend_limit_audit": [
+      {
+        "at": "2026-11-05T13:03:16.686Z",
+        "old_attempt_cap": 500,
+        "new_attempt_cap": 600,
+        "spend_cap": 10000000,
+        "reason": "Paired completion reviews and final regression/independent cases within unchanged 10 USD and per-run call limits; no usage reset"
+      }
+    ]
+  },
+  "calls": [
+    {
+      "id": "626c3aa2-8a7b-47a8-8486-2a592605b405",
+      "model": "claude-haiku-5-5",
+      "reserved": 1252560,
+      "charged": 150,
+      "state": "settled",
+      "at": "2026-11-05T10:00:35.754Z"
+    },
+    {
+      "id": "12cde388-69c4-463c-9f18-fc07011a655e",
+      "model": "gpt-6-luna",
+      "reserved": 1000769,
+      "charged": 28,
+      "state": "settled",
+      "at": "2026-11-05T10:00:37.722Z"
+    },
+    {
+      "id": "2a814f35-a089-488a-b6f2-9bb87dabbbc3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630123,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:22:56.056Z"
+    },
+    {
+      "id": "130eeb33-3308-4731-b4a6-3b305c97dea3",
+      "model": "gpt-6-luna",
+      "reserved": 462537,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:22:57.537Z"
+    },
+    {
+      "id": "37a9b634-aba1-492b-bdc5-015786ab67d0",
+      "model": "gpt-6-luna",
+      "reserved": 462537,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:22:58.738Z"
+    },
+    {
+      "id": "ea811265-af27-4127-89a2-f8c3fa98f3bb",
+      "model": "claude-haiku-5-5",
+      "reserved": 630123,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:22:59.739Z"
+    },
+    {
+      "id": "8411bca3-e2ab-46ca-aeac-c868e3d48db3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630123,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:23:00.791Z"
+    },
+    {
+      "id": "5fdb3188-2cf5-4dbd-8402-0c2834da7e2c",
+      "model": "gpt-6-luna",
+      "reserved": 462537,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:23:01.893Z"
+    },
+    {
+      "id": "13689547-bd0b-405f-9d5d-2119114d28b6",
+      "model": "gpt-6-luna",
+      "reserved": 462537,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:23:02.967Z"
+    },
+    {
+      "id": "83fe4c98-d69b-4333-8253-c1f4603ac0fb",
+      "model": "claude-haiku-5-5",
+      "reserved": 630123,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:23:03.918Z"
+    },
+    {
+      "id": "6cfaeef3-5cf6-4b49-83fb-53ca37f58018",
+      "model": "claude-haiku-5-5",
+      "reserved": 627560,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:26:23.920Z"
+    },
+    {
+      "id": "1b55542c-4963-4556-9586-f92b49036a90",
+      "model": "claude-haiku-5-5",
+      "reserved": 627560,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:32:01.897Z"
+    },
+    {
+      "id": "c88097c6-2802-4f11-b6ee-be366ae03b22",
+      "model": "claude-haiku-5-5",
+      "reserved": 627560,
+      "charged": null,
+      "state": "reserved",
+      "at": "2026-11-05T10:33:08.446Z"
+    },
+    {
+      "id": "29288cd7-6591-4580-8e1b-c87a06e83f4f",
+      "model": "claude-haiku-5-5",
+      "reserved": 627560,
+      "charged": 3509,
+      "state": "settled",
+      "at": "2026-11-05T10:34:02.722Z"
+    },
+    {
+      "id": "786a4b43-a361-43eb-b938-1edd132e435b",
+      "model": "gpt-6-luna",
+      "reserved": 461768,
+      "charged": 1476,
+      "state": "settled",
+      "at": "2026-11-05T10:34:05.172Z"
+    },
+    {
+      "id": "ccaecf32-e7f7-4530-aa00-0f61230f197e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3839,
+      "state": "settled",
+      "at": "2026-11-05T10:34:25.822Z"
+    },
+    {
+      "id": "6fac9ad3-9f7e-4738-9647-434df3df027e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4960,
+      "state": "settled",
+      "at": "2026-11-05T10:34:28.794Z"
+    },
+    {
+      "id": "9dbda4be-1429-49bb-a19a-40a5f5371609",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2998,
+      "state": "settled",
+      "at": "2026-11-05T10:34:32.457Z"
+    },
+    {
+      "id": "978b3a9d-ed44-41f5-8a1d-ca04f6c927dc",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3535,
+      "state": "settled",
+      "at": "2026-11-05T10:34:35.372Z"
+    },
+    {
+      "id": "4cc73166-a897-4021-842e-d383ebcc8617",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3001,
+      "state": "settled",
+      "at": "2026-11-05T10:34:37.877Z"
+    },
+    {
+      "id": "323fed27-cec2-41d2-8002-ea25e8518aa5",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3435,
+      "state": "settled",
+      "at": "2026-11-05T10:34:40.710Z"
+    },
+    {
+      "id": "2a54a966-d290-4a80-ad15-3ef91a30882d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3648,
+      "state": "settled",
+      "at": "2026-11-05T10:34:42.730Z"
+    },
+    {
+      "id": "aaa72184-f711-4d08-b708-cc5a4d0826b9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3802,
+      "state": "settled",
+      "at": "2026-11-05T10:34:44.308Z"
+    },
+    {
+      "id": "d59fdbd8-0cbf-42fd-83c0-23408c0eb5f2",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3989,
+      "state": "settled",
+      "at": "2026-11-05T10:34:46.828Z"
+    },
+    {
+      "id": "3e854a86-d8a8-43dd-9bf4-127fabb8158b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4227,
+      "state": "settled",
+      "at": "2026-11-05T10:34:50.020Z"
+    },
+    {
+      "id": "69b32769-d431-4bd6-a40a-7985868470e5",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4822,
+      "state": "settled",
+      "at": "2026-11-05T10:34:53.438Z"
+    },
+    {
+      "id": "22e8c525-5fcd-45fa-af32-051835da5c85",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4428,
+      "state": "settled",
+      "at": "2026-11-05T10:34:55.850Z"
+    },
+    {
+      "id": "d29b8700-ba01-4871-9d1e-c9622f87ad02",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4664,
+      "state": "settled",
+      "at": "2026-11-05T10:34:58.253Z"
+    },
+    {
+      "id": "dae90596-783a-48a4-88e4-e82e67644951",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3866,
+      "state": "settled",
+      "at": "2026-11-05T10:35:00.393Z"
+    },
+    {
+      "id": "d80ea30d-7087-4f9d-98d6-4ee0310c6f03",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4302,
+      "state": "settled",
+      "at": "2026-11-05T10:35:01.939Z"
+    },
+    {
+      "id": "854a3f31-246b-4708-afd2-86301b4e5c7f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4646,
+      "state": "settled",
+      "at": "2026-11-05T10:35:03.059Z"
+    },
+    {
+      "id": "2269b43c-830f-422e-a74d-33ef148fd47f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5204,
+      "state": "settled",
+      "at": "2026-11-05T10:35:04.755Z"
+    },
+    {
+      "id": "35a7aebb-1cc2-4f58-ac34-a9261ba8a2ef",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4912,
+      "state": "settled",
+      "at": "2026-11-05T10:35:07.911Z"
+    },
+    {
+      "id": "98ab490f-42ea-49eb-90af-3c7eca6f8a64",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3023,
+      "state": "settled",
+      "at": "2026-11-05T10:35:09.976Z"
+    },
+    {
+      "id": "c523d202-b14b-47b0-96f9-f202a1bcc523",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3527,
+      "state": "settled",
+      "at": "2026-11-05T10:35:11.338Z"
+    },
+    {
+      "id": "48fc0e08-9240-4e62-9506-344932c16d36",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3739,
+      "state": "settled",
+      "at": "2026-11-05T10:35:13.735Z"
+    },
+    {
+      "id": "1e8716d5-aef2-44ed-b4c1-f9752bba7513",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3920,
+      "state": "settled",
+      "at": "2026-11-05T10:35:15.711Z"
+    },
+    {
+      "id": "47af7e9a-4d9b-469f-992f-e575c973a4f7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2915,
+      "state": "settled",
+      "at": "2026-11-05T10:35:18.592Z"
+    },
+    {
+      "id": "e6955648-0acc-467b-a757-5b06641386d2",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3294,
+      "state": "settled",
+      "at": "2026-11-05T10:35:21.163Z"
+    },
+    {
+      "id": "b3f08916-e243-4e66-bc18-ad7328fd66ae",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3688,
+      "state": "settled",
+      "at": "2026-11-05T10:35:23.562Z"
+    },
+    {
+      "id": "ff085ad7-976c-4116-af7c-f988e415eefe",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4549,
+      "state": "settled",
+      "at": "2026-11-05T10:35:26.063Z"
+    },
+    {
+      "id": "844dd995-0127-4571-b9b8-93f582c997d9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3736,
+      "state": "settled",
+      "at": "2026-11-05T10:35:29.017Z"
+    },
+    {
+      "id": "c23c2e10-b7a6-4276-8f61-d9c280449edc",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4059,
+      "state": "settled",
+      "at": "2026-11-05T10:35:31.156Z"
+    },
+    {
+      "id": "f99e4082-d5a5-419c-9699-1b7e2445b1d9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5162,
+      "state": "settled",
+      "at": "2026-11-05T10:35:32.185Z"
+    },
+    {
+      "id": "62236bf1-55f3-4db1-af06-5b1faca878fb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2912,
+      "state": "settled",
+      "at": "2026-11-05T10:35:36.222Z"
+    },
+    {
+      "id": "5f5c4dad-0c67-48d9-bce4-9942afb45f0a",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3334,
+      "state": "settled",
+      "at": "2026-11-05T10:35:38.934Z"
+    },
+    {
+      "id": "05fcd918-2042-4320-b9a9-503c0df20450",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3720,
+      "state": "settled",
+      "at": "2026-11-05T10:35:40.847Z"
+    },
+    {
+      "id": "6bc528eb-6a7f-4d9b-9633-a13ff128acd7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3977,
+      "state": "settled",
+      "at": "2026-11-05T10:35:42.641Z"
+    },
+    {
+      "id": "ec96f45f-54f4-48de-86d6-bb25fe424176",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2945,
+      "state": "settled",
+      "at": "2026-11-05T10:35:46.030Z"
+    },
+    {
+      "id": "77e87e4f-1dc4-415a-b3af-0510921db1fe",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3663,
+      "state": "settled",
+      "at": "2026-11-05T10:35:48.432Z"
+    },
+    {
+      "id": "90ce3a6c-d9ed-48be-b56a-e50e36e296c1",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 4350,
+      "state": "settled",
+      "at": "2026-11-05T10:35:51.015Z"
+    },
+    {
+      "id": "bede6a79-1e9d-4e21-8b5c-6bf4039348d9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 4600,
+      "state": "settled",
+      "at": "2026-11-05T10:35:53.059Z"
+    },
+    {
+      "id": "793ebd9f-8b1a-4457-8e08-5dae68c1a1cb",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3770,
+      "state": "settled",
+      "at": "2026-11-05T10:35:55.426Z"
+    },
+    {
+      "id": "d46b2366-dfb9-456d-a605-b4f46a995d4e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4096,
+      "state": "settled",
+      "at": "2026-11-05T10:35:57.872Z"
+    },
+    {
+      "id": "ddf272cf-d78a-4549-9e8e-daee3192d25c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4505,
+      "state": "settled",
+      "at": "2026-11-05T10:36:00.330Z"
+    },
+    {
+      "id": "0fcbf46f-dd44-4649-a8cc-a0255a5f0a05",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4920,
+      "state": "settled",
+      "at": "2026-11-05T10:36:01.851Z"
+    },
+    {
+      "id": "4325e274-e1b5-4ea5-bf3e-5840014df3ae",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4913,
+      "state": "settled",
+      "at": "2026-11-05T10:36:04.621Z"
+    },
+    {
+      "id": "acd8f80f-d620-4d81-a4a2-3553ff71f96d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3051,
+      "state": "settled",
+      "at": "2026-11-05T10:36:08.725Z"
+    },
+    {
+      "id": "d42c48ab-a6eb-41cc-80a2-17ca6b1c657e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3516,
+      "state": "settled",
+      "at": "2026-11-05T10:36:10.425Z"
+    },
+    {
+      "id": "ad006eda-5cb0-4480-b87a-a8140f5b0db8",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3762,
+      "state": "settled",
+      "at": "2026-11-05T10:36:12.398Z"
+    },
+    {
+      "id": "66fb1a3e-c9bc-4c10-822f-2f7350a1e771",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2960,
+      "state": "settled",
+      "at": "2026-11-05T10:36:15.760Z"
+    },
+    {
+      "id": "64838f64-59dd-4096-87f5-60af497d8dab",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3405,
+      "state": "settled",
+      "at": "2026-11-05T10:36:18.181Z"
+    },
+    {
+      "id": "50b615c9-aeaa-46a1-aa62-07a5ddd98b32",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3712,
+      "state": "settled",
+      "at": "2026-11-05T10:36:20.182Z"
+    },
+    {
+      "id": "938b696f-deb8-4a18-8149-4a044edae86c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3775,
+      "state": "settled",
+      "at": "2026-11-05T10:36:22.587Z"
+    },
+    {
+      "id": "54781029-47d3-4a11-9bca-74dc104f4b09",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4085,
+      "state": "settled",
+      "at": "2026-11-05T10:36:24.945Z"
+    },
+    {
+      "id": "7bf846e5-99ce-420c-bec9-565169a7cb48",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4506,
+      "state": "settled",
+      "at": "2026-11-05T10:36:26.310Z"
+    },
+    {
+      "id": "3f5fff35-8125-4cba-a35c-4eb131eaffad",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 863,
+      "state": "settled",
+      "at": "2026-11-05T10:36:27.672Z"
+    },
+    {
+      "id": "77e84950-d839-4b07-87e3-ef276553a27f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 231,
+      "state": "settled",
+      "at": "2026-11-05T10:36:30.271Z"
+    },
+    {
+      "id": "30d17a57-ab81-41d2-ac0c-e05bb47b66dc",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 797,
+      "state": "settled",
+      "at": "2026-11-05T10:36:31.929Z"
+    },
+    {
+      "id": "7c4fc6e7-d524-4ca7-92aa-942297d2c1f6",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 210,
+      "state": "settled",
+      "at": "2026-11-05T10:36:33.596Z"
+    },
+    {
+      "id": "2e76cd41-6216-4c4e-b5c5-ce666546ce39",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1079,
+      "state": "settled",
+      "at": "2026-11-05T10:36:35.160Z"
+    },
+    {
+      "id": "0b378419-02e3-4816-8ec7-86b1f8d23ea1",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 257,
+      "state": "settled",
+      "at": "2026-11-05T10:36:36.714Z"
+    },
+    {
+      "id": "f5e1646b-9aa3-4468-981c-6a68ae54ad11",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 804,
+      "state": "settled",
+      "at": "2026-11-05T10:36:38.777Z"
+    },
+    {
+      "id": "0605a0dd-7ac3-4a32-af82-193a9bdacf1e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 224,
+      "state": "settled",
+      "at": "2026-11-05T10:36:40.199Z"
+    },
+    {
+      "id": "2ac089e6-122f-4f80-8669-b42ce7023d78",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3866,
+      "state": "settled",
+      "at": "2026-11-05T10:38:39.260Z"
+    },
+    {
+      "id": "bf53a29b-c765-4c1b-8669-37b7be3fbd33",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4302,
+      "state": "settled",
+      "at": "2026-11-05T10:38:40.336Z"
+    },
+    {
+      "id": "6af051e4-472c-4617-b307-aec2861f4c03",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4639,
+      "state": "settled",
+      "at": "2026-11-05T10:38:41.419Z"
+    },
+    {
+      "id": "2bea3e3e-fca1-453b-b266-312e92c35fe4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5066,
+      "state": "settled",
+      "at": "2026-11-05T10:38:42.973Z"
+    },
+    {
+      "id": "81da0437-0edd-47b8-8c03-68b709693dc6",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4942,
+      "state": "settled",
+      "at": "2026-11-05T10:38:45.936Z"
+    },
+    {
+      "id": "3ab11529-599d-4ee4-b364-452b4632f3e9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3019,
+      "state": "settled",
+      "at": "2026-11-05T10:38:48.133Z"
+    },
+    {
+      "id": "63916f29-7bb6-4aef-91bf-e661f7526fe8",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3528,
+      "state": "settled",
+      "at": "2026-11-05T10:38:49.547Z"
+    },
+    {
+      "id": "acc28e3e-eb46-4b43-a7a1-cf2f78f04a3b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3747,
+      "state": "settled",
+      "at": "2026-11-05T10:38:51.368Z"
+    },
+    {
+      "id": "44ef0cf3-dcea-4396-b084-63d7e845a791",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 3048,
+      "state": "settled",
+      "at": "2026-11-05T10:38:54.359Z"
+    },
+    {
+      "id": "ede6cff1-233d-44df-9479-b701e9f269b3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5082,
+      "state": "settled",
+      "at": "2026-11-05T10:38:57.068Z"
+    },
+    {
+      "id": "c6dc39d0-aab2-4d30-be25-e4aab7cf2345",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4313,
+      "state": "settled",
+      "at": "2026-11-05T10:39:00.473Z"
+    },
+    {
+      "id": "fc9adbed-b19f-4a2b-8caf-b055e6387044",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5097,
+      "state": "settled",
+      "at": "2026-11-05T10:39:01.836Z"
+    },
+    {
+      "id": "3a3e0c61-f1f6-4389-8e8c-497ee3d3e499",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5002,
+      "state": "settled",
+      "at": "2026-11-05T10:39:05.322Z"
+    },
+    {
+      "id": "f5c23b11-6a8d-4caf-ba74-79a7afbccd86",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5579,
+      "state": "settled",
+      "at": "2026-11-05T10:39:07.745Z"
+    },
+    {
+      "id": "261fb347-714d-48fa-a24a-6f87d9196bd8",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 840,
+      "state": "settled",
+      "at": "2026-11-05T10:39:10.363Z"
+    },
+    {
+      "id": "52fb881e-d2dd-4e64-947a-017745c9d548",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 217,
+      "state": "settled",
+      "at": "2026-11-05T10:39:11.953Z"
+    },
+    {
+      "id": "74d7c7e9-7d72-462b-9242-3b4dbfadb525",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 802,
+      "state": "settled",
+      "at": "2026-11-05T10:39:13.719Z"
+    },
+    {
+      "id": "4130e23e-bec6-4944-971d-77742b982153",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 217,
+      "state": "settled",
+      "at": "2026-11-05T10:39:14.925Z"
+    },
+    {
+      "id": "406d1c1e-dc69-47fa-8f37-97c22c7adbaa",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1066,
+      "state": "settled",
+      "at": "2026-11-05T10:39:16.625Z"
+    },
+    {
+      "id": "e28d2dbf-b7fd-427b-a12e-ff1bebc13160",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 254,
+      "state": "settled",
+      "at": "2026-11-05T10:39:18.058Z"
+    },
+    {
+      "id": "a08d40f4-7a1b-46f9-a2d7-be57b88f221f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 809,
+      "state": "settled",
+      "at": "2026-11-05T10:39:20.247Z"
+    },
+    {
+      "id": "6cb2d298-b405-4353-ac95-4055fa74eda1",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 221,
+      "state": "settled",
+      "at": "2026-11-05T10:39:21.515Z"
+    },
+    {
+      "id": "b870892e-a44b-4459-89cd-20629e51d358",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4125,
+      "state": "settled",
+      "at": "2026-11-05T10:44:37.562Z"
+    },
+    {
+      "id": "dacc3155-95d5-49e3-a430-fba699ffd555",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4424,
+      "state": "settled",
+      "at": "2026-11-05T10:44:39.101Z"
+    },
+    {
+      "id": "cfbb3890-8e27-418e-90a2-fdab1286597a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4757,
+      "state": "settled",
+      "at": "2026-11-05T10:44:40.261Z"
+    },
+    {
+      "id": "2e53f85e-33a1-4af3-aaf0-27c91ef5c7d6",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5475,
+      "state": "settled",
+      "at": "2026-11-05T10:44:42.023Z"
+    },
+    {
+      "id": "29fdb1bf-f982-49be-b187-4a909f7aadc9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5596,
+      "state": "settled",
+      "at": "2026-11-05T10:44:45.351Z"
+    },
+    {
+      "id": "c1743d15-03c3-4cd4-8b6a-cabf99fa9d78",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1770,
+      "state": "settled",
+      "at": "2026-11-05T10:44:48.614Z"
+    },
+    {
+      "id": "c68042df-f3e1-4a4e-a247-de7e6ab5d5eb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1942,
+      "state": "settled",
+      "at": "2026-11-05T10:44:55.383Z"
+    },
+    {
+      "id": "a83ef2f9-c919-49da-88e5-1493fc6d85ee",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1976,
+      "state": "settled",
+      "at": "2026-11-05T10:44:57.897Z"
+    },
+    {
+      "id": "d4010a96-b829-47bf-97b3-6907ae70011b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2092,
+      "state": "settled",
+      "at": "2026-11-05T10:45:00.191Z"
+    },
+    {
+      "id": "ea0550a2-b3f4-427f-99d4-e9da0e49cde7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2202,
+      "state": "settled",
+      "at": "2026-11-05T10:45:02.987Z"
+    },
+    {
+      "id": "f3531203-8b64-4a3c-903f-deac311ccd7d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1771,
+      "state": "settled",
+      "at": "2026-11-05T10:45:05.801Z"
+    },
+    {
+      "id": "e5b83c1f-b6cc-4396-bd40-b0931aba5cdd",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1920,
+      "state": "settled",
+      "at": "2026-11-05T10:45:07.158Z"
+    },
+    {
+      "id": "3bd6f385-bff7-4b6b-8084-8ddf4f54bfb9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1979,
+      "state": "settled",
+      "at": "2026-11-05T10:45:09.918Z"
+    },
+    {
+      "id": "108f7a17-d5f8-4393-9ffe-e9cb7b46cbb0",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4429,
+      "state": "settled",
+      "at": "2026-11-05T10:45:12.286Z"
+    },
+    {
+      "id": "ba406daa-3876-47d7-bdf5-fc14eae4a66e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5163,
+      "state": "settled",
+      "at": "2026-11-05T10:45:14.565Z"
+    },
+    {
+      "id": "07cb7b81-3e06-40ec-95fb-1ff58de56b2c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4856,
+      "state": "settled",
+      "at": "2026-11-05T10:45:17.621Z"
+    },
+    {
+      "id": "cc695588-3f83-4447-87d9-eb90c4094ea6",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1054,
+      "state": "settled",
+      "at": "2026-11-05T10:45:20.149Z"
+    },
+    {
+      "id": "69bb2606-befc-4bcc-aaf0-d53c29c879f7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 331,
+      "state": "settled",
+      "at": "2026-11-05T10:45:21.625Z"
+    },
+    {
+      "id": "b409cc7e-cf6a-4426-9e85-8dbfad6f629d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 983,
+      "state": "settled",
+      "at": "2026-11-05T10:45:24.648Z"
+    },
+    {
+      "id": "9c2ee08e-8337-4666-8c7d-fd2ee651a7b8",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 320,
+      "state": "settled",
+      "at": "2026-11-05T10:45:25.845Z"
+    },
+    {
+      "id": "7c893ede-0ace-4c8f-a228-61ea2c4d8495",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1247,
+      "state": "settled",
+      "at": "2026-11-05T10:45:30.200Z"
+    },
+    {
+      "id": "25b1fe91-b3f3-47ee-a17d-488898b911f1",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 369,
+      "state": "settled",
+      "at": "2026-11-05T10:45:31.631Z"
+    },
+    {
+      "id": "0053cb0a-5091-476f-935b-5ae29a359bb3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 992,
+      "state": "settled",
+      "at": "2026-11-05T10:45:36.946Z"
+    },
+    {
+      "id": "df4a42af-31a5-409a-ba46-4242a410c9b8",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 333,
+      "state": "settled",
+      "at": "2026-11-05T10:45:38.071Z"
+    },
+    {
+      "id": "78c12822-bf3a-48ac-bae3-1d8439df2707",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1100,
+      "state": "settled",
+      "at": "2026-11-05T10:45:41.953Z"
+    },
+    {
+      "id": "6e9d3b75-ffd9-4bdc-88a1-c9c057fe228f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 357,
+      "state": "settled",
+      "at": "2026-11-05T10:45:44.482Z"
+    },
+    {
+      "id": "599a961d-54cb-4fa9-8c47-5dd75a3780fa",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1357,
+      "state": "settled",
+      "at": "2026-11-05T10:45:48.572Z"
+    },
+    {
+      "id": "1cd35f6b-667d-455a-b5cf-a368b327ef2d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 346,
+      "state": "settled",
+      "at": "2026-11-05T10:45:50.597Z"
+    },
+    {
+      "id": "8103b455-6ae2-4b7c-b12f-f29d88b39c37",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1678,
+      "state": "settled",
+      "at": "2026-11-05T10:45:54.922Z"
+    },
+    {
+      "id": "771d6ee4-0b8c-44f8-8052-d3e6f6bcdee6",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 472,
+      "state": "settled",
+      "at": "2026-11-05T10:45:56.971Z"
+    },
+    {
+      "id": "02225e4c-eaaa-4017-bf91-3584ee190cdd",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1947,
+      "state": "settled",
+      "at": "2026-11-05T10:46:01.524Z"
+    },
+    {
+      "id": "884b9525-da17-47a9-9d10-3ebb8deeab52",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 489,
+      "state": "settled",
+      "at": "2026-11-05T10:46:04.488Z"
+    },
+    {
+      "id": "c4387426-a5b9-47a8-9f51-2d691c235a10",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3957,
+      "state": "settled",
+      "at": "2026-11-05T11:28:07.703Z"
+    },
+    {
+      "id": "5e48f75c-c1c4-460b-b0e2-42ad360bbccc",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4924,
+      "state": "settled",
+      "at": "2026-11-05T11:28:10.607Z"
+    },
+    {
+      "id": "4b00c344-7f43-49e9-83b9-f514745ed11f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1754,
+      "state": "settled",
+      "at": "2026-11-05T11:28:13.947Z"
+    },
+    {
+      "id": "7e833fa5-84f3-4b07-9388-ea4de5d803da",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1959,
+      "state": "settled",
+      "at": "2026-11-05T11:28:17.034Z"
+    },
+    {
+      "id": "0699a3cc-daab-460d-9deb-8f638cced707",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1817,
+      "state": "settled",
+      "at": "2026-11-05T11:28:19.550Z"
+    },
+    {
+      "id": "e094db48-f064-446e-870d-d835c40f0bdd",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2030,
+      "state": "settled",
+      "at": "2026-11-05T11:28:22.859Z"
+    },
+    {
+      "id": "ee6a4099-51a5-4f5c-b3e4-f7b8e4ac9981",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4338,
+      "state": "settled",
+      "at": "2026-11-05T11:28:25.577Z"
+    },
+    {
+      "id": "6ebaab18-7cce-4dca-a04e-42d599b21089",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4657,
+      "state": "settled",
+      "at": "2026-11-05T11:28:28.549Z"
+    },
+    {
+      "id": "6cd93486-7e55-4847-9e44-61aaa467fe8f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4199,
+      "state": "settled",
+      "at": "2026-11-05T11:28:31.187Z"
+    },
+    {
+      "id": "374fea73-c5b1-4c60-96c6-7890f43c8555",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4224,
+      "state": "settled",
+      "at": "2026-11-05T11:28:33.849Z"
+    },
+    {
+      "id": "21db7d6d-7d82-41de-a190-e06945b308d9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4678,
+      "state": "settled",
+      "at": "2026-11-05T11:28:35.937Z"
+    },
+    {
+      "id": "2545e490-3772-440e-b625-7f48853abebe",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1754,
+      "state": "settled",
+      "at": "2026-11-05T11:28:37.909Z"
+    },
+    {
+      "id": "fedb19e9-77b6-4163-96d6-33a7c7e0c7eb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1894,
+      "state": "settled",
+      "at": "2026-11-05T11:28:40.823Z"
+    },
+    {
+      "id": "9fe500b5-0c94-4f8d-8072-32fd1d87be63",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2025,
+      "state": "settled",
+      "at": "2026-11-05T11:28:43.746Z"
+    },
+    {
+      "id": "51331de5-bd3a-4866-b63b-dcafccbf2cdd",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1755,
+      "state": "settled",
+      "at": "2026-11-05T11:28:46.121Z"
+    },
+    {
+      "id": "4ffc1248-f393-48b0-b097-03ef124d5120",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1886,
+      "state": "settled",
+      "at": "2026-11-05T11:28:48.924Z"
+    },
+    {
+      "id": "611f344a-07df-4181-8849-bce6a0e5b227",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1981,
+      "state": "settled",
+      "at": "2026-11-05T11:28:50.911Z"
+    },
+    {
+      "id": "8f2e8e87-7031-42d7-8443-a857812ee0ae",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2094,
+      "state": "settled",
+      "at": "2026-11-05T11:28:53.478Z"
+    },
+    {
+      "id": "5b9f28b0-e51b-402d-ac8b-0f6bb49bd6e4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4423,
+      "state": "settled",
+      "at": "2026-11-05T11:28:57.289Z"
+    },
+    {
+      "id": "b4b9f908-9c6a-4ac6-b19e-d80ec86d1930",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4493,
+      "state": "settled",
+      "at": "2026-11-05T11:29:00.125Z"
+    },
+    {
+      "id": "3d16215d-1c36-498a-9f87-dcb8d5bbca87",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4607,
+      "state": "settled",
+      "at": "2026-11-05T11:29:01.679Z"
+    },
+    {
+      "id": "2acb518b-e482-46af-ae67-cdc30337385a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4795,
+      "state": "settled",
+      "at": "2026-11-05T11:29:04.151Z"
+    },
+    {
+      "id": "dd70045e-f90c-4134-980e-22d17048ecc4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4139,
+      "state": "settled",
+      "at": "2026-11-05T11:29:06.212Z"
+    },
+    {
+      "id": "219baccd-0ef3-4e7d-92b4-12509b32e37e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4218,
+      "state": "settled",
+      "at": "2026-11-05T11:29:09.068Z"
+    },
+    {
+      "id": "66b74c9b-f2e7-4183-9df8-52efe670a0de",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4677,
+      "state": "settled",
+      "at": "2026-11-05T11:29:11.560Z"
+    },
+    {
+      "id": "7d406d29-95c6-4451-b73b-e82bb6542173",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1747,
+      "state": "settled",
+      "at": "2026-11-05T11:29:13.877Z"
+    },
+    {
+      "id": "1a0dced3-7388-44bb-b324-d8955cbc54ea",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1891,
+      "state": "settled",
+      "at": "2026-11-05T11:29:16.462Z"
+    },
+    {
+      "id": "7843ae1f-f26f-45fb-afd5-abdfdd008be3",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2023,
+      "state": "settled",
+      "at": "2026-11-05T11:29:19.202Z"
+    },
+    {
+      "id": "b2dba4e0-8d60-45d1-9f2d-ed85c8d8179d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1667,
+      "state": "settled",
+      "at": "2026-11-05T11:29:21.584Z"
+    },
+    {
+      "id": "88b51bd6-26cc-48fb-b0a6-0fe4c7201ee7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1802,
+      "state": "settled",
+      "at": "2026-11-05T11:29:23.682Z"
+    },
+    {
+      "id": "8485f628-875d-4ffa-a216-dc3d72d4c7f5",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1880,
+      "state": "settled",
+      "at": "2026-11-05T11:29:25.825Z"
+    },
+    {
+      "id": "c94c22c9-0ad2-4e03-905b-43dbcb2f5777",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4211,
+      "state": "settled",
+      "at": "2026-11-05T11:29:28.070Z"
+    },
+    {
+      "id": "55001b36-14c2-437d-aa7b-6dc24b1fa245",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4260,
+      "state": "settled",
+      "at": "2026-11-05T11:29:31.070Z"
+    },
+    {
+      "id": "f1f9377e-293b-49e1-8fa2-be433c8b97c9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4524,
+      "state": "settled",
+      "at": "2026-11-05T11:29:33.880Z"
+    },
+    {
+      "id": "16f4faf7-290f-4198-8811-7802bfb92da4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4537,
+      "state": "settled",
+      "at": "2026-11-05T11:29:36.907Z"
+    },
+    {
+      "id": "e79995ee-75b0-4077-a25c-ee77b7547c9f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4014,
+      "state": "settled",
+      "at": "2026-11-05T11:29:39.551Z"
+    },
+    {
+      "id": "23a1d4be-0039-400e-854a-a10840c01d7f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4537,
+      "state": "settled",
+      "at": "2026-11-05T11:29:42.106Z"
+    },
+    {
+      "id": "094efc71-e23b-48d8-8ba3-0149a3d18149",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4342,
+      "state": "settled",
+      "at": "2026-11-05T11:29:44.363Z"
+    },
+    {
+      "id": "1fca103e-36f6-4565-96f4-d5922ec874a1",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1671,
+      "state": "settled",
+      "at": "2026-11-05T11:29:46.307Z"
+    },
+    {
+      "id": "360cb38f-2f12-4008-8392-c3db67fe656c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1789,
+      "state": "settled",
+      "at": "2026-11-05T11:29:49.506Z"
+    },
+    {
+      "id": "4c8b3daf-e840-482c-8531-6cab70f4d26a",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1874,
+      "state": "settled",
+      "at": "2026-11-05T11:29:51.826Z"
+    },
+    {
+      "id": "0f6dffa6-0883-474a-80cb-432db7635506",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1752,
+      "state": "settled",
+      "at": "2026-11-05T11:29:54.281Z"
+    },
+    {
+      "id": "1634ad3b-8525-48d1-89de-0d11f73788de",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1854,
+      "state": "settled",
+      "at": "2026-11-05T11:29:57.028Z"
+    },
+    {
+      "id": "e88cee20-79ee-4f86-9a92-6b38f1ddaf49",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1960,
+      "state": "settled",
+      "at": "2026-11-05T11:29:59.667Z"
+    },
+    {
+      "id": "e60a18c4-40e4-4459-84d3-bf8546489425",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3964,
+      "state": "settled",
+      "at": "2026-11-05T11:30:02.871Z"
+    },
+    {
+      "id": "eb48eeb8-83c8-4117-a27f-1fe153058983",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4326,
+      "state": "settled",
+      "at": "2026-11-05T11:30:05.250Z"
+    },
+    {
+      "id": "bc3e0dca-0299-421e-85bc-c40554de7515",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4489,
+      "state": "settled",
+      "at": "2026-11-05T11:30:07.404Z"
+    },
+    {
+      "id": "5b891e41-b0f3-46f0-b7a5-fafd0eb898ea",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4501,
+      "state": "settled",
+      "at": "2026-11-05T11:30:09.906Z"
+    },
+    {
+      "id": "cb9b90f0-4f85-4ec4-bfe8-ebb903af0f93",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4952,
+      "state": "settled",
+      "at": "2026-11-05T11:30:12.342Z"
+    },
+    {
+      "id": "0998dc73-cebb-4bc2-9c42-2eb4d42ecde0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1789,
+      "state": "settled",
+      "at": "2026-11-05T11:30:15.691Z"
+    },
+    {
+      "id": "48b5736e-27fa-47f0-9b4c-73d692f3adeb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1846,
+      "state": "settled",
+      "at": "2026-11-05T11:30:18.310Z"
+    },
+    {
+      "id": "5aff7d67-6012-4dae-bdd7-b323732c9bdf",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1949,
+      "state": "settled",
+      "at": "2026-11-05T11:30:20.756Z"
+    },
+    {
+      "id": "6284e43b-d30c-47b8-a878-30e3c8a482fe",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1770,
+      "state": "settled",
+      "at": "2026-11-05T11:30:23.319Z"
+    },
+    {
+      "id": "e2fe0ddd-bdc5-4f99-9759-24af73673bca",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1940,
+      "state": "settled",
+      "at": "2026-11-05T11:30:24.940Z"
+    },
+    {
+      "id": "24451d41-fb05-44d7-a2ed-78dd982b7606",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1976,
+      "state": "settled",
+      "at": "2026-11-05T11:30:27.263Z"
+    },
+    {
+      "id": "89c6fcc4-9c22-40fa-9817-1026e30ad067",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2087,
+      "state": "settled",
+      "at": "2026-11-05T11:30:31.697Z"
+    },
+    {
+      "id": "5ca70332-f2cb-40c3-add0-50585d451fbc",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2206,
+      "state": "settled",
+      "at": "2026-11-05T11:30:34.489Z"
+    },
+    {
+      "id": "2eb4d308-be31-428d-99f6-6dbcf6e9eaa3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4234,
+      "state": "settled",
+      "at": "2026-11-05T11:30:37.612Z"
+    },
+    {
+      "id": "73958ba5-51cc-4a84-982f-0c817047ef1c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4420,
+      "state": "settled",
+      "at": "2026-11-05T11:30:39.309Z"
+    },
+    {
+      "id": "83461606-d9aa-4ab2-90d0-38e3ac7557ec",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4702,
+      "state": "settled",
+      "at": "2026-11-05T11:30:40.887Z"
+    },
+    {
+      "id": "12a4b11c-5117-45c6-aa2b-d31f797b2c0e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5064,
+      "state": "settled",
+      "at": "2026-11-05T11:30:42.818Z"
+    },
+    {
+      "id": "14c2a18d-7ab9-4e21-8e00-f6af55823e7c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5338,
+      "state": "settled",
+      "at": "2026-11-05T11:30:45.746Z"
+    },
+    {
+      "id": "f92a160f-5d67-4d28-9311-39f874f596f3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4724,
+      "state": "settled",
+      "at": "2026-11-05T11:30:48.616Z"
+    },
+    {
+      "id": "6fa5e075-a389-40b1-bd36-e93971dadfc0",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4575,
+      "state": "settled",
+      "at": "2026-11-05T11:30:50.840Z"
+    },
+    {
+      "id": "13072b64-4f57-4e76-88e3-7736bf6534ed",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5415,
+      "state": "settled",
+      "at": "2026-11-05T11:30:51.978Z"
+    },
+    {
+      "id": "2de25f4a-1766-49bb-8e4d-775d0c70530a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5054,
+      "state": "settled",
+      "at": "2026-11-05T11:30:55.202Z"
+    },
+    {
+      "id": "2038c599-9ef2-4eb6-a87e-d7384ab1c04b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1855,
+      "state": "settled",
+      "at": "2026-11-05T11:30:57.184Z"
+    },
+    {
+      "id": "9d48b4b8-9b87-4486-840f-214df0f8b86d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1958,
+      "state": "settled",
+      "at": "2026-11-05T11:30:58.856Z"
+    },
+    {
+      "id": "ab6330bc-b84c-432b-9778-e172447c8ac9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2095,
+      "state": "settled",
+      "at": "2026-11-05T11:31:00.934Z"
+    },
+    {
+      "id": "54b980c4-fd61-4bd3-bae1-8907bc299802",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2125,
+      "state": "settled",
+      "at": "2026-11-05T11:31:02.787Z"
+    },
+    {
+      "id": "949d9dd1-f475-47f7-97bd-b9363da54851",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2289,
+      "state": "settled",
+      "at": "2026-11-05T11:31:05.005Z"
+    },
+    {
+      "id": "4ae6ec7d-3712-4e6b-ac4b-e1694da1ef9e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1753,
+      "state": "settled",
+      "at": "2026-11-05T11:31:07.509Z"
+    },
+    {
+      "id": "b010bec8-6ec9-4cb2-85c3-731cf5a5ae89",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1902,
+      "state": "settled",
+      "at": "2026-11-05T11:31:09.338Z"
+    },
+    {
+      "id": "5372d35a-10fc-4a54-b334-37138bc45cec",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1961,
+      "state": "settled",
+      "at": "2026-11-05T11:31:13.333Z"
+    },
+    {
+      "id": "364e3c5f-424d-4a90-b4d9-0a7b1b29c849",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2033,
+      "state": "settled",
+      "at": "2026-11-05T11:31:16.722Z"
+    },
+    {
+      "id": "ae53f0b6-0eb2-4848-9ce6-d10072e73f51",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2206,
+      "state": "settled",
+      "at": "2026-11-05T11:31:20.886Z"
+    },
+    {
+      "id": "4f9a9b0e-02ac-42d4-ac09-a313f0ac054d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2390,
+      "state": "settled",
+      "at": "2026-11-05T11:31:26.149Z"
+    },
+    {
+      "id": "8886f575-8d27-4c81-83a7-39f000bdc0a4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4181,
+      "state": "settled",
+      "at": "2026-11-05T11:31:32.067Z"
+    },
+    {
+      "id": "eeff62f3-b8f7-4826-aac6-e81adef27bfa",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4869,
+      "state": "settled",
+      "at": "2026-11-05T11:31:33.388Z"
+    },
+    {
+      "id": "4d555185-7ca3-46e8-89b1-a68e46f47a3e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4726,
+      "state": "settled",
+      "at": "2026-11-05T11:31:35.470Z"
+    },
+    {
+      "id": "06e56e5e-0459-48e9-b873-a30ba811c664",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4819,
+      "state": "settled",
+      "at": "2026-11-05T11:31:37.762Z"
+    },
+    {
+      "id": "c337f4e9-f78a-4337-8ea1-e1401c27c10f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5051,
+      "state": "settled",
+      "at": "2026-11-05T11:31:39.694Z"
+    },
+    {
+      "id": "cb62b25e-e74a-4144-b45c-6d08821e094d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5389,
+      "state": "settled",
+      "at": "2026-11-05T11:31:42.264Z"
+    },
+    {
+      "id": "fd57d914-5ac9-44f2-8540-da54d87ea050",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3804,
+      "state": "settled",
+      "at": "2026-11-05T11:31:45.074Z"
+    },
+    {
+      "id": "95c74225-8efd-4ee8-80eb-8594f01123e2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4540,
+      "state": "settled",
+      "at": "2026-11-05T11:31:47.795Z"
+    },
+    {
+      "id": "2ef190f7-8d2b-4d12-8ce0-8b2bbb6bf0aa",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1669,
+      "state": "settled",
+      "at": "2026-11-05T11:31:50.887Z"
+    },
+    {
+      "id": "60f6622a-5059-4352-81e7-a7b7397e0ba4",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1817,
+      "state": "settled",
+      "at": "2026-11-05T11:31:56.740Z"
+    },
+    {
+      "id": "880cfa21-b508-44df-aa37-6971e20a4219",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1660,
+      "state": "settled",
+      "at": "2026-11-05T11:32:06.444Z"
+    },
+    {
+      "id": "8cad2639-728e-4f56-8013-7cc3a91a8698",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1891,
+      "state": "settled",
+      "at": "2026-11-05T11:32:16.563Z"
+    },
+    {
+      "id": "081976be-f454-4cba-b4bd-81d303344393",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1947,
+      "state": "settled",
+      "at": "2026-11-05T11:32:22.557Z"
+    },
+    {
+      "id": "9e421e3f-ac5c-49d9-a07f-ed7fc1be6ec9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2103,
+      "state": "settled",
+      "at": "2026-11-05T11:32:27.990Z"
+    },
+    {
+      "id": "bc0e8561-273b-4342-9da8-bb9bf8516cb3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3799,
+      "state": "settled",
+      "at": "2026-11-05T11:32:34.507Z"
+    },
+    {
+      "id": "73b0e76d-b7e6-4b78-bb4f-237e0534889b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4165,
+      "state": "settled",
+      "at": "2026-11-05T11:32:36.745Z"
+    },
+    {
+      "id": "166cd8c4-f6c8-46a0-8da2-2e3e9a80cfe1",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5106,
+      "state": "settled",
+      "at": "2026-11-05T11:32:37.557Z"
+    },
+    {
+      "id": "dbc52b89-600d-453c-9904-aea7338f41c2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3885,
+      "state": "settled",
+      "at": "2026-11-05T11:32:40.766Z"
+    },
+    {
+      "id": "babeb7df-5127-48ce-b3da-10d0451e689b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4274,
+      "state": "settled",
+      "at": "2026-11-05T11:32:43.454Z"
+    },
+    {
+      "id": "97bceece-4559-4e55-89ea-6cd5ae25cb72",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4613,
+      "state": "settled",
+      "at": "2026-11-05T11:32:45.115Z"
+    },
+    {
+      "id": "5737e0fc-6a14-4644-b735-1bdbf8d619f3",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1709,
+      "state": "settled",
+      "at": "2026-11-05T11:32:47.735Z"
+    },
+    {
+      "id": "672d8c80-e2d3-4b50-be53-166b185daedc",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1758,
+      "state": "settled",
+      "at": "2026-11-05T11:32:50.553Z"
+    },
+    {
+      "id": "fc0cdd58-ce54-42e9-bdf8-50aabe46d934",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1943,
+      "state": "settled",
+      "at": "2026-11-05T11:32:55.046Z"
+    },
+    {
+      "id": "9adec42e-f84a-4d61-83b4-07a41658008d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2025,
+      "state": "settled",
+      "at": "2026-11-05T11:32:58.671Z"
+    },
+    {
+      "id": "6ff4eae9-aab3-4144-8481-2bad1b0fee87",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1701,
+      "state": "settled",
+      "at": "2026-11-05T11:33:03.053Z"
+    },
+    {
+      "id": "188ba843-148d-4fc2-98ce-5bacdd8e9bdf",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1880,
+      "state": "settled",
+      "at": "2026-11-05T11:33:05.802Z"
+    },
+    {
+      "id": "c96c4198-6e07-4255-a680-5b016a3b939c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2094,
+      "state": "settled",
+      "at": "2026-11-05T11:33:09.135Z"
+    },
+    {
+      "id": "bd7e7ce4-272e-435a-b178-9a7b4ee96b8c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2156,
+      "state": "settled",
+      "at": "2026-11-05T11:33:10.887Z"
+    },
+    {
+      "id": "34544ce6-f9f9-465c-b827-9c81fe50f901",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4050,
+      "state": "settled",
+      "at": "2026-11-05T11:33:13.887Z"
+    },
+    {
+      "id": "bb31aa4d-a8cd-4621-bed7-d8f486136ec8",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4214,
+      "state": "settled",
+      "at": "2026-11-05T11:33:16.423Z"
+    },
+    {
+      "id": "89fc8a20-7c4a-40a4-aa00-509d46f8cdc3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4945,
+      "state": "settled",
+      "at": "2026-11-05T11:33:18.539Z"
+    },
+    {
+      "id": "fdaeacc2-6a7e-4622-a4dd-2cb27c32dfd4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4951,
+      "state": "settled",
+      "at": "2026-11-05T11:33:20.132Z"
+    },
+    {
+      "id": "2d07028e-3f19-44e7-a1e5-81e471d4d430",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4260,
+      "state": "settled",
+      "at": "2026-11-05T11:33:22.091Z"
+    },
+    {
+      "id": "496893c7-d22b-4421-b1b4-fa1a811454b9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4876,
+      "state": "settled",
+      "at": "2026-11-05T11:33:24.667Z"
+    },
+    {
+      "id": "47ac15ba-f834-4735-8114-eebf2a23876d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5054,
+      "state": "settled",
+      "at": "2026-11-05T11:33:26.014Z"
+    },
+    {
+      "id": "d419c0cb-45f1-437c-a01e-52ad21563837",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1704,
+      "state": "settled",
+      "at": "2026-11-05T11:33:27.999Z"
+    },
+    {
+      "id": "c5ef181d-a30e-4725-a046-e9fc9b19f96f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2150,
+      "state": "settled",
+      "at": "2026-11-05T11:33:35.125Z"
+    },
+    {
+      "id": "a08b3ff4-87f9-459a-9212-3f108de32378",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2210,
+      "state": "settled",
+      "at": "2026-11-05T11:33:40.143Z"
+    },
+    {
+      "id": "8af82825-a15e-4012-96ed-0cc5f510ee5a",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1779,
+      "state": "settled",
+      "at": "2026-11-05T11:33:46.795Z"
+    },
+    {
+      "id": "1aec5ee4-6012-4026-b6b6-3c05aecde116",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1948,
+      "state": "settled",
+      "at": "2026-11-05T11:33:51.801Z"
+    },
+    {
+      "id": "32901862-52d2-4a12-9970-843b36b27b52",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1981,
+      "state": "settled",
+      "at": "2026-11-05T11:33:59.187Z"
+    },
+    {
+      "id": "180178f8-0d8d-48a8-9b9c-e7cb502b6345",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2075,
+      "state": "settled",
+      "at": "2026-11-05T11:34:02.129Z"
+    },
+    {
+      "id": "26ccd9b5-6e77-4b44-ae5d-62ce3deb6395",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2222,
+      "state": "settled",
+      "at": "2026-11-05T11:34:04.770Z"
+    },
+    {
+      "id": "65b4969a-e96a-47ff-8cfe-e4a3d390e9ba",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4170,
+      "state": "settled",
+      "at": "2026-11-05T11:34:07.268Z"
+    },
+    {
+      "id": "14127ced-b0b2-445e-8293-3d8474df81ba",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5031,
+      "state": "settled",
+      "at": "2026-11-05T11:34:08.326Z"
+    },
+    {
+      "id": "c477300f-3150-422d-8daa-05a57a701e9f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4983,
+      "state": "settled",
+      "at": "2026-11-05T11:34:12.685Z"
+    },
+    {
+      "id": "c08bad74-21c5-4f95-ab9e-2ffe1260993c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5082,
+      "state": "settled",
+      "at": "2026-11-05T11:34:14.750Z"
+    },
+    {
+      "id": "d425e616-59d9-4b3e-a945-19070c94d65d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6686,
+      "state": "settled",
+      "at": "2026-11-05T11:34:16.914Z"
+    },
+    {
+      "id": "70d05c26-aa2b-47ba-bc3e-dbddc386d05f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4406,
+      "state": "settled",
+      "at": "2026-11-05T11:34:21.508Z"
+    },
+    {
+      "id": "f1be71cc-cc5e-439b-a954-84a842ed739d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4802,
+      "state": "settled",
+      "at": "2026-11-05T11:34:24.031Z"
+    },
+    {
+      "id": "2eda7a5b-13ab-4ee1-b152-0f47312ab37b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1776,
+      "state": "settled",
+      "at": "2026-11-05T11:34:27.414Z"
+    },
+    {
+      "id": "d9095f21-0d10-4cf8-8727-8e28f6a1473e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1908,
+      "state": "settled",
+      "at": "2026-11-05T11:34:28.790Z"
+    },
+    {
+      "id": "0006a2df-ec79-4cb2-becb-22a0023e12c2",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1714,
+      "state": "settled",
+      "at": "2026-11-05T11:34:31.830Z"
+    },
+    {
+      "id": "0c90fd6e-6483-4304-82cd-4b7ac7a8d8c9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1876,
+      "state": "settled",
+      "at": "2026-11-05T11:34:34.067Z"
+    },
+    {
+      "id": "73ee8b31-9445-452d-99c4-83a6fad7b390",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2011,
+      "state": "settled",
+      "at": "2026-11-05T11:34:36.670Z"
+    },
+    {
+      "id": "321a6dc7-4b0a-46a4-9922-10329699f30a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3895,
+      "state": "settled",
+      "at": "2026-11-05T11:34:38.940Z"
+    },
+    {
+      "id": "de15be9d-488f-4604-99b4-4bc46e300c3b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4206,
+      "state": "settled",
+      "at": "2026-11-05T11:34:41.469Z"
+    },
+    {
+      "id": "a45cb664-37c6-4c87-940b-b956db426a16",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4652,
+      "state": "settled",
+      "at": "2026-11-05T11:34:43.257Z"
+    },
+    {
+      "id": "37cf9318-85ef-4da3-bbba-3117e5e0748b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4121,
+      "state": "settled",
+      "at": "2026-11-05T11:41:50.251Z"
+    },
+    {
+      "id": "b0d15126-8022-40dc-ae32-bb771dc03470",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3983,
+      "state": "settled",
+      "at": "2026-11-05T11:41:52.286Z"
+    },
+    {
+      "id": "e85fcd7a-b557-4d83-b968-71563d2772ec",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1684,
+      "state": "settled",
+      "at": "2026-11-05T11:41:53.618Z"
+    },
+    {
+      "id": "f39f6ab3-60e4-4ee3-9c9e-47b3bc8071bb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1782,
+      "state": "settled",
+      "at": "2026-11-05T11:41:55.623Z"
+    },
+    {
+      "id": "40bcedd7-f894-4e10-9bf5-8d746e6815df",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1658,
+      "state": "settled",
+      "at": "2026-11-05T11:41:57.343Z"
+    },
+    {
+      "id": "900b8198-f76f-4b1e-af28-1b559285e524",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1753,
+      "state": "settled",
+      "at": "2026-11-05T11:41:58.860Z"
+    },
+    {
+      "id": "03c61455-f5d1-47c8-aea8-226f8ae6a428",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1870,
+      "state": "settled",
+      "at": "2026-11-05T11:42:00.238Z"
+    },
+    {
+      "id": "2b13f13f-f7b2-4222-995a-1cb38b8ee9a2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4007,
+      "state": "settled",
+      "at": "2026-11-05T11:42:01.776Z"
+    },
+    {
+      "id": "432a4b5d-81a8-4f94-9765-00e4dcaceedb",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4014,
+      "state": "settled",
+      "at": "2026-11-05T11:42:03.526Z"
+    },
+    {
+      "id": "ced8702a-c442-4f77-9d8b-148dc0fac3e4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4339,
+      "state": "settled",
+      "at": "2026-11-05T11:42:05.276Z"
+    },
+    {
+      "id": "4d8ff41b-9c2a-44ca-b453-ce6bffdc5d85",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4104,
+      "state": "settled",
+      "at": "2026-11-05T11:42:07.500Z"
+    },
+    {
+      "id": "ebef5c61-fa69-4565-acad-1faed09cf492",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1702,
+      "state": "settled",
+      "at": "2026-11-05T11:42:08.901Z"
+    },
+    {
+      "id": "e4bcf26f-1435-4328-ac13-d385a70aa791",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1820,
+      "state": "settled",
+      "at": "2026-11-05T11:42:13.003Z"
+    },
+    {
+      "id": "e87640fa-4070-4ab4-856a-19cb5edd5d8c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1661,
+      "state": "settled",
+      "at": "2026-11-05T11:42:15.341Z"
+    },
+    {
+      "id": "551e8144-f90a-4464-a9d3-e1751f456bfb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1768,
+      "state": "settled",
+      "at": "2026-11-05T11:42:16.921Z"
+    },
+    {
+      "id": "f4282078-f9e0-4840-8608-84d1aa84f212",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4085,
+      "state": "settled",
+      "at": "2026-11-05T11:42:18.663Z"
+    },
+    {
+      "id": "d9d25e72-3212-470a-9a73-eec9108a63ec",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4012,
+      "state": "settled",
+      "at": "2026-11-05T11:42:20.169Z"
+    },
+    {
+      "id": "4460d434-a875-4067-8ebc-7c6abe34e332",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3970,
+      "state": "settled",
+      "at": "2026-11-05T11:42:21.163Z"
+    },
+    {
+      "id": "737a4ad8-53a2-48dd-8678-d26c137342e3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4580,
+      "state": "settled",
+      "at": "2026-11-05T11:42:22.898Z"
+    },
+    {
+      "id": "720b324b-0a0a-443f-bbb5-693ca81007fc",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1668,
+      "state": "settled",
+      "at": "2026-11-05T11:42:25.441Z"
+    },
+    {
+      "id": "75ab3ee0-64d1-4c24-9470-16b7d1ea0017",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1772,
+      "state": "settled",
+      "at": "2026-11-05T11:42:27.335Z"
+    },
+    {
+      "id": "9570e217-5726-4c72-af10-36d444b05b1c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4239,
+      "state": "settled",
+      "at": "2026-11-05T11:44:12.643Z"
+    },
+    {
+      "id": "79151d14-1ac1-4254-aacf-2f62d12024ce",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4036,
+      "state": "settled",
+      "at": "2026-11-05T11:44:20.491Z"
+    },
+    {
+      "id": "e88b2096-0e79-445e-9ba6-001742ab93eb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1715,
+      "state": "settled",
+      "at": "2026-11-05T11:44:21.377Z"
+    },
+    {
+      "id": "c1482693-069e-4c8e-9162-aa152430cc3c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1808,
+      "state": "settled",
+      "at": "2026-11-05T11:44:22.717Z"
+    },
+    {
+      "id": "4e6036fb-c35c-44b4-8ab1-24db1cc0bce0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1693,
+      "state": "settled",
+      "at": "2026-11-05T11:44:25.333Z"
+    },
+    {
+      "id": "8bfd6c58-533a-42e7-9345-f1415e6564e6",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1820,
+      "state": "settled",
+      "at": "2026-11-05T11:44:26.773Z"
+    },
+    {
+      "id": "9d3c5c8e-2e21-490a-84d8-33619beb4526",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4032,
+      "state": "settled",
+      "at": "2026-11-05T11:44:28.510Z"
+    },
+    {
+      "id": "c074d071-40e3-42d2-a27b-a743d6ffb2d0",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4059,
+      "state": "settled",
+      "at": "2026-11-05T11:44:29.900Z"
+    },
+    {
+      "id": "c98f3286-0dff-4a03-aff1-5edd0ce55a7b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4371,
+      "state": "settled",
+      "at": "2026-11-05T11:44:30.722Z"
+    },
+    {
+      "id": "c61fde2a-38ce-4a02-8436-b805a0f4e45b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4581,
+      "state": "settled",
+      "at": "2026-11-05T11:44:32.870Z"
+    },
+    {
+      "id": "38ebb4b9-326e-4369-997b-46c1df3afec8",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1734,
+      "state": "settled",
+      "at": "2026-11-05T11:44:35.138Z"
+    },
+    {
+      "id": "9f22f16c-1ba0-4104-9a3f-3a600251effa",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1852,
+      "state": "settled",
+      "at": "2026-11-05T11:44:36.810Z"
+    },
+    {
+      "id": "1fe1847e-3d6a-45ff-9557-d725c8b753dc",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1689,
+      "state": "settled",
+      "at": "2026-11-05T11:44:38.218Z"
+    },
+    {
+      "id": "6ae60906-767a-46f5-b53b-34ec18c50dcd",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1818,
+      "state": "settled",
+      "at": "2026-11-05T11:44:39.530Z"
+    },
+    {
+      "id": "f46ae2d1-8e23-407b-83ea-2268d4ec5136",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4064,
+      "state": "settled",
+      "at": "2026-11-05T11:44:41.078Z"
+    },
+    {
+      "id": "d0ff120b-5a2e-446d-ba06-539e66791df3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4344,
+      "state": "settled",
+      "at": "2026-11-05T11:44:42.849Z"
+    },
+    {
+      "id": "1155d74a-6dca-4591-bcbc-28de25cbbf33",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4021,
+      "state": "settled",
+      "at": "2026-11-05T11:44:44.691Z"
+    },
+    {
+      "id": "e3edbe51-8822-434c-beb1-f97b84824420",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4358,
+      "state": "settled",
+      "at": "2026-11-05T11:44:46.688Z"
+    },
+    {
+      "id": "e240c5a8-1f50-4bb5-9ff4-d1390d34eea7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1707,
+      "state": "settled",
+      "at": "2026-11-05T11:44:48.781Z"
+    },
+    {
+      "id": "fd845acb-5f36-48f3-a41f-d1e7e0ce87db",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1802,
+      "state": "settled",
+      "at": "2026-11-05T11:44:50.965Z"
+    },
+    {
+      "id": "026b6873-0db1-4146-b112-b5bc7979d860",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4217,
+      "state": "settled",
+      "at": "2026-11-05T11:45:31.940Z"
+    },
+    {
+      "id": "a8b09ece-fe8d-4928-bfa3-bf2719175fbe",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4328,
+      "state": "settled",
+      "at": "2026-11-05T11:45:35.267Z"
+    },
+    {
+      "id": "48a658fd-3c5f-48db-8efa-318ac1f72717",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5489,
+      "state": "settled",
+      "at": "2026-11-05T11:45:37.963Z"
+    },
+    {
+      "id": "5787167d-d931-4b9e-ab0b-bbc224967e05",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5025,
+      "state": "settled",
+      "at": "2026-11-05T11:45:41.343Z"
+    },
+    {
+      "id": "93c3014f-09f7-4d84-981b-fa549f27f770",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1775,
+      "state": "settled",
+      "at": "2026-11-05T11:45:44.013Z"
+    },
+    {
+      "id": "44f56f1e-3d17-4201-8457-c431c8f91afd",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1950,
+      "state": "settled",
+      "at": "2026-11-05T11:45:47.412Z"
+    },
+    {
+      "id": "079d6354-ebbb-4e7f-acec-7884d47da2e9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2211,
+      "state": "settled",
+      "at": "2026-11-05T11:45:50.711Z"
+    },
+    {
+      "id": "237870a3-f543-47b2-8e20-911a898bb8bf",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2252,
+      "state": "settled",
+      "at": "2026-11-05T11:45:53.245Z"
+    },
+    {
+      "id": "767e2a88-abcc-480e-a60a-b823a162dafa",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2321,
+      "state": "settled",
+      "at": "2026-11-05T11:45:55.367Z"
+    },
+    {
+      "id": "19eac3a7-ef04-4b2a-9f9f-0c75c384221a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1028,
+      "state": "settled",
+      "at": "2026-11-05T12:14:01.968Z"
+    },
+    {
+      "id": "8384be72-7a4b-4723-a5dd-2adeddef903e",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 552,
+      "state": "settled",
+      "at": "2026-11-05T12:14:03.493Z"
+    },
+    {
+      "id": "12135f02-5987-44a1-946d-b3de867eaabb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 334,
+      "state": "settled",
+      "at": "2026-11-05T12:14:05.332Z"
+    },
+    {
+      "id": "d79b85c7-ae49-4f19-b44d-cf42a92c2b43",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 125,
+      "state": "settled",
+      "at": "2026-11-05T12:14:07.092Z"
+    },
+    {
+      "id": "2c242dda-b8da-41ba-86ef-659498b3b999",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4347,
+      "state": "settled",
+      "at": "2026-11-05T12:14:09.886Z"
+    },
+    {
+      "id": "3ba50b82-6010-422e-8e83-fe7362d25ac5",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4204,
+      "state": "settled",
+      "at": "2026-11-05T12:14:12.582Z"
+    },
+    {
+      "id": "3a69e70b-ace4-4fd3-b79f-ce5ee90763f7",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4759,
+      "state": "settled",
+      "at": "2026-11-05T12:14:14.297Z"
+    },
+    {
+      "id": "9ce9e74c-0e57-488b-855d-ba7943140d0b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4434,
+      "state": "settled",
+      "at": "2026-11-05T12:14:17.440Z"
+    },
+    {
+      "id": "8e8a8769-3837-4cd0-9ec8-4bb7e65910f3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5377,
+      "state": "settled",
+      "at": "2026-11-05T12:14:19.144Z"
+    },
+    {
+      "id": "4d1e420a-9377-4e67-978f-28f5fca4622a",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1807,
+      "state": "settled",
+      "at": "2026-11-05T12:14:23.009Z"
+    },
+    {
+      "id": "7723834d-1df4-4a3d-afa8-f75271f9e38d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1875,
+      "state": "settled",
+      "at": "2026-11-05T12:14:25.027Z"
+    },
+    {
+      "id": "446f1410-294b-47a8-9437-1f07d6c323e2",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1883,
+      "state": "settled",
+      "at": "2026-11-05T12:14:26.867Z"
+    },
+    {
+      "id": "596a1111-8570-4648-8947-f1217aa561f7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2023,
+      "state": "settled",
+      "at": "2026-11-05T12:14:28.908Z"
+    },
+    {
+      "id": "dfd9fc52-00f6-4b24-abf8-e956d49b8fbf",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2115,
+      "state": "settled",
+      "at": "2026-11-05T12:14:30.232Z"
+    },
+    {
+      "id": "e5c4007c-d25d-42df-83fc-5733206662be",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1750,
+      "state": "settled",
+      "at": "2026-11-05T12:14:32.630Z"
+    },
+    {
+      "id": "169f5f67-78c6-4e5a-b54b-de876dabf861",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1840,
+      "state": "settled",
+      "at": "2026-11-05T12:14:34.010Z"
+    },
+    {
+      "id": "cd66101c-cfae-4fe9-9205-277692dfb108",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1980,
+      "state": "settled",
+      "at": "2026-11-05T12:14:35.803Z"
+    },
+    {
+      "id": "ad6e17a3-312d-46d6-aead-da2ec713eccb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2113,
+      "state": "settled",
+      "at": "2026-11-05T12:14:39.804Z"
+    },
+    {
+      "id": "d91f4b84-b7f9-47c3-b8ae-8a5d8960da75",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4323,
+      "state": "settled",
+      "at": "2026-11-05T12:14:44.376Z"
+    },
+    {
+      "id": "3a66b437-9e45-4135-98ed-a640008b5de0",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4730,
+      "state": "settled",
+      "at": "2026-11-05T12:14:46.692Z"
+    },
+    {
+      "id": "b15d6589-fcde-419e-9c2c-fbf25c3e960f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5044,
+      "state": "settled",
+      "at": "2026-11-05T12:14:49.616Z"
+    },
+    {
+      "id": "1adacbc5-ef08-4647-bbb0-74c0e48e700a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5127,
+      "state": "settled",
+      "at": "2026-11-05T12:14:53.255Z"
+    },
+    {
+      "id": "fa691bea-9331-423d-8f1a-364885e47413",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5667,
+      "state": "settled",
+      "at": "2026-11-05T12:14:57.868Z"
+    },
+    {
+      "id": "640f38e1-0f20-4055-8f02-1e2d86d6854f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3942,
+      "state": "settled",
+      "at": "2026-11-05T12:15:02.778Z"
+    },
+    {
+      "id": "1ce8782a-bfc7-4f45-9b8f-9a59484be449",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4465,
+      "state": "settled",
+      "at": "2026-11-05T12:15:04.256Z"
+    },
+    {
+      "id": "0a55485a-007b-4221-9044-1805fa96f5bb",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4297,
+      "state": "settled",
+      "at": "2026-11-05T12:15:07.567Z"
+    },
+    {
+      "id": "f2742236-84e1-4349-9443-f55aeaf4b733",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4628,
+      "state": "settled",
+      "at": "2026-11-05T12:15:08.960Z"
+    },
+    {
+      "id": "0c3259d6-8f85-40c9-ad3a-fae72e681af6",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1797,
+      "state": "settled",
+      "at": "2026-11-05T12:15:10.943Z"
+    },
+    {
+      "id": "1b63443f-4663-43c3-9905-c73af8aeab94",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1833,
+      "state": "settled",
+      "at": "2026-11-05T12:15:13.599Z"
+    },
+    {
+      "id": "dde05134-b35f-41ec-897e-781328ce4a51",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1964,
+      "state": "settled",
+      "at": "2026-11-05T12:15:17.259Z"
+    },
+    {
+      "id": "ad3a03ce-814a-47f6-8edf-0c8397c22af3",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2048,
+      "state": "settled",
+      "at": "2026-11-05T12:15:20.320Z"
+    },
+    {
+      "id": "7140021d-bf19-40c1-90be-c8f2114ae3ae",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1748,
+      "state": "settled",
+      "at": "2026-11-05T12:15:22.576Z"
+    },
+    {
+      "id": "dcd29fb9-3329-44d6-8024-5cb5e9cea7ac",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1843,
+      "state": "settled",
+      "at": "2026-11-05T12:15:25.052Z"
+    },
+    {
+      "id": "d2d82ee0-76b0-438f-adfa-d8c7c3910208",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1952,
+      "state": "settled",
+      "at": "2026-11-05T12:15:26.760Z"
+    },
+    {
+      "id": "b3485eb7-234d-47e8-a343-20bd462b1d7c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4288,
+      "state": "settled",
+      "at": "2026-11-05T12:15:29.164Z"
+    },
+    {
+      "id": "604dadcc-6790-4ff6-9234-32c12ab6215d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4445,
+      "state": "settled",
+      "at": "2026-11-05T12:15:32.094Z"
+    },
+    {
+      "id": "ad3c527e-ce70-4b3a-8e83-20b6abfc4706",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4401,
+      "state": "settled",
+      "at": "2026-11-05T12:15:34.126Z"
+    },
+    {
+      "id": "586bfc3d-945e-4fef-b4a5-e6197dcfc246",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4432,
+      "state": "settled",
+      "at": "2026-11-05T12:15:35.953Z"
+    },
+    {
+      "id": "ec97dd0d-a3a3-4368-80cd-16747e0da4bf",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5200,
+      "state": "settled",
+      "at": "2026-11-05T12:15:37.960Z"
+    },
+    {
+      "id": "7913dd91-6f07-4f52-8cac-a30bbf448a94",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4881,
+      "state": "settled",
+      "at": "2026-11-05T12:15:40.383Z"
+    },
+    {
+      "id": "623da172-9e89-4c53-99b6-36b47ae6be50",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5796,
+      "state": "settled",
+      "at": "2026-11-05T12:15:42.151Z"
+    },
+    {
+      "id": "e9a3d82a-9935-4a56-b630-daf86536daed",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5859,
+      "state": "settled",
+      "at": "2026-11-05T12:15:46.027Z"
+    },
+    {
+      "id": "b21de2a7-d67a-4957-ac88-9ac6010a1353",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1835,
+      "state": "settled",
+      "at": "2026-11-05T12:15:49.509Z"
+    },
+    {
+      "id": "e0ff9fca-a7b9-4480-b841-92d4eb2903be",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1997,
+      "state": "settled",
+      "at": "2026-11-05T12:15:50.827Z"
+    },
+    {
+      "id": "93b36a62-620d-4c2b-ac29-9deab7d25f29",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2046,
+      "state": "settled",
+      "at": "2026-11-05T12:15:52.725Z"
+    },
+    {
+      "id": "ae4fdbfa-4919-4fb1-9cbd-823a6fd22d8f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2137,
+      "state": "settled",
+      "at": "2026-11-05T12:15:54.448Z"
+    },
+    {
+      "id": "15ec745f-d50f-4295-8dd6-0a387ab7bd6b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2251,
+      "state": "settled",
+      "at": "2026-11-05T12:15:57.097Z"
+    },
+    {
+      "id": "9995c47d-6166-498c-8174-097e09742c9d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1775,
+      "state": "settled",
+      "at": "2026-11-05T12:15:59.541Z"
+    },
+    {
+      "id": "647ebc29-4b4d-42f3-ba0c-c32b3a7abaca",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1860,
+      "state": "settled",
+      "at": "2026-11-05T12:16:01.085Z"
+    },
+    {
+      "id": "777532a5-14ff-4cb9-af88-f2b5d79a6025",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4242,
+      "state": "settled",
+      "at": "2026-11-05T12:16:03.460Z"
+    },
+    {
+      "id": "579c13e2-ad72-4613-8e59-c80952d1aeaf",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4008,
+      "state": "settled",
+      "at": "2026-11-05T12:16:06.163Z"
+    },
+    {
+      "id": "44ddd245-7cf0-4dba-b869-44c422490b72",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4263,
+      "state": "settled",
+      "at": "2026-11-05T12:16:08.254Z"
+    },
+    {
+      "id": "a6ee45f8-6fc2-4d00-9428-05cf0fe19eba",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4737,
+      "state": "settled",
+      "at": "2026-11-05T12:16:10.208Z"
+    },
+    {
+      "id": "7cd22db2-651e-4d05-8963-212df516b1f1",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4808,
+      "state": "settled",
+      "at": "2026-11-05T12:16:11.538Z"
+    },
+    {
+      "id": "cbabee60-df3d-4ca1-a428-f6dbbfe66b3a",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1780,
+      "state": "settled",
+      "at": "2026-11-05T12:16:13.409Z"
+    },
+    {
+      "id": "84c0ce20-4312-43b9-85ca-e4be591fe9cb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1922,
+      "state": "settled",
+      "at": "2026-11-05T12:16:15.919Z"
+    },
+    {
+      "id": "f635c381-4f93-4f2c-9a0c-f0a716cda9ed",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2066,
+      "state": "settled",
+      "at": "2026-11-05T12:16:18.363Z"
+    },
+    {
+      "id": "d70cf408-fb20-46c1-bb39-fbe3245b0c40",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2140,
+      "state": "settled",
+      "at": "2026-11-05T12:16:19.840Z"
+    },
+    {
+      "id": "8c725246-edcd-400d-a2e8-3fb686fbd228",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1809,
+      "state": "settled",
+      "at": "2026-11-05T12:16:22.293Z"
+    },
+    {
+      "id": "530b8fd2-5b22-429e-86ca-86407584426d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1997,
+      "state": "settled",
+      "at": "2026-11-05T12:16:23.873Z"
+    },
+    {
+      "id": "36df58bf-71ac-40d2-a97f-564abf8b4369",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2085,
+      "state": "settled",
+      "at": "2026-11-05T12:16:27.282Z"
+    },
+    {
+      "id": "63af9cbf-d295-4d02-8968-64a644cadde9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2155,
+      "state": "settled",
+      "at": "2026-11-05T12:16:29.413Z"
+    },
+    {
+      "id": "9db0b3c6-5c14-415f-9dc7-b45a36c3a19e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2267,
+      "state": "settled",
+      "at": "2026-11-05T12:16:31.973Z"
+    },
+    {
+      "id": "c65adf42-5fbe-43bf-8792-158ae2222468",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2383,
+      "state": "settled",
+      "at": "2026-11-05T12:16:34.625Z"
+    },
+    {
+      "id": "2ff7bf70-f791-410b-9b59-9baf058591c2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4238,
+      "state": "settled",
+      "at": "2026-11-05T12:16:39.163Z"
+    },
+    {
+      "id": "314f76a7-757b-405a-adad-b9b17425d2c2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5060,
+      "state": "settled",
+      "at": "2026-11-05T12:16:41.356Z"
+    },
+    {
+      "id": "7d0d9fe8-101c-4992-9823-f6b96d8a8cc9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5094,
+      "state": "settled",
+      "at": "2026-11-05T12:16:44.946Z"
+    },
+    {
+      "id": "16f3c0e5-70d6-4dc8-bae7-b73f8bb1123b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5338,
+      "state": "settled",
+      "at": "2026-11-05T12:16:47.232Z"
+    },
+    {
+      "id": "1c66cf62-f25e-40a1-a87c-158e722b5db5",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5884,
+      "state": "settled",
+      "at": "2026-11-05T12:16:49.443Z"
+    },
+    {
+      "id": "9f10e55a-71ee-4a46-b7f1-3271640b3899",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6443,
+      "state": "settled",
+      "at": "2026-11-05T12:16:52.855Z"
+    },
+    {
+      "id": "f578ab46-f3b1-4e1a-8de3-847e31b42410",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4061,
+      "state": "settled",
+      "at": "2026-11-05T12:16:57.755Z"
+    },
+    {
+      "id": "b49d15f2-2289-42b2-a97f-34e4fb89975c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4240,
+      "state": "settled",
+      "at": "2026-11-05T12:16:59.491Z"
+    },
+    {
+      "id": "d8c97ac2-258a-4172-bd2e-e9c72728e246",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4678,
+      "state": "settled",
+      "at": "2026-11-05T12:17:01.709Z"
+    },
+    {
+      "id": "29e96691-67fb-4ac7-8c83-b3d0f54e594d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1786,
+      "state": "settled",
+      "at": "2026-11-05T12:17:04.283Z"
+    },
+    {
+      "id": "3afb03b8-2775-450c-9736-2a22c39cf1c1",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1899,
+      "state": "settled",
+      "at": "2026-11-05T12:17:06.800Z"
+    },
+    {
+      "id": "d575d121-090a-48ad-aa86-5d506956a10d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2057,
+      "state": "settled",
+      "at": "2026-11-05T12:17:09.070Z"
+    },
+    {
+      "id": "0b9d8f46-c31e-4c99-ae1c-e96b7589b0fd",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4751,
+      "state": "settled",
+      "at": "2026-11-05T12:33:18.921Z"
+    },
+    {
+      "id": "4c2a78d4-7360-4eb7-bf80-64c58542b272",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5106,
+      "state": "settled",
+      "at": "2026-11-05T12:33:22.501Z"
+    },
+    {
+      "id": "70b54dcd-0ff7-4a19-a420-4c04bf3d8f71",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5337,
+      "state": "settled",
+      "at": "2026-11-05T12:33:24.943Z"
+    },
+    {
+      "id": "022da222-548b-4a69-9b21-7d723f4d708f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5492,
+      "state": "settled",
+      "at": "2026-11-05T12:33:27.602Z"
+    },
+    {
+      "id": "36523fd8-3bef-4568-b9cf-7f59bab216f2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6069,
+      "state": "settled",
+      "at": "2026-11-05T12:33:31.580Z"
+    },
+    {
+      "id": "3feb19e8-5300-4502-a69f-c13caa355433",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1945,
+      "state": "settled",
+      "at": "2026-11-05T12:33:35.743Z"
+    },
+    {
+      "id": "26a559c3-9467-48c9-94a1-49bc780ff95e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2052,
+      "state": "settled",
+      "at": "2026-11-05T12:33:42.593Z"
+    },
+    {
+      "id": "21c941ed-7cab-43f6-82c6-70299b475567",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2108,
+      "state": "settled",
+      "at": "2026-11-05T12:33:45.331Z"
+    },
+    {
+      "id": "b4e2edf1-edcf-4296-afec-98f8c62cafaa",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2169,
+      "state": "settled",
+      "at": "2026-11-05T12:33:48.200Z"
+    },
+    {
+      "id": "c2f87509-b44b-4651-a1bf-41e87b9af9e0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1969,
+      "state": "settled",
+      "at": "2026-11-05T12:33:52.616Z"
+    },
+    {
+      "id": "9ffe247b-418d-4ae6-a27e-26ef1620e65c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4487,
+      "state": "settled",
+      "at": "2026-11-05T12:33:55.630Z"
+    },
+    {
+      "id": "bb869c41-62b5-4e59-9a7e-78ebb459c1bb",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4584,
+      "state": "settled",
+      "at": "2026-11-05T12:33:58.065Z"
+    },
+    {
+      "id": "94387ac1-4d54-41da-b5b6-551a3fbcba30",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5811,
+      "state": "settled",
+      "at": "2026-11-05T12:34:01.691Z"
+    },
+    {
+      "id": "4029f94b-01a6-45eb-aacc-988bcdd861d3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5247,
+      "state": "settled",
+      "at": "2026-11-05T12:34:06.916Z"
+    },
+    {
+      "id": "706f826f-ccc1-4839-9e5f-658741cdf4a6",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5854,
+      "state": "settled",
+      "at": "2026-11-05T12:34:08.706Z"
+    },
+    {
+      "id": "f6d0ead6-cf1c-4d78-ab9a-82ba5f7d25bf",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6325,
+      "state": "settled",
+      "at": "2026-11-05T12:34:12.286Z"
+    },
+    {
+      "id": "78787ea8-6597-48c2-aa2d-aab8c6fd1b4d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2006,
+      "state": "settled",
+      "at": "2026-11-05T12:34:16.437Z"
+    },
+    {
+      "id": "a2c6d488-e045-42ca-a109-9438a58c9b08",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2206,
+      "state": "settled",
+      "at": "2026-11-05T12:34:18.015Z"
+    },
+    {
+      "id": "2a984e13-2ceb-437b-a21c-88f2999b61f5",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2217,
+      "state": "settled",
+      "at": "2026-11-05T12:34:22.900Z"
+    },
+    {
+      "id": "57d7af01-1308-4ae7-9cbb-d9a9f7e3a872",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2336,
+      "state": "settled",
+      "at": "2026-11-05T12:34:25.697Z"
+    },
+    {
+      "id": "234bd77d-b1bf-4a50-9916-c61617d6342a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4510,
+      "state": "settled",
+      "at": "2026-11-05T12:34:29.089Z"
+    },
+    {
+      "id": "adcb8bd7-ef2f-4b00-ba4a-e5e5fe68b1e2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5090,
+      "state": "settled",
+      "at": "2026-11-05T12:34:31.967Z"
+    },
+    {
+      "id": "942a047e-6e31-4661-aca3-80166a42e135",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2096,
+      "state": "settled",
+      "at": "2026-11-05T12:34:33.986Z"
+    },
+    {
+      "id": "20044e20-5906-46e4-8d01-f8c8df740760",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2303,
+      "state": "settled",
+      "at": "2026-11-05T12:34:37.490Z"
+    },
+    {
+      "id": "361206c6-806f-4bb4-8297-39659291468f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2034,
+      "state": "settled",
+      "at": "2026-11-05T12:34:40.243Z"
+    },
+    {
+      "id": "7312052e-67da-4146-be2d-478b363b12db",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2136,
+      "state": "settled",
+      "at": "2026-11-05T12:34:43.028Z"
+    },
+    {
+      "id": "bbab9556-cc57-4b99-8934-0a4c0eebe11c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2227,
+      "state": "settled",
+      "at": "2026-11-05T12:34:45.102Z"
+    },
+    {
+      "id": "6f90aa3d-3f98-4b65-9167-b1b3b3b6fe98",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4414,
+      "state": "settled",
+      "at": "2026-11-05T12:34:47.313Z"
+    },
+    {
+      "id": "1cb637e5-c23a-4523-a853-319d01b9a1c9",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4609,
+      "state": "settled",
+      "at": "2026-11-05T12:34:49.857Z"
+    },
+    {
+      "id": "59df634e-80bc-44ad-acdc-d3faccb67e99",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4892,
+      "state": "settled",
+      "at": "2026-11-05T12:34:51.692Z"
+    },
+    {
+      "id": "927549d8-4b64-4577-9818-dfcd20cf1ccc",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4727,
+      "state": "settled",
+      "at": "2026-11-05T12:34:53.883Z"
+    },
+    {
+      "id": "c91ba7ec-3669-4974-a00c-31984f566b5c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5178,
+      "state": "settled",
+      "at": "2026-11-05T12:34:55.520Z"
+    },
+    {
+      "id": "fdd8f38c-2b00-4783-9ca5-8fd9299a9993",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5330,
+      "state": "settled",
+      "at": "2026-11-05T12:34:59.314Z"
+    },
+    {
+      "id": "6731d798-de22-4b2a-af3c-9b8b023e11e0",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5552,
+      "state": "settled",
+      "at": "2026-11-05T12:35:01.020Z"
+    },
+    {
+      "id": "844fb812-05bb-4303-a991-d1fdea378ef5",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6564,
+      "state": "settled",
+      "at": "2026-11-05T12:35:03.346Z"
+    },
+    {
+      "id": "4267968f-857c-48a3-9555-43e63218d2c3",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2058,
+      "state": "settled",
+      "at": "2026-11-05T12:35:06.866Z"
+    },
+    {
+      "id": "5d3e151c-d37c-4147-9ef4-137b8cca31f2",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2253,
+      "state": "settled",
+      "at": "2026-11-05T12:35:08.236Z"
+    },
+    {
+      "id": "2fe44b77-8972-49c9-a8d6-22191be1bc49",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2265,
+      "state": "settled",
+      "at": "2026-11-05T12:35:12.818Z"
+    },
+    {
+      "id": "111ee022-bbc1-42d0-a594-e4a5c561857e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2370,
+      "state": "settled",
+      "at": "2026-11-05T12:35:14.364Z"
+    },
+    {
+      "id": "859fc883-ac76-4037-bb01-bc97e7573576",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2509,
+      "state": "settled",
+      "at": "2026-11-05T12:35:17.721Z"
+    },
+    {
+      "id": "d7667248-37e3-4870-bffa-ec108a6cd937",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2045,
+      "state": "settled",
+      "at": "2026-11-05T12:35:21.763Z"
+    },
+    {
+      "id": "ba37c8fb-c78c-421a-b8ea-ceda98d7be4b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2191,
+      "state": "settled",
+      "at": "2026-11-05T12:35:24.412Z"
+    },
+    {
+      "id": "2e92c5e8-7bb9-4551-a648-fe3eca43ce5b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4723,
+      "state": "settled",
+      "at": "2026-11-05T12:35:27.566Z"
+    },
+    {
+      "id": "700e3458-f560-4603-aa03-736f53133b5a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5209,
+      "state": "settled",
+      "at": "2026-11-05T12:35:29.085Z"
+    },
+    {
+      "id": "c0506bca-f6f7-4ce4-9dc2-6718d49d02b3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4362,
+      "state": "settled",
+      "at": "2026-11-05T12:35:31.831Z"
+    },
+    {
+      "id": "0e45c0e9-4ab4-4789-95b2-604d2bf7082a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4688,
+      "state": "settled",
+      "at": "2026-11-05T12:35:33.809Z"
+    },
+    {
+      "id": "b8122b7b-e5c6-4078-8dc9-d7480b950c6a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6324,
+      "state": "settled",
+      "at": "2026-11-05T12:35:35.811Z"
+    },
+    {
+      "id": "4a6ab466-4a84-4d87-b6d9-8e805de2bb76",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5260,
+      "state": "settled",
+      "at": "2026-11-05T12:35:39.578Z"
+    },
+    {
+      "id": "3713f65b-6e2f-4182-9cf5-7d74e15ea874",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 7244,
+      "state": "settled",
+      "at": "2026-11-05T12:35:40.506Z"
+    },
+    {
+      "id": "337edb9a-4d48-4347-93d5-a0eaf8f293fe",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1993,
+      "state": "settled",
+      "at": "2026-11-05T12:35:45.940Z"
+    },
+    {
+      "id": "a150dc86-bded-4803-a7de-784b62080989",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2444,
+      "state": "settled",
+      "at": "2026-11-05T12:35:48.564Z"
+    },
+    {
+      "id": "877707a4-c605-47f0-a64a-edf170284d79",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2690,
+      "state": "settled",
+      "at": "2026-11-05T12:35:51.410Z"
+    },
+    {
+      "id": "07b140e6-02bd-4fd2-963f-2736ddbfba8c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2745,
+      "state": "settled",
+      "at": "2026-11-05T12:35:54.788Z"
+    },
+    {
+      "id": "09e2a656-1f66-4c52-b4fe-4f1f98f1d3df",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2828,
+      "state": "settled",
+      "at": "2026-11-05T12:35:56.706Z"
+    },
+    {
+      "id": "74bfb873-7dfe-43d3-80f7-41145dbe9647",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1995,
+      "state": "settled",
+      "at": "2026-11-05T12:35:59.289Z"
+    },
+    {
+      "id": "a8d6d212-93d4-4391-b675-5211238b1607",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2155,
+      "state": "settled",
+      "at": "2026-11-05T12:36:02.130Z"
+    },
+    {
+      "id": "67bb7558-c696-4931-908a-6da8f930985c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2260,
+      "state": "settled",
+      "at": "2026-11-05T12:36:04.129Z"
+    },
+    {
+      "id": "d032e855-b682-476a-842b-28c7c8ad15cc",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4350,
+      "state": "settled",
+      "at": "2026-11-05T12:36:06.809Z"
+    },
+    {
+      "id": "457358e3-b896-417c-9825-3c0e803c4177",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4495,
+      "state": "settled",
+      "at": "2026-11-05T12:36:08.503Z"
+    },
+    {
+      "id": "5744d943-8bcd-4e5b-b906-ded944c1a1f2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4805,
+      "state": "settled",
+      "at": "2026-11-05T12:36:11.403Z"
+    },
+    {
+      "id": "de248e4e-e2a4-4403-9da7-9c40b7d3a112",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5080,
+      "state": "settled",
+      "at": "2026-11-05T12:36:13.684Z"
+    },
+    {
+      "id": "3515a04d-3a7f-498b-81e4-930f934e2b26",
+      "model": "claude-haiku-5-5",
+      "reserved": 627560,
+      "charged": 4174,
+      "state": "settled",
+      "at": "2026-11-05T12:51:31.330Z"
+    },
+    {
+      "id": "3e600c19-6421-4838-835a-73fdb368ac98",
+      "model": "gpt-6-luna",
+      "reserved": 461768,
+      "charged": 888,
+      "state": "settled",
+      "at": "2026-11-05T12:51:36.905Z"
+    },
+    {
+      "id": "104c9e5d-9bf2-4d51-a57f-1d421d23db0c",
+      "model": "claude-haiku-5-5",
+      "reserved": 627560,
+      "charged": 4671,
+      "state": "settled",
+      "at": "2026-11-05T12:51:39.132Z"
+    },
+    {
+      "id": "a39d52fc-8ae4-4258-b356-3778e86ff78d",
+      "model": "gpt-6-luna",
+      "reserved": 461768,
+      "charged": 1387,
+      "state": "settled",
+      "at": "2026-11-05T12:51:43.254Z"
+    },
+    {
+      "id": "2e90d878-d7fb-4851-84f3-4613098206be",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4162,
+      "state": "settled",
+      "at": "2026-11-05T12:55:18.490Z"
+    },
+    {
+      "id": "098dacd4-fd6f-4640-acff-43cb7b0cb423",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 961,
+      "state": "settled",
+      "at": "2026-11-05T12:55:23.478Z"
+    },
+    {
+      "id": "6667e2c4-7ce8-419a-8533-ad0c4fde5678",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5039,
+      "state": "settled",
+      "at": "2026-11-05T12:55:26.535Z"
+    },
+    {
+      "id": "89d3c65c-854f-4a7a-9086-bdbfbe87e82b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1486,
+      "state": "settled",
+      "at": "2026-11-05T12:55:31.185Z"
+    },
+    {
+      "id": "3e5c9236-edfd-48c5-b6cf-1857cfc93115",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4564,
+      "state": "settled",
+      "at": "2026-11-05T13:16:45.603Z"
+    },
+    {
+      "id": "054af0b4-c3d0-4389-950f-efe26091f166",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5174,
+      "state": "settled",
+      "at": "2026-11-05T13:16:48.736Z"
+    },
+    {
+      "id": "83b01c4d-0cca-4172-9308-3244f1d916e3",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 2306,
+      "state": "settled",
+      "at": "2026-11-05T13:16:50.692Z"
+    },
+    {
+      "id": "715f39e0-48d3-484f-942d-4cabf8104a2f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 814,
+      "state": "settled",
+      "at": "2026-11-05T13:16:53.282Z"
+    },
+    {
+      "id": "2323618c-775c-4909-98bd-df6b9f4899c0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2132,
+      "state": "settled",
+      "at": "2026-11-05T13:16:55.820Z"
+    },
+    {
+      "id": "9b87c7b0-6e3b-48da-ab05-74b0445a71e1",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2340,
+      "state": "settled",
+      "at": "2026-11-05T13:16:58.767Z"
+    },
+    {
+      "id": "9276db25-b4da-45e3-82f3-0a033d263880",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 2190,
+      "state": "settled",
+      "at": "2026-11-05T13:17:02.995Z"
+    },
+    {
+      "id": "6568e2da-892b-4d1c-84a4-53cdfd0a83db",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 793,
+      "state": "settled",
+      "at": "2026-11-05T13:17:04.875Z"
+    },
+    {
+      "id": "56b4b63e-9059-4703-8c19-62ae875fad7f",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2071,
+      "state": "settled",
+      "at": "2026-11-05T13:17:07.352Z"
+    },
+    {
+      "id": "2f2ea05a-7b52-42f8-9b03-9d16d7a1329e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2171,
+      "state": "settled",
+      "at": "2026-11-05T13:17:10.110Z"
+    },
+    {
+      "id": "3f50750a-cd3e-41c1-bc21-0182d37c848b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2263,
+      "state": "settled",
+      "at": "2026-11-05T13:17:13.275Z"
+    },
+    {
+      "id": "857898cd-4316-44c5-8a5a-a069d5906b34",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1993,
+      "state": "settled",
+      "at": "2026-11-05T13:17:15.871Z"
+    },
+    {
+      "id": "73371676-1d38-4e12-911a-3a2e57a584ba",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 713,
+      "state": "settled",
+      "at": "2026-11-05T13:17:17.549Z"
+    },
+    {
+      "id": "9e770944-bbea-44f6-86fe-dbd83162b3f1",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4469,
+      "state": "settled",
+      "at": "2026-11-05T13:17:20.151Z"
+    },
+    {
+      "id": "08aa1d60-effa-40aa-9883-276e54ba8e5c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4901,
+      "state": "settled",
+      "at": "2026-11-05T13:17:22.354Z"
+    },
+    {
+      "id": "bde84166-5c0f-48e7-ba6f-c2fccba8ea82",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5019,
+      "state": "settled",
+      "at": "2026-11-05T13:17:25.491Z"
+    },
+    {
+      "id": "ca7a08fe-8f21-4aea-9db8-5b57e5c60011",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 2035,
+      "state": "settled",
+      "at": "2026-11-05T13:17:26.678Z"
+    },
+    {
+      "id": "5c9cb54d-56f7-45df-bec4-c46e62820957",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 729,
+      "state": "settled",
+      "at": "2026-11-05T13:17:28.844Z"
+    },
+    {
+      "id": "c6b6e432-69e4-49e6-a6be-a2d1b5e5fdb4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4691,
+      "state": "settled",
+      "at": "2026-11-05T13:17:31.217Z"
+    },
+    {
+      "id": "6d0dc880-a7f3-4a09-aed5-2fa5c8480641",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5255,
+      "state": "settled",
+      "at": "2026-11-05T13:17:33.046Z"
+    },
+    {
+      "id": "c8b8416b-d2bc-408b-b16d-0290d85d9eda",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5251,
+      "state": "settled",
+      "at": "2026-11-05T13:17:37.388Z"
+    },
+    {
+      "id": "0bde7e58-cd39-4031-baa9-d914eb8df79f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5717,
+      "state": "settled",
+      "at": "2026-11-05T13:17:39.605Z"
+    },
+    {
+      "id": "0e17a010-53ad-4518-8870-f21ea8d8d960",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6324,
+      "state": "settled",
+      "at": "2026-11-05T13:17:43.153Z"
+    },
+    {
+      "id": "d6c56aee-acaf-4e8f-9a07-e186cc35f597",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3322,
+      "state": "settled",
+      "at": "2026-11-05T13:17:46.320Z"
+    },
+    {
+      "id": "ca04224a-4e09-4020-ba02-d9d6c3dd89a2",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1173,
+      "state": "settled",
+      "at": "2026-11-05T13:17:48.080Z"
+    },
+    {
+      "id": "088f6bbc-771d-47bb-9c2a-d05386f15eec",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2093,
+      "state": "settled",
+      "at": "2026-11-05T13:17:50.610Z"
+    },
+    {
+      "id": "7ada6b20-ca50-486b-b07b-4af0e213c277",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2298,
+      "state": "settled",
+      "at": "2026-11-05T13:17:52.179Z"
+    },
+    {
+      "id": "70379618-373e-482a-8fe6-c3334601ef26",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2322,
+      "state": "settled",
+      "at": "2026-11-05T13:17:57.162Z"
+    },
+    {
+      "id": "58682adb-9966-4275-a367-9a641b4b930e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2489,
+      "state": "settled",
+      "at": "2026-11-05T13:18:00.591Z"
+    },
+    {
+      "id": "319a5438-cef0-4127-97f0-84a7ea05a92c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3465,
+      "state": "settled",
+      "at": "2026-11-05T13:18:03.240Z"
+    },
+    {
+      "id": "71db8b46-6a94-4fad-9a56-7268efe01d47",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 986,
+      "state": "settled",
+      "at": "2026-11-05T13:18:06.515Z"
+    },
+    {
+      "id": "36dd8ceb-6edb-4f7e-8582-3a830dc52955",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2082,
+      "state": "settled",
+      "at": "2026-11-05T13:18:09.165Z"
+    },
+    {
+      "id": "ab175d9d-1e93-4831-b0c3-a8183ee076ea",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2222,
+      "state": "settled",
+      "at": "2026-11-05T13:18:10.640Z"
+    },
+    {
+      "id": "351d7469-aa8e-4107-8e1f-bfc793c68206",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4922,
+      "state": "settled",
+      "at": "2026-11-05T13:18:14.109Z"
+    },
+    {
+      "id": "05f1266d-d040-4baf-9b93-0db59e87e12d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5426,
+      "state": "settled",
+      "at": "2026-11-05T13:18:16.490Z"
+    },
+    {
+      "id": "82764652-6fbd-47ab-9b05-816d71398664",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4414,
+      "state": "settled",
+      "at": "2026-11-05T13:18:19.773Z"
+    },
+    {
+      "id": "30d08b30-e321-48c7-b84c-3d01f4681cac",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4740,
+      "state": "settled",
+      "at": "2026-11-05T13:18:23.540Z"
+    },
+    {
+      "id": "8cc876eb-00c7-4b74-b740-4b85ed91d28f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6026,
+      "state": "settled",
+      "at": "2026-11-05T13:18:25.501Z"
+    },
+    {
+      "id": "ed80b2e6-70ea-4627-aa08-5f07cab8ed14",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5312,
+      "state": "settled",
+      "at": "2026-11-05T13:18:28.747Z"
+    },
+    {
+      "id": "8010f44f-ec2c-47a6-b1af-8ac099878877",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 7314,
+      "state": "settled",
+      "at": "2026-11-05T13:18:30.112Z"
+    },
+    {
+      "id": "796e63ef-a01d-4b36-a9e8-0018cee8b30a",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2031,
+      "state": "settled",
+      "at": "2026-11-05T13:18:35.915Z"
+    },
+    {
+      "id": "dacfebe5-b400-4662-a5a5-b25103257b56",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2488,
+      "state": "settled",
+      "at": "2026-11-05T13:18:38.606Z"
+    },
+    {
+      "id": "7538c36b-cba2-4527-9ba3-b1c8fa530e8b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2745,
+      "state": "settled",
+      "at": "2026-11-05T13:18:41.484Z"
+    },
+    {
+      "id": "81792ed1-5470-4acc-b741-5e6a4fe0e324",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2863,
+      "state": "settled",
+      "at": "2026-11-05T13:18:44.487Z"
+    },
+    {
+      "id": "cae66ad8-1b38-45d8-9047-98be44ad7d11",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2847,
+      "state": "settled",
+      "at": "2026-11-05T13:18:48.357Z"
+    },
+    {
+      "id": "843f22a7-3e4b-4e7b-ae52-724a532d9e12",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4851,
+      "state": "settled",
+      "at": "2026-11-05T13:18:52.275Z"
+    },
+    {
+      "id": "1962634f-725f-4618-99bc-bee5663e2054",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2031,
+      "state": "settled",
+      "at": "2026-11-05T13:18:57.972Z"
+    },
+    {
+      "id": "dd332e22-5916-4387-9387-d45ebd65ac1d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2193,
+      "state": "settled",
+      "at": "2026-11-05T13:19:01.140Z"
+    },
+    {
+      "id": "4fa4438f-f029-47a8-9946-6216fbecf271",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2293,
+      "state": "settled",
+      "at": "2026-11-05T13:19:03.962Z"
+    },
+    {
+      "id": "266ed553-79e2-406c-be98-b74f9e927a0a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 2118,
+      "state": "settled",
+      "at": "2026-11-05T13:19:05.684Z"
+    },
+    {
+      "id": "c14cb327-8a76-4db5-bf0d-644b7e77c01e",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 748,
+      "state": "settled",
+      "at": "2026-11-05T13:19:07.774Z"
+    },
+    {
+      "id": "4a7ae2b4-0db9-45ad-b8a9-33c9c525c327",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4421,
+      "state": "settled",
+      "at": "2026-11-05T13:19:10.067Z"
+    },
+    {
+      "id": "2871e0f0-6361-443b-a949-67c4679241f8",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4482,
+      "state": "settled",
+      "at": "2026-11-05T13:19:11.735Z"
+    },
+    {
+      "id": "d7b8f15b-de34-41bc-b745-a5e90264fe7d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4792,
+      "state": "settled",
+      "at": "2026-11-05T13:19:14.599Z"
+    },
+    {
+      "id": "b11677e0-3bb6-4edb-ae41-a9b402054e2b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5070,
+      "state": "settled",
+      "at": "2026-11-05T13:19:16.944Z"
+    },
+    {
+      "id": "26ccfa31-0c0e-4125-bc36-bd5d62de979d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 2171,
+      "state": "settled",
+      "at": "2026-11-05T13:19:18.939Z"
+    },
+    {
+      "id": "96fcb295-31b4-41b1-958c-51d6eeb39009",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 816,
+      "state": "settled",
+      "at": "2026-11-05T13:19:20.928Z"
+    },
+    {
+      "id": "2084d445-2d58-4738-9e62-bb9b70078ccf",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4727,
+      "state": "settled",
+      "at": "2026-11-05T13:22:56.440Z"
+    },
+    {
+      "id": "73afa345-6764-4df0-8f23-656f6aa59b9a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4500,
+      "state": "settled",
+      "at": "2026-11-05T13:22:58.656Z"
+    },
+    {
+      "id": "fd6b17ba-b7c1-4777-99a0-cf5caed0ae12",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4770,
+      "state": "settled",
+      "at": "2026-11-05T13:22:59.619Z"
+    },
+    {
+      "id": "8caee58f-29c4-4605-96d2-d1e29ef3ed9d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5670,
+      "state": "settled",
+      "at": "2026-11-05T13:23:02.613Z"
+    },
+    {
+      "id": "d3373ec7-483e-474c-b53b-157a08943590",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 2269,
+      "state": "settled",
+      "at": "2026-11-05T13:23:05.417Z"
+    },
+    {
+      "id": "aace8b18-163b-481f-8d25-7ca6744b97cd",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1989,
+      "state": "settled",
+      "at": "2026-11-05T13:23:08.668Z"
+    },
+    {
+      "id": "157160b2-074f-45ad-8611-3eb74734a7ca",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2090,
+      "state": "settled",
+      "at": "2026-11-05T13:23:10.835Z"
+    },
+    {
+      "id": "343196a0-70be-47e2-9f01-396126fc862d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2112,
+      "state": "settled",
+      "at": "2026-11-05T13:23:13.377Z"
+    },
+    {
+      "id": "83040254-14b7-4fdb-af88-2354e03d2ce7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2223,
+      "state": "settled",
+      "at": "2026-11-05T13:23:16.358Z"
+    },
+    {
+      "id": "8741a097-34ac-4156-b3a0-4b1bf97b9066",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2311,
+      "state": "settled",
+      "at": "2026-11-05T13:23:18.806Z"
+    },
+    {
+      "id": "fa733254-2822-45f1-a1fe-7b010599c9be",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 2957,
+      "state": "settled",
+      "at": "2026-11-05T13:23:20.632Z"
+    },
+    {
+      "id": "43f4bfdf-2a86-469e-9eba-9f2b5c05088b",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 764,
+      "state": "settled",
+      "at": "2026-11-05T13:23:23.924Z"
+    },
+    {
+      "id": "f5a27cf2-03fd-4eb8-bb0e-75e61cc44c52",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2041,
+      "state": "settled",
+      "at": "2026-11-05T13:23:26.205Z"
+    },
+    {
+      "id": "f25c4f29-ea07-4f39-b5b3-458dddc98cc3",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2234,
+      "state": "settled",
+      "at": "2026-11-05T13:23:27.667Z"
+    },
+    {
+      "id": "644c4bc5-9d89-455d-8ef5-c72fd99d6cd0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2251,
+      "state": "settled",
+      "at": "2026-11-05T13:23:32.683Z"
+    },
+    {
+      "id": "0084fa25-364a-4bf0-8914-5ebe20f2ab2d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2368,
+      "state": "settled",
+      "at": "2026-11-05T13:23:34.654Z"
+    },
+    {
+      "id": "9dd386a5-b5ca-4d44-bd70-aad44c166626",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3199,
+      "state": "settled",
+      "at": "2026-11-05T13:23:36.452Z"
+    },
+    {
+      "id": "9030ef02-dad9-457f-82ff-8b21f8011ff4",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 856,
+      "state": "settled",
+      "at": "2026-11-05T13:23:41.508Z"
+    },
+    {
+      "id": "aed465da-bd15-46dc-88e1-72ebb04f0687",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4412,
+      "state": "settled",
+      "at": "2026-11-05T13:23:43.966Z"
+    },
+    {
+      "id": "37a61e10-8013-424a-b650-59b278b0ac6b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 6199,
+      "state": "settled",
+      "at": "2026-11-05T13:23:46.450Z"
+    },
+    {
+      "id": "5f1381ae-fcfc-4824-80bc-72570f839a75",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5370,
+      "state": "settled",
+      "at": "2026-11-05T13:23:52.392Z"
+    },
+    {
+      "id": "3dc0b7f2-5418-41db-81c6-cd8c8a506a8f",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 5294,
+      "state": "settled",
+      "at": "2026-11-05T13:23:55.118Z"
+    },
+    {
+      "id": "b49603ad-afa7-40b0-a750-a955a01636fd",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 3206,
+      "state": "settled",
+      "at": "2026-11-05T13:23:56.616Z"
+    },
+    {
+      "id": "c7fde1f7-e841-4e33-956d-2645111988b0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 895,
+      "state": "settled",
+      "at": "2026-11-05T13:24:00.167Z"
+    },
+    {
+      "id": "2da77e6d-6659-4bff-87e3-d0493c98b554",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4749,
+      "state": "settled",
+      "at": "2026-11-05T13:24:16.549Z"
+    },
+    {
+      "id": "d784cec4-9538-479d-98ce-f5b44f26461d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4770,
+      "state": "settled",
+      "at": "2026-11-05T13:24:19.587Z"
+    },
+    {
+      "id": "0cbd3256-7bb7-4b69-9d17-ad5f29ceb3fa",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1211,
+      "state": "settled",
+      "at": "2026-11-05T13:24:21.723Z"
+    },
+    {
+      "id": "99ee6b72-48c6-42e6-acd7-9a95e2354cad",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 474,
+      "state": "settled",
+      "at": "2026-11-05T13:24:23.410Z"
+    },
+    {
+      "id": "6de74e4f-d780-450d-b277-3feed6b2e570",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1949,
+      "state": "settled",
+      "at": "2026-11-05T13:24:25.538Z"
+    },
+    {
+      "id": "eff119cd-bec3-4e5a-8fe8-469d1312e9a0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2025,
+      "state": "settled",
+      "at": "2026-11-05T13:24:28.029Z"
+    },
+    {
+      "id": "272bc533-4207-4403-b1a1-381694ad4a92",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1462,
+      "state": "settled",
+      "at": "2026-11-05T13:24:29.468Z"
+    },
+    {
+      "id": "ebc7aeb3-8f0d-4cc6-9b62-35c74cb57a26",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 494,
+      "state": "settled",
+      "at": "2026-11-05T13:24:32.976Z"
+    },
+    {
+      "id": "59bc044f-bde9-416d-be44-9f47e3a3e35d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1923,
+      "state": "settled",
+      "at": "2026-11-05T13:24:35.041Z"
+    },
+    {
+      "id": "c27495a9-d032-4e24-83ef-3e8ca58cea3d",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2029,
+      "state": "settled",
+      "at": "2026-11-05T13:24:36.628Z"
+    },
+    {
+      "id": "c0381c6b-e608-4fa9-896a-e1ac5411a38d",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1520,
+      "state": "settled",
+      "at": "2026-11-05T13:24:38.487Z"
+    },
+    {
+      "id": "4ded4a4d-206f-4bdc-b640-b48f88c82922",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 473,
+      "state": "settled",
+      "at": "2026-11-05T13:24:42.036Z"
+    },
+    {
+      "id": "145ca3c5-6d81-4a8d-8eaa-6bd705e9f795",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4500,
+      "state": "settled",
+      "at": "2026-11-05T13:24:43.653Z"
+    },
+    {
+      "id": "7ce5f53c-e796-4ac5-8cee-f223751b26a5",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4764,
+      "state": "settled",
+      "at": "2026-11-05T13:24:46.531Z"
+    },
+    {
+      "id": "8592f7e6-d225-4e08-8e31-da265616c9b4",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1508,
+      "state": "settled",
+      "at": "2026-11-05T13:24:48.130Z"
+    },
+    {
+      "id": "60beb7a1-7296-46ba-a8e7-e463946f9b7c",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 460,
+      "state": "settled",
+      "at": "2026-11-05T13:24:51.007Z"
+    },
+    {
+      "id": "c76682ae-b175-4124-a99c-f3f80ff0486a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4672,
+      "state": "settled",
+      "at": "2026-11-05T13:24:52.324Z"
+    },
+    {
+      "id": "43d270c4-9b84-4016-810a-0e85963cf06c",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4830,
+      "state": "settled",
+      "at": "2026-11-05T13:24:55.685Z"
+    },
+    {
+      "id": "11d0819e-948e-4918-a0bd-c03fce03e656",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1309,
+      "state": "settled",
+      "at": "2026-11-05T13:24:57.807Z"
+    },
+    {
+      "id": "8e26c59b-69b2-46b5-93a9-8480e5fb86b9",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 513,
+      "state": "settled",
+      "at": "2026-11-05T13:24:59.168Z"
+    },
+    {
+      "id": "67f96960-5341-40fa-9069-b69389c828a2",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1965,
+      "state": "settled",
+      "at": "2026-11-05T13:25:00.711Z"
+    },
+    {
+      "id": "9f339bd8-6714-431a-9ffb-50d880b3e9a6",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2105,
+      "state": "settled",
+      "at": "2026-11-05T13:25:02.341Z"
+    },
+    {
+      "id": "a4057a18-59dd-4071-8b31-c833df71148b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1351,
+      "state": "settled",
+      "at": "2026-11-05T13:25:04.261Z"
+    },
+    {
+      "id": "e7a26f77-4e2d-4c07-ae86-9770359c4bf4",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 518,
+      "state": "settled",
+      "at": "2026-11-05T13:25:06.779Z"
+    },
+    {
+      "id": "fdd73f11-29cc-485f-b65c-14a37f178da3",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1922,
+      "state": "settled",
+      "at": "2026-11-05T13:25:08.338Z"
+    },
+    {
+      "id": "37a14acc-abb6-4127-9ed5-742d895103d0",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2030,
+      "state": "settled",
+      "at": "2026-11-05T13:25:10.777Z"
+    },
+    {
+      "id": "82f7b7e5-ccf6-4875-91bf-9dda684c83e8",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1615,
+      "state": "settled",
+      "at": "2026-11-05T13:25:12.393Z"
+    },
+    {
+      "id": "bef9021f-3bf0-4e48-aabf-c96d6147fbd7",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 459,
+      "state": "settled",
+      "at": "2026-11-05T13:25:14.902Z"
+    },
+    {
+      "id": "fd3eaee9-5d32-4ead-9c11-b32971045519",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4634,
+      "state": "settled",
+      "at": "2026-11-05T13:25:16.564Z"
+    },
+    {
+      "id": "94d42515-6481-416e-8b7b-25124b73dec2",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4815,
+      "state": "settled",
+      "at": "2026-11-05T13:25:18.868Z"
+    },
+    {
+      "id": "6d4b5bed-57ec-4ff8-b23d-09af49d80c92",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1532,
+      "state": "settled",
+      "at": "2026-11-05T13:25:20.911Z"
+    },
+    {
+      "id": "74e4ddce-2f21-4efa-9af8-da6eb9de1cc8",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 460,
+      "state": "settled",
+      "at": "2026-11-05T13:25:23.036Z"
+    },
+    {
+      "id": "9b11bdd6-38ac-4d51-8096-3db06423d89a",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4412,
+      "state": "settled",
+      "at": "2026-11-05T13:25:24.431Z"
+    },
+    {
+      "id": "de92a484-99fb-4b41-b85e-8912d441ae05",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 4914,
+      "state": "settled",
+      "at": "2026-11-05T13:25:25.749Z"
+    },
+    {
+      "id": "1cc2d8e6-e9f3-4c63-b998-cefef6bf354b",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1464,
+      "state": "settled",
+      "at": "2026-11-05T13:25:27.445Z"
+    },
+    {
+      "id": "e2e97005-b716-40ba-a097-7791e4376604",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 473,
+      "state": "settled",
+      "at": "2026-11-05T13:25:29.541Z"
+    },
+    {
+      "id": "41abf8fa-3549-4be6-b8c0-921b8a5483cb",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 1921,
+      "state": "settled",
+      "at": "2026-11-05T13:25:31.227Z"
+    },
+    {
+      "id": "835d6e50-1543-4a83-8a52-ad093494f2ce",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 2034,
+      "state": "settled",
+      "at": "2026-11-05T13:25:32.612Z"
+    },
+    {
+      "id": "79be0bb3-184a-4f85-b8e6-8236d05cb0cb",
+      "model": "claude-haiku-5-5",
+      "reserved": 630120,
+      "charged": 1532,
+      "state": "settled",
+      "at": "2026-11-05T13:25:34.253Z"
+    },
+    {
+      "id": "0cfc0d31-967e-40bb-80a3-79f8c8313eb3",
+      "model": "gpt-6-luna",
+      "reserved": 462536,
+      "charged": 468,
+      "state": "settled",
+      "at": "2026-11-05T13:25:36.664Z"
+    }
+  ]
+}

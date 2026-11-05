@@ -1,6 +1,6 @@
 {
-  "at": "2026-11-05T13:15:55.213Z",
-  "archiveSha256": "0b5f5cf6181558ff06700278efdeeb8b12cb37fca48eae947b7d59720a12f0f8",
+  "at": "2026-11-05T13:24:18.360Z",
+  "archiveSha256": "c54a89b4449446eb5d74ea50bd63feac6efd3ee32c1be525049f1a471f8c4c89",
   "contents": [
     "package/package.json",
     "package/LICENSE",
