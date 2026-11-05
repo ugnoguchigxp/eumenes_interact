@@ -5,6 +5,7 @@ import {
 } from "../host/allowlist.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { createInterface } from "node:readline";
+import { join } from "node:path";
 import type { Database } from "bun:sqlite";
 import {
 	decideSession,
@@ -33,6 +34,7 @@ import {
 	createObservationSink,
 } from "../host/observations.ts";
 import { StopApprover } from "../host/approval.ts";
+import { askChoice, chosenLine, parseChoices } from "../host/choice.ts";
 import { runTrial } from "../host/run.ts";
 import {
 	confirmPlayback,
@@ -266,58 +268,104 @@ export async function chainCommand(
 				});
 				continue;
 			}
-			const result = await runTrial({
-				db,
-				def,
-				arm: "arm1",
-				experimentId,
-				repetition: 1,
-				orderIndex: index,
-				adapter: hold.adapter,
-				inference: asCollabAgent(createManualInference(dir, def.id)),
-				inferenceInfo: () => ({ kind: "scripted" }),
-				approver: new AllowlistApprover(allowlist, new StopApprover(), (line) =>
-					console.error(line),
-				),
-				control: runControl,
-				logger,
-				versions: collectVersions({
-					browser: {
-						channel: o.browser ?? null,
-						customExecutable: false,
-						headless: !o.headed,
-					},
-				}),
-				sources: [...results.values()],
-				goal: step.goal,
-				keepSession: true,
-				...(step.keepOpen && isPlaybackGoal(step.goal)
-					? {
-							beforeFinish: async () => {
-								const verdict = await confirmPlayback({
-									sample: async () =>
-										(await session.adapter.inspect(
-											"inspectMedia",
-											null,
-											AbortSignal.timeout(5000),
-										)) as unknown as MediaSample,
-									sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
-									notify: (m) => console.log(`notice\t${m}`),
-								});
-								console.log(
-									`playback\t${verdict.ok ? "confirmed" : verdict.code}\t${JSON.stringify(verdict.samples.slice(-3))}`,
-								);
-								return verdict.ok
-									? { ok: true }
-									: { ok: false, code: verdict.code };
-							},
-						}
-					: {}),
-				...(captureDir ? { captureDir } : {}),
-				...(o.keepObservations
-					? { observationSink: createObservationSink(DEFAULT_OBSERVATIONS_DIR) }
-					: {}),
-			});
+			let result: Awaited<ReturnType<typeof runTrial>>;
+			// The text choice channel (lab/host/choice.ts): an `ask` with numbered options is put to the user,
+			// and the step runs again from the same page with the pick; no option is ever chosen for them.
+			let asked = 0;
+			let earlierCalls = 0;
+			let choiceStop: string | null = null;
+			const picked: string[] = [];
+			for (;;) {
+				result = await runTrial({
+					db,
+					def,
+					arm: "arm1",
+					experimentId,
+					repetition: 1,
+					orderIndex: index,
+					adapter: hold.adapter,
+					inference: asCollabAgent(
+						createManualInference(dir, asked ? `${def.id}-c${asked}` : def.id),
+					),
+					inferenceInfo: () => ({ kind: "scripted" }),
+					approver: new AllowlistApprover(
+						allowlist,
+						new StopApprover(),
+						(line) => console.error(line),
+					),
+					control: runControl,
+					logger,
+					versions: collectVersions({
+						browser: {
+							channel: o.browser ?? null,
+							customExecutable: false,
+							headless: !o.headed,
+						},
+					}),
+					sources: [...results.values(), ...picked],
+					goal: step.goal,
+					keepSession: true,
+					...(step.keepOpen && isPlaybackGoal(step.goal)
+						? {
+								beforeFinish: async () => {
+									const verdict = await confirmPlayback({
+										sample: async () =>
+											(await session.adapter.inspect(
+												"inspectMedia",
+												null,
+												AbortSignal.timeout(5000),
+											)) as unknown as MediaSample,
+										sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+										notify: (m) => console.log(`notice\t${m}`),
+									});
+									console.log(
+										`playback\t${verdict.ok ? "confirmed" : verdict.code}\t${JSON.stringify(verdict.samples.slice(-3))}`,
+									);
+									return verdict.ok
+										? { ok: true }
+										: { ok: false, code: verdict.code };
+								},
+							}
+						: {}),
+					...(captureDir ? { captureDir } : {}),
+					...(o.keepObservations
+						? {
+								observationSink: createObservationSink(
+									DEFAULT_OBSERVATIONS_DIR,
+								),
+							}
+						: {}),
+				});
+				const choices =
+					result.status === "needs_input" &&
+					result.code === "clarify" &&
+					asked < 2
+						? parseChoices(result.finalText ?? "")
+						: null;
+				if (!choices) break;
+				const pick = await askChoice({
+					step: step.id,
+					choices,
+					nextLine,
+					print: (line) => console.log(line),
+					file: join(dir, `choice-${step.id}.json`),
+				});
+				if (pick.kind === "stopped") {
+					console.log(`choice\tstopped\t${pick.code}`);
+					choiceStop = pick.code;
+					break;
+				}
+				asked += 1;
+				earlierCalls += result.score.efficiency.modelCalls;
+				used += result.score.efficiency.modelCalls;
+				picked.push(pick.option);
+				const here = await currentPage(hold.adapter);
+				def = {
+					...def,
+					request: `${def.request}\n${chosenLine(choices, pick.option)}`,
+					...(here && /^https?:/u.test(here) ? { start: here } : {}),
+				};
+			}
 			used += result.score.efficiency.modelCalls;
 			lastPage = await currentPage(hold.adapter);
 			results.set(step.id, result.finalText);
@@ -329,10 +377,12 @@ export async function chainCommand(
 				browser: true,
 				keepOpen: step.keepOpen,
 				status: result.status,
-				code: result.code,
+				code: choiceStop ?? result.code,
 				// The step's own inference that chose the browser counts too.
 				modelCalls:
-					result.score.efficiency.modelCalls + (decided === null ? 0 : 1),
+					result.score.efficiency.modelCalls +
+					earlierCalls +
+					(decided === null ? 0 : 1),
 				result: result.finalText,
 				runId: result.runId,
 				...(decided === null ? {} : { routedBy: decided }),
