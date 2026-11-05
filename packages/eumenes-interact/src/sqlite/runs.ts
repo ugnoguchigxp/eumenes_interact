@@ -296,6 +296,23 @@ export function requireRun(
 	return run;
 }
 
+/** Explicit owner-scoped forgetting. Active runs must be stopped by the host first. */
+export function forgetRun(db: InteractDb, owner: string, runId: string): void {
+	assertWritable(db);
+	const run = requireRun(db, owner, runId);
+	if (!isTerminalRunStatus(run.status))
+		throw new InteractStoreError("run_not_terminal");
+	guarded(() => {
+		db.query(
+			"DELETE FROM interact_object_evidence WHERE run_id = ? OR operation_id IN (SELECT operation_id FROM interact_operations WHERE run_id = ?)",
+		).run(runId, runId);
+		db.query("DELETE FROM interact_runs WHERE run_id = ? AND owner = ?").run(
+			runId,
+			owner,
+		);
+	});
+}
+
 /** Runs of an owner, newest first, optionally only some statuses. */
 export function listRuns(
 	db: InteractDb,

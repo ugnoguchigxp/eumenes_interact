@@ -25,6 +25,7 @@ export const STORE_ERROR_CODES = [
 	"scope_mismatch",
 	/** An operation was recorded or dispatched for a run that is not `running`. */
 	"run_not_running",
+	"run_not_terminal",
 	/**
 	 * The run has an operation in `dispatched` or `indeterminate`: nothing new is recorded or sent and
 	 * the run does not complete until it is settled (plan.md §9: never resend an unknown operation).

@@ -47,7 +47,8 @@ export type SavedCapture = {
 	width: number;
 	height: number;
 	bytes: number;
-	mediaType: CapturedImage["mediaType"];
+	/** A host may encode the captured PNG/JPEG to its managed WebP format before saving. */
+	mediaType: CapturedImage["mediaType"] | "image/webp";
 	range: CaptureRange;
 };
 

@@ -27,7 +27,7 @@
     },
     "packages/eumenes-interact": {
       "name": "eumenes-interact",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": {
         "jsonrepair": "3.15.0",
         "zod": "4.6.6",

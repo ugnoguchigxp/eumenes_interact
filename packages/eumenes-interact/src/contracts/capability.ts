@@ -12,7 +12,7 @@ export type CaptureSavedRecord = {
 	width: number;
 	height: number;
 	bytes: number;
-	mediaType: "image/png" | "image/jpeg";
+	mediaType: "image/png" | "image/jpeg" | "image/webp";
 	range: "viewport" | "full" | "item";
 	target?: { role: string; nameHash: string };
 };

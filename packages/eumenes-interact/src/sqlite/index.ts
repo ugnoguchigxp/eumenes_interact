@@ -22,6 +22,7 @@ export {
 	RUN_TRANSITIONS,
 	TERMINAL_RUN_STATUSES,
 	createRun,
+	forgetRun,
 	getRun,
 	isTerminalRunStatus,
 	listPlanRevisions,

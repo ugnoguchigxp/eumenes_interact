@@ -4,6 +4,9 @@ import {
 	RUN_STATUSES,
 	RUN_TRANSITIONS,
 	createRun,
+	forgetRun,
+	getOperation,
+	recordOperationIntent,
 	getRun,
 	listPlanRevisions,
 	listRuns,
@@ -24,6 +27,29 @@ import {
 } from "./support.ts";
 
 const STATE: CoreState = { formatVersion: 1, arm: "arm1", step: 1 };
+
+test("forgetting requires a stopped run and its owner, and removes the run", () => {
+	const db = openTransaction();
+	createRun(db, OWNER_A, runInput("forget-me"));
+	expect(() => forgetRun(db, OWNER_B, "forget-me")).toThrow("not_found");
+	expect(() => forgetRun(db, OWNER_A, "forget-me")).toThrow("run_not_terminal");
+	transitionRun(db, OWNER_A, "forget-me", "running", { nowIso: NOW });
+	recordOperationIntent(db, OWNER_A, "forget-me", {
+		request: {
+			operationId: "forgotten-intent",
+			sessionId: "session",
+			generation: 1,
+			command: { action: "browser.back" },
+			declaredEffect: "navigation",
+		},
+		nowIso: NOW,
+	});
+	transitionRun(db, OWNER_A, "forget-me", "cancelled", { nowIso: LATER });
+	forgetRun(db, OWNER_A, "forget-me");
+	expect(getRun(db, OWNER_A, "forget-me")).toBeNull();
+	expect(getOperation(db, OWNER_A, "forgotten-intent")).toBeNull();
+	db.close();
+});
 
 /** Puts a fresh run into any status directly, as a test fixture only. */
 function runIn(db: ReturnType<typeof openTransaction>, status: RunStatus) {
