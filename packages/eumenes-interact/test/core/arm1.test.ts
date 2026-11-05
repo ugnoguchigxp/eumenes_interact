@@ -278,6 +278,24 @@ describe("parseStep: rejections", () => {
 		]);
 	});
 
+	test("wrong arg names come back with the part's args shape; a bad part name or bad JSON does not", () => {
+		const payload = (out: ReturnType<typeof reject>) =>
+			JSON.parse(
+				messages(out.state).at(-1)!.content.split("REJECTED_OUTPUT=")[1]!,
+			);
+		const wrong = reject(call("page.read", { page: null, chars: 2500 }));
+		expect(payload(wrong).expectedArgs).toBe(
+			'{"target":"p3.i12 か null","maxChars":3000}',
+		);
+		expect(
+			payload(reject(call("page.find", { text: "x" }))).expectedArgs,
+		).toContain('"role"');
+		expect(payload(reject("x")).expectedArgs).toBeUndefined();
+		expect(
+			payload(reject(JSON.stringify({ part: "nope", args: {} }))).expectedArgs,
+		).toBeUndefined();
+	});
+
 	test("one repair per output, then the run fails", () => {
 		const first = reject("x");
 		expect(first.step).toEqual({ kind: "continue", callsLeft: 5 });

@@ -19,7 +19,7 @@ import { parseLlmJson } from "../shared/json.ts";
 import { promptTime } from "../shared/text.ts";
 import { partCallJsonSchemaFor } from "../parts/schema.ts";
 import { BLOCK_ROLES } from "../parts/snapshot.ts";
-import { CORRECTION, SYSTEM } from "./texts.ts";
+import { CORRECTION, PART_ARGS, SYSTEM } from "./texts.ts";
 import { parseArm1State, type Arm1State } from "./state.ts";
 
 /**
@@ -212,14 +212,31 @@ const rejectedMessage = (
 	raw: string,
 	issues: readonly Issue[],
 	callsLeft: number,
+	expected?: string,
 ): ChatMessage => ({
 	role: "user",
 	content: `${CORRECTION}\nREJECTED_OUTPUT=${JSON.stringify({
 		preview: raw.slice(0, REJECTED_PREVIEW_CHARS),
 		issues: issues.slice(0, MAX_ISSUES),
+		...(expected ? { expectedArgs: expected } : {}),
 		callsLeft,
 	})}`,
 });
+
+/** The args shape of the part a rejected call named, when it named a known one with wrong args. */
+function expectedArgsOf(
+	value: unknown,
+	issues: readonly Issue[],
+): string | undefined {
+	if (!issues.some((i) => i.path.startsWith("args"))) return undefined;
+	const name =
+		typeof value === "object" && value !== null
+			? (value as { part?: unknown }).part
+			: undefined;
+	return typeof name === "string" && Object.hasOwn(PART_ARGS, name)
+		? PART_ARGS[name]
+		: undefined;
+}
 
 export function parseStep(
 	state: CoreState,
@@ -274,7 +291,14 @@ export function parseStep(
 				repaired: true,
 				messages: [
 					...current.messages,
-					rejectedMessage(raw, rejected!.issues, max - call),
+					rejectedMessage(
+						raw,
+						rejected!.issues,
+						max - call,
+						rejected!.code === "schema_violation"
+							? expectedArgsOf(value, rejected!.issues)
+							: undefined,
+					),
 				],
 			},
 			step: { kind: "continue", callsLeft: max - call },
