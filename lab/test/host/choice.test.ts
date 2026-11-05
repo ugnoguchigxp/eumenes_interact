@@ -20,6 +20,9 @@ describe("text choice channel", () => {
 		expect(matchReply("２", o)).toEqual({ kind: "chosen", index: 1 });
 		expect(matchReply("新幹線", o)).toEqual({ kind: "chosen", index: 1 });
 		expect(matchReply("線", o)).toEqual({ kind: "unclear" });
+		expect(
+			matchReply("新幹線", ["新幹線を使う", "在来線のみ（新幹線なし）"]),
+		).toEqual({ kind: "chosen", index: 0 });
 		expect(matchReply("3", o)).toEqual({ kind: "unclear" });
 		expect(matchReply("中止", o)).toEqual({ kind: "cancel" });
 	});

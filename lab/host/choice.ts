@@ -57,6 +57,9 @@ export function matchReply(reply: string, options: readonly string[]): Reply {
 	}
 	const exact = options.findIndex((o) => norm(o) === r);
 	if (exact >= 0) return { kind: "chosen", index: exact };
+	// A unique start wins over a unique part: "新幹線" picks "新幹線を使う", not also "在来線のみ（新幹線なし）".
+	const starts = options.flatMap((o, i) => (norm(o).startsWith(r) ? [i] : []));
+	if (starts.length === 1) return { kind: "chosen", index: starts[0]! };
 	const partial = options.flatMap((o, i) => (norm(o).includes(r) ? [i] : []));
 	return partial.length === 1
 		? { kind: "chosen", index: partial[0]! }

@@ -281,7 +281,8 @@ export async function chainCommand(
 					def,
 					arm: "arm1",
 					experimentId,
-					repetition: 1,
+					// A rerun after a choice is its own trial row (experiment, case, arm, repetition is unique).
+					repetition: 1 + asked,
 					orderIndex: index,
 					adapter: hold.adapter,
 					inference: asCollabAgent(
