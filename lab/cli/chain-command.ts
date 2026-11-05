@@ -1,3 +1,8 @@
+import {
+	AllowlistApprover,
+	DEFAULT_ALLOWLIST_PATH,
+	loadAllowlist,
+} from "../host/allowlist.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { createInterface } from "node:readline";
 import type { Database } from "bun:sqlite";
@@ -110,6 +115,10 @@ export async function chainCommand(
 		inferenceKind: "scripted",
 		nowIso: new Date().toISOString(),
 	});
+	// Host-approved clicks (lab/config/action-allowlist.json, or LAB_ACTION_ALLOWLIST); the rest stays gated.
+	const allowlist = loadAllowlist(
+		process.env.LAB_ACTION_ALLOWLIST || DEFAULT_ALLOWLIST_PATH,
+	);
 	const rl = createInterface({ input: process.stdin });
 	const lines = rl[Symbol.asyncIterator]();
 	const input = { [Symbol.asyncIterator]: () => lines };
@@ -267,7 +276,9 @@ export async function chainCommand(
 				adapter: hold.adapter,
 				inference: asCollabAgent(createManualInference(dir, def.id)),
 				inferenceInfo: () => ({ kind: "scripted" }),
-				approver: new StopApprover(),
+				approver: new AllowlistApprover(allowlist, new StopApprover(), (line) =>
+					console.error(line),
+				),
 				control: runControl,
 				logger,
 				versions: collectVersions({
