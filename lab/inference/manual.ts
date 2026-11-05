@@ -24,7 +24,9 @@ export function createManualInference(
 			);
 			const started = Date.now();
 			while (!existsSync(`${base}.res.txt`)) {
-				if (signal.aborted)
+				// The operator tore the work dir down (end.sh) or cancelled: do not hold the run lock for the
+				// full call timeout while polling a path that will never appear (review 2026-11-05 M1).
+				if (signal.aborted || !existsSync(dir))
 					return {
 						kind: "error",
 						code: "aborted",

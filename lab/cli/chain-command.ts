@@ -32,6 +32,7 @@ import {
 import { createExperiment } from "../host/store.ts";
 import { collectVersions } from "../host/versions.ts";
 import { createManualInference } from "../inference/manual.ts";
+import { RunControl } from "../host/control.ts";
 import { parseCaptureDir } from "./arm.ts";
 import { createSession } from "./session.ts";
 
@@ -100,6 +101,12 @@ export async function chainCommand(
 		const n = await lines.next();
 		return n.done ? null : n.value;
 	};
+	// Mid-step tear-down of the fifo (or Ctrl-D): cancel the in-flight trial so the lock is not held until
+	// the 30-minute call timeout (review 2026-11-05 M1). keep-open already ends on EOF via holdUntil.
+	const runControl = new RunControl();
+	const onInputGone = () => runControl.cancel("cancel");
+	process.stdin.once("end", onInputGone);
+	process.stdin.once("close", onInputGone);
 	const session = await createSession(
 		{
 			headed: o.headed,
@@ -158,7 +165,10 @@ export async function chainCommand(
 						{ role: "user", content: summaryPrompt(step, o.request, results) },
 					],
 					maxOutputTokens: 2048,
-					signal: AbortSignal.timeout(30 * 60_000),
+					signal: AbortSignal.any([
+						runControl.signal,
+						AbortSignal.timeout(30 * 60_000),
+					]),
 				});
 				used += 1;
 				const text = out.kind === "text" ? out.text : "";
@@ -186,6 +196,7 @@ export async function chainCommand(
 				inference: asCollabAgent(createManualInference(dir, def.id)),
 				inferenceInfo: () => ({ kind: "scripted" }),
 				approver: new StopApprover(),
+				control: runControl,
 				logger,
 				versions: collectVersions({
 					browser: {
@@ -287,6 +298,8 @@ export async function chainCommand(
 			console.log(`closed\t${why}`);
 		}
 	} finally {
+		process.stdin.off("end", onInputGone);
+		process.stdin.off("close", onInputGone);
 		process.off("SIGINT", onSignal);
 		process.off("SIGTERM", onSignal);
 		// Bounded: a close that never answers must not hold the run lock (S11 hung here after closed, 2026-11-05).
