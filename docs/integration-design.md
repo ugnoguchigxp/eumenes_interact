@@ -65,3 +65,13 @@ plan.md §13.3の新しいexecution種別interactは、現行本体のDomainAdap
 ## 合意が必要な理由
 
 plan.md §13.2は「利用者の合意を得てから実装する」、EumenesのAGENTS.mdは「大きな設計や既存の設計方針を変える改修は、必ず先に設計書にまとめ、ユーザーの合意を得てから実装する」と定めている。上記の既存command/実行契約の再利用、browser domainへの配置、検証用入口、保持期間、隔離試験用サーバーを含む範囲への合意後に、本体側を実装する。現在repo内の改善と検証は継続できる。
+
+## 実装結果（2026-11-06）
+
+利用者の合意に基づき、[Eumenes main 310233cf](https://github.com/ugnoguchigxp/eumenes/commit/310233cf60f3461749e16245a030d4b8746a6dae)へ検証用入口まで取り込んだ。通常会話へのavailabilityは初期無効、旧browser経路は維持し、稼働中の製品DB・サーバーは変更していない。
+
+実行・承認・世代・期限・取消・再起動・忘却と保持、共通control/receipt、明示的な撮影、既存OpenUIの表示を接続した。共通受付では既存のconfidentialFieldsを使い、依頼・開始URL・自由入力の回答を保存しない。配布版0.1.1はsource d459f1b、archive SHA-256 c120d878ffe217bd302d1fb60a255e6744e9a98865c8483b9bdf54bc3f3e266fで固定した。
+
+固定したソースで新規backend 31件、Web 5件、画面2件の計38件が成功。既存を含む広域verifyは1,800件、最後の変更後の影響領域verifyは1,121件が成功した。試験件数には重複がある。モデルは固定応答を使い、HTTP・隔離Chrome・MCP・WebP処理を実物で検証した。CIは利用者の指示どおり対象外。
+
+追加の有料API呼出しは0件。共通台帳は579件、保守的計上8.024065 USD、未確定11件の予約を保持し、10 USD上限を継続する。今回の統合を単体の81.9点評価の再採点として扱わない。詳しい範囲・根拠・ソースhash・制限は[本体の検証記録](https://github.com/ugnoguchigxp/eumenes/blob/310233cf60f3461749e16245a030d4b8746a6dae/spec/verification/browser-interact-2026-11-06/README.md)に記録した。
