@@ -882,7 +882,7 @@ describe("result order and inline code (2026-11-04)", () => {
 			"    - listitem:",
 			'      - link "ゲーム機本体 (561)" [ref=e1]:',
 			"        - /url: /s/?category=0006_0001",
-			"  - link \"[PR] 何かの広告\" [ref=e2]:",
+			'  - link "[PR] 何かの広告" [ref=e2]:',
 			"    - /url: https://dsp.example/click?ad=1",
 			"  - generic:",
 			'    - link "ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]" [ref=e3]:',
@@ -905,7 +905,12 @@ describe("result order and inline code (2026-11-04)", () => {
 	});
 
 	test("a row of related-search links goes below the results, however long its titles", () => {
-		const cloud = ["ゼルダの伝説", "40周年", "マリオパーティ", "キャリングケース"].map(
+		const cloud = [
+			"ゼルダの伝説",
+			"40周年",
+			"マリオパーティ",
+			"キャリングケース",
+		].map(
 			(w, i) =>
 				`    - link "Nintendo Switch 2 ${w} 関連ワード検索" [ref=c${i}]:\n      - /url: /s/${i}`,
 		);
@@ -916,14 +921,13 @@ describe("result order and inline code (2026-11-04)", () => {
 			"  - generic:",
 			'    - link "マリオカート ワールド" [ref=e9]:',
 			"      - /url: /item/K9/",
-			"      - img \"マリオカート ワールド\"",
+			'      - img "マリオカート ワールド"',
 		].join("\n");
 		expect(listEntries(body, "p1", "results", 10).entries[0]?.title).toBe(
 			"マリオカート ワールド",
 		);
 	});
 });
-
 
 describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
 	test("footer notice and site-root logo go below product cards", () => {
@@ -998,7 +1002,6 @@ describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
 		);
 	});
 
-
 	test("inlineSentence drops lone quote crumbs between prose and code", () => {
 		const body = [
 			"- main:",
@@ -1014,7 +1017,6 @@ describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
 			"If the closure returns true, the element is removed. If it returns false, it stays.",
 		);
 	});
-
 });
 
 describe("quoted text and unnamed duplicate links (L8)", () => {
@@ -1038,7 +1040,27 @@ describe("quoted text and unnamed duplicate links (L8)", () => {
 			"    - /url: /other",
 		].join("\n");
 		const { summary } = summarize(body);
-		expect(summary.items.map((i) => i.item)).toEqual(["p3.i1", "p3.i3", "p3.i4"]);
+		expect(summary.items.map((i) => i.item)).toEqual([
+			"p3.i1",
+			"p3.i3",
+			"p3.i4",
+		]);
 		expect(summary.itemCount).toBe(4);
+	});
+
+	test("a YAML-quoted link address reads without its quotes or spaces", () => {
+		const body = [
+			"- main [ref=e1]:",
+			'  - link "Skip" [ref=e2]:',
+			'    - /url: "#content-container"',
+			'  - link "Blog" [ref=e3]:',
+			'    - /url: " https://fredblog.stlouisfed.org/x "',
+		].join("\n");
+		const { summary } = summarize(body);
+		expect(JSON.stringify(summary)).not.toContain('\\"');
+		expect(JSON.stringify(summary)).toContain(
+			"https://fredblog.stlouisfed.org/x",
+		);
+		expect(JSON.stringify(summary)).not.toContain(" https://");
 	});
 });

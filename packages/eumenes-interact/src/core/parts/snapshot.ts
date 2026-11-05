@@ -39,6 +39,14 @@ function unquote(raw: string) {
 	}
 }
 
+/** A destination as YAML may write it (`"…"`, with spaces): the address itself. */
+function urlOf(raw: string | undefined): string | null {
+	let u = raw?.trim() ?? "";
+	if (u.length >= 2 && u.startsWith('"') && u.endsWith('"'))
+		u = unquote(u.slice(1, -1)).trim();
+	return u || null;
+}
+
 function attrsOf(brackets: string) {
 	const attrs = new Map<string, string>();
 	for (const group of brackets.matchAll(/\[([^\]]*)\]/g)) {
@@ -81,7 +89,7 @@ export function parseNodes(body: string): Node[] {
 			role: m[2]!.toLowerCase(),
 			name: m[3] === undefined ? "" : unquote(m[3]).replace(/\s+/g, " ").trim(),
 			ref: refsOf(brackets)[0] ?? null,
-			url: (INLINE_URL.exec(brackets)?.[1]?.trim() || child?.[1]) ?? null,
+			url: urlOf(INLINE_URL.exec(brackets)?.[1]) ?? urlOf(child?.[1]),
 			attrs: attrsOf(brackets),
 			text,
 			parent: -1,
