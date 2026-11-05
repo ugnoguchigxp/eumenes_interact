@@ -41,13 +41,14 @@ const EXTRACT_BODY = `(el) => {
     const block = BLOCK.has(tag);
     if (block) parts.push('\\n');
     for (const c of n.childNodes) walk(c, pre || tag === 'PRE');
+    if (tag === 'TD' || tag === 'TH') parts.push(' | ');
     if (block) parts.push('\\n');
   };
   const read = (root) => {
     parts.length = 0;
     const pre = root.tagName.toUpperCase() === 'PRE';
     for (const c of root.childNodes) walk(c, pre);
-    return parts.join('').replace(/[^\\S\\n]+/g, ' ').replace(/ ?\\n ?/g, '\\n').replace(/\\n{3,}/g, '\\n\\n').trim();
+    return parts.join('').replace(/[^\\S\\n]+/g, ' ').replace(/ ?\\| ?(?=\\n|$)/g, '').replace(/ ?\\n ?/g, '\\n').replace(/\\n{3,}/g, '\\n\\n').trim();
   };
   const inChrome = (n) => {
     for (let p = n.parentNode; p && p.nodeType === 1; p = p.parentNode) if (CHROME.includes(p.tagName.toUpperCase())) return true;
