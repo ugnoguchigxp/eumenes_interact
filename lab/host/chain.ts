@@ -3,6 +3,7 @@ import {
 	budgetCheck,
 	planBudget,
 	planSteps,
+	type BrowserHistoryEntry,
 	type Plan,
 	type PlanStep,
 } from "eumenes-collaboration";
@@ -192,8 +193,10 @@ export const namesChainSite = (goal: string) =>
 	CHAIN_SITES.some((s) => s.pattern.test(goal));
 
 /** The plan of a request, with this lab's sites as the named ones. */
-export const chainPlan = (request: string) =>
-	planSteps(request, "request", { siteNamed: namesChainSite });
+export const chainPlan = (
+	request: string,
+	history: readonly BrowserHistoryEntry[] = [],
+) => planSteps(request, "request", { siteNamed: namesChainSite, history });
 
 /** Whether the plan already gives the step the browser; `routed` holds steps their own inference gave it. */
 export const toBrowser = (step: PlanStep, routed?: ReadonlySet<string>) =>

@@ -36,6 +36,12 @@ import {
 	type MediaSample,
 } from "../host/playback.ts";
 import { createExperiment } from "../host/store.ts";
+import {
+	DEFAULT_BROWSER_HISTORY,
+	loadBrowserHistory,
+	noBrowserProvedWrong,
+	recordMisjudgment,
+} from "../host/browser-history.ts";
 import { collectVersions } from "../host/versions.ts";
 import { createManualInference } from "../inference/manual.ts";
 import { RunControl } from "../host/control.ts";
@@ -78,7 +84,9 @@ export async function chainCommand(
 	const dir = process.env.LAB_MANUAL_DIR;
 	if (!dir) throw new Error("manual_needs_LAB_MANUAL_DIR");
 	const captureDir = parseCaptureDir(o.captureDir);
-	const plan = chainPlan(o.request);
+	const historyPath =
+		process.env.LAB_BROWSER_HISTORY ?? DEFAULT_BROWSER_HISTORY;
+	const plan = chainPlan(o.request, loadBrowserHistory(historyPath));
 	/** Steps whose own inference chose the browser. */
 	const routed = new Set<string>();
 	const budget = planBudget(plan.steps.length);
@@ -194,9 +202,26 @@ export async function chainCommand(
 				});
 				used += 1;
 				const raw = out.kind === "text" ? out.text : "";
-				const choice = deciding
+				let choice = deciding
 					? parseBrowserChoice(raw)
 					: { browser: false, rationale: "plan", answer: raw };
+				// "No browser" that could not answer was the wrong call: it is remembered for alike goals, and this
+				// step fetches after all (the tie-break goes to fresh information).
+				if (
+					deciding &&
+					!choice.browser &&
+					noBrowserProvedWrong(choice.answer)
+				) {
+					recordMisjudgment(historyPath, { goal: step.goal, browser: false });
+					console.error(
+						`history\t${step.id}\tno_was_wrong\t${choice.rationale}`,
+					);
+					choice = {
+						browser: true,
+						rationale: `no_answer_fallback: ${choice.rationale}`,
+						answer: "",
+					};
+				}
 				// The decision and its reason are logged, so a misjudgment can be found and fed back as history.
 				console.error(
 					`browser\t${step.id}\t${choice.browser ? "yes" : "no"}\t${choice.rationale}`,
