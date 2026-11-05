@@ -94,3 +94,7 @@ bun lab/cli/main.ts operate --request "..." --start-url ... --allow-origin ... -
 ## そのほかのコマンド
 
 `cases`、`run`、`trials`、`report`、`larm`、`knowledge`、`task`、`compare`は`bun lab/cli/main.ts`のusageを見る。作業定義は[definitions/README.md](definitions/README.md)、ケースと採点は[cases/README.md](cases/README.md)。
+
+## eumenes-collaboration の同期
+
+`lab/package.json` は `eumenes-collaboration` を `file:../../eumenes_collaboration` で参照し、bun はハードリンクのコピーとして入れる。整形ツールなどでソース側のファイルが置き換わるとリンクが切れ、lab は古いコピーを動かし続ける。collaboration を変更したら `bun install` を実行し、`bun run check:collab` で確認する（`bun test` の `lab/test/host/collab-sync.test.ts` も差分があれば失敗する。ソースが隣に無い環境ではスキップ）。

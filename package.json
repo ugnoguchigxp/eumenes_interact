@@ -17,6 +17,7 @@
 		"test": "bun test",
 		"build": "cd packages/eumenes-interact && bun run build",
 		"check:stack": "bun scripts/check-stack.ts",
+		"check:collab": "bun lab/scripts/check-collab-sync.ts",
 		"check:dist": "bun run build && node lab/scripts/check-dist-node.mjs",
 		"lab": "bun lab/cli/main.ts",
 		"mcp": "bun lab/mcp/server.ts"
