@@ -923,9 +923,12 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	): Promise<Body> {
 		let ref: string | null = null;
 		let observationRef: string | undefined;
+		let name = "";
 		if (itemId !== null) {
 			const observation = await observeFresh();
-			ref = resolve(itemId, observation).ref;
+			const target = resolve(itemId, observation);
+			ref = target.ref;
+			name = target.record.name.trim();
 			observationRef = observation.observationRef;
 		}
 		const tabRef = await activeTab();
@@ -936,6 +939,27 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		// read as content: it is reported, not passed.
 		if (itemId === null && isChallenge(content.title, content.text))
 			throw new PartFail("site_blocked");
+		// A link or cell read on its own says only its name ("Japan"); the value sits beside it (the row). The
+		// page's text around each place the name stands alone is returned instead, so no second read is needed.
+		if (name.length > 0 && content.text.trim() === name) {
+			const whole = await guard(() =>
+				executor.extract(tabRef, undefined, null, 50000),
+			);
+			const around = surrounding(whole.text, name, maxChars);
+			if (around !== null) {
+				const text = `[「${name}」の周辺]\n${around}`;
+				return {
+					status: "completed",
+					read: {
+						text,
+						charCount: text.length,
+						truncated: false,
+						...(whole.url === undefined ? {} : { url: whole.url }),
+						...(whole.title === undefined ? {} : { title: whole.title }),
+					},
+				};
+			}
+		}
 		const text = content.text.slice(0, maxChars);
 		return {
 			status: "completed",
@@ -1347,4 +1371,37 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	}
 
 	return { run, begin };
+}
+
+/**
+ * The text around each line of `text` that is `name` alone (else each place it occurs), up to three, each
+ * from a little before it to a little after, within `maxChars`. Null when the name is not in the text.
+ */
+export function surrounding(
+	text: string,
+	name: string,
+	maxChars: number,
+): string | null {
+	const lines = text.split("\n");
+	const starts: number[] = [];
+	let offset = 0;
+	for (const line of lines) {
+		if (line.trim() === name) starts.push(offset + line.indexOf(name));
+		offset += line.length + 1;
+	}
+	if (starts.length === 0) {
+		for (let i = text.indexOf(name); i >= 0; i = text.indexOf(name, i + 1))
+			starts.push(i);
+	}
+	if (starts.length === 0) return null;
+	const per = Math.max(120, Math.floor(maxChars / Math.min(3, starts.length)));
+	const before = Math.floor(per / 4);
+	return starts
+		.slice(0, 3)
+		.map((i) => {
+			const from = Math.max(0, i - before);
+			const to = Math.min(text.length, from + per);
+			return `${from > 0 ? "…" : ""}${text.slice(from, to).replace(/\n{2,}/g, "\n")}${to < text.length ? "…" : ""}`;
+		})
+		.join("\n---\n");
 }
