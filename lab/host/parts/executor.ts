@@ -334,7 +334,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		for (const option of options) {
 			const url = sortUrl(option, page.url);
 			if (url === null) continue;
-			const item = `${page.page}.sort${items.length + 1}`;
+			// The item id form the parts' contract accepts, from the top of its range: a page's own items never get there.
+			const item = `${page.page}.i${99991 + items.length}`;
 			hiddenSorts.set(item, { url, params: option.params });
 			items.push({ item, role: "option", name: option.text, url });
 		}
@@ -346,7 +347,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	async function openHiddenSort(sort: HiddenSort): Promise<Body> {
 		const opened = await pageOpen(sort.url);
 		const landed = opened.page?.url ?? "";
-		return sortApplied(landed, sort)
+		return sortApplied(landed, sort) ||
+			sortCarried(opened.page?.items ?? [], sort)
 			? opened
 			: { ...opened, status: "partial", code: "sort_not_applied" };
 	}
@@ -1466,7 +1468,7 @@ export function surrounding(
 
 /** Names of the controls that order a list ("安い順", "価格の安い順", "Price: Low to High", "Sort by"). */
 const SORT_NAME =
-	/(安い順|高い順|価格の?(安|低|高)い|低価格|価格順|新しい順|新着順|人気順|評価順|並び替え|並べ替え|ソート|sort\b|sort by|price:? *low|lowest price|price.*(asc|desc))/iu;
+	/(安い順|高い順|価格の?(安|低|高)い|低価格|価格順|新しい順|新着順|人気順|評価順|並び替え|並べ替え|ソート|\bsort\b|sort by|price:? *low|lowest price|price.*(asc|desc))/iu;
 const SORT_ROLES = new Set([
 	"link",
 	"button",
@@ -1591,4 +1593,33 @@ export function sortApplied(landed: string, sort: HiddenSort): boolean {
 	for (const [key, value] of want.searchParams)
 		if (at.searchParams.get(key) !== value) return false;
 	return true;
+}
+
+/**
+ * The landed page's own links carry the choice's parameters (a site that sorts by script and leaves the
+ * address bar as it was still writes the order into its category and paging links): the order took.
+ */
+export function sortCarried(
+	items: readonly PageItem[],
+	sort: HiddenSort,
+): boolean {
+	let want: URL;
+	try {
+		want = new URL(sort.url);
+	} catch {
+		return false;
+	}
+	const pairs = [...want.searchParams].filter(([k]) =>
+		sort.params.some(([key]) => key === k),
+	);
+	if (pairs.length === 0) return false;
+	return items.some((i) => {
+		if (!i.url || i.role === "option") return false;
+		try {
+			const u = new URL(i.url, sort.url);
+			return pairs.every(([k, v]) => u.searchParams.get(k) === v);
+		} catch {
+			return false;
+		}
+	});
 }

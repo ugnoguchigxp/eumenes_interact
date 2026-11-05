@@ -5,6 +5,7 @@ import {
 } from "../../../packages/eumenes-interact/src/adapters/mcp/inspect.ts";
 import {
 	sortApplied,
+	sortCarried,
 	sortOptionsOf,
 	sortUrl,
 } from "../../host/parts/executor.ts";
@@ -82,4 +83,34 @@ describe("hidden sort controls (2026-11-05)", () => {
 			),
 		).toBe("https://x.example/s?k=a&s=price-asc-rank");
 	});
+});
+
+test("a name with 'sort' inside a word (Resort) is no sort control", () => {
+	expect(
+		sortOptionsOf(
+			JSON.stringify([{ text: "Sports Resort", href: null, params: [] }]),
+		),
+	).toEqual([]);
+});
+
+test("a page sorted by script, its address unchanged, is told by its own links", () => {
+	const sort = {
+		url: "https://search.kakaku.com/a/?sort=priceb",
+		params: [["sort", "priceb"]] as [string, string][],
+	};
+	const link = (url: string) => ({
+		item: "p4.i8",
+		role: "link",
+		name: "x",
+		url,
+	});
+	expect(
+		sortCarried(
+			[link("https://search.kakaku.com/a/?category=1&sort=priceb")],
+			sort,
+		),
+	).toBe(true);
+	expect(
+		sortCarried([link("https://search.kakaku.com/a/?category=1")], sort),
+	).toBe(false);
 });
