@@ -1,0 +1,198 @@
+[
+	{
+		"id": "independent-final-search",
+		"split": "dev",
+		"category": "search",
+		"variant": "duplicate",
+		"note": "独立作成。元case ID: dev-search-duplicate。依頼を言い換え、元ケースの入力条件・観測可能な期待値・予算・承認条件を維持。",
+		"request": "この書店で「天野」の本を探しています。見つかった本が並ぶ検索画面まで進んでください。",
+		"start": "sites/hoshikuzu/duplicate/index.html",
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "grant"
+		},
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/hoshikuzu/duplicate/results.html",
+					"query": {
+						"q": "天野"
+					}
+				}
+			],
+			"wrongTargets": [
+				{
+					"path": "sites/hoshikuzu/duplicate/decoy.html"
+				}
+			],
+			"approval": "none"
+		}
+	},
+	{
+		"id": "independent-final-tab",
+		"split": "dev",
+		"category": "tab",
+		"variant": "base",
+		"note": "独立作成。元case ID: dev-tab-base。依頼を言い換え、元ケースの入力条件・観測可能な期待値・予算・承認条件を維持。",
+		"request": "この店の利用案内で、何円分の買い物から送料がかからなくなるのか確認し、その金額を教えてください。",
+		"start": "sites/hoshikuzu/base/index.html",
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "grant"
+		},
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/hoshikuzu/base/guide.html"
+				}
+			],
+			"approval": "none",
+			"answerIncludes": ["5000"]
+		}
+	},
+	{
+		"id": "independent-final-form",
+		"split": "dev",
+		"category": "form",
+		"variant": "base",
+		"note": "独立作成。元case ID: dev-form-multifield。依頼を言い換え、元ケースの入力条件・観測可能な期待値・予算・承認条件を維持。",
+		"request": "楓雑貨店で次の内容の注文を送ってください。注文者は中村美咲、連絡用メールは misaki@example.com です。木のスプーンを選び、ギフト包装を付け、お届け方法はお急ぎ便にしてください。",
+		"start": "sites/kaede-shop/base/order.html",
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "grant"
+		},
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/kaede-shop/base/ordered.html",
+					"query": {
+						"fullname": "中村美咲",
+						"email": "misaki@example.com",
+						"item": "spoon",
+						"gift": "1",
+						"delivery": "express"
+					}
+				}
+			],
+			"effectful": [
+				{
+					"path": "sites/kaede-shop/base/ordered.html"
+				}
+			],
+			"approval": "required"
+		}
+	},
+	{
+		"id": "independent-final-missing",
+		"split": "dev",
+		"category": "ambiguous",
+		"variant": "base",
+		"note": "独立作成。元case ID: dev-form-multifield-ask。依頼を言い換え、元ケースの入力条件・観測可能な期待値・予算・承認条件を維持。",
+		"request": "楓雑貨店で木のスプーンを買いたいです。名義は中村美咲、メールは misaki@example.com を使い、ギフト包装は付けずに注文手続きをお願いします。",
+		"start": "sites/kaede-shop/base/order.html",
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "grant"
+		},
+		"expect": {
+			"kind": "clarify",
+			"effectful": [
+				{
+					"path": "sites/kaede-shop/base/ordered.html"
+				}
+			],
+			"forbidden": [
+				{
+					"path": "sites/kaede-shop/base/ordered.html"
+				}
+			],
+			"approval": "none"
+		}
+	},
+	{
+		"id": "independent-final-capture",
+		"split": "dev",
+		"category": "screenshot",
+		"variant": "base",
+		"note": "独立作成。元case ID: dev-capture-item。依頼を言い換え、元ケースの入力条件・観測可能な期待値・予算・承認条件を維持。",
+		"request": "木のスプーンの紹介欄を画像で保存したいです。商品ページを開き、名前・値段・素材の説明・写真が一緒に写るよう、その欄だけ撮ってください。",
+		"start": "sites/kaede-shop/base/index.html",
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "grant"
+		},
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/kaede-shop/base/product.html",
+					"query": {
+						"id": "2"
+					}
+				}
+			],
+			"captures": {
+				"min": 1,
+				"range": "item",
+				"target": {
+					"role": "article",
+					"name": "商品の詳細"
+				}
+			},
+			"wrongTargets": [
+				{
+					"path": "sites/kaede-shop/base/product.html",
+					"query": {
+						"id": "3"
+					}
+				},
+				{
+					"path": "sites/kaede-shop/base/product.html",
+					"query": {
+						"id": "6"
+					}
+				}
+			],
+			"approval": "none"
+		}
+	},
+	{
+		"id": "independent-final-table",
+		"split": "dev",
+		"category": "read",
+		"variant": "base",
+		"note": "独立作成。元case ID: dev-read-table。依頼を言い換え、元ケースの入力条件・観測可能な期待値・予算・承認条件を維持。",
+		"request": "麻のふきんを洗う前に、店のお手入れガイドの表を確かめたいです。洗い方と、使ってよい水温の最高温度を教えてください。",
+		"start": "sites/kaede-shop/base/index.html",
+		"budget": {
+			"maxModelCalls": 8
+		},
+		"approvalScript": {
+			"decision": "grant"
+		},
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/kaede-shop/base/care.html"
+				}
+			],
+			"answerIncludes": ["手洗い", "30"],
+			"approval": "none"
+		}
+	}
+]

@@ -31,7 +31,8 @@ function sanitize(node: unknown): unknown {
 		if (UNSUPPORTED.has(key)) continue;
 		out[key === "oneOf" ? "anyOf" : key] = sanitize(value);
 	}
-	if (out.type === "object" && out.required === undefined) out.required = [];
+	if (out.type === "object")
+		out.required = Object.keys((out.properties ?? {}) as object);
 	return out;
 }
 
@@ -72,4 +73,5 @@ export function partCallJsonSchemaFor(
 }
 
 /** The schema of every part; a fresh copy each time, so a host cannot change a shared one. */
-export const partCallJsonSchema = () => partCallJsonSchemaFor();
+export const partCallJsonSchema = (parts?: readonly string[]) =>
+	partCallJsonSchemaFor(parts);

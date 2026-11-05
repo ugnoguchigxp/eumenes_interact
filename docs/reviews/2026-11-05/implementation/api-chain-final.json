@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-05T12:14:08.430073+00:00",
+  "snapshot": "d6afa142f0925d92479da2f17e89893ce904c17e",
+  "scope": "real CLI planning + response step, no browser needed, same provider within each chain",
+  "rows": [
+    {
+      "provider": "claude",
+      "exit": 0,
+      "stdout": "{\n \"request\": \"「検証終了」という文字だけを返してください。これは文章の返答で、Web閲覧は不要です。\",\n \"used\": 2,\n \"budget\": {\n  \"perStep\": 10,\n  \"overall\": 10\n },\n \"stopped\": null,\n \"outcomes\": [\n  {\n   \"id\": \"reply\",\n   \"goal\": \"「検証終了」という文字だけを返す\",\n   \"browser\": false,\n   \"keepOpen\": false,\n   \"status\": \"completed\",\n   \"code\": null,\n   \"modelCalls\": 1,\n   \"result\": \"検証終了\"\n  }\n ],\n \"facts\": []\n}\n",
+      "stderrBytes": 169
+    },
+    {
+      "provider": "openai",
+      "exit": 0,
+      "stdout": "{\n \"request\": \"「検証終了」という文字だけを返してください。これは文章の返答で、Web閲覧は不要です。\",\n \"used\": 2,\n \"budget\": {\n  \"perStep\": 10,\n  \"overall\": 10\n },\n \"stopped\": null,\n \"outcomes\": [\n  {\n   \"id\": \"reply\",\n   \"goal\": \"「検証終了」の文字だけを返す\",\n   \"browser\": false,\n   \"keepOpen\": false,\n   \"status\": \"completed\",\n   \"code\": null,\n   \"modelCalls\": 1,\n   \"result\": \"検証終了\"\n  }\n ],\n \"facts\": []\n}\n",
+      "stderrBytes": 107
+    }
+  ]
+}

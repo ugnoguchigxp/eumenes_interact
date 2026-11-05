@@ -18,6 +18,9 @@ test("the provider wire contract has closed objects, all required keys and expli
 		Object.values(o).forEach(check);
 	};
 	check(collaborationSchema());
+	const schema = collaborationSchema();
+	expect(JSON.stringify(schema)).not.toContain('"ask"');
+	expect(JSON.stringify(schema)).not.toContain('"question"');
 	expect(
 		JSON.parse(
 			collabToPart(

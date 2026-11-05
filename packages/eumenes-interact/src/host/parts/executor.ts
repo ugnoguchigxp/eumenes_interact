@@ -1149,7 +1149,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	type FillResult = NonNullable<PartResult["fill"]>[number];
 
 	async function fillOne(
-		field: { item: string; value: string },
+		field: { item: string; value: string; quote?: string | null },
 		observation: ObservationEnvelope,
 	): Promise<{
 		result: FillResult;
@@ -1188,6 +1188,15 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			observation,
 		});
 		const element = elementName(target.record);
+		const choiceSource = (label: string) => {
+			if (field.quote == null) return mentioned(label);
+			try {
+				assertQuoted(label, field.quote, deps.request);
+				return true;
+			} catch {
+				return false;
+			}
+		};
 		let command: Parameters<typeof operate>[0];
 		let provenance: InputProvenance | undefined;
 		if (options.length > 0) {
@@ -1206,7 +1215,12 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 					),
 					observation,
 				};
-			if (!quoted(field.value) && !mentioned(option)) return needsInput();
+			if (
+				field.quote != null
+					? !choiceSource(option)
+					: !quoted(field.value) && !mentioned(option)
+			)
+				return needsInput();
 			command = {
 				action: "page.select",
 				targetRef: target.ref,
@@ -1228,7 +1242,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 					return { result: refused("cannot_uncheck"), observation };
 				if (!info.filled) return filled();
 			} else {
-				if (!mentioned(info.label || target.record.name)) return needsInput();
+				if (!choiceSource(info.label || target.record.name))
+					return needsInput();
 				if (info.filled) return filled();
 			}
 			command = { action: "page.click", targetRef: target.ref, element };
@@ -1274,7 +1289,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	}
 
 	async function formFill(
-		fields: { item: string; value: string }[],
+		fields: { item: string; value: string; quote?: string | null }[],
 	): Promise<Body> {
 		let observation = await observeFresh();
 		const fill: FillResult[] = [];

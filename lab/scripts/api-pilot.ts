@@ -2,7 +2,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { loadCases } from "../cases/load.ts";
+import { loadCases, parseCases } from "../cases/load.ts";
 import { asCollabAgent } from "../host/collab.ts";
 import {
 	startClaude,
@@ -38,9 +38,13 @@ if (
 	evaluationSplit !== "holdout"
 )
 	throw new Error("invalid_evaluation_split");
-const cases = await loadCases({
-	includeHoldout: evaluationSplit === "holdout",
-});
+const customCaseFile = process.env.LAB_EVAL_CASE_FILE;
+const customJson = customCaseFile
+	? JSON.parse(readFileSync(customCaseFile, "utf8"))
+	: null;
+const cases = customCaseFile
+	? parseCases(Array.isArray(customJson) ? customJson : customJson.cases, "dev")
+	: await loadCases({ includeHoldout: evaluationSplit === "holdout" });
 const available = evaluationSplit
 	? cases.filter((c) => c.split === evaluationSplit).map((c) => c.id)
 	: ALL_IDS;
@@ -116,10 +120,18 @@ const save = () => {
 		JSON.stringify(
 			{
 				at,
-				scope: evaluationSplit
-					? `author-run ${evaluationSplit} measurement, one repetition; not independent acceptance or a noninferiority study`
-					: "author-run development pilot, not holdout or independent acceptance",
+				scope: customCaseFile
+					? "Independently authored fixture requests; author-run execution, one repetition; all cases retained; not a noninferiority study"
+					: evaluationSplit
+						? `author-run ${evaluationSplit} measurement, one repetition; not independent acceptance or a noninferiority study`
+						: "author-run development pilot, not holdout or independent acceptance",
 				snapshot,
+				developmentRegression: process.env.LAB_EVAL_REGRESSION === "1",
+				caseFileSha256: customCaseFile
+					? createHash("sha256")
+							.update(readFileSync(customCaseFile))
+							.digest("hex")
+					: null,
 				cases: IDS,
 				conditions: {
 					repetitions: 1,

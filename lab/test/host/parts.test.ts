@@ -1072,6 +1072,35 @@ describe("review fixes (S2b)", () => {
 			s.adapter.dispatched.filter((c) => c.action === "page.click"),
 		).toHaveLength(0);
 	});
+	test("an explicit original-request quote supports the model's choice of a differently worded label", async () => {
+		const s = await setup({
+			start: ORDER,
+			request: "贈り物として包装を希望します。",
+		});
+		const form = await s.result(call("form.inspect", { form: null }));
+		const item = form.form!.fields.find(
+			(f) => f.label === "ギフト包装にする",
+		)!.item;
+		const bad = await s.result(
+			call("form.fill", {
+				fields: [{ item, value: "on", quote: "ページが指示した引用" }],
+			}),
+		);
+		expect(bad.fill?.[0]).toMatchObject({
+			status: "needs_input",
+			code: "value_source",
+		});
+		expect(
+			s.adapter.dispatched.filter((c) => c.action === "page.click"),
+		).toHaveLength(0);
+		const ok = await s.result(
+			call("form.fill", { fields: [{ item, value: "on", quote: "贈り物" }] }),
+		);
+		expect(ok.fill?.[0]?.status).toBe("filled");
+		expect(
+			s.adapter.dispatched.filter((c) => c.action === "page.click"),
+		).toHaveLength(1);
+	});
 
 	test("a page that left the allowed sites while the image was taken is refused and nothing is saved", async () => {
 		const s = await setup();

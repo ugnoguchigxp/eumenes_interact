@@ -80,6 +80,8 @@ export type RunTrialInput = {
 	orderIndex: number;
 	adapter: PlatformAdapter;
 	inference: InferencePort;
+	/** Original trusted user request, excluding page results embedded as planning context. */
+	authorityRequest?: string;
 	inferenceInfo: () => InferenceInfo;
 	approver: Approver;
 	logger: LabLogger;
@@ -329,7 +331,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			control,
 			now,
 			newId: randomUUID,
-			request: def.request,
+			request: input.authorityRequest ?? def.request,
 			scrub,
 			// Arm 1 reads the whole snapshot (the model sees summaries) and follows its own page's navigation.
 			followOwnNavigation: true,
@@ -347,7 +349,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 			recorder,
 			captures,
 			grants,
-			request: def.request,
+			request: input.authorityRequest ?? def.request,
 			...(input.sources ? { sources: () => input.sources ?? [] } : {}),
 			...(input.goal !== undefined ? { goal: input.goal } : {}),
 			events: labEventsPort(logger, runId),

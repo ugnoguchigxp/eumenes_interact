@@ -77,6 +77,7 @@ export async function runScripted(
 		adapter?: FakeBrowser;
 		approver?: Approver;
 		inference?: InferencePort;
+		authorityRequest?: string;
 		inferenceInfo?: InferenceInfo;
 		control?: RunControl;
 		def?: CaseDef;
@@ -110,6 +111,9 @@ export async function runScripted(
 		logger: silentLabLogger,
 		versions: VERSIONS,
 		fixtureBaseUrl: BASE,
+		...(options.authorityRequest === undefined
+			? {}
+			: { authorityRequest: options.authorityRequest }),
 		captureRoot: options.captureRoot ?? testCaptureRoot(),
 		...(options.captureDir ? { captureDir: options.captureDir } : {}),
 		...(options.control ? { control: options.control } : {}),

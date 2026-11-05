@@ -68,6 +68,15 @@ export const partCallSchema = z.discriminatedUnion("part", [
 				z.strictObject({
 					item: itemIdSchema,
 					value: z.string().max(2000),
+					quote: z
+						.string()
+						.min(1)
+						.max(2000)
+						.nullable()
+						.optional()
+						.describe(
+							"選択を根拠付ける元の依頼の引用。表示ラベルと依頼の表現が異なるときに提示。不要ならnull。",
+						),
 				}),
 			)
 			.min(1)

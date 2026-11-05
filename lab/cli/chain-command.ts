@@ -356,6 +356,7 @@ export async function executeChain(
 							),
 						},
 					},
+					authorityRequest: [o.request, ...picked].join("\n"),
 					arm: "arm1",
 					experimentId,
 					// A rerun after a choice is its own trial row (experiment, case, arm, repetition is unique).
