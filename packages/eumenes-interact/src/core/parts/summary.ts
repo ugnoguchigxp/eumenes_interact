@@ -261,9 +261,9 @@ function inlineSentence(nodes: readonly Node[], node: Node): string {
 		return "";
 	if (!kids.some((n) => n.role !== "text")) return "";
 	if (!kids.includes(node) && node.role !== "text") return "";
-	return kids
+	const joined = kids
 		.map((n) => {
-			const raw = n.text || n.name || textOf(nodes, n);
+			let raw = n.text || n.name || textOf(nodes, n);
 			// Snapshot / a11y trees sometimes wrap a code token in ASCII quotes ("false"); keep the token.
 			if (n.role === "code") {
 				const t = raw.trim();
@@ -275,13 +275,19 @@ function inlineSentence(nodes: readonly Node[], node: Node): string {
 					if (/^[\w.<>()[\]|?!,;:/`+-]+$/.test(inner)) return inner;
 				}
 			}
+			// A following text node often keeps the YAML/a11y closing quote (`", the element…`).
+			if (n.role === "text") {
+				raw = raw.replace(/^["'],\s*/, ", ").replace(/["']$/, "");
+			}
 			return raw;
 		})
 		.filter(Boolean)
 		.join(" ")
 		.replace(/\s+/g, " ")
 		.replace(/\s+([.,;:!?])/g, "$1")
+		.replace(/\s*,\s*/g, ", ")
 		.trim();
+	return joined;
 }
 
 /** The snippet of a long sentence around the query; a short one whole. */

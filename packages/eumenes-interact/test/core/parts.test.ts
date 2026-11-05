@@ -997,4 +997,22 @@ describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
 			"returns false. This method operates in place.",
 		);
 	});
+
+
+	test("inlineSentence drops lone quote crumbs between prose and code", () => {
+		const body = [
+			"- main:",
+			"  - paragraph:",
+			"    - text: If the closure returns",
+			'    - code: "true"',
+			'    - text: ", the element is removed"',
+			"    - text: . If it returns",
+			'    - code: "false"',
+			"    - text: , it stays.",
+		].join("\n");
+		expect(findText(body, "p1", "returns", 5).hits[0]?.text).toBe(
+			"If the closure returns true, the element is removed. If it returns false, it stays.",
+		);
+	});
+
 });
