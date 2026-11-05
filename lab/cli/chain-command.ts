@@ -131,6 +131,8 @@ export async function chainCommand(
 	const outcomes: ChainStepOutcome[] = [];
 	let used = 0;
 	let keep = false;
+	/** Where the browser was left by the last browser step; an agent-routed step continues there (L9). */
+	let lastPage: string | null = null;
 	let stopped: string | null = null;
 	// Ctrl-C or a kill while a browser is kept open: the browser is closed, not left behind.
 	const onSignal = (signal: NodeJS.Signals) => {
@@ -202,8 +204,14 @@ export async function chainCommand(
 				if (choice.browser) {
 					routed.add(step.id);
 					maxCalls = Math.min(budget.perStep, check.remaining) - 1;
-					def = chainCases(plan, o.request, results, maxCalls, routed)[index]!
-						.def;
+					def = chainCases(
+						plan,
+						o.request,
+						results,
+						maxCalls,
+						routed,
+						lastPage,
+					)[index]!.def;
 					decided = choice.rationale;
 				} else {
 					answered = { text: choice.answer, code: out.kind };
@@ -275,6 +283,7 @@ export async function chainCommand(
 					: {}),
 			});
 			used += result.score.efficiency.modelCalls;
+			lastPage = await currentPage(hold.adapter);
 			results.set(step.id, result.finalText);
 			if (result.status === "completed")
 				facts.push(stepResultFact(step.id, result.finalText, [result.runId]));
@@ -362,6 +371,20 @@ export async function chainCommand(
 	return stopped === null && outcomes.every((s) => s.status === "completed")
 		? 0
 		: 1;
+}
+
+/** The address of the tab in front, read without touching the page; null when it cannot be read. */
+async function currentPage(adapter: {
+	listTargets(
+		signal: AbortSignal,
+	): Promise<{ current: boolean; url?: string }[]>;
+}): Promise<string | null> {
+	try {
+		const tabs = await adapter.listTargets(AbortSignal.timeout(5000));
+		return tabs.find((t) => t.current)?.url ?? null;
+	} catch {
+		return null;
+	}
 }
 
 /** How long closing the browser may take before the run ends without it. */

@@ -183,4 +183,24 @@ describe("browser or not per step (L4, 2026-11-05)", () => {
 			(def!.allowedOrigins ?? []).some((o) => o.includes("kakaku.com")),
 		).toBe(true);
 	});
+
+	test("a routed step naming no site continues on the page the previous step left (L9)", () => {
+		const plan = chainPlan(KAKAKU);
+		const routed = new Set([plan.steps[1]!.id]);
+		const at = "https://kakaku.com/search_results/Switch%202/?sort=priceb";
+		const def = chainCases(plan, KAKAKU, new Map(), 9, routed, at)[1]!.def!;
+		expect(def.start).toBe(at);
+		// Not routed, an unknown or non-web page: the site's own start, as before.
+		expect(
+			chainCases(plan, KAKAKU, new Map(), 9, routed, null)[1]!.def!.start,
+		).toBe(chainCases(plan, KAKAKU, new Map(), 9)[0]!.def!.start);
+		expect(
+			chainCases(plan, KAKAKU, new Map(), 9, routed, "about:blank")[1]!.def!
+				.start,
+		).not.toBe("about:blank");
+		// The first (plan) step never moves to it.
+		expect(
+			chainCases(plan, KAKAKU, new Map(), 9, routed, at)[0]!.def!.start,
+		).not.toBe(at);
+	});
 });

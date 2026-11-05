@@ -209,13 +209,19 @@ export function chainCases(
 	results: ReadonlyMap<string, string>,
 	maxModelCalls: number,
 	routed?: ReadonlySet<string>,
+	/** The page the browser shows now (the previous step's last page), when known. */
+	continueAt?: string | null,
 ): ChainStepCase[] {
 	let previous: (typeof CHAIN_SITES)[number] | undefined;
 	return plan.steps.map((step) => {
 		if (!toBrowser(step, routed)) return { step, def: null };
-		const site = CHAIN_SITES.find((s) => s.pattern.test(step.goal)) ?? previous;
+		const own = CHAIN_SITES.find((s) => s.pattern.test(step.goal));
+		const site = own ?? previous;
 		if (!site) throw new Error(`step_site_unknown:${step.id}`);
 		previous = site;
+		// A step its own inference sent to the browser, naming no site, carries on from the page the previous
+		// step left (L9): restarting at the site's top page repeated the search (K1 +3 calls, N6 +1).
+		const here = !own && routed?.has(step.id) ? httpUrl(continueAt) : null;
 		return {
 			step,
 			def: {
@@ -225,8 +231,14 @@ export function chainCases(
 				variant: "live",
 				note: "chain step",
 				request: stepRequest(step, request, results),
-				start: site.start,
-				allowedOrigins: [...site.origins, GENERAL_SEARCH_ORIGIN],
+				start: here?.href ?? site.start,
+				allowedOrigins: [
+					...new Set([
+						...site.origins,
+						...(here ? [here.origin] : []),
+						GENERAL_SEARCH_ORIGIN,
+					]),
+				],
 				// The user decided a step may follow a link off its start site with no approval (2026-11-04).
 				openWeb: true,
 				budget: { maxModelCalls },
@@ -234,6 +246,16 @@ export function chainCases(
 			},
 		};
 	});
+}
+
+function httpUrl(url: string | null | undefined): URL | null {
+	if (!url) return null;
+	try {
+		const u = new URL(url);
+		return u.protocol === "https:" || u.protocol === "http:" ? u : null;
+	} catch {
+		return null;
+	}
 }
 
 const RESULTS_OPEN = "<<<RESULTS";
