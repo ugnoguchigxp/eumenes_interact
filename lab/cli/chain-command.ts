@@ -167,7 +167,8 @@ export async function chainCommand(
 			if (!def) {
 				const decision = step.browser;
 				const deciding = decision.by === "agent";
-				const port = createManualInference(dir, `chain-${step.id}`);
+				// Its own file name: a browser trial for the same step (chain-<id>) must not read this answer.
+				const port = createManualInference(dir, `decide-${step.id}`);
 				const out = await port.complete({
 					messages: [
 						{
