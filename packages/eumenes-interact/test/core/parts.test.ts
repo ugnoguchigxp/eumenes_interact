@@ -923,3 +923,78 @@ describe("result order and inline code (2026-11-04)", () => {
 		);
 	});
 });
+
+
+describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
+	test("footer notice and site-root logo go below product cards", () => {
+		const body = [
+			"- main:",
+			"  - list:",
+			"    - listitem:",
+			'      - link "掲載情報のご利用にあたって" [ref=e1]:',
+			"        - /url: https://help.kakaku.com/notice.html",
+			'      - text: "※ 「 」を必ずご確認ください"',
+			"    - listitem:",
+			'      - link "価格.com" [ref=e2]:',
+			"        - /url: https://kakaku.com",
+			"  - generic:",
+			'    - link "ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]" [ref=e3]:',
+			"      - /url: https://kakaku.com/item/K1/",
+			"    - text: ¥7,768～",
+		].join("\n");
+		expect(
+			listEntries(body, "p1", "results", 10).entries.map((e) => e.title),
+		).toEqual([
+			"ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]",
+			"掲載情報のご利用にあたって",
+			"価格.com",
+		]);
+	});
+
+	test("YouTube Now playing rows and channel links go below the video title", () => {
+		const body = [
+			"- main:",
+			'  - link "26:05 Now playing" [ref=e1]:',
+			"    - /url: /watch?v=aaa",
+			'  - link "GPT解説2 アテンションの仕組み" [ref=e2]:',
+			"    - /url: /watch?v=aaa",
+			'    - img "GPT解説2"',
+			'  - link "Go to channel 3Blue1BrownJapan" [ref=e3]:',
+			"    - /url: /@3Blue1BrownJapan",
+		].join("\n");
+		expect(listEntries(body, "p1", "results", 10).entries[0]?.title).toBe(
+			"GPT解説2 アテンションの仕組み",
+		);
+	});
+
+	test("entry text drops Open Library quote crumbs", () => {
+		const body = [
+			"- main:",
+			"  - list:",
+			"    - listitem:",
+			'      - link "Pride and Prejudice" [ref=e1]:',
+			"        - /url: /works/OL1W",
+			'      - text: "by"',
+			'      - text: "( \\\",\\\" )"',
+			'      - text: "1775-1817"',
+			'      - text: "First published in 1813"',
+		].join("\n");
+		const text = listEntries(body, "p1", "results", 5).entries[0]?.text ?? "";
+		expect(text).toContain("1775-1817");
+		expect(text).toContain("First published in 1813");
+		expect(text).not.toMatch(/\\?",\\?"/);
+	});
+
+	test("inline code wrapped in ASCII quotes is joined without the quotes", () => {
+		const body = [
+			"- main:",
+			"  - paragraph:",
+			"    - text: returns",
+			'    - code: "false"',
+			"    - text: . This method operates in place.",
+		].join("\n");
+		expect(findText(body, "p1", "returns", 5).hits[0]?.text).toBe(
+			"returns false. This method operates in place.",
+		);
+	});
+});

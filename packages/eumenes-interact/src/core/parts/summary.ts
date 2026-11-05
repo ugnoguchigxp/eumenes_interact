@@ -262,10 +262,25 @@ function inlineSentence(nodes: readonly Node[], node: Node): string {
 	if (!kids.some((n) => n.role !== "text")) return "";
 	if (!kids.includes(node) && node.role !== "text") return "";
 	return kids
-		.map((n) => n.text || n.name || textOf(nodes, n))
+		.map((n) => {
+			const raw = n.text || n.name || textOf(nodes, n);
+			// Snapshot / a11y trees sometimes wrap a code token in ASCII quotes ("false"); keep the token.
+			if (n.role === "code") {
+				const t = raw.trim();
+				if (
+					(t.startsWith('"') && t.endsWith('"') && t.length >= 2) ||
+					(t.startsWith("'") && t.endsWith("'") && t.length >= 2)
+				) {
+					const inner = t.slice(1, -1);
+					if (/^[\w.<>()[\]|?!,;:/`+-]+$/.test(inner)) return inner;
+				}
+			}
+			return raw;
+		})
 		.filter(Boolean)
 		.join(" ")
 		.replace(/\s+/g, " ")
+		.replace(/\s+([.,;:!?])/g, "$1")
 		.trim();
 }
 
@@ -384,6 +399,53 @@ const AD_URL =
 const CHROME_ROLES = ["tablist", "tab", "menu", "menubar", "menuitem", "toolbar"];
 /** "ゲーム機本体 (561)": a filter that narrows the list, not a result. */
 const FACET = /[（(][\d,]+[)）]$/;
+/** YouTube duration/thumbnail rows and channel jumps mixed into results (2026-11-05). */
+const SITE_CHROME =
+	/(^Go to channel\b|\bNow playing$|^\d{1,2}:\d{2}(\s|$)|^\d+:\d{2}:\d{2}\b)/i;
+
+/** A bare site root (`https://kakaku.com` / `/`) is a logo, not a result. */
+function siteRoot(url: string | undefined): boolean {
+	if (!url) return false;
+	try {
+		const u = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/");
+		if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+		return (u.pathname === "/" || u.pathname === "") && !u.search && !u.hash;
+	} catch {
+		return false;
+	}
+}
+
+/** `/@name`, `/channel/…`, `/c/…`: a YouTube channel link beside a video card. */
+function channelUrl(url: string | undefined): boolean {
+	if (!url) return false;
+	try {
+		const path = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/").pathname;
+		return /^\/@[^/]+\/?$/.test(path) || /^\/(channel|c|user)\//.test(path);
+	} catch {
+		return false;
+	}
+}
+
+/** Footer-style notices next to a link ("※ ご購入の前に…"), even when not under contentinfo. */
+function noticeBeside(
+	nodes: readonly Node[],
+	link: Node,
+	inside: readonly Node[],
+): boolean {
+	const near = inside.length
+		? inside
+		: nodes.filter(
+				(n) =>
+					n.parent === link.parent &&
+					(n.role === "text" || n.role === "paragraph"),
+			);
+	return near.some((n) => {
+		if (n.index === link.index) return false;
+		// Snapshot text often keeps the surrounding ASCII quotes from the YAML-like dump.
+		const t = (n.name || n.text || "").trim().replace(/^["']|["']$/g, "").trim();
+		return /^※/.test(t) || /^\*\s/.test(t);
+	});
+}
 
 /**
  * A link among four or more siblings that are only links (or list items holding only a link): a row of related
@@ -429,10 +491,13 @@ function resultRank(
 	if (
 		FACET.test(title.trim()) ||
 		CHROME_ROLES.includes(link.role) ||
-		up.some((a) => CHROME_ROLES.includes(a.role))
+		up.some((a) => CHROME_ROLES.includes(a.role)) ||
+		SITE_CHROME.test(title.trim()) ||
+		channelUrl(url)
 	)
 		return 2;
 	if (inLinkCloud(nodes, link)) return 1;
+	if (siteRoot(url) || noticeBeside(nodes, link, inside)) return 1;
 	if (
 		up.some((a) => a.role === "heading") ||
 		own.some((n) => n.role === "heading" || n.role === "img") ||
@@ -459,12 +524,23 @@ function textFor(nodes: readonly Node[], link: Node, title: string) {
 		(a) => a.role === "listitem" || a.role === "article",
 	);
 	if (!container) return {};
-	const text = descendants(nodes, container)
-		.filter((n) => n.role === "text" || n.role === "paragraph" || n.role === "code")
-		.map((n) => n.text || n.name)
-		.filter((t) => t && t !== title)
-		.join(" ");
+	const text = cleanEntryText(
+		descendants(nodes, container)
+			.filter((n) => n.role === "text" || n.role === "paragraph" || n.role === "code")
+			.map((n) => n.text || n.name)
+			.filter((t) => t && t !== title)
+			.join(" "),
+	);
 	return text ? { text: clip(text, TEXT_CHARS) } : {};
+}
+
+/** Drop a11y-tree quote crumbs Open Library leaves in card text (`","`, `\",\"`) (2026-11-05). */
+function cleanEntryText(raw: string): string {
+	return raw
+		.replace(/(?:\\*["']\s*,\s*\\*["'])+/g, " ")
+		.replace(/(?:\\+["'])+/g, " ")
+		.replace(/\s{2,}/g, " ")
+		.trim();
 }
 
 function tableRows(c: Collected) {
