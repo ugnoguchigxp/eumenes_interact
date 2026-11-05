@@ -123,7 +123,8 @@ type Step =
 type Body = Omit<PartResult, "part" | "resultId">;
 
 export type PartExecutorDeps = {
-	executor: Pick<Executor, "execute" | "extract" | "capture" | "attach">;
+	executor: Pick<Executor, "execute" | "extract" | "capture" | "attach"> &
+		Partial<Pick<Executor, "sortOptions">>;
 	tabs: TabRegistry;
 	/** Injected ports (the host's transcript, events and site knowledge). */
 	recorder: PartRecordPort;
@@ -262,6 +263,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 
 	/** Issues the page id and the item ids of the observation's summary. */
 	function summarize(observation: ObservationEnvelope): PageSummary {
+		lastSeen = observation;
 		const made = batch(observation, (pageId) =>
 			core.summarizePage(
 				{
@@ -298,6 +300,56 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	}
 
 	type Target = { record: ItemRecord; ref: string };
+
+	/** The observation the latest summary was made of: where a hidden sort control is looked for. */
+	let lastSeen: ObservationEnvelope | null = null;
+	/** Sort choices the accessibility tree does not show, by the item id issued for them: the URL each leads to. */
+	const hiddenSorts = new Map<string, HiddenSort>();
+
+	/**
+	 * A list whose order control the accessibility tree leaves out (a custom dropdown: "並べ替え：" over a hidden
+	 * `<li onclick>`) gets its choices as items, found by the adapter's fixed read-only `inspectSort`. Each
+	 * leads to the page's URL with the choice's own parameters; opening one is a navigation (URL policy) and
+	 * is checked to have landed with them.
+	 */
+	async function withHiddenSorts(body: Body): Promise<Body> {
+		const page = body.page;
+		if (
+			!page ||
+			!executor.sortOptions ||
+			!lastSeen ||
+			!page.url ||
+			!SORT_LABEL.test(lastSeen.body) ||
+			page.items.some((i) => SORT_NAME.test(i.name))
+		)
+			return body;
+		let options: HiddenSortOption[];
+		try {
+			const r = await executor.sortOptions(await activeTab());
+			options = sortOptionsOf(r.options);
+		} catch {
+			return body;
+		}
+		const items: PageItem[] = [];
+		for (const option of options) {
+			const url = sortUrl(option, page.url);
+			if (url === null) continue;
+			const item = `${page.page}.sort${items.length + 1}`;
+			hiddenSorts.set(item, { url, params: option.params });
+			items.push({ item, role: "option", name: option.text, url });
+		}
+		if (items.length === 0) return body;
+		return { ...body, page: { ...page, items: [...items, ...page.items] } };
+	}
+
+	/** Opens a hidden sort choice by its URL and reports whether the page landed sorted that way. */
+	async function openHiddenSort(sort: HiddenSort): Promise<Body> {
+		const opened = await pageOpen(sort.url);
+		const landed = opened.page?.url ?? "";
+		return sortApplied(landed, sort)
+			? opened
+			: { ...opened, status: "partial", code: "sort_not_applied" };
+	}
 
 	/**
 	 * The record an id names, found again in this fresh observation by role, name, region and position. An id
@@ -870,6 +922,8 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	}
 
 	async function itemOpen(itemId: string): Promise<Body> {
+		const sort = hiddenSorts.get(itemId);
+		if (sort) return openHiddenSort(sort);
 		const observation = await observeFresh();
 		let target: Target;
 		try {
@@ -1325,7 +1379,10 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		let status: PartResult["status"];
 		let code: string | undefined;
 		try {
-			const result = finish(call.part, await dispatch(call));
+			const result = finish(
+				call.part,
+				await withHiddenSorts(await dispatch(call)),
+			);
 			executed = { kind: "outcome", outcome: { kind: "part", result } };
 			status = result.status;
 			code = result.code;
@@ -1441,4 +1498,97 @@ export function withSortControls(
 		.slice(0, 6);
 	if (sorts.length === 0) return summary;
 	return { ...summary, items: [...sorts.map(toItem), ...summary.items] };
+}
+
+/** A label that says the list has an order control: looked for in the snapshot's text. */
+const SORT_LABEL = /並べ替え|並び替え|並び順|表示順|ソート|sort by|sort:/i;
+
+type HiddenSortOption = {
+	text: string;
+	href: string | null;
+	params: [string, string][];
+};
+type HiddenSort = { url: string; params: [string, string][] };
+
+/** The options of `inspectSort`'s JSON text; anything malformed is dropped. */
+export function sortOptionsOf(json: unknown): HiddenSortOption[] {
+	if (typeof json !== "string") return [];
+	let value: unknown;
+	try {
+		value = JSON.parse(json);
+	} catch {
+		return [];
+	}
+	if (!Array.isArray(value)) return [];
+	return value.flatMap((o): HiddenSortOption[] => {
+		if (typeof o !== "object" || o === null) return [];
+		const { text, href, params } = o as Record<string, unknown>;
+		if (typeof text !== "string" || text === "" || !SORT_NAME.test(text))
+			return [];
+		return [
+			{
+				text: text.slice(0, 40),
+				href: typeof href === "string" ? href : null,
+				params: Array.isArray(params)
+					? params.filter(
+							(p): p is [string, string] =>
+								Array.isArray(p) &&
+								typeof p[0] === "string" &&
+								typeof p[1] === "string",
+						)
+					: [],
+			},
+		];
+	});
+}
+
+const decoded = (s: string) => {
+	try {
+		return decodeURIComponent(s.replaceAll("+", " "));
+	} catch {
+		return s;
+	}
+};
+
+/**
+ * Where a sort choice leads: its own link, else the current URL with its parameters set. A parameter whose
+ * value the URL already carries (the search word, in the path or the query) is left as it is; a choice that
+ * would change nothing has no URL.
+ */
+export function sortUrl(
+	option: Pick<HiddenSortOption, "href" | "params">,
+	current: string,
+): string | null {
+	let base: URL;
+	try {
+		base = new URL(option.href ?? current, current);
+	} catch {
+		return null;
+	}
+	if (base.protocol !== "http:" && base.protocol !== "https:") return null;
+	if (option.href !== null) return base.href;
+	const carried = decoded(base.pathname + base.search);
+	let changed = false;
+	for (const [key, value] of option.params) {
+		const v = decoded(value);
+		if (base.searchParams.get(key) === v || carried.includes(v)) continue;
+		base.searchParams.set(key, v);
+		changed = true;
+	}
+	return changed ? base.href : null;
+}
+
+/** The landed URL carries each parameter the choice set (or is the choice's own link). */
+export function sortApplied(landed: string, sort: HiddenSort): boolean {
+	let at: URL;
+	let want: URL;
+	try {
+		at = new URL(landed);
+		want = new URL(sort.url);
+	} catch {
+		return false;
+	}
+	for (const [key, value] of want.searchParams)
+		if (at.searchParams.get(key) !== value) return false;
+	return true;
 }

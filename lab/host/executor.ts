@@ -375,6 +375,17 @@ export function createExecutor(deps: ExecutorDeps) {
 		return content;
 	}
 
+	/**
+	 * The tab's list-ordering choices by the adapter's fixed `inspectSort` (custom dropdowns out of the
+	 * accessibility tree too). Read-only, like `extract`: nothing in the page changes.
+	 */
+	async function sortOptions(tabRef: string): Promise<InspectionResult> {
+		await ensureCurrent(tabRef);
+		return readAdapter(() =>
+			adapter.inspect("inspectSort", null, control.signal),
+		);
+	}
+
 	/** The element facts for the approval decision; reading never reaches the page's state. */
 	async function inspect(guard: CommitGuard): Promise<InspectionResult | null> {
 		if (guard.declared) return null;
@@ -853,5 +864,5 @@ export function createExecutor(deps: ExecutorDeps) {
 		}
 	}
 
-	return { execute, start, attach, extract, capture };
+	return { execute, start, attach, extract, capture, sortOptions };
 }

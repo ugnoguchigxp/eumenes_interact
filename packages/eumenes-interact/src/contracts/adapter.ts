@@ -51,7 +51,9 @@ export type FixedInspection =
 	| "inspectFocused"
 	| "inspectLocator"
 	/** The largest video on the page: where it is in playback, never its content. */
-	| "inspectMedia";
+	| "inspectMedia"
+	/** A list's ordering choices, also those of a custom dropdown out of the accessibility tree. */
+	| "inspectSort";
 
 /** The element facts a fixed inspection read. Values are attribute facts only, never page text. */
 export type InspectionResult = Readonly<

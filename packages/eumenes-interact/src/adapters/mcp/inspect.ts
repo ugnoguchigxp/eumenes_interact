@@ -177,3 +177,98 @@ export function parseMediaInspection(
 		adShowing: v.adShowing === true,
 	};
 }
+
+/**
+ * The page's list-ordering choices, also those a custom dropdown keeps hidden or out of the accessibility
+ * tree (a `<li onclick>` under "並べ替え："). An element counts when its own short text names an order
+ * ("価格の安い順", "Price: low to high") and a sort label ("並べ替え", "表示順", "Sort") is on it or within five
+ * ancestors. For each: its text, whether it shows, its link, and the `key=value` pairs its link, handler or
+ * data attributes carry (what choosing it would put in the URL). Reading changes nothing. No model input.
+ */
+export const INSPECT_SORT_FUNCTION = `() => {
+  const ORDER = /(安い順|高い順|価格の?(安|低|高)い|低価格|高価格|価格順|新しい順|古い順|新着順|人気順|評価順|レビュー順|おすすめ順|売れ筋|price.{0,16}(low|high|asc|desc)|lowest|highest|newest|best.?sell|top.?rated)/i;
+  const LABEL = /(並べ替え|並び替え|並び順|表示順|ソート|sort)/i;
+  const PAIR = /([A-Za-z_][\\w.-]{0,30})=([^|&'"\\s;,()<>]{1,100})/g;
+  const own = (el) => {
+    if (el.tagName === 'OPTION' || el.children.length === 0) return el.textContent || '';
+    return [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('');
+  };
+  const labelled = (el) => {
+    for (let p = el, i = 0; p && p.nodeType === 1 && i < 6; p = p.parentElement, i++) {
+      const s = [p.getAttribute('aria-label'), p.id, typeof p.className === 'string' ? p.className : '', p.getAttribute('name')].join(' ');
+      if (LABEL.test(s)) return true;
+      if (i > 0) for (const c of p.children) if (c !== el && c.children.length === 0 && LABEL.test((c.textContent || '').slice(0, 40))) return true;
+    }
+    return false;
+  };
+  const out = [];
+  const seen = new Set();
+  for (const el of document.querySelectorAll('a[href], li, option, button, [role=option], [role=menuitem], [role=menuitemradio], [onclick], [data-sort], [data-value]')) {
+    const text = own(el).replace(/\\s+/g, ' ').trim();
+    if (!text || text.length > 24 || !ORDER.test(text) || seen.has(text) || !labelled(el)) continue;
+    seen.add(text);
+    const sources = [el.getAttribute('onclick'), ...[...el.attributes].filter((a) => a.name.startsWith('data-')).map((a) => a.value)];
+    const select = el.tagName === 'OPTION' ? el.closest('select') : null;
+    if (select && select.name && el.value) sources.push(select.name + '=' + el.value);
+    const params = [];
+    for (const s of sources) if (s) for (const m of String(s).matchAll(PAIR)) params.push([m[1], m[2]]);
+    const href = el.tagName === 'A' && /^https?:/.test(el.href) ? el.href : null;
+    out.push({ text, visible: !!(el.offsetParent || el.getClientRects().length), href, params: params.slice(0, 6) });
+    if (out.length >= 8) break;
+  }
+  return { count: out.length, options: JSON.stringify(out) };
+}`;
+
+/** One ordering choice `inspectSort` found. The text is page text (untrusted), cut short. */
+export type SortOption = {
+	text: string;
+	visible: boolean;
+	href: string | null;
+	params: [string, string][];
+};
+
+/** The count and the options (as JSON text, the only shape an inspection result carries), checked. */
+export function parseSortInspection(
+	result: string | undefined,
+): InspectionResult {
+	const { count, options } = evaluated(result);
+	if (typeof count !== "number" || typeof options !== "string")
+		throw new AdapterError("inspect_invalid", false);
+	return { count, options: JSON.stringify(sortOptionsOf(options)) };
+}
+
+/** The options of a sort inspection's JSON text; anything malformed is dropped, strings are capped. */
+export function sortOptionsOf(json: string): SortOption[] {
+	let value: unknown;
+	try {
+		value = JSON.parse(json);
+	} catch {
+		return [];
+	}
+	if (!Array.isArray(value)) return [];
+	const str = (x: unknown, n: number) =>
+		typeof x === "string" ? x.slice(0, n) : null;
+	return value.slice(0, 8).flatMap((o): SortOption[] => {
+		if (typeof o !== "object" || o === null) return [];
+		const r = o as Record<string, unknown>;
+		const text = str(r.text, 40);
+		if (!text) return [];
+		const params = Array.isArray(r.params)
+			? r.params.flatMap((p): [string, string][] =>
+					Array.isArray(p) &&
+					typeof p[0] === "string" &&
+					typeof p[1] === "string"
+						? [[p[0].slice(0, 32), p[1].slice(0, 100)]]
+						: [],
+				)
+			: [];
+		return [
+			{
+				text,
+				visible: r.visible === true,
+				href: str(r.href, LOCATOR_VALUE_MAX * 10),
+				params: params.slice(0, 6),
+			},
+		];
+	});
+}

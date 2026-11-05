@@ -32,11 +32,13 @@ import {
 } from "../mcp/extract.ts";
 import {
 	INSPECT_MEDIA_FUNCTION,
+	INSPECT_SORT_FUNCTION,
 	INSPECT_FOCUSED_FUNCTION,
 	INSPECT_LOCATOR_FUNCTION,
 	INSPECT_TARGET_FUNCTION,
 	parseLocatorInspection,
 	parseMediaInspection,
+	parseSortInspection,
 	parseTargetInspection,
 } from "../mcp/inspect.ts";
 import {
@@ -594,6 +596,10 @@ export function createPlaywrightMcpAdapter(
 				case "inspectMedia":
 					return parseMediaInspection(
 						await inspectCall({ function: INSPECT_MEDIA_FUNCTION }, signal),
+					);
+				case "inspectSort":
+					return parseSortInspection(
+						await inspectCall({ function: INSPECT_SORT_FUNCTION }, signal),
 					);
 				default:
 					throw new AdapterError("unsupported", false);
