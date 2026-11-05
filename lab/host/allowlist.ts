@@ -11,8 +11,8 @@ import type { ApprovalDecision, ApprovalPrompt, Approver } from "./approval.ts";
 
 /** The action kinds a file may grant, and the element names each one matches (whole name, case-insensitive). */
 export const ACTION_KINDS = {
-	"media.play": /^(?:play|再生)(?:\s*\((?:k|space)\))?$/iu,
-	"media.pause": /^(?:pause|一時停止)(?:\s*\((?:k|space)\))?$/iu,
+	"media.play": /^(?:play|再生)(?:\s*\((?:k|space)\)|\s+keyboard shortcut k|（k）)?$/iu,
+	"media.pause": /^(?:pause|一時停止)(?:\s*\((?:k|space)\)|\s+keyboard shortcut k|（k）)?$/iu,
 } as const;
 export type ActionKind = keyof typeof ACTION_KINDS;
 
@@ -56,7 +56,10 @@ export function allowedKind(
 	} catch {
 		return null;
 	}
-	const element = prompt.element.trim();
+	// The gate names the element as `<role> "<name>"` (e.g. `button "Play (k)"`); only buttons are granted.
+	const named = /^button\s+"(.*)"$/su.exec(prompt.element.trim());
+	if (!named) return null;
+	const element = named[1]!.trim();
 	for (const entry of entries) {
 		if (entry.origin !== origin) continue;
 		for (const kind of entry.actions)

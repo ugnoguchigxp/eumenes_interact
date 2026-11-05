@@ -135,4 +135,4 @@ export function chosenLine(choices: Choices, option: string): string {
 
 /** The step guidance: options the request does not decide are asked, numbered, instead of picked. */
 export const CHOICE_GUIDANCE =
-	"（依頼から一つに決められない選択肢（経路の種類、並び順、フォームの既定値など）があれば自分で選ばず、ask で質問と「1) …」「2) …」の番号付きの行で尋ねてください。）";
+	"（依頼から一つに決められない選択肢（経路の種類、並び順、フォームの既定値など）があれば自分で選ばず、reply で質問と「1) …」「2) …」の番号付きの行で尋ねてください。）";

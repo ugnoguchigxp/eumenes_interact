@@ -28,21 +28,36 @@ describe("action allowlist", () => {
 	const entries = loadAllowlist();
 	test("the shipped file grants YouTube play/pause only", () => {
 		expect(
-			allowedKind(entries, prompt("https://www.youtube.com/watch", "再生 (k)")),
+			allowedKind(
+				entries,
+				prompt("https://www.youtube.com/watch", 'button "再生 (k)"'),
+			),
 		).toBe("media.play");
 		expect(
 			allowedKind(
 				entries,
-				prompt("https://www.youtube.com/watch", "Pause (k)"),
+				prompt("https://www.youtube.com/watch", 'button "Pause (k)"'),
 			),
 		).toBe("media.pause");
 		expect(
-			allowedKind(entries, prompt("https://vimeo.com/76979871", "Play")),
+			allowedKind(
+				entries,
+				prompt(
+					"https://www.youtube.com/watch",
+					'button "Play keyboard shortcut k"',
+				),
+			),
+		).toBe("media.play");
+		expect(
+			allowedKind(
+				entries,
+				prompt("https://vimeo.com/76979871", 'button "Play"'),
+			),
 		).toBeNull();
 		expect(
 			allowedKind(
 				entries,
-				prompt("https://www.youtube.com.evil.example/x", "Play"),
+				prompt("https://www.youtube.com.evil.example/x", 'button "Play"'),
 			),
 		).toBeNull();
 	});
@@ -50,22 +65,28 @@ describe("action allowlist", () => {
 		expect(
 			allowedKind(
 				entries,
-				prompt("https://www.youtube.com/watch", "Play all and subscribe"),
-			),
-		).toBeNull();
-		expect(
-			allowedKind(entries, prompt("https://www.youtube.com/watch", "登録")),
-		).toBeNull();
-		expect(
-			allowedKind(
-				entries,
-				prompt("https://www.youtube.com/watch", "Play", "type"),
+				prompt(
+					"https://www.youtube.com/watch",
+					'button "Play all and subscribe"',
+				),
 			),
 		).toBeNull();
 		expect(
 			allowedKind(
 				entries,
-				prompt("https://www.youtube.com/watch", "k", "press"),
+				prompt("https://www.youtube.com/watch", 'button "登録"'),
+			),
+		).toBeNull();
+		expect(
+			allowedKind(
+				entries,
+				prompt("https://www.youtube.com/watch", 'button "Play"', "type"),
+			),
+		).toBeNull();
+		expect(
+			allowedKind(
+				entries,
+				prompt("https://www.youtube.com/watch", 'button "k"', "press"),
 			),
 		).toBeNull();
 	});
@@ -75,14 +96,14 @@ describe("action allowlist", () => {
 		const a = new AllowlistApprover(entries, stop, (l) => lines.push(l));
 		expect(
 			await a.decide(
-				prompt("https://vimeo.com/1", "Play"),
+				prompt("https://vimeo.com/1", 'button "Play"'),
 				AbortSignal.timeout(1000),
 			),
 		).toBe("deny");
 		expect(stop.prompt?.page).toBe("https://vimeo.com/1");
 		expect(
 			await a.decide(
-				prompt("https://www.youtube.com/watch", "再生"),
+				prompt("https://www.youtube.com/watch", 'button "再生"'),
 				AbortSignal.timeout(1000),
 			),
 		).toBe("grant");
