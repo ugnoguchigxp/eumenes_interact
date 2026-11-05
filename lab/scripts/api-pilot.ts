@@ -71,7 +71,11 @@ const snapshot = {
 		.trim(),
 	sourceSha256: sourceFingerprint.digest("hex"),
 	fileCount: files.length,
-	dirty: true,
+	dirty: Boolean(
+		Bun.spawnSync(["git", "status", "--porcelain", "--untracked-files=no"])
+			.stdout.toString()
+			.trim(),
+	),
 };
 const phase = process.env.LAB_PILOT_PHASE ?? "all";
 const plans = [
