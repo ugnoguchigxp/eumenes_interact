@@ -81,7 +81,9 @@ export function summarizePage(
 	// An unnamed link to an address a named link also goes to (a video's thumbnail beside its title) adds
 	// nothing the model can choose by; the named one stands for both. Ids are unchanged.
 	const named = new Set(
-		records.filter((r) => r.role === "link" && r.name && r.url).map((r) => r.url),
+		records
+			.filter((r) => r.role === "link" && r.name && r.url)
+			.map((r) => r.url),
 	);
 	const listed = records.filter(
 		(r) => !(r.role === "link" && !r.name && r.url && named.has(r.url)),
@@ -150,14 +152,27 @@ export function findItems(
 
 const SNIPPET_CHARS = 240;
 /** Roles whose name is the text they show (a table cell says "初出：" in its name, not in a text child). */
-const NAMED_TEXT = ["paragraph", "cell", "gridcell", "rowheader", "columnheader", "term", "definition"];
+const NAMED_TEXT = [
+	"paragraph",
+	"cell",
+	"gridcell",
+	"rowheader",
+	"columnheader",
+	"term",
+	"definition",
+];
 
 /**
  * A hit that is only a label ( such as "出版年") is widened to the nearest enclosing block that says more (its row,
  * its label-and-value pair), so the value comes back with the label. A block longer than the snippet is not
  * taken: the hit stays as it was.
  */
-function widen(nodes: readonly Node[], node: Node, text: string, wanted: string): string {
+function widen(
+	nodes: readonly Node[],
+	node: Node,
+	text: string,
+	wanted: string,
+): string {
 	// Only a hit that is little more than the query itself (a label) is widened; a sentence already says enough.
 	if (fold(text).length > wanted.length + 4) return text;
 	for (const a of ancestors(nodes, node)) {
@@ -167,7 +182,8 @@ function widen(nodes: readonly Node[], node: Node, text: string, wanted: string)
 		// A row that says little more than its label has its figures in the rows below (an infobox).
 		if (a.role === "row" && fold(wider).length <= 2 * wanted.length + 4)
 			return withNextRows(nodes, a, wider.length > text.length ? wider : text);
-		if (wider.length > text.length && fold(wider).includes(fold(text))) return wider;
+		if (wider.length > text.length && fold(wider).includes(fold(text)))
+			return wider;
 	}
 	return text;
 }
@@ -180,7 +196,8 @@ function withNextRows(nodes: readonly Node[], row: Node, text: string): string {
 	let taken = 0;
 	for (const n of nodes) {
 		if (taken >= 3) break;
-		if (n.index < row.end || n.parent !== row.parent || n.role !== "row") continue;
+		if (n.index < row.end || n.parent !== row.parent || n.role !== "row")
+			continue;
 		const more = textOf(nodes, n);
 		if (!more) continue;
 		if (out.length + 1 + more.length > SNIPPET_CHARS) break;
@@ -197,7 +214,17 @@ function inRow(nodes: readonly Node[], node: Node): boolean {
 	}
 	return false;
 }
-const LANDMARK_STOP = ["main", "navigation", "banner", "contentinfo", "complementary", "region", "table", "list", "article"];
+const LANDMARK_STOP = [
+	"main",
+	"navigation",
+	"banner",
+	"contentinfo",
+	"complementary",
+	"region",
+	"table",
+	"list",
+	"article",
+];
 const CONTAINERS = ["listitem", "article", "row", "region", "section", "group"];
 
 /**
@@ -252,8 +279,28 @@ export function findText(
 }
 
 /** Roles that sit inside a sentence: a paragraph's text is split around them in the snapshot. */
-const INLINE_ROLES = ["code", "strong", "emphasis", "link", "mark", "subscript", "superscript", "time", "insertion", "deletion"];
-const SENTENCE_BLOCKS = ["paragraph", "listitem", "cell", "gridcell", "definition", "blockquote", "caption", "generic"];
+const INLINE_ROLES = [
+	"code",
+	"strong",
+	"emphasis",
+	"link",
+	"mark",
+	"subscript",
+	"superscript",
+	"time",
+	"insertion",
+	"deletion",
+];
+const SENTENCE_BLOCKS = [
+	"paragraph",
+	"listitem",
+	"cell",
+	"gridcell",
+	"definition",
+	"blockquote",
+	"caption",
+	"generic",
+];
 
 /**
  * A text hit whose block also holds inline pieces (`code`, `strong`, a link): the block's whole sentence,
@@ -410,7 +457,14 @@ const AD_TEXT =
 	/^(\[?(PR|AD|広告|スポンサー|Sponsored|Ad|Ads|プロモーション)\]?)($|[\s・:：\]])/i;
 const AD_URL =
 	/doubleclick\.net|googleadservices|googlesyndication|criteo\.com|\/click\?ad=|adchoices|amazon-adsystem|\/aclk\?/i;
-const CHROME_ROLES = ["tablist", "tab", "menu", "menubar", "menuitem", "toolbar"];
+const CHROME_ROLES = [
+	"tablist",
+	"tab",
+	"menu",
+	"menubar",
+	"menuitem",
+	"toolbar",
+];
 /** "ゲーム機本体 (561)": a filter that narrows the list, not a result. */
 const FACET = /[（(][\d,]+[)）]$/;
 /** YouTube duration/thumbnail rows and channel jumps mixed into results (2026-11-05). */
@@ -433,7 +487,8 @@ function siteRoot(url: string | undefined): boolean {
 function channelUrl(url: string | undefined): boolean {
 	if (!url) return false;
 	try {
-		const path = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/").pathname;
+		const path = new URL(url.replace(/^"|"$/g, ""), "https://x.invalid/")
+			.pathname;
 		return /^\/@[^/]+\/?$/.test(path) || /^\/(channel|c|user)\//.test(path);
 	} catch {
 		return false;
@@ -456,8 +511,11 @@ function noticeBeside(
 	return near.some((n) => {
 		if (n.index === link.index) return false;
 		// Snapshot text often keeps the surrounding ASCII quotes from the YAML-like dump.
-		const t = (n.name || n.text || "").trim().replace(/^["']|["']$/g, "").trim();
-		return /^※/.test(t) || /^\*\s/.test(t);
+		const t = (n.name || n.text || "")
+			.trim()
+			.replace(/^["']|["']$/g, "")
+			.trim();
+		return t.startsWith("※") || /^\*\s/.test(t);
 	});
 }
 
@@ -492,7 +550,9 @@ function resultRank(
 	url: string | undefined,
 ): number {
 	const up = ancestors(nodes, link);
-	const container = up.find((a) => a.role === "listitem" || a.role === "article");
+	const container = up.find(
+		(a) => a.role === "listitem" || a.role === "article",
+	);
 	const inside = container ? descendants(nodes, container) : [];
 	const own = descendants(nodes, link);
 	const said = (n: Node) => (n.name || n.text || "").trim();
@@ -519,7 +579,8 @@ function resultRank(
 	)
 		return 0;
 	const beside = inside.some((n) => {
-		if (n.index === link.index || n.index < link.end && n.index > link.index) return false;
+		if (n.index === link.index || (n.index < link.end && n.index > link.index))
+			return false;
 		if (n.role === "heading" || n.role === "img") return true;
 		const t = said(n);
 		return (
@@ -540,7 +601,9 @@ function textFor(nodes: readonly Node[], link: Node, title: string) {
 	if (!container) return {};
 	const text = cleanEntryText(
 		descendants(nodes, container)
-			.filter((n) => n.role === "text" || n.role === "paragraph" || n.role === "code")
+			.filter(
+				(n) => n.role === "text" || n.role === "paragraph" || n.role === "code",
+			)
 			.map((n) => n.text || n.name)
 			.filter((t) => t && t !== title)
 			.join(" "),
