@@ -15,6 +15,7 @@ import {
 	type PartRecordPort,
 	type SiteKnowledgePort,
 } from "eumenes-interact";
+import { toUri } from "./uri.ts";
 import type { Executed, ExecuteOptions, Executor } from "../executor.ts";
 import { assertQuoted, type InputGrants } from "../grants.ts";
 import type { TabRegistry } from "../tabs.ts";
@@ -434,7 +435,10 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 
 	async function pageOpen(url: string): Promise<Body> {
 		const s = confirmed(
-			await operate({ action: "browser.navigate", url }, "navigation"),
+			await operate(
+				{ action: "browser.navigate", url: toUri(url) },
+				"navigation",
+			),
 		);
 		const landed = await passChallenge(
 			await afterSending(() => observationAfter(s)),
@@ -606,7 +610,10 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	}
 
 	async function openUrl(url: string): Promise<ObservationEnvelope | null> {
-		const s = await operate({ action: "browser.navigate", url }, "navigation");
+		const s = await operate(
+			{ action: "browser.navigate", url: toUri(url) },
+			"navigation",
+		);
 		if (s.kind !== "operation" || s.result.status !== "confirmed") return null;
 		return afterSending(() => observationAfter(s));
 	}
@@ -650,7 +657,10 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 			const unchanged = (o: ObservationEnvelope) =>
 				o.url === start.url || samePage(o, start);
 			if (after && unchanged(after)) {
-				await operate({ action: "page.wait", seconds: RESULTS_SETTLE_S }, "none");
+				await operate(
+					{ action: "page.wait", seconds: RESULTS_SETTLE_S },
+					"none",
+				);
 				after = await observeFresh();
 				if (unchanged(after)) after = null;
 			}
