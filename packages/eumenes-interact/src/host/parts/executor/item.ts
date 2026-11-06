@@ -1,5 +1,10 @@
-import type { ItemRecord, ObservationEnvelope } from "../../../index.ts";
+import type {
+	InspectionResult,
+	ItemRecord,
+	ObservationEnvelope,
+} from "../../../index.ts";
 import {
+	activeTab,
 	afterSending,
 	confirmed,
 	elementName,
@@ -34,15 +39,26 @@ const OPENABLE: Readonly<Record<string, "navigation" | "submit">> = {
 /**
  * A link or menu item without a destination of its own (none, `#…` or `javascript:`) runs page script, which may
  * delete or buy, so it asks first as a button does (design R05). A tab only switches what the page shows.
+ *
+ * Playwright MCP gives no `/url` line to `<a role="menuitem" href>` (verified against the real snapshot, design
+ * R18). The host's inspection of the element may therefore supply the destination: an `<a>` or `<area>` whose
+ * `href` attribute it reports. Without a destination in either place the item still asks.
  */
 export function effectOf(
 	record: Pick<ItemRecord, "role" | "url">,
+	inspection?: InspectionResult | null,
 ): "navigation" | "submit" | undefined {
 	const effect = OPENABLE[record.role];
 	if (effect !== "navigation" || record.role === "tab") return effect;
+	const inspected =
+		inspection &&
+		(inspection.tag === "a" || inspection.tag === "area") &&
+		typeof inspection.href === "string"
+			? inspection.href
+			: undefined;
 	// Read as a browser does (WHATWG): tabs and newlines anywhere are dropped, and C0 controls and spaces at the
 	// ends, so "java\nscript:" is still script.
-	const url = (record.url ?? "")
+	const url = (record.url || inspected || "")
 		.replace(/[\t\n\r]/g, "")
 		.replace(/^[\0-\x20]+|[\0-\x20]+$/g, "");
 	return url === "" || url.startsWith("#") || /^javascript:/i.test(url)
@@ -92,6 +108,33 @@ export async function click(
 	});
 }
 
+/**
+ * The host's inspection of a link or menu item the snapshot gave no destination: the only case in which the
+ * effect depends on it. A host without the port, or an inspection that fails, leaves the item asking first.
+ */
+async function inspectedLink(
+	ctx: ExecutorContext,
+	target: Target,
+	observation: ObservationEnvelope,
+): Promise<InspectionResult | null> {
+	const { role, url } = target.record;
+	if (
+		(role !== "link" && role !== "menuitem") ||
+		url ||
+		!ctx.executor.inspectTarget
+	)
+		return null;
+	try {
+		return await ctx.executor.inspectTarget(
+			await activeTab(ctx),
+			observation.observationRef,
+			target.ref,
+		);
+	} catch {
+		return null;
+	}
+}
+
 export async function itemOpen(
 	ctx: ExecutorContext,
 	itemId: string,
@@ -119,11 +162,14 @@ export async function itemOpen(
 			try {
 				href = new URL(record.url, observation.url).href;
 			} catch {}
-			if (href) return pageOpen(ctx, href);
+			if (href) return pageOpen(ctx, href, { hostDerived: true });
 		}
 		throw error;
 	}
-	const effect = effectOf(target.record);
+	const effect = effectOf(
+		target.record,
+		await inspectedLink(ctx, target, observation),
+	);
 	if (effect === undefined) throw new PartFail("item_not_openable");
 	// A link may land on a bot check (Cloudflare's "Just a moment..."): waited out once, else site_blocked.
 	const after = await passChallenge(

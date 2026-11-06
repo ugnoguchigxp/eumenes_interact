@@ -335,6 +335,9 @@ async function main(): Promise<number> {
 						includeHoldout: values["include-holdout"] === true,
 						includeLive: values["include-live"] === true,
 						keepObservations: values["keep-observations"] === true,
+						...(values["retain-core-state"] === true
+							? { retainCoreState: true }
+							: {}),
 						repeat,
 						inference: oneOf(
 							"inference",

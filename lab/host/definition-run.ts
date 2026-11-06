@@ -384,26 +384,35 @@ export async function runDefinition(
 	const operate = async (
 		command: AdapterCommand,
 		declaredEffect: DeclaredEffect,
-		extra: { observationRef?: string; grantRef?: string } = {},
+		extra: {
+			observationRef?: string;
+			grantRef?: string;
+			grantPurpose?: string;
+		} = {},
 	) =>
 		settle(
-			await executor.execute({
-				kind: "operate",
-				tabRef,
-				...(extra.observationRef
-					? { observationRef: extra.observationRef }
-					: {}),
-				command,
-				declaredEffect,
-				...(extra.grantRef
-					? {
-							inputProvenance: {
-								kind: "grant" as const,
-								inputValueRef: extra.grantRef,
-							},
-						}
-					: {}),
-			}),
+			await executor.execute(
+				{
+					kind: "operate",
+					tabRef,
+					...(extra.observationRef
+						? { observationRef: extra.observationRef }
+						: {}),
+					command,
+					declaredEffect,
+					...(extra.grantRef
+						? {
+								inputProvenance: {
+									kind: "grant" as const,
+									inputValueRef: extra.grantRef,
+								},
+							}
+						: {}),
+				},
+				extra.grantPurpose !== undefined
+					? { grantPurpose: extra.grantPurpose }
+					: {},
+			),
 		);
 
 	type Target =
@@ -539,7 +548,11 @@ export async function runDefinition(
 							submit: step.args.submit,
 						},
 						step.args.submit ? "navigation" : "input",
-						{ observationRef: t.observationRef, grantRef },
+						{
+							observationRef: t.observationRef,
+							grantRef,
+							grantPurpose: step.id,
+						},
 					);
 				}
 				if (done.status === "confirmed") evidence(t, done.operationId);

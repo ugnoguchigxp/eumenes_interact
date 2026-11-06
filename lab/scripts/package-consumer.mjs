@@ -216,7 +216,7 @@ for (const v of vectors.choices)
 		v.label,
 	);
 for (const v of vectors.effects)
-	assert.equal(effectOf(v), v.effect, `${v.role} ${v.url ?? ""}`);
+	assert.equal(effectOf(v, v.inspection), v.effect, `${v.role} ${v.url ?? ""}`);
 // The actual installed artifact must fail its own integrity check after one byte changes.
 const target = join(root, "dist/skills/browse.md");
 const old = readFileSync(target);

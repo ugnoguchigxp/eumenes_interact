@@ -12,7 +12,7 @@ import type {
  * inspection; the model's declared effect alone can only add an approval, never remove one.
  */
 
-export type ApprovalAction = "click" | "press" | "type";
+export type ApprovalAction = "click" | "press" | "type" | "navigate";
 
 /** What decides the approval: the declaration, or what a fixed inspection reads from the element. */
 export type CommitGuard = {
@@ -53,6 +53,12 @@ export function commitGuard(
 		case "page.fill":
 			return command.submit || declared
 				? { action: "type", declared, probe: { ref: command.targetRef } }
+				: null;
+		// Only a navigation a part declared `submit` (an address that carries page text, design R21) is asked
+		// about; the destination policy still applies first. The prompt shows the address.
+		case "browser.navigate":
+			return declared
+				? { action: "navigate", declared, probe: "focused" }
 				: null;
 		case "page.press":
 			return declared || keyCommits(command.key)

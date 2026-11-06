@@ -9,6 +9,7 @@ import type { Executed } from "../ports.ts";
 import {
 	createContext,
 	Halt,
+	noteObservation,
 	PartFail,
 	tabOf,
 	summarize,
@@ -151,6 +152,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		observation: ObservationEnvelope;
 	}): PageSummary {
 		ctx.active = tabOf(first.observation) || null;
+		noteObservation(ctx, first.observation);
 		return summarize(ctx, first.observation);
 	}
 

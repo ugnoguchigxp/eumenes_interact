@@ -257,6 +257,98 @@ describe("unknown outcomes and cancel", () => {
 		expect(unsettled.map((o) => o.status)).toEqual(["indeterminate"]);
 	});
 
+	describe("a part's recoverable request is granted by the host's own inspection", () => {
+		const POST_FORM = {
+			tag: "input",
+			inForm: true,
+			submits: false,
+			formMethod: "post",
+		};
+		const search = (
+			s: Awaited<ReturnType<typeof setup>>,
+			info: Record<string, string | boolean | number | null>,
+		) => {
+			s.adapter.inspectOverride = { e8: info };
+			s.adapter.onDispatch = (c) =>
+				c.action === "page.fill"
+					? {
+							status: "indeterminate",
+							code: "transport_lost",
+							retryable: false,
+						}
+					: undefined;
+			const call = s.operate(
+				{
+					action: "page.fill",
+					targetRef: "e8",
+					element: "検索",
+					text: "白波",
+					submit: true,
+				},
+				s.first.observation.observationRef,
+				{ declaredEffect: "input" },
+			);
+			return {
+				call,
+				run: () =>
+					s.executor.execute(call, { valueChecked: true, recoverable: true }),
+			};
+		};
+
+		test("a POST form stays indeterminate and nothing is sent again", async () => {
+			const s = await setup();
+			const { run } = search(s, POST_FORM);
+			expect(await run()).toMatchObject({
+				kind: "end",
+				status: "indeterminate",
+			});
+			const sent = s.adapter.dispatched.length;
+			s.adapter.onDispatch = null;
+			expect(await run()).toMatchObject({
+				kind: "end",
+				status: "indeterminate",
+			});
+			expect(s.adapter.dispatched.length).toBe(sent);
+			expect(
+				listUnsettledOperations(s.db, LAB_OWNER).map((o) => o.status),
+			).toEqual(["indeterminate"]);
+		});
+
+		test("a form whose method the page did not describe stays indeterminate", async () => {
+			const s = await setup();
+			const { run } = search(s, { tag: "input", inForm: true, submits: false });
+			expect(await run()).toMatchObject({
+				kind: "end",
+				status: "indeterminate",
+			});
+		});
+
+		test("a GET form settles as failed, so the caller may try another way", async () => {
+			const s = await setup();
+			const { run } = search(s, { ...POST_FORM, formMethod: "get" });
+			expect(await run()).toMatchObject({
+				kind: "outcome",
+				outcome: {
+					kind: "operation",
+					result: { status: "failed", code: "unconfirmed_transport_lost" },
+				},
+			});
+		});
+
+		test("a field outside any form settles as failed", async () => {
+			const s = await setup();
+			const { run } = search(s, {
+				tag: "input",
+				inForm: false,
+				submits: false,
+			});
+			expect(await run()).toMatchObject({
+				kind: "outcome",
+				outcome: { kind: "operation", result: { status: "failed" } },
+			});
+		});
+	});
+
 	test("nothing is sent after a cancel", async () => {
 		const s = await setup();
 		s.control.cancel("cancel");
@@ -457,6 +549,26 @@ describe("input values", () => {
 		expect(JSON.stringify(requested)).not.toContain("秘密の語");
 		const [op] = listOperations(s.db, LAB_OWNER, s.runId);
 		expect(JSON.stringify(op)).not.toContain("秘密の語");
+	});
+
+	test("a grant used for another purpose than it was approved for is refused and nothing is sent (R19)", async () => {
+		const s = await setup();
+		const { inputValueRef } = s.grants.approve({
+			value: "秘密の語",
+			origin: BASE,
+			purpose: "検索語",
+		});
+		const call = s.operate(fill(""), s.first.observation.observationRef, {
+			declaredEffect: "input",
+			inputProvenance: { kind: "grant", inputValueRef },
+		});
+		const sent = s.adapter.dispatched.length;
+		expect(
+			refused(await s.executor.execute(call, { grantPurpose: "お名前" })),
+		).toBe("grant_mismatch");
+		expect(s.adapter.dispatched.length).toBe(sent);
+		await s.executor.execute(call, { grantPurpose: "検索語" });
+		expect(s.adapter.dispatched.at(-1)).toMatchObject({ text: "秘密の語" });
 	});
 
 	test("a grant for another site and an unknown grant are refused", async () => {

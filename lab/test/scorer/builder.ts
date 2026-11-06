@@ -152,6 +152,8 @@ export class TranscriptBuilder {
 		range?: CaptureRange;
 		mediaType?: "image/png" | "image/jpeg";
 		target?: { role: string; nameHash: string };
+		holds?: { role: string; nameHash: string }[];
+		holdsCount?: number;
 	}): this {
 		this.events.push({
 			type: "capture.saved",
@@ -164,6 +166,10 @@ export class TranscriptBuilder {
 			mediaType: options.mediaType ?? "image/png",
 			range: options.range ?? "viewport",
 			...(options.target ? { target: options.target } : {}),
+			...(options.holds ? { holds: options.holds } : {}),
+			...(options.holdsCount === undefined
+				? {}
+				: { holdsCount: options.holdsCount }),
 		});
 		return this;
 	}

@@ -27,6 +27,8 @@ import {
 	DEFAULT_LEXICON,
 	type Lexicon,
 } from "../../../core/shared/lexicon.ts";
+import { pageItem } from "../../../core/parts/items.ts";
+import { squash } from "../../../core/shared/text.ts";
 import { ItemRegistry, pageKey } from "../registry.ts";
 import { withSortControls, type HiddenSort } from "./sort.ts";
 
@@ -123,7 +125,70 @@ export type ExecutorContext = {
 	lastSeen: ObservationEnvelope | null;
 	/** Sort choices the accessibility tree does not show, by the item id issued for them: the URL each leads to. */
 	hiddenSorts: Map<string, HiddenSort>;
+	/** Normalised page text this run has read (observations and page.read), bounded; see `notePage`. */
+	seenText: string[];
+	/** The URLs this run saw as a page's address or as a link on a page (`urlKey` form). */
+	seenUrls: Set<string>;
 };
+
+const SEEN_TEXT_ENTRIES = 40;
+const SEEN_TEXT_CHARS = 600_000;
+const SEEN_LINKS = 2000;
+
+/** A URL as compared for "was it seen": absolute, without its fragment; null for text that is not one. */
+export function urlKey(raw: string, base?: string): string | null {
+	try {
+		const url = new URL(raw, base);
+		url.hash = "";
+		return url.href;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Remembers what a page showed: its text (for the page-run check of R21) and the addresses it gave (its own and
+ * its links). Called for every observation the host hands to a part and for every text a part reads.
+ */
+export function notePage(
+	ctx: ExecutorContext,
+	text: string | undefined,
+	url?: string,
+	links: readonly string[] = [],
+) {
+	if (text !== undefined) {
+		const squashed = squash(text);
+		if (squashed !== "" && !ctx.seenText.includes(squashed)) {
+			ctx.seenText.push(squashed);
+			while (
+				ctx.seenText.length > SEEN_TEXT_ENTRIES ||
+				(ctx.seenText.length > 1 &&
+					ctx.seenText.reduce((n, s) => n + s.length, 0) > SEEN_TEXT_CHARS)
+			)
+				ctx.seenText.shift();
+		}
+	}
+	const own = url === undefined ? null : urlKey(url);
+	if (own !== null) ctx.seenUrls.add(own);
+	for (const link of links) {
+		const key = urlKey(link, url);
+		if (key !== null) ctx.seenUrls.add(key);
+	}
+}
+
+export function noteObservation(ctx: ExecutorContext, o: ObservationEnvelope) {
+	// Read without issuing page ids: noting a page must not register it.
+	const { records } = ctx.core.summarizePage(
+		{ body: o.body, truncated: o.truncated, missing: o.missing },
+		{ pageId: "p0", maxItems: SEEN_LINKS, maxHeadings: 0 },
+	);
+	notePage(
+		ctx,
+		`${o.title ?? ""}\n${o.body}`,
+		o.url,
+		records.flatMap((r) => (r.url === undefined ? [] : [r.url])),
+	);
+}
 
 export function createContext(deps: PartExecutorDeps): ExecutorContext {
 	const lexicon = deps.lexicon ?? DEFAULT_LEXICON;
@@ -144,16 +209,12 @@ export function createContext(deps: PartExecutorDeps): ExecutorContext {
 		results: 0,
 		lastSeen: null,
 		hiddenSorts: new Map(),
+		seenText: [],
+		seenUrls: new Set(),
 	};
 }
 
-export const toItem = (record: ItemRecord): PageItem => ({
-	item: record.item,
-	role: record.role,
-	name: record.name,
-	...(record.region === undefined ? {} : { region: record.region }),
-	...(record.url === undefined ? {} : { url: record.url }),
-});
+export const toItem = (record: ItemRecord): PageItem => pageItem(record);
 
 export const elementName = (record: Pick<ItemRecord, "role" | "name">) =>
 	`${record.role} "${record.name}"`.slice(0, 200);
@@ -192,8 +253,10 @@ export async function step(
 		case "refused":
 			return { kind: "refused", code: outcome.code };
 		case "observation":
+			noteObservation(ctx, outcome.observation);
 			return { kind: "observation", observation: outcome.observation };
 		case "operation":
+			if (outcome.observation) noteObservation(ctx, outcome.observation);
 			return {
 				kind: "operation",
 				result: outcome.result,
@@ -375,6 +438,8 @@ export async function operate(
 		inputProvenance?: InputProvenance;
 		valueChecked?: boolean;
 		recoverable?: boolean;
+		/** What a granted value is for (the field's label): the host checks it against the grant's purpose. */
+		grantPurpose?: string;
 	} = {},
 ): Promise<Step> {
 	const tabRef = await activeTab(ctx);
@@ -401,10 +466,13 @@ export async function operate(
 				? { inputProvenance: extra.inputProvenance }
 				: {}),
 		},
-		extra.valueChecked || extra.recoverable
+		extra.valueChecked || extra.recoverable || extra.grantPurpose !== undefined
 			? {
 					...(extra.valueChecked ? { valueChecked: true } : {}),
 					...(extra.recoverable ? { recoverable: true } : {}),
+					...(extra.grantPurpose !== undefined
+						? { grantPurpose: extra.grantPurpose }
+						: {}),
 				}
 			: undefined,
 	);

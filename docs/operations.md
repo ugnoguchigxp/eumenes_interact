@@ -44,7 +44,7 @@ indeterminateになった申込み等を、新しい依頼として自動でや�
 
 更新時はfrozen install、verify、必要な実Chromeの試験を行う。migrationは追記のみで、適用済みSQLのhashが違えば起動を拒否する。旧本文を書き換えて回避しない。0.1.0はdoneにoutcomeとbasisを必須とする契約version 2で、Arm 1のcore state formatは1を維持する。旧出力のargsをそのまま再送せず、対応するSkillとcallerを更新する。
 
-0.2.0は入力値と選択肢の出所の検査を厳しくし（`assertQuoted` は引用が値を含むことも求める。引用のない選択は、ラベルと依頼が語の境界で共有する文字列がラベルの半分以上を覆う場合だけ通す）、URLのないlinkとmenuitemを承認の対象にし、終端時にcore stateを消す。このため、依頼の言葉を書き換えた値（依頼「2026年11月21日」に対する値「2026-11-21」のような日付や金額の書式の変更）は入力されず `needs_input` になる。区切り記号の違い（「090-1234-5678」と「09012345678」）だけは許す。`#` だけのリンク（ページ内の目次など）も承認の対象になるので、承認者のいない実行では止まる。契約version 2、core state format 1、migrationは変えていない。終端後のcore stateを読むホストは `transitionRun(..., { retainCoreState: true })` を指定する。詳細は[改善設計書](improvement-design.md)の§5。
+0.1.2は入力値と選択肢の出所の検査を厳しくし（`assertQuoted` は引用が値を含むことも求める。引用のない選択は、ラベルと依頼が語の境界で共有する文字列がラベルの半分以上を覆う場合だけ通す）、URLのないlinkとmenuitemを承認の対象にし、終端時にcore stateを消す。このため、依頼の言葉を書き換えた値（依頼「2026年11月21日」に対する値「2026-11-21」のような日付や金額の書式の変更）は入力されず `needs_input` になる。区切り記号の違い（「090-1234-5678」と「09012345678」）だけは許す。`#` だけのリンク（ページ内の目次など）も承認の対象になるので、承認者のいない実行では止まる。契約version 2、core state format 1、migrationは変えていない。終端後のcore stateを読むホストは `transitionRun(..., { retainCoreState: true })` を指定する。詳細は[改善設計書](improvement-design.md)の§5。
 
 配布物のmanifestはpackage、source、Skill、依存、migrationと全ファイルのdigestを持つ。sourceのidentityには、tsconfigとmanifestの生成処理も含む（F12）。tgzの外側のhashと照合し、導入物の改変を拒否する。実行時依存のライセンスはdist/licensesとdist/third-party.jsonに同梱する。ホストの義務は `dist/HOST-CONTRACT.md`、ホストが自分の実装を確かめる入力表は `dist/conformance/host-vectors.json` にある。監査はbun auditで行い、到達性と適用条件を記録する。
 

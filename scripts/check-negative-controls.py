@@ -29,7 +29,7 @@ cases=[
  ('cancel','lab/host/control.ts','const result = await Promise.race([work, stopped]);','const result = await work;', ['bun','test','lab/test/host/run.test.ts','-t','interrupts an unresolved finish gate']),
  ('evidence','lab/host/run.ts','(step.basis === "observed"','(false && step.basis === "observed"',['bun','test','lab/test/host/goal-unmet.test.ts']),
  ('step-budget','lab/inference/call-budget.ts','const used = this.scopes.get(scope) ?? 0;','const used = 0;',['bun','test','lab/test/inference/call-budget.test.ts']),
- ('approval','lab/host/executor.ts','approvalNeeded(guard, await inspect(guard))','false',['bun','test','lab/test/host/parts.test.ts','-t','is asked first']),
+ ('approval','lab/host/executor.ts','guard ? approvalNeeded(guard, info) : false','false',['bun','test','lab/test/host/parts.test.ts','-t','is asked first']),
  ('choice-source','packages/eumenes-interact/src/host/source.ts','if (!tied) throw new Refusal("grant_source_mismatch");','if (false) throw new Refusal("grant_source_mismatch");',['bun','test','packages/eumenes-interact/test/host/source.test.ts','-t','chooses nothing']),
  ('core-state-cleared','packages/eumenes-interact/src/sqlite/runs.ts','const clearCoreState = terminal && options.retainCoreState !== true;','const clearCoreState = false;',['bun','test','packages/eumenes-interact/test/sqlite/integrity.test.ts','-t','every terminal status clears it']),
  ('forget-explicit','packages/eumenes-interact/src/sqlite/runs.ts','db.query("DELETE FROM interact_operations WHERE run_id = ?").run(runId);','',['bun','test','packages/eumenes-interact/test/sqlite/integrity.test.ts','-t','foreign_keys=OFF']),

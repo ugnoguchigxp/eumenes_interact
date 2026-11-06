@@ -108,6 +108,56 @@ export function captureProblem(
 	return null;
 }
 
+export type RangeElement = { role: string; name: string };
+
+/** What a capture of one block must hold, and what it must not (F11): by role and name. */
+export type RangeExpect = {
+	includes?: readonly RangeElement[];
+	excludes?: readonly RangeElement[];
+};
+
+export type RangeScore = {
+	/** Wanted elements the capture does not report holding (or cannot be confirmed to hold). */
+	missing: RangeElement[];
+	/** Unwanted elements the capture reports holding. */
+	extra: RangeElement[];
+	/** The list was cut (or absent), so a missing element may only be unconfirmed. */
+	unconfirmed: boolean;
+	/** All wanted elements are held and no unwanted one is. */
+	ok: boolean;
+};
+
+/**
+ * Whether the block a capture took holds what was asked and not what was not: the second and third of the
+ * range measures (the first, that it is the intended block, is the case's `target`). The transcript has only
+ * digests, so the expected elements are hashed the same way. A wanted element absent from a cut list counts
+ * as missing, as the model could not have confirmed it either.
+ */
+export function captureRangeScore(
+	event: CaptureEvent,
+	expect: RangeExpect,
+): RangeScore {
+	const held = new Set(
+		(event.holds ?? []).map((h) => `${h.role}\0${h.nameHash}`),
+	);
+	const has = (e: RangeElement) =>
+		held.has(`${e.role}\0${captureTargetHash(e.name)}`);
+	const missing = (expect.includes ?? []).filter((e) => !has(e));
+	const extra = (expect.excludes ?? []).filter(has);
+	const unconfirmed =
+		event.holds === undefined || (event.holdsCount ?? 0) > event.holds.length;
+	// A cut list cannot show an excluded element is absent (it may be in the part that was cut): not ok then.
+	return {
+		missing: [...missing],
+		extra: [...extra],
+		unconfirmed,
+		ok:
+			missing.length === 0 &&
+			extra.length === 0 &&
+			!(unconfirmed && (expect.excludes ?? []).length > 0),
+	};
+}
+
 export type CaptureCheck = {
 	/** Capture events of the requested range (all when no range is asked) and of the expected target, when one is. */
 	matching: number;
@@ -120,6 +170,7 @@ export function checkCaptures(
 	captureDir: string | undefined,
 	range: CaptureRange | readonly CaptureRange[] | undefined,
 	target?: { role: string; name: string },
+	holds?: RangeExpect,
 ): CaptureCheck {
 	const ranges: readonly CaptureRange[] | undefined =
 		range === undefined || Array.isArray(range)
@@ -132,7 +183,8 @@ export function checkCaptures(
 			(e) =>
 				(ranges === undefined || ranges.includes(e.range)) &&
 				(target === undefined ||
-					(e.target?.role === target.role && e.target.nameHash === hash)),
+					(e.target?.role === target.role && e.target.nameHash === hash)) &&
+				(holds === undefined || captureRangeScore(e, holds).ok),
 		).length,
 		invalid: events.filter((e) => captureProblem(e, captureDir) !== null)
 			.length,

@@ -382,9 +382,9 @@ src/host/parts/executor/
 | 終端でcore stateが消える（R06） | 挙動の変更。optionで従来の挙動も選べる | 終端後にcore stateを読むホストは `retainCoreState` を指定する |
 | `parseOrigin`、`isPrivateAddress`、`assertChoiceQuoted`、lexicon、適合ベクトルの追加（R04、R08、R10、R12） | 追加 | なし |
 
-- packageの版は0.2.0にする（0.x系で挙動が互換でなくなる変更のため）。contractVersion 2とcoreFormat 1は変えない。呼出しのschemaとcore stateの形は変わらないからである。migrationも追加しない。
-- 0.2.0を配布するのは、F12（ビルド入力の来歴をsource hashに含める）を済ませた後にする。既存の計画でも、F12は次の配布更新の前に行うことになっている。
-- Eumenesのpilotは0.1.1（archive `c120d878…`）に固定されている。0.2.0への更新はEumenes側の別の作業とし、本書の受入後に利用者の指示で行う。Eumenesが `assertQuoted` を直接呼んでいるかは、本体のcheckoutで確かめる（§8-3）。
+- packageの版は0.1.2にする（利用者の指示。当初は0.1.2と書いたが、利用者が0.1.2と決めた）。contractVersion 2とcoreFormat 1は変えない。呼出しのschemaとcore stateの形は変わらないからである。migrationも追加しない。
+- 0.1.2を配布するのは、F12（ビルド入力の来歴をsource hashに含める）を済ませた後にする。既存の計画でも、F12は次の配布更新の前に行うことになっている。
+- Eumenesのpilotは0.1.1（archive `c120d878…`）に固定されている。0.1.2への更新はEumenes側の別の作業とし、本書の受入後に利用者の指示で行う。Eumenesが `assertQuoted` を直接呼んでいるかは、本体のcheckoutで確かめる（§8-3）。
 
 ## 6. 実施順と担当
 
@@ -437,7 +437,7 @@ E: R14（R02とR03の後）、R16（独立）、R15（ほかの全項目の受�
 
 1. **自動ゲート**: CIもgit hookも置かない（利用者の決定）。一度は案1（ローカルのhook）で実装したが、取り除いた。検査は手動の `bun run verify` で行う。
 2. **選択肢の規則**: 覆う割合は0.5で実装した。scripted 20ケースは20件とも成功し、`needs_input` は増えなかった（§10）。
-3. **版と本体への反映**: 0.2.0にした。Eumenesへの反映はEumenes側の別作業として残す。Eumenesが `assertQuoted` を直接使っているかは、本体のcheckoutで確かめる必要がある（未確認）。
+3. **版と本体への反映**: 0.1.2にした。Eumenesへの反映はEumenes側の別作業として残す。Eumenesが `assertQuoted` を直接使っているかは、本体のcheckoutで確かめる必要がある（未確認）。
 4. **有料の評価**: 未実施。現在の上限10 USDの残りは約1.97 USDで、R15の規模には上限の見直しが要る。上限と回数は利用者が決める。
 5. **core stateの既定**: 終端で消す既定で実装した。研究のための再生は `lab run --retain-core-state` を付けた実行だけで残る。
 
@@ -445,7 +445,7 @@ E: R14（R02とR03の後）、R16（独立）、R15（ほかの全項目の受�
 
 - Desktop（T23）、Eumenes本体の変更、統合後の実利用と定着（T20）。
 - F11（撮影の範囲）とF10（APIエラーの記録）の本題。本書の変更は、これらの経路には触れない。
-- F12（ビルド入力の来歴）は既存の計画どおりに行う。本書では、0.2.0の配布をF12の後にすることだけを決める（§5）。F12は0.2.0と同時に実装した（§10）。
+- F12（ビルド入力の来歴）は既存の計画どおりに行う。本書では、0.1.2の配布をF12の後にすることだけを決める（§5）。F12は0.1.2と同時に実装した（§10）。
 
 ## 10. 実装結果（2026-11-06）
 
@@ -495,3 +495,51 @@ R15の有料評価を除く全項目と、F12を実装した。設計から変�
 | scripted 20ケース（実Chrome、headless） | 20件とも成功。R04・R05による `needs_input` の増加はなかった |
 | 負の対照（`scripts/check-negative-controls.py`） | 既存の5変異と新しい4変異（choice-source、core-state-cleared、forget-explicit、write-counted）の9件すべてで、元のコードでは試験が通り、変異では落ちた |
 | 有料API | 呼んでいない |
+
+## 11. 追加の改修（2026-11-06、第2弾）
+
+利用者の指示「すべて改修してよい。Eumenesにも0.1.2として反映する」（同日）に基づく。版は0.2.0ではなく0.1.2とする（§5の0.2.0は0.1.2と読み替える）。モデルでの確認には、実際に使っているLuna（gpt-6-luna）を使い、既存の費用上限10 USDの範囲で行う。
+
+| ID | 項目 | 内容 | 受入 |
+| --- | --- | --- | --- |
+| R17 | 検索の再送 | 検索欄への入力（`submit: true`）は、GETと決めつけて `recoverable` を付けている。ホストは、自分の検査でそのフォームがGET（またはフォームの外）と確認できたときだけ `recoverable` を認め、それ以外では結果が不明な送出を再送しない。HOST-CONTRACTの義務3に書く | POSTのフォームで不明な結果を `indeterminate` のまま止める試験。GETは従来どおり |
+| R18 | menuitemのURL | 実際のPlaywright MCPのsnapshotで、`<a role="menuitem" href>` に `/url` が付くかを確かめる。付かないなら、`effectOf` がホストの検査（`<a href>` かどうか）で判定できるようにする | 実Chromeでの確認記録。URLのないmenuitemだけが承認を求める |
+| R19 | grantの用途 | grantを使うときに用途（purpose）も照合する。Eumenesの照合と揃える | 別の用途の欄に、承認した値が入らない試験 |
+| R20 | 信用しない印 | ページ由来の文字列（タイトル、URL、項目名、一覧、候補）すべてを、モデルに渡す結果の中でページ由来と分かるようにする（現状は `page.read` だけ） | 結果のJSONの試験。注入の試験が逸脱0のまま |
+| R21 | page.openでの持ち出し | このrunで見たページの文字列（依頼にないもの）をURLに載せて、観測していないURLを開くときは承認を求める | 読んだ本文をqueryに載せたURLが承認待ちになる試験。観測したリンクや依頼由来の検索は従来どおり |
+| R22 | runの存在の漏れ | `createRun` が、別ownerのrunの存在を区別できる形で返さない | 別ownerと同じownerで、同じエラーになる試験 |
+| R23 | F10 | 失敗したAPI応答（HTTP、空、拒否、中断）にも、要求したprovider・model・effortと既知のattempt情報を共通の経路で付ける。返却modelが不明なら捏造しない。未知のusageと費用の予約は壊さない | 注入した各失敗で、metadataと予約が一致する試験 |
+| R24 | F11 | 撮影の範囲を選ぶために、観測にある包含関係（どの項目がどの領域に入っているか）をLLMに渡す。撮影の結果にも、写した範囲に入っている要素を返す。商品語や特定IDの分岐は足さない | 固定ケースで範囲の一致・必要要素の包含・不要領域の除外を測る。Lunaで撮影ケースを再実行 |
+| R25 | F09の一段 | 一覧のページ送りの判定に、語句ではなく構造（同じpathで数値のqueryだけが違うリンク、`/page/N`）を先に使い、lexiconは補助にする | 既存の一覧の試験とscripted 20ケースが維持され、語句を足さない |
+| R26 | Eumenesへの反映 | 0.1.2のtgzをEumenesの `vendor/interact` に置き、`package.json`・lock・provenanceを更新する。本体のホスト（`interact-execution.ts` など）をR17・R19などの義務に合わせる。本体の未commitの他の変更には触れない | 本体の型検査と、interact関係の試験が通る |
+| R27 | Lunaでの測定 | dev 20ケースと撮影・独立ケースをLunaで実行し、`needs_input`・誤完了・費用を記録する | 費用上限10 USD以内。失敗を含めて全試行を残す |
+
+### 第2弾の結果
+
+| ID | 結果 |
+| --- | --- |
+| R17 | labのホストは、自分の検査でフォームがGET（またはフォームの外）と分かったときだけ `recoverable` を認める。POST、`dialog`、method不明のフォームでは、結果が不明な送出を `indeterminate` のまま止める。Eumenesのホストはもともと `recoverable` を認めず、不明な結果で常に止まる |
+| R18 | 実Chromeで確かめたところ、Playwright MCPのsnapshotは `<a role="menuitem" href>` に `/url` を付けなかった。部品の実行器は、ホストの `inspectTarget`（`<a>`/`<area>` の `href`）で宛先を判定する。packageのアダプタ、labとEumenesのdriverとhostに `href` を足した。実Chromeで、hrefのあるmenuitemはnavigation、`#`・hrefなし・`div` は承認待ちになった |
+| R19 | `InputGrants.find` と `use` が用途（purpose）も照合する（Eumenesと同じく60文字で切った完全一致）。`form.fill` は欄のラベルを用途として渡す。Eumenesのホストも `grantPurpose` を受け取って渡す |
+| R20 | モデルに渡す結果のうち、ページ由来の部分（page、list、read、capture、form、approval）に `untrusted: true` を付けた。配列の候補は `untrustedFields` で名前を示す |
+| R21 | このrunで見ていないURLで、依頼にも先の結果にもないページの文字列（8文字以上）をpath・query・fragmentに載せた `page.open` は承認を求める。承認の画面に宛先のURLを出す（labとEumenes） |
+| R22 | もともと別ownerでも同じownerでも `already_exists` を返しており、漏れはなかった。確認と挿入の間に衝突した場合も同じエラーにした |
+| R23 | 失敗したAPI応答（HTTP、通信断、不正JSON、中断、schema、拒否、空、不完全）にも、要求したprovider・model・effortとHTTPの送信回数を記録する。返却modelは読めたときだけ記録する。未知のusageの予約は変えていない |
+| R24 | ページの要約で、項目が入っているまとまり（`block`）と、まとまりが含む見出し・画像・項目（`holds`）を示す。`page.capture` の結果も、写した範囲と、そこに入っているものを返す。固定の採点（範囲の一致、必要な要素の包含、不要な領域の除外）を足した |
+| R25 | 一覧のページ送りを、まず構造（同じpathで数値のqueryだけが違う、`/page/N`、数字や矢印だけの題名）で判定し、lexiconは補助にした。語句は足していない |
+| 選択肢の規則の修正 | Lunaの実行で、`dev-form-multifield` が失敗した。Lunaは「ギフト包装あり」のように、依頼の一節をそのまま引用する。それがラベル「ギフト包装にする」と重なるのは一部だけなので、選択が拒否された。そこで、引用とラベルが語の境界で共有する最長の文字列がラベルの半分以上を覆えば通すようにした。修正後の再実行は成功した。「贈り物」「terms」「yesterday」の中の「yes」は、これまでどおり通らない |
+| `--retain-core-state` | CLIがこのフラグを読んでも、実行に渡していなかった（第1弾の実装漏れ）。修正し、scriptedの実行でcore stateが残ることを確かめた |
+| R27 | Luna（gpt-6-luna、effort low）で実行した。`dev-form-multifield` は修正前に失敗し、修正後に成功した。`dev-capture-item` は成功し、最終の報告が「見出しと商品の写真」の範囲を根拠にしていた。費用の台帳は596回・8.066335 USD（上限10 USD、呼出しの上限600回）。dev 20ケースをLunaで流すには、完了確認を含めて140回前後の呼出しが要り、残り4回では足りない。台帳の上限の変更は利用者が決める |
+
+第2弾の後に独立した点検を1回行い、指摘6件をまとめて直した。
+
+| 指摘 | 修正 |
+| --- | --- |
+| （高）Eumenesで、`page.open` の承認が宛先のURLに結び付いていない。同じページ・同じsnapshotなら、URL Aへの承認で別のURL Bも開けた | 承認の照合に、宛先のURLのhashを入れた（`interact-approval.ts`） |
+| （中）Eumenesで、直前の操作が失敗して観測がないと、承認が必要な `page.open` の承認が省かれた | 承認が要るnavigationでは、観測を取り直してから承認を求める（`interact-execution.ts`） |
+| （中）R21の検査が、ホスト名のサブドメインとuserinfoを見ていない | サブドメイン（末尾2つより左のラベル）とuserinfoも検査する |
+| （低〜中）1文字のラベル（「男」「女」）が、引用付きでも選べなくなった | 引用がラベルを丸ごと含む場合も通す |
+| （低）R21の検査が、長いURLと長いページで遅い（最悪約0.5秒） | URLの側の文字列を集合にし、ページは1回だけ走査する |
+| （低）撮影の採点で、`holds` が切り詰められていても、除外の確認を合格にしていた | 切り詰められていて除外の指定がある場合は合格にしない |
+
+検証: `LAB_BROWSER_TESTS=1 bun run verify` は試験1357件 pass / 0 fail で成功（実Chromeの通信境界の試験2件と、Node/Bunの配布物の検査を含む）。scripted 20ケースは20件とも成功。負の対照は9件すべてを検出した（R17で書き換わった承認の行に合わせて、既存の「approval」の変異の対象を直した）。

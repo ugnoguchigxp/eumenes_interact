@@ -598,6 +598,32 @@ function site(url: URL, b: FakeBrowser): PageDef | null {
 					'  - heading "店舗の地図" [level=1] [ref=e2]',
 				],
 			};
+		case "sites/menu-demo/index.html":
+			// As a real Playwright MCP snapshot: a menu item has no `/url` line even when it is an <a href> (R18).
+			return {
+				title: "メニュー | デモ",
+				lines: [
+					'- menu "操作" [ref=e1]:',
+					'  - menuitem "設定" [ref=e2] [cursor=pointer]',
+					'  - menuitem "削除" [ref=e3] [cursor=pointer]',
+					'  - menuitem "閉じる" [ref=e4]',
+				],
+				click: {
+					e2: () => `${BASE}sites/menu-demo/settings.html`,
+					e3: () => `${BASE}sites/menu-demo/index.html`,
+					e4: () => `${BASE}sites/menu-demo/index.html`,
+				},
+				info: {
+					e2: { ...LINK, href: "/sites/menu-demo/settings.html" },
+					e3: { ...LINK, href: "#" },
+					e4: { tag: "div", inForm: false, submits: false },
+				},
+			};
+		case "sites/menu-demo/settings.html":
+			return {
+				title: "設定 | デモ",
+				lines: ["- main [ref=e1]:", '  - heading "設定" [level=1] [ref=e2]'],
+			};
 		case "sites/minato-hall/base/index.html":
 			return {
 				title: "みなと市民ホール",
@@ -978,12 +1004,17 @@ export class FakeBrowser implements PlatformAdapter {
 		});
 	}
 
+	/** Test hook: what `inspect` answers for a ref, instead of the page's own description of it. */
+	inspectOverride: Record<string, InspectionResult> = {};
+
 	inspect(
 		_kind: FixedInspection,
 		targetRef: string | null,
 	): Promise<InspectionResult> {
 		this.calls.push("inspect");
-		const info = targetRef ? this.page()?.info?.[targetRef] : undefined;
+		const info = targetRef
+			? (this.inspectOverride[targetRef] ?? this.page()?.info?.[targetRef])
+			: undefined;
 		return Promise.resolve(info ?? PLAIN_BUTTON);
 	}
 }

@@ -6,6 +6,7 @@ import type {
 	InferenceUsage,
 	LoggerPort,
 } from "eumenes-interact";
+import { attemptMetadata } from "./attempt.ts";
 
 export type ClaudeEffort = "low" | "medium" | "high" | "xhigh" | "max";
 export type ClaudeSettings = {
@@ -157,6 +158,23 @@ export function createClaudeInference(o: {
 				return outcome;
 			};
 			const latencyMs = () => Math.round(performance.now() - started);
+			// Every outcome below, success or failure, carries this requested provider/model/effort and
+			// the number of HTTP requests really dispatched.
+			let httpAttempts = 0;
+			const meta = (response?: Anthropic.Messages.Message) =>
+				attemptMetadata(
+					{
+						provider: "anthropic",
+						model: settings.model,
+						effort: settings.effort,
+					},
+					httpAttempts,
+					{
+						model: response?.model,
+						id: response?.id,
+						serviceTier: response?.usage?.service_tier,
+					},
+				);
 			const { system, turns } = split(request.messages);
 			// The API takes an object schema at the top level.
 			if (request.outputSchema && request.outputSchema.type !== "object")
@@ -165,9 +183,11 @@ export function createClaudeInference(o: {
 					code: "output_schema_invalid",
 					usage: usageOf(undefined),
 					latencyMs: 0,
+					metadata: meta(),
 				});
 			try {
 				request.signal.throwIfAborted();
+				httpAttempts = 1;
 				const message = await client.messages.create(
 					{
 						model: settings.model,
@@ -197,15 +217,7 @@ export function createClaudeInference(o: {
 				const result = classify(message);
 				return finish({
 					...result,
-					metadata: {
-						provider: "anthropic",
-						requestedModel: settings.model,
-						requestedEffort: settings.effort,
-						returnedModel: message.model ?? null,
-						responseId: message.id ?? null,
-						serviceTier: message.usage?.service_tier ?? null,
-						httpAttempts: 1,
-					},
+					metadata: meta(message),
 					usage: usageOf(message.usage),
 					latencyMs: latencyMs(),
 				});
@@ -215,6 +227,7 @@ export function createClaudeInference(o: {
 					code: errorCode(error, request.signal),
 					usage: usageOf(undefined),
 					latencyMs: latencyMs(),
+					metadata: meta(),
 				});
 			}
 		},

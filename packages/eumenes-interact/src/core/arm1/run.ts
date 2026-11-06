@@ -343,19 +343,38 @@ export function parseStep(
 	};
 }
 
-/** The result as the AI reads it: page text is marked as data from the page, and the message stays bounded. */
+/**
+ * The members of a result that hold text the page wrote (titles, URLs, item names, headings, entries, field
+ * labels and options, the element an approval names, a read's text). Everything else in a result is the host's.
+ */
+const PAGE_MEMBERS = [
+	"page",
+	"candidates",
+	"list",
+	"read",
+	"capture",
+	"form",
+	"approval",
+] as const;
+
+/**
+ * The result as the AI reads it: every page-derived member is marked as data from the page (design R20; field
+ * names stay as they are), and the message stays bounded. An object member carries `untrusted: true` itself;
+ * `untrustedFields` names all of the members present, which is the only mark an array (`candidates`) can have.
+ */
 function resultMessage(result: PartResult, callsLeft: number): ChatMessage {
+	const marked = (member: (typeof PAGE_MEMBERS)[number]) =>
+		member !== "candidates" && result[member]
+			? { [member]: { untrusted: true, ...result[member] } }
+			: {};
+	const present = PAGE_MEMBERS.filter((member) => result[member] !== undefined);
 	const view = (text?: string) => ({
 		...result,
-		...(result.read
-			? {
-					read: {
-						untrusted: true,
-						...result.read,
-						...(text === undefined ? {} : { text, truncated: true }),
-					},
-				}
+		...Object.assign({}, ...PAGE_MEMBERS.map(marked)),
+		...(result.read && text !== undefined
+			? { read: { untrusted: true, ...result.read, text, truncated: true } }
 			: {}),
+		...(present.length > 0 ? { untrustedFields: present } : {}),
 		callsLeft,
 	});
 	let json = JSON.stringify(view());
@@ -365,12 +384,22 @@ function resultMessage(result: PartResult, callsLeft: number): ChatMessage {
 		const keep = Math.max(0, result.read.text.length - over - 64);
 		json = JSON.stringify(view(result.read.text.slice(0, keep)));
 	}
-	if (json.length > PART_RESULT_MAX_CHARS)
-		json = JSON.stringify({
-			truncated: true,
-			resultId: result.resultId,
-			preview: json.slice(0, PART_RESULT_MAX_CHARS),
-		});
+	if (json.length > PART_RESULT_MAX_CHARS) {
+		// The preview is JSON inside JSON, so quotes double: cut until the whole message fits.
+		const full = json;
+		const wrap = (n: number) =>
+			JSON.stringify({
+				truncated: true,
+				resultId: result.resultId,
+				preview: full.slice(0, n),
+			});
+		let keep = PART_RESULT_MAX_CHARS;
+		json = wrap(keep);
+		while (json.length > PART_RESULT_MAX_CHARS && keep > 0) {
+			keep = Math.max(0, keep - (json.length - PART_RESULT_MAX_CHARS));
+			json = wrap(keep);
+		}
+	}
 	return { role: "user", content: `PART_RESULT=${json}` };
 }
 

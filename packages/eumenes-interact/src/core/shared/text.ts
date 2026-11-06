@@ -4,6 +4,7 @@ declare const URL: new (
 	base?: string,
 ) => {
 	origin: string;
+	hostname: string;
 	pathname: string;
 	protocol: string;
 	search: string;
@@ -95,12 +96,53 @@ export function fromPage(
 	const v = squash(value);
 	if (v.length < PAGE_RUN || !seen.length) return false;
 	const asked = squash(request);
-	const read = seen.join("\0");
+	// The value's runs the request does not have, then one pass over each page: linear in what was read, not
+	// (value length × page length) as a search per run would be.
+	const runs = new Set<string>();
 	for (let i = 0; i + PAGE_RUN <= v.length; i++) {
 		const run = v.slice(i, i + PAGE_RUN);
-		if (!asked.includes(run) && read.includes(run)) return true;
+		if (!asked.includes(run)) runs.add(run);
 	}
+	if (runs.size === 0) return false;
+	for (const page of seen)
+		for (let i = 0; i + PAGE_RUN <= page.length; i++)
+			if (runs.has(page.slice(i, i + PAGE_RUN))) return true;
 	return false;
+}
+
+const decoded = (piece: string) => {
+	try {
+		return decodeURIComponent(piece.replace(/\+/g, " "));
+	} catch {
+		return piece;
+	}
+};
+
+/**
+ * What a URL carries besides where it goes: the path, the query (names and values), the fragment, the userinfo,
+ * and the host's labels left of its last two (`8f3k29dj71.evil.com` sends `8f3k29dj71` through DNS), percent-decoded,
+ * one piece per line. Null for text that is not an absolute URL.
+ */
+export function urlPayload(raw: string): string | null {
+	try {
+		const url = new URL(raw);
+		const labels = /^[\d.]+$|^\[/.test(url.hostname)
+			? []
+			: url.hostname.split(".").slice(0, -2);
+		const userinfo = [url.username, url.password];
+		const query = url.search
+			.replace(/^\?/, "")
+			.split("&")
+			.flatMap((pair) => pair.split("="));
+		const hash = url.hash.replace(/^#/, "");
+		return [labels, userinfo, url.pathname.split("/"), query, [hash]]
+			.flat()
+			.map(decoded)
+			.filter((piece) => piece !== "")
+			.join("\n");
+	} catch {
+		return null;
+	}
 }
 
 const JST_OFFSET_MS = 9 * 3_600_000;

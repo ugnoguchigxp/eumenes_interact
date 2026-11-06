@@ -1,13 +1,18 @@
 import { findText, type ItemRecord } from "../../../index.ts";
+import { CAPTURE_HOLDS, held } from "../../../core/parts/items.ts";
+import { fromPage, urlPayload } from "../../../core/shared/text.ts";
 import { toUri } from "../uri.ts";
 import { captureTargetHash } from "../capture-hash.ts";
 import { CaptureError } from "../capture.ts";
 import { isChallenge } from "../search-urls.ts";
+import { isPagingEntry } from "./paging.ts";
 import {
 	activeTab,
 	afterSending,
 	batch,
 	confirmed,
+	notePage,
+	urlKey,
 	guard,
 	observationAfter,
 	observeFresh,
@@ -23,16 +28,40 @@ import {
 
 const FIND_LIMIT = 20;
 
+/**
+ * What opening this URL declares (design R21). Navigation, as before, for an address the run saw (a page's own
+ * or a link on a page) or that the request or an earlier verified result states. For any other address, whose
+ * path, query or fragment carries a run of page text this run read (the page-run rule of `fromPage`: at least
+ * eight characters a page showed and the request and earlier results did not contain), opening it could hand
+ * that text to a site: it is declared `submit`, so the host asks the user first. Structure only: no word is
+ * looked for, and the address's host is not read.
+ */
+export function openEffect(
+	ctx: ExecutorContext,
+	url: string,
+): "navigation" | "submit" {
+	const payload = urlPayload(url);
+	if (payload === null) return "navigation";
+	const key = urlKey(url);
+	if (key !== null && ctx.seenUrls.has(key)) return "navigation";
+	const own = [ctx.deps.request, ...(ctx.deps.sources?.() ?? [])];
+	if (own.some((text) => text.includes(url))) return "navigation";
+	return fromPage(payload, own.join("\0"), ctx.seenText)
+		? "submit"
+		: "navigation";
+}
+
 export async function pageOpen(
 	ctx: ExecutorContext,
 	url: string,
+	options: { hostDerived?: boolean } = {},
 ): Promise<Body> {
 	const s = confirmed(
 		ctx,
 		await operate(
 			ctx,
 			{ action: "browser.navigate", url: toUri(url) },
-			"navigation",
+			options.hostDerived ? "navigation" : openEffect(ctx, url),
 		),
 	);
 	const landed = await passChallenge(
@@ -194,6 +223,7 @@ export async function pageRead(
 	const content = await guard(ctx, () =>
 		ctx.executor.extract(tabRef, observationRef, ref, maxChars),
 	);
+	notePage(ctx, content.text);
 	// A page that turned into a bot check after it was opened (a late redirect, an adopted tab) is never
 	// read as content: it is reported, not passed.
 	if (itemId === null && isChallenge(content.title, content.text))
@@ -204,6 +234,7 @@ export async function pageRead(
 		const whole = await guard(ctx, () =>
 			ctx.executor.extract(tabRef, undefined, null, 50000),
 		);
+		notePage(ctx, whole.text);
 		const around = surrounding(whole.text, name, maxChars);
 		if (around !== null) {
 			const text = `[「${name}」の周辺]\n${around}`;
@@ -247,9 +278,22 @@ export async function pageList(
 		throw new PartFail("no_entries", {
 			list: { kind, entries: [], truncated: false },
 		});
+	// Page numbers and next/previous links go after the entries that are results (design R25: by structure
+	// first, the lexicon only as a fallback); their order is kept.
+	const entries =
+		kind === "results"
+			? [
+					...listed.entries.filter(
+						(e) => !isPagingEntry(ctx, e, observation.url),
+					),
+					...listed.entries.filter((e) =>
+						isPagingEntry(ctx, e, observation.url),
+					),
+				]
+			: listed.entries;
 	return {
 		status: "completed",
-		list: { kind, entries: listed.entries, truncated: listed.truncated },
+		list: { kind, entries, truncated: listed.truncated },
 	};
 }
 
@@ -261,6 +305,7 @@ export async function pageCapture(
 	let ref: string | null = null;
 	let observationRef: string | undefined;
 	let target: ItemRecord | undefined;
+	let seen: ItemRecord | undefined;
 	if (range === "item") {
 		if (itemId === null) throw new PartFail("item_required");
 		const observation = await observeFresh(ctx);
@@ -268,6 +313,17 @@ export async function pageCapture(
 		ref = found.ref;
 		target = found.record;
 		observationRef = observation.observationRef;
+		// What the captured block holds, read from the observation it was found in (not issuing page ids).
+		seen = ctx.core
+			.summarizePage(
+				{
+					body: observation.body,
+					truncated: observation.truncated,
+					missing: observation.missing,
+				},
+				{ pageId: "p0", maxItems: 1, maxHeadings: 0 },
+			)
+			.records.find((r) => r.ref === found.ref);
 	}
 	const tabRef = await activeTab(ctx);
 	const image = await guard(ctx, () =>
@@ -289,6 +345,23 @@ export async function pageCapture(
 						role: target.role,
 						nameHash: captureTargetHash(target.name),
 					},
+					...(seen?.holds?.length
+						? {
+								holds: seen.holds.slice(0, CAPTURE_HOLDS).map((label) => {
+									const at = label.indexOf(" ");
+									return {
+										role: at < 0 ? label : label.slice(0, at),
+										nameHash: captureTargetHash(
+											at < 0 ? "" : label.slice(at + 1),
+										),
+									};
+								}),
+								...(seen.holdsCount !== undefined &&
+								seen.holdsCount > seen.holds.length
+									? { holdsCount: seen.holdsCount }
+									: {}),
+							}
+						: {}),
 				}
 			: {}),
 	});
@@ -301,6 +374,13 @@ export async function pageCapture(
 			height: saved.height,
 			fileName: saved.fileName,
 			mediaType: saved.mediaType,
+			...(target
+				? {
+						target: `${target.role} ${target.name}`.trim().slice(0, 80),
+						...(seen?.block ? { block: seen.block } : {}),
+						...(seen?.holds?.length ? held(seen, CAPTURE_HOLDS) : {}),
+					}
+				: {}),
 		},
 	};
 }

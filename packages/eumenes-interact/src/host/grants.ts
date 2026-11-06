@@ -30,6 +30,10 @@ export function grantOrigin(raw: string): string | null {
 
 type Grant = { value: string; origin: string; purpose: string; until: number };
 
+/** Exactly the purpose it was approved for (both cut at 60 characters, as Eumenes stores it); none asked, none checked. */
+const samePurpose = (grant: Grant, purpose: string | undefined) =>
+	purpose === undefined || grant.purpose === purpose.slice(0, 60);
+
 export class InputGrants {
 	private readonly grants = new Map<string, Grant>();
 
@@ -59,31 +63,36 @@ export class InputGrants {
 	}
 
 	/**
-	 * The ref of a live grant for exactly this value on this page's site, or null. Arm 1's `form.fill` carries
+	 * The ref of a live grant for exactly this value on this page's site (and, when `purpose` is given, approved
+	 * for exactly that purpose), or null. Arm 1's `form.fill` carries
 	 * the value itself, so what the user approved is found by its value; the value is then used through the
 	 * ref like any other (`use` checks the site and the time again).
 	 */
-	find(value: string, pageUrl: string): string | null {
+	find(value: string, pageUrl: string, purpose?: string): string | null {
 		const origin = grantOrigin(pageUrl);
 		for (const [ref, grant] of this.grants)
 			if (
 				grant.value === value &&
 				grant.origin === origin &&
-				grant.until > this.now()
+				grant.until > this.now() &&
+				samePurpose(grant, purpose)
 			)
 				return ref;
 		return null;
 	}
 
 	/**
-	 * The value of one use. The core's call carries no purpose, so the site is the binding checked here
-	 * (Eumenes also checks the purpose it was granted for).
+	 * The value of one use, bound to the site and, as Eumenes binds a grant (`createGrants.useInTransaction`: same
+	 * origin, same purpose cut at 60 characters), to the purpose it was approved for. A caller that knows what the
+	 * value is for passes `purpose`; the core's call carries none, so without it only the site is checked (the
+	 * 0.1 behaviour). The purpose is the host's own knowledge (a form field's label, a definition step), never
+	 * the model's.
 	 */
-	use(ref: string, pageUrl: string): string {
+	use(ref: string, pageUrl: string, purpose?: string): string {
 		const grant = this.grants.get(ref);
 		if (!grant) throw new Refusal("grant_not_found");
 		if (grant.until <= this.now()) throw new Refusal("grant_expired");
-		if (grant.origin !== grantOrigin(pageUrl))
+		if (grant.origin !== grantOrigin(pageUrl) || !samePurpose(grant, purpose))
 			throw new Refusal("grant_mismatch");
 		return grant.value;
 	}

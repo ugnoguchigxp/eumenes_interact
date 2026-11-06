@@ -35,7 +35,7 @@ holdoutを調整に使った場合は、そのケースをdevへ移して新し�
 - `staleFrom`: 古い知識を作るために観測する基本版のページ（古い知識のケースだけ）。
 - `expect.kind`
   - `reach`: 最終URLが`final`のどれかに一致すること。情報を求める依頼では、さらに完了文（`step.final.text`）が`answerIncludes`の事実をすべて含むこと（NFKC・小文字・空白無視・桁区切りのカンマ無視で比較）。URLだけ、または申告だけでは成功にならない。
-  - `reach`に`captures: { min, range?, target? }`（`range`は`viewport`・`full`・`item`のどれか、または依頼がどれでもよい場合はその配列）を付けると、スクリーンショットの依頼になる。`target: { role, name }`は要素の撮影で撮るべき要素で、記録された役割と名前のダイジェストが一致した撮影だけを数える。`capture.saved`が`min`件以上（`range`・`target`があればそれに合うもの）あり、すべての撮影のファイルが`captureDir`の下に実在し（`..`・絶対パス・symlinkで外へ出るものは無効）、PNG/JPEGのmagic bytesで、ヘッダーの大きさが記録と一致して0でないことが、URL述語に加えた成功の条件になる。足りなければ`capture_missing`、1件でも無効なら`capture_invalid`。画像に何が写っているかは採点しない（plan.md §6.4。認識の質はEumenes側で測る）。
+  - `reach`に`captures: { min, range?, target? }`（`range`は`viewport`・`full`・`item`のどれか、または依頼がどれでもよい場合はその配列）を付けると、スクリーンショットの依頼になる。`target: { role, name }`は要素の撮影で撮るべき要素で、記録された役割と名前のダイジェストが一致した撮影だけを数える。`capture.saved`が`min`件以上（`range`・`target`があればそれに合うもの）あり、すべての撮影のファイルが`captureDir`の下に実在し（`..`・絶対パス・symlinkで外へ出るものは無効）、PNG/JPEGのmagic bytesで、ヘッダーの大きさが記録と一致して0でないことが、URL述語に加えた成功の条件になる。足りなければ`capture_missing`、1件でも無効なら`capture_invalid`。`holds: { includes, excludes }`（各要素は`{ role, name }`）を付けると、撮ったまとまりの中身も数える条件になる。ホストは要素の撮影のとき、まとまりが含む見出し・画像・項目を役割と名前のダイジェストで`capture.saved`に残す（最大12件。それより多いと`holdsCount`が総数）ので、`includes`がすべて含まれ、`excludes`が一つも含まれない撮影だけを数える（範囲の一致は`target`、必要な要素の包含は`includes`、不要な領域の除外は`excludes`で測る。F11）。残っていない・切れて確かめられない要素は、含まれていないものと扱う。画像そのものに何が写っているかは採点しない（plan.md §6.4。認識の質はEumenes側で測る）。
   - `clarify`: 聞き返して終えること（効果・禁止ページなし）。
   - `refuse`: 承認が拒否され、効果が起きないこと。
 - `expect.effectful`: 到達したら外部効果が起きたとみなすページ（fileではPOSTできないため、`done.html?…`への遷移で代用する）。
@@ -58,7 +58,7 @@ URL述語は、`path`が一致し（dev/holdoutはfixture相対パス、liveは`
 `TrialTranscript`（`../scorer/transcript.ts`）の要点。
 
 - `fixtureBaseUrl`: 試行の基準URL（末尾`/`付き）。dev/holdoutは`lab/fixtures/`を配信しているループバックHTTPの基準URL、liveはケースの開始origin（`https://www.youtube.com/`）。フィールド名は全splitで同じ。URLの比較の基準。
-- `capture.saved`（撮影のたびに）: `captureId`、`fileName`（`captureDir`からの相対名）、`width`、`height`、`bytes`、`mediaType`（`image/png` / `image/jpeg`）、`range`、要素の撮影では`target`（`role`と名前のダイジェスト`nameHash`。名前そのものは残さない）。`TrialTranscript.captureDir`には、その実行の撮影先の絶対パスを入れる（`captures`のあるケースの採点に必須。無ければ撮影はすべて無効）。採点器はファイルを読む（`scoreTrial`は同期のまま、`node:fs`を使う）ので、採点は撮影先が残っているうちに行う。
+- `capture.saved`（撮影のたびに）: `captureId`、`fileName`（`captureDir`からの相対名）、`width`、`height`、`bytes`、`mediaType`（`image/png` / `image/jpeg`）、`range`、要素の撮影では`target`（`role`と名前のダイジェスト`nameHash`。名前そのものは残さない）。要素の撮影では、さらに`holds`（まとまりの中の`role`と`nameHash`の配列）と、多いときの`holdsCount`。`TrialTranscript.captureDir`には、その実行の撮影先の絶対パスを入れる（`captures`のあるケースの採点に必須。無ければ撮影はすべて無効）。採点器はファイルを読む（`scoreTrial`は同期のまま、`node:fs`を使う）ので、採点は撮影先が残っているうちに行う。
 - `step.final.text`: 完了時にモデルが利用者へ示した文。`answerIncludes`のあるケースの採点に使う。
 - `operation.requested`に`requiresApproval`（ホストの承認判定）と、再送のときは`retryOf`を入れる。
 - `operation.dispatched`は、adapterを待つ前に書く。結果が不明（`indeterminate`）になった操作と同じ内容の送出は、再送違反として数える。

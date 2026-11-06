@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { CoreState } from "../../src/contracts/core.ts";
+import { InteractStoreError } from "../../src/sqlite/errors.ts";
 import {
 	RUN_STATUSES,
 	RUN_TRANSITIONS,
@@ -97,6 +98,66 @@ describe("createRun and getRun", () => {
 		expect(() => createRun(db, OWNER_B, runInput("r1"))).toThrow(
 			"already_exists",
 		);
+	});
+
+	test("an id that is taken gives one answer, whoever owns it", () => {
+		const db = openTransaction();
+		const original = createRun(db, OWNER_A, runInput("r1"));
+		const thrown = (owner: string, overrides = {}) => {
+			try {
+				createRun(db, owner, runInput("r1", overrides));
+			} catch (error) {
+				return error as InteractStoreError;
+			}
+			throw new Error("createRun did not throw");
+		};
+		const same = thrown(OWNER_A);
+		const other = thrown(OWNER_B);
+		// Not only the same code: the same name, message and field, with nothing owner-specific.
+		expect(other).toBeInstanceOf(InteractStoreError);
+		expect(same.code).toBe("already_exists");
+		expect(other.code).toBe(same.code);
+		expect(other.name).toBe(same.name);
+		expect(other.message).toBe(same.message);
+		expect(other.field).toBe(same.field);
+		// Also when the caller's own workflow reference would not resolve, or the input differs.
+		const unknownWorkflow = { workflow: { id: "nope", revision: 9 } };
+		expect(thrown(OWNER_B, unknownWorkflow).code).toBe("already_exists");
+		expect(thrown(OWNER_A, unknownWorkflow).code).toBe("already_exists");
+		expect(thrown(OWNER_B, { platform: "agent-browser" }).code).toBe(
+			"already_exists",
+		);
+		// The refusal changed nothing, and the other owner still cannot see the run.
+		expect(getRun(db, OWNER_A, "r1")).toEqual(original);
+		expect(getRun(db, OWNER_B, "r1")).toBeNull();
+	});
+
+	test("an id that is taken while the INSERT runs gives the same answer", () => {
+		const db = openTransaction();
+		createRun(db, OWNER_A, runInput("r1"));
+		// Hide the row from the existence check, as a writer that took the id in between would.
+		const racing = new Proxy(db, {
+			get(target, property) {
+				if (property !== "query") {
+					const value = Reflect.get(target, property, target);
+					return typeof value === "function" ? value.bind(target) : value;
+				}
+				return (sql: string) =>
+					sql.includes("SELECT 1 AS one FROM interact_runs")
+						? { get: () => null }
+						: target.query(sql);
+			},
+		}) as unknown as typeof db;
+		for (const owner of [OWNER_A, OWNER_B]) {
+			try {
+				createRun(racing, owner, runInput("r1"));
+				throw new Error("createRun did not throw");
+			} catch (error) {
+				expect(error).toBeInstanceOf(InteractStoreError);
+				expect((error as InteractStoreError).code).toBe("already_exists");
+				expect((error as Error).message).toBe("already_exists");
+			}
+		}
 	});
 
 	test("a workflow revision's digest is frozen into the run", () => {

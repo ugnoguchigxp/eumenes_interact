@@ -5,7 +5,8 @@ import { join } from "node:path";
 import { AdapterError, type PartResult } from "eumenes-interact";
 import { FixtureApprover } from "../../host/approval.ts";
 import { partsHelpers, type PartsHelpers } from "../../host/parts/core.ts";
-import { captureTargetHash } from "../../scorer/captures.ts";
+import { captureRangeScore, captureTargetHash } from "../../scorer/captures.ts";
+import { devCase } from "../scorer/builder.ts";
 import { originPolicy } from "../../host/policy.ts";
 import { BASE } from "./fake-adapter.ts";
 import {
@@ -43,6 +44,99 @@ describe("page.open and page.back", () => {
 		);
 		expect(JSON.stringify(r)).not.toMatch(/\[ref=|"ref"|e\d+\]/);
 		expect(s.adapter.url).toBe(`${KAEDE}catalog.html`);
+	});
+
+	describe("an address that carries page text asks first (R21)", () => {
+		const TEXT = "暮らしの小物を、ひとつずつ手づくりで。";
+		const deny = () => new FixtureApprover({ decision: "deny" });
+
+		test("page text in the query, not in the request, is approved by the user first", async () => {
+			const s = await setup({ approver: deny() });
+			const before = s.adapter.dispatched.length;
+			const executed = await s.run(
+				call("page.open", {
+					url: `${KAEDE}results.html?q=${encodeURIComponent(TEXT)}`,
+				}),
+			);
+			expect(executed).toMatchObject({
+				kind: "outcome",
+				outcome: { kind: "stop", code: "approval_denied" },
+			});
+			expect(s.adapter.dispatched.length).toBe(before);
+		});
+
+		test("the same text in the path or the fragment asks as well, and a grant lets it through", async () => {
+			const asked: string[] = [];
+			const s = await setup({
+				approver: {
+					decide: (prompt) => {
+						asked.push(prompt.element);
+						return Promise.resolve("grant");
+					},
+				},
+			});
+			const r = await s.result(
+				call("page.open", {
+					url: `${KAEDE}${encodeURIComponent("暮らしの小物をひとつずつ手づくりで")}.html`,
+				}),
+			);
+			expect(asked).toHaveLength(1);
+			expect(asked[0]).toContain(KAEDE);
+			expect(r.status).toBeDefined();
+			const s2 = await setup({ approver: deny() });
+			const frag = await s2.run(
+				call("page.open", {
+					url: `${KAEDE}catalog.html?x=${encodeURIComponent(TEXT)}#frag`,
+				}),
+			);
+			expect(frag).toMatchObject({ outcome: { code: "approval_denied" } });
+		});
+
+		test("a link the run saw, and an address the request states, open without asking", async () => {
+			const s = await setup({
+				approver: deny(),
+				request: `${KAEDE}results.html?q=${encodeURIComponent(TEXT)} を開いてください。`,
+			});
+			// A link on the start page.
+			expect(
+				(await s.result(call("page.open", { url: `${KAEDE}catalog.html` })))
+					.status,
+			).toBe("completed");
+			// The request's own address, though its query holds text the first page showed.
+			const own = await s.result(
+				call("page.open", {
+					url: `${KAEDE}results.html?q=${encodeURIComponent(TEXT)}`,
+				}),
+			);
+			expect(own.status).toBe("completed");
+		});
+
+		test("text only the request has, or an address with no page text, opens without asking", async () => {
+			const s = await setup({
+				approver: deny(),
+				request: "麻のふきんを探してください。",
+			});
+			const asked = await s.result(
+				call("page.open", {
+					url: `${KAEDE}results.html?q=${encodeURIComponent("麻のふきん")}`,
+				}),
+			);
+			expect(asked.status).toBe("completed");
+			const plain = await s.result(
+				call("page.open", { url: `${KAEDE}care.html` }),
+			);
+			expect(plain.status).toBe("completed");
+		});
+
+		test("text from an earlier verified result is a source like the request", async () => {
+			const s = await setup({ approver: deny(), sources: [TEXT] });
+			const r = await s.result(
+				call("page.open", {
+					url: `${KAEDE}results.html?q=${encodeURIComponent(TEXT)}`,
+				}),
+			);
+			expect(r.status).toBe("completed");
+		});
 	});
 
 	test("a destination outside the origin is refused by the policy before it is sent", async () => {
@@ -224,6 +318,88 @@ describe("site.search: what counts as results (2026-11-04)", () => {
 		expect(codes(await t.result(call("site.search", { query: "麻" })))).toEqual(
 			["partial", "zero_results"],
 		);
+	});
+});
+
+describe("site.search: paging by structure (design R25)", () => {
+	const request = "この雑貨店サイトで「麻」を検索してください。";
+	// Entries as the page lists them: a paging link is told by its address, whatever words its title uses.
+	const withUrls = (
+		entries: { title: string; url: string }[],
+	): PartsHelpers => ({
+		...partsHelpers,
+		findItems: (body, pageId, query, limit) =>
+			query.role !== "link" || query.text === null
+				? partsHelpers.findItems(body, pageId, query, limit)
+				: [],
+		listEntries: (body, pageId, kind, limit) => {
+			const real = partsHelpers.listEntries(body, pageId, kind, limit);
+			return {
+				entries: entries.map((e) => ({ ...real.entries[0]!, ...e })),
+				records: real.records,
+				truncated: false,
+			};
+		},
+	});
+
+	test("paging links in other languages go after the results by their address, with no word in the lexicon", async () => {
+		const s = await setup({
+			request,
+			core: withUrls([
+				{ title: "Página siguiente", url: "results.html?q=%E9%BA%BB&p=2" },
+				{ title: "Seite 3", url: "results.html?q=%E9%BA%BB&p=3" },
+				{ title: "麻のふきん", url: "product.html?id=1" },
+			]),
+		});
+		const r = await s.result(call("site.search", { query: "麻" }));
+		expect(r.list?.entries.map((e) => e.title)).toEqual([
+			"麻のふきん",
+			"Página siguiente",
+			"Seite 3",
+		]);
+	});
+
+	test("a page of only such links is zero results, not a list of results", async () => {
+		const s = await setup({
+			request,
+			core: withUrls([
+				{ title: "Suivant", url: "results.html?q=%E9%BA%BB&offset=20" },
+				{ title: "다음", url: "results.html?q=%E9%BA%BB&offset=40" },
+			]),
+		});
+		expect(codes(await s.result(call("site.search", { query: "麻" })))).toEqual(
+			["partial", "zero_results"],
+		);
+	});
+
+	test("page.list puts such paging links after the results, keeping each group's order", async () => {
+		const s = await setup({
+			start: `${KAEDE}results.html?q=%E9%BA%BB`,
+			request,
+			core: withUrls([
+				{ title: "Siguiente", url: "results.html?q=%E9%BA%BB&p=2" },
+				{ title: "麻のふきん", url: "product.html?id=1" },
+				{ title: "麻のエプロン", url: "product.html?id=4" },
+			]),
+		});
+		const r = await s.result(call("page.list", { kind: "results", limit: 10 }));
+		expect(r.list?.entries.map((e) => e.title)).toEqual([
+			"麻のふきん",
+			"麻のエプロン",
+			"Siguiente",
+		]);
+	});
+
+	test("a link to another path, or one changing a non-numeric parameter, is still a result", async () => {
+		const s = await setup({
+			request,
+			core: withUrls([
+				{ title: "Details", url: "catalog.html?q=%E9%BA%BB&p=2" },
+				{ title: "Sorted", url: "results.html?q=%E9%BA%BB&order=asc" },
+			]),
+		});
+		const r = await s.result(call("site.search", { query: "麻" }));
+		expect(r.list?.entries.map((e) => e.title)).toEqual(["Details", "Sorted"]);
 	});
 });
 
@@ -479,6 +655,37 @@ describe("item.open", () => {
 		]);
 	});
 
+	test("a menu item that is an <a href> opens without asking, though the snapshot gives it no /url (R18)", async () => {
+		const s = await setup({
+			start: `${BASE}sites/menu-demo/index.html`,
+			approver: new FixtureApprover({ decision: "deny" }),
+		});
+		const r = await s.result(
+			call("item.open", { item: idOf(s.summary.items, "menuitem", "設定") }),
+		);
+		expect(r.status).toBe("completed");
+		expect(r.page?.title).toBe("設定 | デモ");
+	});
+
+	test("menu items without a destination of their own still ask first (R18)", async () => {
+		for (const name of ["削除", "閉じる"]) {
+			const s = await setup({
+				start: `${BASE}sites/menu-demo/index.html`,
+				approver: new FixtureApprover({ decision: "deny" }),
+			});
+			const executed = await s.run(
+				call("item.open", { item: idOf(s.summary.items, "menuitem", name) }),
+			);
+			expect(executed).toMatchObject({
+				kind: "outcome",
+				outcome: { kind: "stop", code: "approval_denied" },
+			});
+			expect(s.adapter.dispatched.map((c) => c.action)).toEqual([
+				"browser.navigate",
+			]);
+		}
+	});
+
 	test("a button needs the user's approval before it is clicked", async () => {
 		const s = await setup({
 			start: HOSHI,
@@ -642,6 +849,104 @@ describe("page.capture", () => {
 		expect(r.capture?.fileName).toMatch(/-1-item\.png$/);
 	});
 
+	describe("what the captured range holds (design R24, F11)", () => {
+		// "Only the product part" of a product page: the intended block is the article, which must hold the name and
+		// the photo and not the recommendations beside it. The page summary says which block holds what, and the
+		// capture reports what it took, so the range can be chosen and then checked.
+		const product = `${KAEDE}product.html?id=2`;
+		const shoot = async (role: string, name: string) => {
+			const s = await setup({ start: product });
+			const r = await s.result(
+				call("page.capture", {
+					range: "item",
+					item: idOf(s.summary.items, role, name),
+				}),
+			);
+			const event = s.recorder.events.find((e) => e.type === "capture.saved");
+			if (event?.type !== "capture.saved") throw new Error("no capture event");
+			return { s, r, event };
+		};
+		const expected = async () => {
+			const def = await devCase("dev-capture-item");
+			if (def.expect.kind !== "reach") throw new Error("not a reach case");
+			return def.expect.captures!.holds!;
+		};
+
+		test("the summary names the block each element sits in and what each block holds", async () => {
+			const s = await setup({ start: product });
+			const at = (role: string, name: string) =>
+				s.summary.items.find((i) => i.role === role && i.name === name)!;
+			expect(at("article", "商品の詳細").holds).toEqual([
+				"heading 木のスプーン",
+				"img 商品の写真",
+			]);
+			expect(at("img", "商品の写真").block).toBe("article 商品の詳細");
+			expect(at("link", "陶器の小皿").block).toBeUndefined();
+			expect(at("link", "陶器の小皿").region).toBe("complementary おすすめ");
+			// The whole main region holds the article and the recommendations: not the smallest block.
+			const main = s.summary.items.find((i) => i.role === "main")!;
+			expect(main.holds).toEqual(
+				expect.arrayContaining([
+					"article 商品の詳細",
+					"complementary おすすめ",
+					"img 商品の写真",
+				]),
+			);
+		});
+
+		test("the article capture reports its target and what it holds; the scorer finds the range right", async () => {
+			const { r, event } = await shoot("article", "商品の詳細");
+			expect(r.capture).toMatchObject({
+				target: "article 商品の詳細",
+				holds: ["heading 木のスプーン", "img 商品の写真"],
+			});
+			expect(r.capture?.holdsCount).toBeUndefined();
+			expect(captureRangeScore(event, await expected())).toEqual({
+				missing: [],
+				extra: [],
+				unconfirmed: false,
+				ok: true,
+			});
+		});
+
+		test("the whole main region is told apart from the article: it takes the recommendations too", async () => {
+			const { r, event } = await shoot("main", "");
+			expect(r.capture?.holds).toEqual(
+				expect.arrayContaining([
+					"article 商品の詳細",
+					"complementary おすすめ",
+				]),
+			);
+			const score = captureRangeScore(event, await expected());
+			expect(score.ok).toBe(false);
+			expect(score.missing).toEqual([]);
+			expect(score.extra.map((e) => e.name)).toContain("おすすめ");
+		});
+
+		test("the photo alone leaves out the name; before this change no capture could be confirmed", async () => {
+			const { r, event } = await shoot("img", "商品の写真");
+			expect(r.capture?.holds).toBeUndefined();
+			const score = captureRangeScore(event, await expected());
+			expect(score.missing.map((e) => e.name)).toEqual([
+				"木のスプーン",
+				"商品の写真",
+			]);
+			// The old record: a target and no content. Everything wanted is unconfirmed.
+			const { holds: _holds, holdsCount: _count, ...before } = event;
+			const old = captureRangeScore(before, await expected());
+			expect(old).toMatchObject({ unconfirmed: true, ok: false });
+			expect(old.missing).toHaveLength(2);
+		});
+
+		test("page text in the report stays under the capture member (marked untrusted by the core)", async () => {
+			const { r } = await shoot("article", "商品の詳細");
+			const keys = Object.keys(r).filter((k) =>
+				JSON.stringify(r[k as keyof PartResult]).includes("木のスプーン"),
+			);
+			expect(keys).toEqual(["capture"]);
+		});
+	});
+
 	test("a capture the adapter refuses is a failure with its code, and nothing is saved", async () => {
 		const s = await setup();
 		s.adapter.captureError = new AdapterError("capture_failed", false);
@@ -768,6 +1073,23 @@ describe("form.inspect and form.fill", () => {
 		);
 		expect(r.status).toBe("completed");
 		expect(s.adapter.field("e21")).toBe("山田太郎");
+	});
+
+	test("a value approved for one field is not typed into another field (R19)", async () => {
+		const s = await setup({ start: ORDER, request: orderRequest });
+		s.grants.approve({
+			value: "山田太郎",
+			origin: BASE,
+			purpose: "メールアドレス",
+		});
+		const form = await s.result(call("form.inspect", { form: null }));
+		const name = form.form!.fields.find((f) => f.label === "お名前")!.item;
+		const r = await s.result(
+			call("form.fill", { fields: [{ item: name, value: "山田太郎" }] }),
+		);
+		expect(codes(r)).toEqual(["failed", "value_source"]);
+		expect(r.fill?.[0]).toMatchObject({ status: "needs_input" });
+		expect(s.adapter.field("e21")).toBe("");
 	});
 
 	test("a select takes the option's visible label; another text is refused", async () => {
@@ -1091,7 +1413,7 @@ describe("review fixes (S2b)", () => {
 			s.adapter.dispatched.filter((c) => c.action === "page.click"),
 		).toHaveLength(0);
 	});
-	// Since 0.2.0 (docs/improvement-design.md R04) a quote must share the label's words: a differently worded
+	// Since 0.1.2 (docs/improvement-design.md R04) a quote must share the label's words: a differently worded
 	// passage (「贈り物」 for 「ギフト包装にする」) is asked of the user instead of trusted as the model's reading.
 	test("a choice's quote must share the label's words; a differently worded passage is asked", async () => {
 		const s = await setup({

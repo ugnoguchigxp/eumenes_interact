@@ -357,6 +357,7 @@ export function scoreTrial(
 				transcript.captureDir,
 				expect.captures.range,
 				expect.captures.target,
+				expect.captures.holds,
 			);
 			if (check.matching < expect.captures.min)
 				failures.push("capture_missing");

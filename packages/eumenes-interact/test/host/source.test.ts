@@ -128,6 +128,14 @@ describe("choices", () => {
 		expect(
 			choiceSourced("ギフト包装にする", request, { quote: "ギフト包装" }),
 		).toBe(true);
+		// A one-character label is tied by a quote that holds it whole (review of round two).
+		expect(
+			passes(() => assertChoiceQuoted("男", "男性", "性別は男性です")),
+		).toBe(true);
+		// Luna quotes the request's whole phrase; it overlaps the label on 「ギフト包装」 (5 of 8): tied.
+		expect(
+			choiceSourced("ギフト包装にする", request, { quote: "ギフト包装あり" }),
+		).toBe(true);
 	});
 
 	test("without a quote, the passage the label shares with the request ties them", () => {
@@ -178,6 +186,37 @@ describe("grants", () => {
 		expect(grantOrigin("http://localhost:3000/")).toBe("http://localhost:3000");
 		expect(grantOrigin("http://shop.example/a")).toBeNull();
 		expect(grantOrigin("ftp://shop.example/")).toBeNull();
+	});
+
+	test("a grant is bound to the purpose it was approved for, as Eumenes binds it (R19)", () => {
+		const grants = new InputGrants(
+			() => 0,
+			() => "ref-1",
+		);
+		const site = "https://shop.example/x";
+		grants.approve({
+			value: "山田太郎",
+			origin: "https://shop.example",
+			purpose: "お名前",
+		});
+		expect(grants.find("山田太郎", site, "お名前")).toBe("ref-1");
+		expect(grants.find("山田太郎", site, "メールアドレス")).toBeNull();
+		expect(grants.find("山田太郎", site, "")).toBeNull();
+		// No purpose asked (a caller of 0.1): the site is the only binding.
+		expect(grants.find("山田太郎", site)).toBe("ref-1");
+		expect(grants.use("ref-1", site, "お名前")).toBe("山田太郎");
+		expect(grants.use("ref-1", site)).toBe("山田太郎");
+		expect(() => grants.use("ref-1", site, "メールアドレス")).toThrow(
+			"grant_mismatch",
+		);
+		// Both sides are cut at 60 characters, as the stored purpose is.
+		const long = "あ".repeat(70);
+		grants.approve({
+			value: "v",
+			origin: "https://shop.example",
+			purpose: long,
+		});
+		expect(grants.find("v", site, "あ".repeat(60))).not.toBeNull();
 	});
 
 	test("expired grants are dropped when the next one is approved", () => {
@@ -233,6 +272,32 @@ describe("what item.open declares (R05)", () => {
 		expect(effectOf({ role: "link", url: " \tjavascript:x" })).toBe("submit");
 		expect(effectOf({ role: "menuitem" })).toBe("submit");
 		expect(effectOf({ role: "menuitem", url: "/settings" })).toBe("navigation");
+	});
+
+	test("an <a> menu item the snapshot gave no /url takes its destination from the inspection (R18)", () => {
+		const menu = { role: "menuitem" } as const;
+		expect(effectOf(menu, { tag: "a", href: "/settings" })).toBe("navigation");
+		expect(effectOf(menu, { tag: "area", href: "https://x.example/" })).toBe(
+			"navigation",
+		);
+		expect(effectOf(menu, { tag: "a", href: "#" })).toBe("submit");
+		expect(effectOf(menu, { tag: "a", href: "javascript:void(0)" })).toBe(
+			"submit",
+		);
+		expect(effectOf(menu, { tag: "a", href: "" })).toBe("submit");
+		expect(effectOf(menu, { tag: "a", href: null })).toBe("submit");
+		expect(effectOf(menu, { tag: "a" })).toBe("submit");
+		// Not an anchor: an href-looking fact on anything else is not a destination.
+		expect(effectOf(menu, { tag: "div", href: "/x" })).toBe("submit");
+		expect(effectOf(menu, { tag: "button", href: "/x" })).toBe("submit");
+		expect(effectOf(menu, null)).toBe("submit");
+		// What the snapshot says is kept: the inspection only fills a gap.
+		expect(
+			effectOf({ role: "menuitem", url: "#" }, { tag: "a", href: "/x" }),
+		).toBe("submit");
+		expect(effectOf({ role: "button" }, { tag: "a", href: "/x" })).toBe(
+			"submit",
+		);
 	});
 
 	test("a tab switches the page's view; a button always submits; other roles are not opened", () => {

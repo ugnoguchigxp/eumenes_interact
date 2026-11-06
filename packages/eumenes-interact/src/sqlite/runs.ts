@@ -219,6 +219,9 @@ export function createRun(
 	const nowIso = requireTimestamp(input.nowIso, "nowIso");
 	const policyJson = toJson(input.policy, "policy");
 
+	// run_id is a global key. The answer for an id that is taken is one fixed error, whoever owns it:
+	// the check carries no owner, runs before every owner-scoped lookup, and a lost race on the
+	// primary key (below) gives the very same error.
 	if (
 		guarded(() =>
 			db
@@ -240,7 +243,7 @@ export function createRun(
 		if (row == null) throw new InteractStoreError("not_found");
 		definitionDigest = readText(row, "digest");
 	}
-	guarded(() =>
+	insertRun(() =>
 		db
 			.query(
 				`INSERT INTO interact_runs (run_id, owner, status, workflow_id, workflow_revision,
@@ -267,6 +270,21 @@ export function createRun(
 			),
 	);
 	return requireRun(db, owner, runId);
+}
+
+/** An INSERT that loses the run_id primary key is the same `already_exists`, not a distinct error. */
+function insertRun(insert: () => unknown): void {
+	try {
+		guarded(insert);
+	} catch (error) {
+		if (
+			error instanceof Error &&
+			!(error instanceof InteractStoreError) &&
+			/UNIQUE constraint failed: interact_runs\.run_id/i.test(error.message)
+		)
+			throw new InteractStoreError("already_exists");
+		throw error;
+	}
 }
 
 /** A run of this owner, or `null`. Another owner's run is indistinguishable from a missing one. */

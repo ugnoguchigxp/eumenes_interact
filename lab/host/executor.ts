@@ -69,11 +69,19 @@ export type ExecuteOptions = {
 	 */
 	valueChecked?: boolean;
 	/**
-	 * An indeterminate result of this operation does not end the run: the caller (a host part) knows that sending
-	 * it again cannot do harm (a host-checked search, which is a GET). Navigation, back and wait are always so.
+	 * A request that an indeterminate result of this operation not end the run: the caller (a host part) believes
+	 * that sending it again cannot do harm (a search). The host grants it only when its own inspection of the
+	 * target shows a GET form or no form; for a POST, dialog or undescribed form the outcome stays `indeterminate`
+	 * and nothing is sent again. Navigation, back and wait are always recoverable.
 	 */
 	recoverable?: boolean;
+	/** What a granted value is for (design R19): checked against the purpose the user approved it for. */
+	grantPurpose?: string;
 };
+
+/** Whether submitting from the inspected element sends a GET or nothing form-shaped: a second try cannot duplicate it. */
+const readOnlySubmit = (info: InspectionResult) =>
+	info.inForm === false || (info.inForm === true && info.formMethod === "get");
 
 /** Commands whose indeterminate result leaves nothing that a second try could duplicate. */
 const IDEMPOTENT = new Set(["browser.navigate", "browser.back", "page.wait"]);
@@ -386,6 +394,22 @@ export function createExecutor(deps: ExecutorDeps) {
 		);
 	}
 
+	/**
+	 * `inspectTarget` for a part (an `<a>`'s `href`): read-only, and the ref must belong to the tab's latest
+	 * observation, as for an operation.
+	 */
+	async function inspectTargetOf(
+		tabRef: string,
+		observationRef: string | undefined,
+		targetRef: string,
+	): Promise<InspectionResult> {
+		tabs.assertActionable(tabRef, observationRef, targetRef);
+		await ensureCurrent(tabRef);
+		return readAdapter(() =>
+			adapter.inspect("inspectTarget", targetRef, control.signal),
+		);
+	}
+
 	/** The element facts for the approval decision; reading never reaches the page's state. */
 	async function inspect(guard: CommitGuard): Promise<InspectionResult | null> {
 		if (guard.declared) return null;
@@ -412,6 +436,8 @@ export function createExecutor(deps: ExecutorDeps) {
 				return `キー ${command.action === "page.press" ? command.key : ""} を押します（送信・確定の操作）`;
 			case "type":
 				return `「${"element" in command ? command.element : ""}」へ入力して送信します（送信・確定の操作）`;
+			case "navigate":
+				return "このページで読んだ文字列を含むアドレスを開きます。文字列がサイトへ送られる可能性があります";
 		}
 	};
 
@@ -440,9 +466,11 @@ export function createExecutor(deps: ExecutorDeps) {
 			element:
 				command.action === "page.press"
 					? command.key
-					: "element" in command
-						? command.element
-						: "",
+					: command.action === "browser.navigate"
+						? command.url
+						: "element" in command
+							? command.element
+							: "",
 			valueDigest: command.action === "page.fill" ? sha256(command.text) : null,
 		};
 	}
@@ -479,6 +507,7 @@ export function createExecutor(deps: ExecutorDeps) {
 					text: deps.grants.use(
 						provenance.inputValueRef,
 						tabs.require(tabRef).url,
+						options.grantPurpose,
 					),
 				};
 				granted = true;
@@ -489,9 +518,13 @@ export function createExecutor(deps: ExecutorDeps) {
 		await ensureCurrent(tabRef);
 		const tab = tabs.require(tabRef);
 		const guard = commitGuard(command, call.declaredEffect);
-		const needsApproval = guard
-			? approvalNeeded(guard, await inspect(guard))
-			: false;
+		const info = guard ? await inspect(guard) : null;
+		const needsApproval = guard ? approvalNeeded(guard, info) : false;
+		// A part's `recoverable` is a request: it is granted only when the host's own inspection of the target
+		// shows a GET form or no form. A POST (or dialog, or undescribed) form, or no inspection at all, keeps an
+		// unknown outcome `indeterminate`, so nothing is ever sent again.
+		const recoverable =
+			options.recoverable === true && info !== null && readOnlySubmit(info);
 		// 3. The intent is recorded; the transcript shows the command as the user would, not a granted value.
 		const operationId = deps.newId();
 		const approvalId = needsApproval ? deps.newId() : undefined;
@@ -621,7 +654,7 @@ export function createExecutor(deps: ExecutorDeps) {
 			tabRef,
 			sent,
 			deps.now() - began,
-			options.recoverable === true,
+			recoverable,
 		);
 	}
 
@@ -871,5 +904,13 @@ export function createExecutor(deps: ExecutorDeps) {
 		}
 	}
 
-	return { execute, start, attach, extract, capture, sortOptions };
+	return {
+		execute,
+		start,
+		attach,
+		extract,
+		capture,
+		sortOptions,
+		inspectTarget: inspectTargetOf,
+	};
 }

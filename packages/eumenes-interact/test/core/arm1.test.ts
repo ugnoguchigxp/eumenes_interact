@@ -498,6 +498,82 @@ describe("applyResult", () => {
 		expect(view.callsLeft).toBe(5);
 	});
 
+	test("every page-derived member of a result is marked, the host's own are not, and the shapes stay (R20)", () => {
+		const full = lastResult(
+			applied(called(), {
+				part: "page.find",
+				status: "completed",
+				page,
+				candidates: [{ item: "p1.i50", role: "link", name: "x" }],
+				list: {
+					kind: "links",
+					entries: [{ item: "p1.i51", title: "t" }],
+					truncated: false,
+				},
+				read: { text: "本文", charCount: 2, truncated: false },
+				capture: {
+					captureId: "c1",
+					width: 1,
+					height: 1,
+					fileName: "a.png",
+					mediaType: "image/png",
+				},
+				form: {
+					fields: [
+						{ item: "p1.i52", label: "お名前", kind: "textbox", filled: false },
+					],
+					submit: [],
+				},
+				fill: [{ item: "p1.i52", status: "filled" }],
+				approval: { action: "click", element: "削除" },
+			}).state,
+		);
+		for (const member of [
+			"page",
+			"list",
+			"read",
+			"capture",
+			"form",
+			"approval",
+		])
+			expect(full[member].untrusted).toBe(true);
+		// An array cannot carry a flag: it keeps its shape and is named in untrustedFields.
+		expect(Array.isArray(full.candidates)).toBe(true);
+		expect(full.untrustedFields).toEqual([
+			"page",
+			"candidates",
+			"list",
+			"read",
+			"capture",
+			"form",
+			"approval",
+		]);
+		// Fields keep their names and the host's members are untouched.
+		expect(full.page.title).toBe(page.title);
+		expect(full.list.entries[0].title).toBe("t");
+		expect(full.form.fields[0].label).toBe("お名前");
+		expect(full.fill).toEqual([{ item: "p1.i52", status: "filled" }]);
+		expect(full.status).toBe("completed");
+		expect(full.untrusted).toBeUndefined();
+		// A result with no page text has no mark.
+		const bare = lastResult(
+			applied(called(), { part: "page.wait", status: "completed" }).state,
+		);
+		expect(bare.untrustedFields).toBeUndefined();
+	});
+
+	test("a page summary stays bounded with its mark", () => {
+		const huge = {
+			...page,
+			title: "あ".repeat(200_000),
+		};
+		const content = messages(applied(called(), { page: huge }).state).at(
+			-1,
+		)!.content;
+		expect(content.length).toBeLessThanOrEqual(96_000 + 20);
+		expect(content).toContain("PART_RESULT=");
+	});
+
 	test("the AI may name the items of the latest page and cite the results it saw", () => {
 		let state = parseStep(start(), call("page.back")).state;
 		const p2 = {

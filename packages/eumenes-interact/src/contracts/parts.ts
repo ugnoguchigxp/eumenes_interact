@@ -105,6 +105,18 @@ export type PageItem = {
 	region?: string;
 	/** Link target, when the element is a link. */
 	url?: string;
+	/**
+	 * The content block (article, table, figure…) the item sits in, as `role name`, when that is not the
+	 * `region` already given. Lets the AI see which block holds which element.
+	 */
+	block?: string;
+	/**
+	 * For a content block: what it holds, as `role name` (headings, images, tables, controls), bounded and in
+	 * document order with content before controls. Lets the AI choose the smallest block that holds what was asked.
+	 */
+	holds?: string[];
+	/** How many elements the block holds in all, when `holds` lists fewer. */
+	holdsCount?: number;
 };
 
 /** What the AI sees of a page instead of the raw snapshot; size-bounded. */
@@ -166,6 +178,14 @@ export type PartResult = {
 		height: number;
 		fileName: string;
 		mediaType: string;
+		/**
+		 * An element capture: the captured block as `role name`, the block it sits in, and what it holds (bounded,
+		 * as `PageItem.holds`), so the range can be checked against what was asked.
+		 */
+		target?: string;
+		block?: string;
+		holds?: string[];
+		holdsCount?: number;
 	};
 	form?: { fields: FormField[]; submit: PageItem[] };
 	fill?: {

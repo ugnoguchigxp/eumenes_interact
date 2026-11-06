@@ -15,6 +15,12 @@ export type CaptureSavedRecord = {
 	mediaType: "image/png" | "image/jpeg" | "image/webp";
 	range: "viewport" | "full" | "item";
 	target?: { role: string; nameHash: string };
+	/**
+	 * An element capture: the headings and items the captured block held (bounded), as role and name digest, so a
+	 * run's range can be scored without the transcript holding page text. `holdsCount` is the total when more.
+	 */
+	holds?: { role: string; nameHash: string }[];
+	holdsCount?: number;
 };
 
 /** The run's transcript: part names and argument names only, never values. */

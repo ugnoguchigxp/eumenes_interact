@@ -107,6 +107,31 @@ export const expectSchema = z.discriminatedUnion("kind", [
 				target: z
 					.strictObject({ role: z.string().min(1), name: z.string().min(1) })
 					.optional(),
+				/**
+				 * What the captured block must hold (`includes`) and must not (`excludes`), by role and accessible name
+				 * (F11). The host reports a block's content as digests; a capture counts only when every wanted
+				 * element is among them and no unwanted one is.
+				 */
+				holds: z
+					.strictObject({
+						includes: z
+							.array(
+								z.strictObject({
+									role: z.string().min(1),
+									name: z.string().min(1),
+								}),
+							)
+							.default([]),
+						excludes: z
+							.array(
+								z.strictObject({
+									role: z.string().min(1),
+									name: z.string().min(1),
+								}),
+							)
+							.default([]),
+					})
+					.optional(),
 			})
 			.optional(),
 		...expectBase,

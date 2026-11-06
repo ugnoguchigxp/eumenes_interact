@@ -82,12 +82,21 @@ function fieldOf(
 	return record ? found.fields.find((f) => f.item === record.item) : undefined;
 }
 
+/**
+ * What a value typed into a field is for: the field's own label (else its name), as the page shows it. A value the
+ * user approved is bound to this purpose (design R19; Eumenes binds a grant to the purpose it was approved for), so
+ * a value approved for one field is not typed into another.
+ */
+const purposeOf = (label: string | undefined, name: string) =>
+	(label || name).trim();
+
 /** Where a typed value comes from: a passage of the request, or a value the user approved for this site. */
 function provenanceOf(
 	ctx: ExecutorContext,
 	value: string,
 	pageUrl: string,
-	quote?: string | null,
+	quote: string | null | undefined,
+	purpose: string,
 ): InputProvenance | null {
 	if (quote != null) {
 		try {
@@ -104,7 +113,7 @@ function provenanceOf(
 	} catch {
 		// Not a passage of the request.
 	}
-	const ref = ctx.grants.find(value, pageUrl);
+	const ref = ctx.grants.find(value, pageUrl, purpose);
 	return ref === null ? null : { kind: "grant", inputValueRef: ref };
 }
 
@@ -207,6 +216,7 @@ async function fillOne(
 			field.value,
 			observation.url ?? "",
 			field.quote,
+			purposeOf(info?.label, target.record.name),
 		);
 		if (found === null) return needsInput();
 		provenance = found;
@@ -221,6 +231,9 @@ async function fillOne(
 	const s = await operate(ctx, command, "input", {
 		observation,
 		...(provenance ? { inputProvenance: provenance } : {}),
+		...(provenance?.kind === "grant"
+			? { grantPurpose: purposeOf(info?.label, target.record.name) }
+			: {}),
 	});
 	if (s.kind === "refused") return { result: refused(s.code), observation };
 	if (s.kind !== "operation")

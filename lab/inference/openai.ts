@@ -1,4 +1,5 @@
 import type { InferencePort, InferenceUsage } from "eumenes-interact";
+import { attemptMetadata } from "./attempt.ts";
 import type { Fetcher } from "./guards.ts";
 
 export const LUNA_MODEL = "gpt-6-luna";
@@ -31,8 +32,30 @@ export function createOpenAIInference(
 		async complete(request) {
 			const start = performance.now();
 			const latencyMs = () => Math.round(performance.now() - start);
+			// Every outcome below, success or failure, carries the requested provider/model/effort and
+			// the number of HTTP requests really dispatched; the returned fields only once a body was read.
+			let httpAttempts = 0;
+			const meta = (data?: {
+				model?: unknown;
+				id?: unknown;
+				service_tier?: unknown;
+			}) =>
+				attemptMetadata(
+					{
+						provider: "openai",
+						model: o.model ?? LUNA_MODEL,
+						effort: o.effort ?? "low",
+					},
+					httpAttempts,
+					{
+						model: data?.model,
+						id: data?.id,
+						serviceTier: data?.service_tier,
+					},
+				);
 			try {
 				request.signal.throwIfAborted();
+				httpAttempts = 1;
 				const response = await (o.fetch ?? fetch)(
 					"https://api.openai.com/v1/responses",
 					{
@@ -75,6 +98,7 @@ export function createOpenAIInference(
 						code: `http_${response.status}`,
 						usage: unknownUsage(),
 						latencyMs: latencyMs(),
+						metadata: meta(),
 					};
 				}
 				// A bounded stream prevents an invalid upstream response from consuming arbitrary memory.
@@ -121,6 +145,7 @@ export function createOpenAIInference(
 							data.status === "incomplete" ? "output_limit" : "response_failed",
 						usage,
 						latencyMs: latencyMs(),
+						metadata: meta(data),
 					};
 				const content = (Array.isArray(data.output) ? data.output : []).flatMap(
 					(item: { type?: string; content?: unknown[] }) =>
@@ -134,6 +159,7 @@ export function createOpenAIInference(
 						code: "refusal",
 						usage,
 						latencyMs: latencyMs(),
+						metadata: meta(data),
 					};
 				const text = content
 					.filter((c) => c.type === "output_text" && typeof c.text === "string")
@@ -145,25 +171,14 @@ export function createOpenAIInference(
 							text,
 							usage,
 							latencyMs: latencyMs(),
-							metadata: {
-								provider: "openai",
-								requestedModel: o.model ?? LUNA_MODEL,
-								requestedEffort: o.effort ?? "low",
-								returnedModel:
-									typeof data.model === "string" ? data.model : null,
-								responseId: typeof data.id === "string" ? data.id : null,
-								serviceTier:
-									typeof data.service_tier === "string"
-										? data.service_tier
-										: null,
-								httpAttempts: 1,
-							},
+							metadata: meta(data),
 						}
 					: {
 							kind: "empty",
 							code: "empty_output",
 							usage,
 							latencyMs: latencyMs(),
+							metadata: meta(data),
 						};
 			} catch {
 				return {
@@ -173,6 +188,7 @@ export function createOpenAIInference(
 						: "openai_transport_or_contract",
 					usage: unknownUsage(),
 					latencyMs: latencyMs(),
+					metadata: meta(),
 				};
 			}
 		},

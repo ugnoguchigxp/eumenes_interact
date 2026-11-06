@@ -70,36 +70,37 @@ export function assertValueQuoted(
 }
 
 /**
- * The 0.1.x name of `assertValueQuoted`. Since 0.2.0 it also requires the passage to hold the value: before,
+ * The 0.1.x name of `assertValueQuoted`. Since 0.1.2 it also requires the passage to hold the value: before,
  * any value within the length bound passed beside any two-character passage of the request.
  */
 export const assertQuoted = assertValueQuoted;
 
 /**
  * A choice (an option chosen, a box turned on) is the request's: `quote` is a passage of the request at word
- * edges, and either the label holds the quote and the quote covers at least half of it, or the quote holds the
- * whole label. Whether the user wants it on or off stays the model's to say.
+ * edges, and the quote and the label share a run at word edges that covers at least half of the label. Whether
+ * the user wants it on or off stays the model's to say.
  */
 export function assertChoiceQuoted(
 	label: string,
 	quote: string,
 	request: string,
 ): void {
-	const q = spaced(quote);
-	const l = spaced(label);
+	// The quote and the label share a run at word edges covering at least half of the label: the quote may hold
+	// the label (「お届けはお急ぎ便」), sit inside it (「11月21日」), or overlap it (「ギフト包装あり」 for
+	// 「ギフト包装にする」, as Luna quotes it). A quote sharing no such run (「贈り物」) does not tie them.
 	const tied =
 		squash(quote).length >= QUOTE_MIN &&
-		l !== "" &&
-		containsAtWordEdge(spaced(request), q) &&
-		((containsAtWordEdge(l, q) &&
-			q.length >= CHOICE_QUOTE_COVERAGE * l.length) ||
-			containsAtWordEdge(q, l));
+		spaced(label) !== "" &&
+		containsAtWordEdge(spaced(request), spaced(quote)) &&
+		// A one-character label (「男」 in 「男性」) has no run of two to share; the quote holding it whole is enough.
+		(impliedQuote(label, quote) !== null ||
+			containsAtWordEdge(spaced(quote), spaced(label)));
 	if (!tied) throw new Refusal("grant_source_mismatch");
 }
 
 /**
  * The passage that ties a label to the request when the model quoted none: the longest run the two share at word
- * edges, if it covers enough of the label (「ギフト包装」 of 「ギフト包装にする」 for 「ギフト包装あり」). Before 0.2.0
+ * edges, if it covers enough of the label (「ギフト包装」 of 「ギフト包装にする」 for 「ギフト包装あり」). Before 0.1.2
  * any four characters in a row were enough, so "tion" of "information" ticked "I agree to the … conditions".
  */
 export function impliedQuote(label: string, request: string): string | null {

@@ -339,7 +339,19 @@
 			"captures": {
 				"min": 1,
 				"range": "item",
-				"target": { "role": "article", "name": "商品の詳細" }
+				"target": { "role": "article", "name": "商品の詳細" },
+				"holds": {
+					"includes": [
+						{ "role": "heading", "name": "木のスプーン" },
+						{ "role": "img", "name": "商品の写真" }
+					],
+					"excludes": [
+						{ "role": "complementary", "name": "おすすめ" },
+						{ "role": "heading", "name": "こちらもどうぞ" },
+						{ "role": "link", "name": "陶器の小皿" },
+						{ "role": "link", "name": "木のまな板" }
+					]
+				}
 			},
 			"wrongTargets": [
 				{

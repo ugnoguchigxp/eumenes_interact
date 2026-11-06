@@ -78,7 +78,18 @@ describe("summarizePage (Playwright MCP)", () => {
 				region: "search",
 			},
 			{ item: "p3.i5", role: "button", name: "検索", region: "search" },
-			{ item: "p3.i6", role: "main", name: "" },
+			{
+				item: "p3.i6",
+				role: "main",
+				name: "",
+				holds: [
+					"heading 「電気ケトル」の検索結果",
+					"link 電気ケトル 1.0L",
+					"link 電気ケトル 0.8L",
+					"link 詳細",
+					"link 詳細",
+				],
+			},
 			{
 				item: "p3.i7",
 				role: "link",
@@ -204,6 +215,57 @@ describe("content blocks", () => {
 			["p3.i8", "table", "仕様", "main"],
 			["p3.i9", "figure", "", "main"],
 		]);
+	});
+
+	test("each item names the block it sits in, and a block lists what it holds (containment)", () => {
+		const at = (name: string) => summary.items.find((i) => i.name === name)!;
+		// The photo and the button sit in the article, not just "main".
+		expect(at("電気ケトルの写真")).toMatchObject({
+			region: "main",
+			block: "article 商品の詳細",
+		});
+		expect(at("カートに入れる").block).toBe("article 商品の詳細");
+		// A block directly in the region it names adds nothing.
+		expect(at("商品の詳細").block).toBeUndefined();
+		expect(at("関連商品").block).toBeUndefined();
+		expect(at("仕様").block).toBeUndefined();
+		expect(at("商品の詳細").holds).toEqual([
+			"heading 電気ケトル 1.0L",
+			"img 電気ケトルの写真",
+			"button カートに入れる",
+		]);
+		// The smallest block that holds the photo is the article, not the main region.
+		expect(summary.items[0]!.holds).toEqual(
+			expect.arrayContaining(["article 商品の詳細", "img 電気ケトルの写真"]),
+		);
+		// A block with nothing named inside has no list.
+		expect(at("仕様").holds).toBeUndefined();
+	});
+
+	test("holds is bounded: content before controls, the first few shown, the total kept", () => {
+		const body = [
+			"- main [ref=m]:",
+			'  - article "記事" [ref=a]:',
+			...Array.from(
+				{ length: 20 },
+				(_, i) => `    - link "リンク${i}" [ref=l${i}]`,
+			),
+			'    - heading "見出し" [level=2] [ref=h]',
+			'    - img "図" [ref=g]',
+		].join("\n");
+		const { summary: s, records: r } = summarize(body);
+		const article = s.items.find((i) => i.role === "article")!;
+		expect(article.holds).toEqual([
+			"heading 見出し",
+			"img 図",
+			"link リンク0",
+			"link リンク1",
+			"link リンク2",
+			"link リンク3",
+		]);
+		expect(article.holdsCount).toBe(22);
+		// A capture shows more of the same list.
+		expect(r.find((x) => x.role === "article")!.holds).toHaveLength(12);
 	});
 
 	test("an unnamed image, complementary or region is not an item", () => {

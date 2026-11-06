@@ -31,7 +31,7 @@ export function siteSearchUrl(
 					putSearchTemplate(db, owner, entry);
 				} catch (error) {
 					// The store already holds a newer revision (a DB from a newer lab): the stored hint stays and the
-					// search goes on with it. Since 0.2.0 the store says so instead of ignoring the write (design R09).
+					// search goes on with it. Since 0.1.2 the store says so instead of ignoring the write (design R09).
 					if (isInteractStoreError(error) && error.code === "stale_revision")
 						continue;
 					throw error;

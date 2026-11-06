@@ -214,7 +214,7 @@ export async function openHiddenSort(
 	ctx: ExecutorContext,
 	sort: HiddenSort,
 ): Promise<Body> {
-	const opened = await pageOpen(ctx, sort.url);
+	const opened = await pageOpen(ctx, sort.url, { hostDerived: true });
 	const landed = opened.page?.url ?? "";
 	return sortApplied(landed, sort) ||
 		sortCarried(opened.page?.items ?? [], sort)

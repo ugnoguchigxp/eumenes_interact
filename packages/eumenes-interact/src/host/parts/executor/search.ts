@@ -2,6 +2,7 @@ import type { ItemRecord, ObservationEnvelope } from "../../../index.ts";
 import { toUri } from "../uri.ts";
 import { querySourced as sourced } from "../../source.ts";
 import { generalSearchUrl } from "../search-urls.ts";
+import { isPagingEntry } from "./paging.ts";
 import {
 	afterSending,
 	batch,
@@ -259,7 +260,7 @@ export async function siteSearch(
 		let kept = listed.entries.filter(isResult);
 		// When the list the page shape suggests has no real result, the links that name the query are the
 		// results (a site that lays them out as a plain run of links or a table).
-		if (!kept.some((e) => !ctx.paging.test(e.title.trim()))) {
+		if (!kept.some((e) => !isPagingEntry(ctx, e, after.url))) {
 			const named = batch(ctx, after, (pageId) => ({
 				records: ctx.core.findItems(
 					after.body,
@@ -279,8 +280,8 @@ export async function siteSearch(
 		}
 		// Page numbers and next/prev links are listed where the page puts them, often above the results: they
 		// go after the real results, and alone they are not results.
-		const paging = kept.filter((e) => ctx.paging.test(e.title.trim()));
-		const real = kept.filter((e) => !ctx.paging.test(e.title.trim()));
+		const paging = kept.filter((e) => isPagingEntry(ctx, e, after.url));
+		const real = kept.filter((e) => !isPagingEntry(ctx, e, after.url));
 		const results = real.length ? [...real, ...paging] : [];
 		return { results, truncated: listed.truncated };
 	};

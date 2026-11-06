@@ -206,6 +206,9 @@ export class TrialRecorder {
 		mediaType: "image/png" | "image/jpeg";
 		range: "viewport" | "full" | "item";
 		target?: { role: string; nameHash: string };
+		/** What an element capture held (R24): role and name digest, bounded; `holdsCount` when more. */
+		holds?: { role: string; nameHash: string }[];
+		holdsCount?: number;
 	}) {
 		this.add({ type: "capture.saved", at: this.at(), ...saved });
 	}

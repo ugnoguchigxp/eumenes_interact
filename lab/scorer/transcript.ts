@@ -99,6 +99,12 @@ export type TranscriptEvent =
 			range: CaptureRange;
 			/** An element capture's target: its role and the digest of its name (`captureTargetHash`), never the name. */
 			target?: { role: string; nameHash: string };
+			/**
+			 * An element capture: the headings and items the captured block held (bounded), each as role and digest
+			 * of its name, never the name. `holdsCount` is the total when the list is shorter (F11).
+			 */
+			holds?: { role: string; nameHash: string }[];
+			holdsCount?: number;
 	  })
 	/** Arm 1: a part the core asked the host to run; argument names only, never values. */
 	| (At & { type: "part.call"; part: string; args: string[] })

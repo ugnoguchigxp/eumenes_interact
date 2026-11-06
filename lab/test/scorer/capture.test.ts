@@ -8,7 +8,11 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { captureTargetHash, readImageHeader } from "../../scorer/captures.ts";
+import {
+	captureRangeScore,
+	captureTargetHash,
+	readImageHeader,
+} from "../../scorer/captures.ts";
 import { scoreTrial } from "../../scorer/score.ts";
 import { TranscriptBuilder, click, devCase, fixtureUrl } from "./builder.ts";
 
@@ -55,6 +59,16 @@ const trial = async (
 	configure(b);
 	return scoreTrial(def, b.final("finish").build(def.id, "t", captureDir));
 };
+
+const hold = (role: string, name: string) => ({
+	role,
+	nameHash: captureTargetHash(name),
+});
+/** What the product article of dev-capture-item holds, as the host reports it (design R24). */
+const ARTICLE_HOLDS = [
+	hold("heading", "木のスプーン"),
+	hold("img", "商品の写真"),
+];
 
 describe("readImageHeader", () => {
 	test("reads PNG and JPEG sizes from the magic bytes", () => {
@@ -202,7 +216,12 @@ describe("scoreTrial: captures", () => {
 						click("e1"),
 						fixtureUrl("sites/kaede-shop/base/product.html?id=2"),
 					)
-					.capture({ fileName: "a.png", range, target: article })
+					.capture({
+						fileName: "a.png",
+						range,
+						target: article,
+						holds: ARTICLE_HOLDS,
+					})
 					.final("finish")
 					.build(def.id, "t", dir),
 			);
@@ -250,6 +269,7 @@ describe("scoreTrial: captures", () => {
 						width: 400,
 						height: 300,
 						range: "item",
+						holds: ARTICLE_HOLDS,
 						...(target ? { target } : {}),
 					})
 					.final("finish")
@@ -268,5 +288,103 @@ describe("scoreTrial: captures", () => {
 			t({ role: "article", nameHash: captureTargetHash(" 商品の詳細 ") })
 				.success,
 		).toBe(true);
+	});
+});
+
+describe("scoreTrial: what a captured block holds (F11)", () => {
+	// "Only the product part" on the product page: the intended block is the article (target); it must hold the
+	// name and the photo, and must not hold the recommendations beside it.
+	const article = hold("article", "商品の詳細");
+	const run = async (
+		target: { role: string; nameHash: string },
+		holds: { role: string; nameHash: string }[] | undefined,
+		holdsCount?: number,
+	) => {
+		writeFileSync(join(dir, "a.png"), png(400, 300));
+		const def = await devCase("dev-capture-item");
+		return scoreTrial(
+			def,
+			new TranscriptBuilder()
+				.call()
+				.step(
+					"op1",
+					click("e1"),
+					fixtureUrl("sites/kaede-shop/base/product.html?id=2"),
+				)
+				.capture({
+					fileName: "a.png",
+					width: 400,
+					height: 300,
+					range: "item",
+					target,
+					...(holds ? { holds } : {}),
+					...(holdsCount === undefined ? {} : { holdsCount }),
+				})
+				.final("finish")
+				.build(def.id, "t", dir),
+		);
+	};
+
+	test("the intended block with everything wanted and nothing unwanted passes", async () => {
+		expect((await run(article, ARTICLE_HOLDS)).success).toBe(true);
+	});
+
+	test("the whole main region holds the recommendations too: the right content, the wrong range", async () => {
+		const main = hold("main", "");
+		const score = await run(main, [
+			...ARTICLE_HOLDS,
+			hold("article", "商品の詳細"),
+			hold("complementary", "おすすめ"),
+			hold("heading", "こちらもどうぞ"),
+			hold("link", "陶器の小皿"),
+		]);
+		expect(score.failures).toEqual(["capture_missing"]);
+	});
+
+	test("the photo alone leaves out the name, and an unreported range cannot be confirmed", async () => {
+		expect((await run(hold("img", "商品の写真"), [])).failures).toEqual([
+			"capture_missing",
+		]);
+		expect((await run(article, undefined)).failures).toEqual([
+			"capture_missing",
+		]);
+	});
+
+	test("the article with the recommendations inside is rejected for the unwanted part", async () => {
+		const score = await run(article, [
+			...ARTICLE_HOLDS,
+			hold("complementary", "おすすめ"),
+		]);
+		expect(score.failures).toEqual(["capture_missing"]);
+	});
+
+	test("captureRangeScore names what is missing and what is extra", async () => {
+		const event = {
+			type: "capture.saved" as const,
+			at: 0,
+			captureId: "c1",
+			fileName: "a.png",
+			width: 1,
+			height: 1,
+			bytes: 1,
+			mediaType: "image/png" as const,
+			range: "item" as const,
+			holds: [hold("heading", "木のスプーン"), hold("link", "陶器の小皿")],
+			holdsCount: 30,
+		};
+		expect(
+			captureRangeScore(event, {
+				includes: [
+					{ role: "heading", name: "木のスプーン" },
+					{ role: "img", name: "商品の写真" },
+				],
+				excludes: [{ role: "link", name: "陶器の小皿" }],
+			}),
+		).toEqual({
+			missing: [{ role: "img", name: "商品の写真" }],
+			extra: [{ role: "link", name: "陶器の小皿" }],
+			unconfirmed: true,
+			ok: false,
+		});
 	});
 });
