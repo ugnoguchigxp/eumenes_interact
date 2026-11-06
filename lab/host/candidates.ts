@@ -7,95 +7,25 @@ import {
 	type PageProfile,
 	type SiteObjectView,
 } from "eumenes-interact/sqlite";
-import { normalize, parseAria, type AriaNode } from "../aria.ts";
+import {
+	resolveCandidate,
+	type SnapshotCandidateResolution,
+	type SnapshotMatch,
+} from "eumenes-interact";
+
+export { resolveCandidate };
 
 /**
  * Site knowledge against the page in front of the browser (plan.md §7.3): which page profile the URL is
  * on, whether an object is defined for it, and which element of the current observation a candidate
  * names. Deterministic and read-only. A stored candidate is a claim, never a locator: it must find exactly
  * one element (or the one the candidate's own `nth` picks) in this very observation, else the step stops.
+ * Matching itself is `resolveCandidate` in the package, on the same snapshot tree the parts read.
  */
 
-export type Match = { ref: string; role: string; name: string | null };
+export type Match = SnapshotMatch;
 
-export type CandidateResolution =
-	| { kind: "found"; match: Match }
-	| { kind: "none" | "ambiguous" | "unsupported" };
-
-type Fields = Readonly<Record<string, string | number | boolean>>;
-
-const text = (fields: Fields, key: string): string | undefined => {
-	const value = fields[key];
-	return typeof value === "string" ? value : undefined;
-};
-
-/** `a|b` as a list of normalised alternatives. */
-const alternatives = (value: string) =>
-	value
-		.split("|")
-		.map(normalize)
-		.filter((item) => item !== "");
-
-const isTrue = (value: string | number | boolean | undefined) =>
-	value === true || value === "true";
-
-/** The link text as written and as a person would read it (`%E7%89%B9…` is `特…`). */
-function urlVariants(url: string): string[] {
-	try {
-		return [url, decodeURIComponent(url)];
-	} catch {
-		return [url];
-	}
-}
-
-const hasAny = (url: string, needles: readonly string[]) =>
-	urlVariants(url).some((v) => needles.some((n) => v.includes(n)));
-
-/** One candidate against the whole observation body. */
-export function resolveCandidate(
-	body: string,
-	candidate: Pick<CandidateRecord, "kind" | "fields">,
-): CandidateResolution {
-	if (candidate.kind !== "role" && candidate.kind !== "structure")
-		return { kind: "unsupported" };
-	const { fields } = candidate;
-	const role = text(fields, "role");
-	if (role === undefined) return { kind: "unsupported" };
-	const name = text(fields, "name");
-	const anyOf = text(fields, "nameAnyOf");
-	const names =
-		name !== undefined
-			? [normalize(name)]
-			: anyOf !== undefined
-				? alternatives(anyOf)
-				: null;
-	const include = text(fields, "urlIncludes");
-	const exclude = text(fields, "urlExcludes");
-	const within = text(fields, "withinRole");
-	const named = isTrue(fields["named"]);
-	const hits = parseAria(body).filter(
-		(n: AriaNode) =>
-			n.ref !== null &&
-			n.role === role &&
-			(names === null || (n.name !== null && names.includes(n.name))) &&
-			(!named || (n.name !== null && n.name !== "")) &&
-			(include === undefined || (n.url !== null && hasAny(n.url, [include]))) &&
-			(exclude === undefined ||
-				n.url === null ||
-				!hasAny(n.url, alternatives(exclude))) &&
-			(within === undefined || n.parents.some((p) => p.role === within)),
-	);
-	const nth = fields["nth"] === undefined ? null : Number(fields["nth"]);
-	if (nth !== null && (!Number.isInteger(nth) || nth < 0))
-		return { kind: "unsupported" };
-	const pick = nth === null ? hits[0] : hits[nth];
-	if (!pick) return { kind: "none" };
-	if (nth === null && hits.length > 1) return { kind: "ambiguous" };
-	return {
-		kind: "found",
-		match: { ref: pick.ref!, role: pick.role, name: pick.name },
-	};
-}
+export type CandidateResolution = SnapshotCandidateResolution;
 
 export type ObjectResolution =
 	| {

@@ -6,7 +6,7 @@ import type {
 	StartRunInput,
 } from "../contracts/core.ts";
 import type { RawObservation } from "../contracts/observation.ts";
-import { refsOf } from "./shared/observation.ts";
+import { refsOf } from "./parts/snapshot.ts";
 import * as arm1 from "./arm1/run.ts";
 
 /** Arm 0 (the Eumenes baseline port) was removed in M4; every state is an Arm 1 state. */

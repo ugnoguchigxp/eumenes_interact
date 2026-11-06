@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { parseAria, refsOf } from "../../aria.ts";
+import { ancestors, parseNodes, refsOf } from "eumenes-interact";
 import { resolveCandidate, resolveObject } from "../../host/candidates.ts";
 import { runDefinition } from "../../host/definition-run.ts";
 import { readDefinition } from "../../host/definitions.ts";
@@ -62,14 +62,18 @@ describe("the two snapshot spellings", () => {
 	});
 
 	test("refs, names, roles, ancestry and destinations read the same from both", () => {
-		const nodes = (body: string) =>
-			parseAria(body).map((n) => [
-				n.role,
-				n.name,
-				n.ref,
-				n.url,
-				n.parents.map((p) => p.role),
+		const nodes = (body: string) => {
+			const parsed = parseNodes(body);
+			return parsed.map((node) => [
+				node.role,
+				node.name === "" ? null : node.name,
+				node.ref,
+				node.url,
+				ancestors(parsed, node)
+					.map((parent) => parent.role)
+					.reverse(),
 			]);
+		};
 		expect(nodes(INLINE)).toEqual(nodes(PLAYWRIGHT));
 		expect(refsOf(INLINE)).toEqual(refsOf(PLAYWRIGHT));
 		expect(refsOf(INLINE)).toEqual([
@@ -95,7 +99,7 @@ describe("the two snapshot spellings", () => {
 			'- button "He said \\"hi\\"" [disabled, ref=e5]',
 			"- heading [level=1, ref=e6]",
 		].join("\n");
-		const [radio, link, button, heading] = parseAria(body);
+		const [radio, link, button, heading] = parseNodes(body);
 		expect(radio).toMatchObject({
 			role: "radio",
 			name: "小",
@@ -107,7 +111,7 @@ describe("the two snapshot spellings", () => {
 			url: "https://donate.wikimedia.org/?a=1,2&b=3",
 		});
 		expect(button).toMatchObject({ name: 'He said "hi"', ref: "e5" });
-		expect(heading).toMatchObject({ role: "heading", name: null, ref: "e6" });
+		expect(heading).toMatchObject({ role: "heading", name: "", ref: "e6" });
 		expect(refsOf(body)).toEqual(["e322", "e27", "e5", "e6"]);
 		// Text that merely looks like a ref is not one.
 		expect(refsOf("- text: see ref=e9 and [x]")).toEqual([]);

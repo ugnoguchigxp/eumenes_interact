@@ -19,6 +19,12 @@ export {
 	summarizePage,
 } from "./parts/index.ts";
 export {
+	resolveCandidate,
+	type SnapshotCandidateResolution,
+	type SnapshotMatch,
+} from "./parts/candidate.ts";
+export { ancestors, parseNodes, refsOf } from "./parts/snapshot.ts";
+export {
 	applyResult,
 	parseCoreState,
 	parseStep,

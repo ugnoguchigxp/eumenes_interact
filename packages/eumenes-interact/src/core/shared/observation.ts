@@ -17,11 +17,16 @@ export type BoundedSnapshot = {
 };
 
 /**
- * An element ref: `[ref=e1]` in a Playwright MCP snapshot, and also one attribute among others of a bracketed
- * list (`[checked=false, ref=e322]`, `[ref=e27, url=https://…]`) as Agent Browser prints it. A platform
- * extension, not Eumenes behaviour; the body itself is never rewritten (plan.md §5.3).
+ * An element ref inside a bracket (`[ref=e1]`, or after other attributes: `[checked=false, ref=e322]`).
+ * A platform extension, not Eumenes behaviour; the body itself is never rewritten (plan.md §5.3).
+ * Prose that merely contains `ref=` is not a ref. The actionable set of a whole snapshot is `refsOf`
+ * in `parts/snapshot.ts`, which reads these tokens through the one node parser.
  */
-const REF = /\[(?:[^\][]*, )?ref=([A-Za-z0-9_-]+)(?:, [^\][]*)?\]/g;
+export function refsIn(text: string): string[] {
+	return [...text.matchAll(/(?:\[|,\s*)ref=([A-Za-z0-9_-]+)/g)].map(
+		(match) => match[1]!,
+	);
+}
 
 /**
  * Cuts an ARIA snapshot at whole-node boundaries (a node is a `- ` line with its continuation lines).
@@ -49,7 +54,7 @@ export function boundSnapshot(
 		}
 		const text = node.lines.join("\n");
 		const size = utf8Length(text) + 1;
-		const found = [...text.matchAll(REF)].map((m) => m[1]!);
+		const found = refsIn(text);
 		if (bytes + size > limits.bytes) {
 			reasons.add("bytes");
 			break;
@@ -87,7 +92,3 @@ export function snapshotNodes(snapshot: string) {
 	}
 	return nodes;
 }
-
-/** The refs a body shows; only these are actionable. */
-export const refsOf = (body: string) =>
-	[...body.matchAll(REF)].map((m) => m[1]!);

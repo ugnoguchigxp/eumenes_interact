@@ -1,4 +1,4 @@
-import { refsOf, snapshotNodes } from "../shared/observation.ts";
+import { refsIn, snapshotNodes } from "../shared/observation.ts";
 import { clip } from "../shared/text.ts";
 
 /**
@@ -88,7 +88,7 @@ export function parseNodes(body: string): Node[] {
 			level: raw.level,
 			role: m[2]!.toLowerCase(),
 			name: m[3] === undefined ? "" : unquote(m[3]).replace(/\s+/g, " ").trim(),
-			ref: refsOf(brackets)[0] ?? null,
+			ref: refsIn(brackets)[0] ?? null,
 			url: urlOf(INLINE_URL.exec(brackets)?.[1]) ?? urlOf(child?.[1]),
 			attrs: attrsOf(brackets),
 			text,
@@ -104,6 +104,13 @@ export function parseNodes(body: string): Node[] {
 	}
 	for (const open of stack) open.end = nodes.length;
 	return nodes;
+}
+
+/** Refs of the elements this snapshot names, in document order. Only these are actionable. */
+export function refsOf(body: string): string[] {
+	return parseNodes(body).flatMap((node) =>
+		node.ref === null ? [] : [node.ref],
+	);
 }
 
 /** The nodes below `node`, in document order. */

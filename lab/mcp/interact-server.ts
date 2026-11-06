@@ -8,7 +8,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { realpathSync, statSync } from "node:fs";
 import { basename, isAbsolute, relative } from "node:path";
-import { originAllowed } from "eumenes-interact";
+import { allowedOriginSchema, originAllowed } from "eumenes-interact";
 import { z } from "zod";
 import type { DefinitionRunResult } from "../host/definition-run.ts";
 import { RunnerActiveError } from "../host/lock.ts";
@@ -142,22 +142,29 @@ const failure = (error: ToolError): CallToolResult => ({
 	],
 });
 
-function isHttpUrl(text: string): boolean {
+/** A page address the operate run may open: https, no userinfo. `validateOperate` applies the same rule. */
+function isHttpsUrl(text: string): boolean {
 	try {
 		const url = new URL(text);
-		return (
-			(url.protocol === "http:" || url.protocol === "https:") &&
-			!url.username &&
-			!url.password
-		);
+		return url.protocol === "https:" && !url.username && !url.password;
 	} catch {
 		return false;
 	}
 }
 
-/** `https://host[:port]` or `https://*.domain`, the forms the package's origin policy reads. */
-const ORIGIN =
-	/^https:\/\/(?:\*\.[a-z0-9-]+(?:\.[a-z0-9-]+)+|[a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d{1,5})?)$/i;
+/**
+ * Origins the tool accepts: the package's `allowedOriginSchema`, plus the refusal of a port on a wildcard.
+ * `https://*.example.org:443` matches the package pattern and then matches nothing in `originAllowed`
+ * when the port is not 443, and a wildcard with any port was already refused here.
+ */
+const wildcardHasPort = (pattern: string) =>
+	pattern.slice("https://".length).startsWith("*.") &&
+	/:\d{1,5}$/.test(pattern);
+
+const originSchema = allowedOriginSchema.refine(
+	(pattern) => !wildcardHasPort(pattern),
+	"invalid_origin",
+);
 
 /** The env var that lets the operator limit which origins a client may ask for. */
 export const ORIGIN_ALLOWLIST_ENV = "INTERACT_MCP_ALLOWED_ORIGINS";
@@ -176,7 +183,7 @@ export function parseOriginAllowlist(
 		.filter(Boolean);
 	if (entries.length === 0) return undefined;
 	for (const entry of entries)
-		if (!ORIGIN.test(entry))
+		if (!originSchema.safeParse(entry).success)
 			throw new Error(`invalid_origin_allowlist:${ORIGIN_ALLOWLIST_ENV}`);
 	return entries;
 }
@@ -270,13 +277,16 @@ export const operateStartShape = {
 	startUrl: z
 		.string()
 		.max(2048)
-		.refine(isHttpUrl, "invalid_start_url")
-		.describe("The http(s) page the browser opens first."),
+		.refine(isHttpsUrl, "invalid_start_url")
+		.describe("The https page the browser opens first."),
 	allowedOrigins: z
 		.array(
 			z
 				.string()
-				.refine((o) => ORIGIN.test(o), "invalid_origin")
+				.refine(
+					(origin) => originSchema.safeParse(origin).success,
+					"invalid_origin",
+				)
 				.describe("https://host[:port] or https://*.domain"),
 		)
 		.min(1)
