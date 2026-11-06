@@ -35,6 +35,15 @@ export function guarded<T>(operation: () => T): T {
 	}
 }
 
+/**
+ * Rows the connection's last INSERT/UPDATE/DELETE changed. `InteractStatement.run` returns `unknown`
+ * by contract, so a conditional write reads SQLite's own `changes()` right after the statement, inside
+ * the same `guarded` call. A zero means the condition no longer held: another writer got there first.
+ */
+export function changedRows(db: InteractDb): number {
+	return readInteger(db.query("SELECT changes() AS n").get(), "n");
+}
+
 /** Entry check of every writer: the host's transaction must be open. */
 export function assertWritable(db: InteractDb): void {
 	if (db.inTransaction === false) {

@@ -26,6 +26,16 @@ copyFileSync(
 	join(root, "skills/browse/SKILL.md"),
 	join(pkgRoot, "dist/skills/browse.md"),
 );
+// What a host must do, and the vectors it checks itself with (design R08).
+mkdirSync(join(pkgRoot, "dist/conformance"), { recursive: true });
+copyFileSync(
+	join(pkgRoot, "contract/HOST-CONTRACT.md"),
+	join(pkgRoot, "dist/HOST-CONTRACT.md"),
+);
+copyFileSync(
+	join(pkgRoot, "contract/host-vectors.json"),
+	join(pkgRoot, "dist/conformance/host-vectors.json"),
+);
 const notices = [];
 mkdirSync(join(pkgRoot, "dist/licenses"), { recursive: true });
 for (const [name, version] of Object.entries(pkg.dependencies)) {
@@ -63,9 +73,17 @@ const payload = [
 	join(pkgRoot, "LICENSE"),
 	join(pkgRoot, "package.json"),
 ];
+/**
+ * Everything the payload is made from: the sources, and the build's own inputs (F12), so a change of the
+ * compiler settings or of this script changes the identity even when no source file changed.
+ */
 const source = [
 	...files(join(pkgRoot, "src")),
+	...files(join(pkgRoot, "contract")),
 	join(pkgRoot, "package.json"),
+	join(pkgRoot, "tsconfig.build.json"),
+	join(root, "tsconfig.json"),
+	join(root, "scripts/distribution-manifest.mjs"),
 	join(root, "skills/browse/SKILL.md"),
 	join(root, "bun.lock"),
 ];

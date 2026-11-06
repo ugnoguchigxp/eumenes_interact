@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { generalSearchUrl, isChallenge } from "../../host/parts/search-urls.ts";
 import { siteSearchUrl as lookup } from "../../host/site-searches.ts";
+import { putSearchTemplate } from "eumenes-interact/sqlite";
+import { write } from "../../host/db.ts";
 import { freshDb } from "./harness.ts";
 const siteSearchUrl = (page: string, query: string) => {
 	const db = freshDb();
@@ -12,6 +14,36 @@ const siteSearchUrl = (page: string, query: string) => {
 };
 
 describe("search urls (2026-11-04)", () => {
+	test("a store holding a newer hint than the catalog keeps it, and the search goes on (R09)", () => {
+		const db = freshDb();
+		try {
+			write(db, () =>
+				putSearchTemplate(db, "lab", {
+					origin: "https://www.google.com",
+					pathPrefix: "/finance",
+					template: "https://www.google.com/finance/?hl=ja&q={q}",
+					revision: 5,
+					sourceRef: "newer-lab",
+					checkedAt: "2026-11-05T00:00:00.000Z",
+					expiresAt: "2026-12-04T00:00:00.000Z",
+				}),
+			);
+			expect(
+				lookup(
+					db,
+					"lab",
+					"https://www.google.com/finance/",
+					"MSFT",
+					"2026-11-05T00:00:00.000Z",
+				),
+			).toBe("https://www.google.com/finance/?hl=ja&q=MSFT");
+		} finally {
+			db.close();
+		}
+	});
+	test("a page on an origin the store cannot hold has no site search url, and nothing throws (R10)", () => {
+		expect(siteSearchUrl("https://my_host.example/list", "x")).toBeNull();
+	});
 	test("a known site gets its own search url with the query encoded", () => {
 		const url = siteSearchUrl(
 			"https://arxiv.org/list/cs.AI/recent",

@@ -1,4 +1,5 @@
 import { AdapterError } from "../../contracts/adapter.ts";
+import { DEFAULT_LEXICON } from "../../core/shared/lexicon.ts";
 import type { InspectionResult } from "../../contracts/adapter.ts";
 
 /**
@@ -186,8 +187,8 @@ export function parseMediaInspection(
  * data attributes carry (what choosing it would put in the URL). Reading changes nothing. No model input.
  */
 export const INSPECT_SORT_FUNCTION = `() => {
-  const ORDER = /(安い順|高い順|価格の?(安|低|高)い|低価格|高価格|価格順|新しい順|古い順|新着順|人気順|評価順|レビュー順|おすすめ順|売れ筋|price.{0,16}(low|high|asc|desc)|lowest|highest|newest|best.?sell|top.?rated)/i;
-  const LABEL = /(並べ替え|並び替え|並び順|表示順|ソート|sort)/i;
+  const ORDER = new RegExp(${JSON.stringify(DEFAULT_LEXICON.inspectSortChoice.source)}, ${JSON.stringify(DEFAULT_LEXICON.inspectSortChoice.flags)});
+  const LABEL = new RegExp(${JSON.stringify(DEFAULT_LEXICON.inspectSortLabel.source)}, ${JSON.stringify(DEFAULT_LEXICON.inspectSortLabel.flags)});
   const PAIR = /([A-Za-z_][\\w.-]{0,30})=([^|&'"\\s;,()<>]{1,100})/g;
   const own = (el) => {
     if (el.tagName === 'OPTION' || el.children.length === 0) return el.textContent || '';

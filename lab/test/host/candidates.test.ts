@@ -348,6 +348,10 @@ describe("knowledge of a site", () => {
 			kind: "undefined",
 			profile: null,
 		});
+		// WHATWG accepts an underscore host the store's origin form does not: no knowledge, not a thrown part (R10).
+		expect(
+			lookupObject(db, LAB_OWNER, "https://my_host.example/a", "search.query"),
+		).toEqual({ kind: "undefined", profile: null });
 	});
 });
 

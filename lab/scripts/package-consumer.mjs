@@ -6,7 +6,14 @@ import { dirname, join } from "node:path";
 import * as core from "eumenes-interact";
 import * as sqlite from "eumenes-interact/sqlite";
 import * as adapter from "eumenes-interact/adapters/playwright-mcp";
-import { createPartExecutor } from "eumenes-interact/parts";
+import {
+	assertChoiceQuoted,
+	assertValueQuoted,
+	createPartExecutor,
+	effectOf,
+	isPrivateAddress,
+	isPrivateHost,
+} from "eumenes-interact/parts";
 const require = createRequire(import.meta.url);
 const root = dirname(require.resolve("eumenes-interact/package.json"));
 const manifest = JSON.parse(
@@ -164,6 +171,52 @@ assert.equal(stopped.outcome.kind, "stop");
 assert.equal(stopped.outcome.code, "approval_required");
 assert.equal(sent, 1);
 assert.ok(records.some((r) => r[0] === "result" && r[2] === "completed"));
+// The shipped host vectors (design R08): the package's own functions decide every row as listed. URLs go
+// through the navigation rules a host composes from them (scheme, credentials, private host; no DNS).
+const vectors = JSON.parse(
+	readFileSync(join(root, "dist/conformance/host-vectors.json"), "utf8"),
+);
+assert.ok(readFileSync(join(root, "dist/HOST-CONTRACT.md"), "utf8").length > 0);
+const passes = (check) => {
+	try {
+		check();
+		return true;
+	} catch {
+		return false;
+	}
+};
+const navigable = (raw) => {
+	let url;
+	try {
+		url = new URL(raw);
+	} catch {
+		return false;
+	}
+	if (url.href === "about:blank") return true;
+	return (
+		(url.protocol === "http:" || url.protocol === "https:") &&
+		!url.username &&
+		!url.password &&
+		!isPrivateHost(url.hostname)
+	);
+};
+for (const v of vectors.urls) assert.equal(navigable(v.url), v.allow, v.url);
+for (const v of vectors.addresses)
+	assert.equal(isPrivateAddress(v.address), v.private, v.address);
+for (const v of vectors.values)
+	assert.equal(
+		passes(() => assertValueQuoted(v.value, v.quote, v.request)),
+		v.accept,
+		v.value,
+	);
+for (const v of vectors.choices)
+	assert.equal(
+		passes(() => assertChoiceQuoted(v.label, v.quote, v.request)),
+		v.accept,
+		v.label,
+	);
+for (const v of vectors.effects)
+	assert.equal(effectOf(v), v.effect, `${v.role} ${v.url ?? ""}`);
 // The actual installed artifact must fail its own integrity check after one byte changes.
 const target = join(root, "dist/skills/browse.md");
 const old = readFileSync(target);
@@ -183,5 +236,6 @@ console.log(
 		approval: true,
 		tamperDetected: true,
 		sqlite: true,
+		conformance: true,
 	}),
 );

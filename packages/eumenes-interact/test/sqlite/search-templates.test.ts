@@ -57,7 +57,10 @@ test("URL hints have owner/origin/revision/expiry boundaries and query values re
 				template: "https://example.org/new?q={q}",
 			}),
 		);
-		write(db, () => putSearchTemplate(db, "a", entry));
+		// An older revision no longer reports success: the stored newer one stays in use.
+		expect(() => write(db, () => putSearchTemplate(db, "a", entry))).toThrow(
+			"stale_revision",
+		);
 		expect(
 			getSearchUrl(db, "a", "https://example.org/", "x", entry.checkedAt),
 		).toContain("/new?");

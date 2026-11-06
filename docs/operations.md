@@ -44,7 +44,11 @@ indeterminateになった申込み等を、新しい依頼として自動でや�
 
 更新時はfrozen install、verify、必要な実Chromeの試験を行う。migrationは追記のみで、適用済みSQLのhashが違えば起動を拒否する。旧本文を書き換えて回避しない。0.1.0はdoneにoutcomeとbasisを必須とする契約version 2で、Arm 1のcore state formatは1を維持する。旧出力のargsをそのまま再送せず、対応するSkillとcallerを更新する。
 
-配布物のmanifestはpackage、source、Skill、依存、migrationと全ファイルのdigestを持つ。tgzの外側のhashと照合し、導入物の改変を拒否する。実行時依存のライセンスはdist/licensesとdist/third-party.jsonに同梱する。監査はbun auditで行い、到達性と適用条件を記録する。
+0.2.0は入力値と選択肢の出所の検査を厳しくし（`assertQuoted` は引用が値を含むことも求める。引用のない選択は、ラベルと依頼が語の境界で共有する文字列がラベルの半分以上を覆う場合だけ通す）、URLのないlinkとmenuitemを承認の対象にし、終端時にcore stateを消す。このため、依頼の言葉を書き換えた値（依頼「2026年11月21日」に対する値「2026-11-21」のような日付や金額の書式の変更）は入力されず `needs_input` になる。区切り記号の違い（「090-1234-5678」と「09012345678」）だけは許す。`#` だけのリンク（ページ内の目次など）も承認の対象になるので、承認者のいない実行では止まる。契約version 2、core state format 1、migrationは変えていない。終端後のcore stateを読むホストは `transitionRun(..., { retainCoreState: true })` を指定する。詳細は[改善設計書](improvement-design.md)の§5。
+
+配布物のmanifestはpackage、source、Skill、依存、migrationと全ファイルのdigestを持つ。sourceのidentityには、tsconfigとmanifestの生成処理も含む（F12）。tgzの外側のhashと照合し、導入物の改変を拒否する。実行時依存のライセンスはdist/licensesとdist/third-party.jsonに同梱する。ホストの義務は `dist/HOST-CONTRACT.md`、ホストが自分の実装を確かめる入力表は `dist/conformance/host-vectors.json` にある。監査はbun auditで行い、到達性と適用条件を記録する。
+
+証跡として配布物の検査結果を残すときは、`bun run build && node scripts/check-package.mjs --record docs/integration/<名前>.json` のように新しい名前で記録する。既存の記録は上書きできない。通常の `verify` は結果を `lab/data/package-consumer/latest.json` に書き、Gitの追跡対象を変えない。
 
 ## 保存と忘却
 
@@ -58,7 +62,7 @@ api-spend.sqliteは費用の確保と不明呼出しの履歴である。10USD�
 
 ## 保守と未確認
 
-依存更新では型・核・取消・承認・不明結果・migration・配布物・実Chromeを確認する。LLMやSkillを変えた場合は両APIの同条件pilotと独立ケースを記録し、失敗を隠さない。月次と依存更新時に監査を行う。保守責任者と代替担当の実際の割当、別担当の導入・引継ぎ、継続利用の効果測定は未確認である。
+依存更新では型・核・取消・承認・不明結果・migration・配布物・実Chromeを確認する。`playwright-core` はalpha版に、`@playwright/mcp` は0.0.x系に固定している。版を上げるときは、`LAB_BROWSER_TESTS=1 bun test lab/test/host/net-guard.browser.test.ts` と、scripted 20ケース（`bun run lab run --split dev --inference scripted --browser chrome --headless`）を必ず通す。package の `engines` は Node 24.11.1 以上、Bun 1.4.4 以上。LLMやSkillを変えた場合は両APIの同条件pilotと独立ケースを記録し、失敗を隠さない。月次と依存更新時に監査を行う。保守責任者と代替担当の実際の割当、別担当の導入・引継ぎ、継続利用の効果測定は未確認である。
 
 ## 完了の確認と費用
 

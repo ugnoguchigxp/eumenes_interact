@@ -9,6 +9,7 @@ import {
 } from "../contracts/run.ts";
 import {
 	assertWritable,
+	changedRows,
 	guarded,
 	isRecord,
 	readInteger,
@@ -302,10 +303,14 @@ export function forgetRun(db: InteractDb, owner: string, runId: string): void {
 	const run = requireRun(db, owner, runId);
 	if (!isTerminalRunStatus(run.status))
 		throw new InteractStoreError("run_not_terminal");
+	// Every child table is deleted by hand, children first: the cascade only works when the host turned
+	// `PRAGMA foreign_keys` on, and a leftover operation row would keep a masked command after "forget".
 	guarded(() => {
 		db.query(
 			"DELETE FROM interact_object_evidence WHERE run_id = ? OR operation_id IN (SELECT operation_id FROM interact_operations WHERE run_id = ?)",
 		).run(runId, runId);
+		db.query("DELETE FROM interact_operations WHERE run_id = ?").run(runId);
+		db.query("DELETE FROM interact_plan_revisions WHERE run_id = ?").run(runId);
 		db.query("DELETE FROM interact_runs WHERE run_id = ? AND owner = ?").run(
 			runId,
 			owner,
@@ -339,13 +344,17 @@ export function listRuns(
 /**
  * Moves a run along `RUN_TRANSITIONS`. `completed` and `partial` also need every operation settled. `reason` is a fixed classification code (never free text).
  * `startedAt` is set on the first `running`, `finishedAt` on a terminal state.
+ * A terminal state also clears `core_state_json` in the same UPDATE (it holds the request, page text
+ * and input values and is only needed to continue); the terminal-immutable trigger looks at the OLD
+ * status, so this write passes. `retainCoreState: true` keeps it, for hosts that replay failed runs.
+ * A lost race (the row is no longer in the status that was read) is an `invalid_transition`.
  */
 export function transitionRun(
 	db: InteractDb,
 	owner: string,
 	runId: string,
 	to: RunStatus,
-	options: { nowIso: string; reason?: string },
+	options: { nowIso: string; reason?: string; retainCoreState?: boolean },
 ): RunRecord {
 	assertWritable(db);
 	if (!isRunStatus(to)) throw invalid("to");
@@ -361,27 +370,32 @@ export function transitionRun(
 	if (to === "completed" || to === "partial") {
 		assertNoUnsettledOperation(db, runId);
 	}
-	guarded(() =>
-		db
-			.query(
-				`UPDATE interact_runs SET status = ?, status_reason = ?, updated_at = ?,
-					started_at = CASE WHEN ? = 'running' AND started_at IS NULL THEN ? ELSE started_at END,
-					finished_at = CASE WHEN ? THEN ? ELSE NULL END
-				WHERE owner = ? AND run_id = ? AND status = ?`,
-			)
-			.run(
-				to,
-				reason,
-				nowIso,
-				to,
-				nowIso,
-				isTerminalRunStatus(to) ? 1 : 0,
-				nowIso,
-				owner,
-				runId,
-				run.status,
-			),
-	);
+	const terminal = isTerminalRunStatus(to);
+	const clearCoreState = terminal && options.retainCoreState !== true;
+	guarded(() => {
+		db.query(
+			`UPDATE interact_runs SET status = ?, status_reason = ?, updated_at = ?,
+				started_at = CASE WHEN ? = 'running' AND started_at IS NULL THEN ? ELSE started_at END,
+				finished_at = CASE WHEN ? THEN ? ELSE NULL END,
+				core_state_json = CASE WHEN ? THEN NULL ELSE core_state_json END
+			WHERE owner = ? AND run_id = ? AND status = ?`,
+		).run(
+			to,
+			reason,
+			nowIso,
+			to,
+			nowIso,
+			terminal ? 1 : 0,
+			nowIso,
+			clearCoreState ? 1 : 0,
+			owner,
+			runId,
+			run.status,
+		);
+		if (changedRows(db) !== 1) {
+			throw new InteractStoreError("invalid_transition");
+		}
+	});
 	return requireRun(db, owner, runId);
 }
 
@@ -414,14 +428,17 @@ export function saveCoreState(
 	if (run.coreStateRevision !== expected) {
 		throw new InteractStoreError("revision_conflict");
 	}
-	guarded(() =>
-		db
-			.query(
-				`UPDATE interact_runs SET core_state_json = ?, core_state_revision = ?, updated_at = ?
-				WHERE owner = ? AND run_id = ? AND core_state_revision = ?`,
-			)
-			.run(stateJson, expected + 1, nowIso, owner, runId, expected),
-	);
+	// Another connection may have saved between the read above and this write: the revision condition
+	// then matches no row, which is a conflict, not a success.
+	guarded(() => {
+		db.query(
+			`UPDATE interact_runs SET core_state_json = ?, core_state_revision = ?, updated_at = ?
+			WHERE owner = ? AND run_id = ? AND core_state_revision = ?`,
+		).run(stateJson, expected + 1, nowIso, owner, runId, expected);
+		if (changedRows(db) !== 1) {
+			throw new InteractStoreError("revision_conflict");
+		}
+	});
 	return expected + 1;
 }
 

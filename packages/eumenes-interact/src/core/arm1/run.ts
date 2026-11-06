@@ -475,7 +475,10 @@ export function applyResult(
 		};
 	}
 	const { result } = outcome;
-	// A part that may have reached the page ends the run; so does one that needs the user's approval.
+	// A part that may have reached the page ends the run; so does one that needs the user's approval. The
+	// package's part executor never returns `indeterminate` as a result: it ends the run itself (`Executed`
+	// "end") before this is called. The branch is for a host that does hand one in, and ends the run
+	// without inviting a retry; the end kinds here have no `indeterminate` of their own.
 	if (result.status === "indeterminate")
 		return finished({ kind: "failed", code: "tool_refused" });
 	if (result.status === "needs_approval")

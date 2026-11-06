@@ -2,9 +2,21 @@
  * Origins and https URLs, parsed by hand: the pure code has no `URL` global. Deliberately narrower than the
  * WHATWG parser: only ASCII dotted host names (no IP literals, no percent-encoding, no trailing dot, no
  * backslashes), so a string that a browser might read differently from this code is refused, not guessed.
+ *
+ * Three readers of origins exist on purpose, one per layer, and differ only as written here (design R10;
+ * `test/definitions/origin-rules.test.ts` holds one input table for all three):
+ * - here (definitions, pure core): https only, ASCII names, no IP literal, default port dropped;
+ * - `sqlite/validate.ts` `requireOrigin` (stored form): http or https, lowercase, IPv4/IPv6 allowed (the lab's
+ *   loopback fixtures), the default port must already be dropped: the host normalizes with WHATWG first;
+ * - `host/grants.ts` `grantOrigin` (a page the browser is on): WHATWG `URL`, https, or http on loopback only.
  */
 
 const HOST = /^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/;
+/**
+ * WHATWG reads a host whose last label is a number (`1`, `0x7f`) as an IPv4 address: `0x7f.0.0.1` is
+ * 127.0.0.1. Such a host matches `HOST` but is an IP literal, so it is refused (design R10).
+ */
+const NUMERIC_LAST_LABEL = /(?:^|\.)(?:\d+|0x[0-9a-f]*)$/;
 
 export type ParsedOrigin = { host: string; port: number };
 
@@ -20,7 +32,9 @@ function hostPort(authority: string): ParsedOrigin | null {
 	const at = authority.lastIndexOf(":");
 	const host = (at < 0 ? authority : authority.slice(0, at)).toLowerCase();
 	const port = portOf(at < 0 ? undefined : authority.slice(at + 1));
-	return HOST.test(host) && port !== null ? { host, port } : null;
+	return HOST.test(host) && !NUMERIC_LAST_LABEL.test(host) && port !== null
+		? { host, port }
+		: null;
 }
 
 /** The normalised origin text: lowercase host, the default port dropped. */

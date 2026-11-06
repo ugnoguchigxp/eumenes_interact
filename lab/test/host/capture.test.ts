@@ -139,18 +139,36 @@ describe("the files", () => {
 		const b = await store.save("item", image(4, 4));
 		expect(a).toMatchObject({
 			captureId: "c1",
-			fileName: "0a1b2c3d-1-viewport.png",
+			fileName: "fcd0af9c440f-1-viewport.png",
 			width: 8,
 			height: 4,
 			mediaType: "image/png",
 			range: "viewport",
 		});
-		expect(b.fileName).toBe("0a1b2c3d-2-item.png");
+		expect(b.fileName).toBe("fcd0af9c440f-2-item.png");
 		expect(a.bytes).toBe(image().bytes.length);
 		expect(statSync(join(dir, a.fileName)).mode & 0o777).toBe(0o600);
 		expect(
 			readFileSync(join(dir, a.fileName)).equals(Buffer.from(image().bytes)),
 		).toBe(true);
+	});
+
+	test("runs whose time-ordered ids share their first eight characters do not meet in one directory", async () => {
+		const dir = join(root, "out");
+		mkdirSync(dir);
+		const first = "018f3a2b-7c10-7000-8000-000000000001";
+		const second = "018f3a2b-7c10-7000-8000-000000000002";
+		const a = await new CaptureStore({ runId: first, dir }).save(
+			"viewport",
+			image(),
+		);
+		const b = await new CaptureStore({ runId: second, dir }).save(
+			"viewport",
+			image(),
+		);
+		expect(a.fileName).toBe("21c53d8626b1-1-viewport.png");
+		expect(b.fileName).toBe("db3ec8e44272-1-viewport.png");
+		expect(readdirSync(dir).sort()).toEqual([a.fileName, b.fileName].sort());
 	});
 
 	test("a JPEG gets its own extension", async () => {
@@ -163,18 +181,18 @@ describe("the files", () => {
 			width: 10,
 			height: 10,
 		});
-		expect(saved.fileName).toBe("0a1b2c3d-1-full.jpg");
+		expect(saved.fileName).toBe("fcd0af9c440f-1-full.jpg");
 	});
 
 	test("an existing file is never overwritten", async () => {
 		const dir = join(root, "out");
 		mkdirSync(dir);
-		writeFileSync(join(dir, "0a1b2c3d-1-viewport.png"), "mine");
+		writeFileSync(join(dir, "fcd0af9c440f-1-viewport.png"), "mine");
 		const store = new CaptureStore({ runId: RUN, dir });
 		expect(await refusal(() => store.save("viewport", image()))).toBe(
 			"capture_exists",
 		);
-		expect(readFileSync(join(dir, "0a1b2c3d-1-viewport.png"), "utf8")).toBe(
+		expect(readFileSync(join(dir, "fcd0af9c440f-1-viewport.png"), "utf8")).toBe(
 			"mine",
 		);
 	});
@@ -184,7 +202,7 @@ describe("the files", () => {
 		const target = join(root, "victim.txt");
 		mkdirSync(dir);
 		writeFileSync(target, "victim");
-		symlinkSync(target, join(dir, "0a1b2c3d-1-viewport.png"));
+		symlinkSync(target, join(dir, "fcd0af9c440f-1-viewport.png"));
 		const store = new CaptureStore({ runId: RUN, dir });
 		expect(await refusal(() => store.save("viewport", image()))).toBe(
 			"capture_exists",

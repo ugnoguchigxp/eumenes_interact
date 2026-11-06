@@ -282,6 +282,29 @@ describe("startOperate", () => {
 		expect((await again.done).status).toBe("cancelled");
 	});
 
+	test("an in-memory database takes no lock and leaves no file in the working directory", async () => {
+		const cwd = process.cwd();
+		process.chdir(dir);
+		try {
+			const a = gatedModel();
+			const b = gatedModel();
+			const o = options({ dbPath: ":memory:" });
+			// No lock, so two runners over separate in-memory databases do not refuse each other.
+			const first = startOperate(o, deps(a.port));
+			const second = startOperate(o, deps(b.port));
+			await a.blocked;
+			await b.blocked;
+			expect(readdirSync(dir)).toEqual([]);
+			first.cancel();
+			second.cancel();
+			expect((await first.done).status).toBe("cancelled");
+			expect((await second.done).status).toBe("cancelled");
+			expect(readdirSync(dir)).toEqual([]);
+		} finally {
+			process.chdir(cwd);
+		}
+	});
+
 	test("a dispose that throws leaks neither the lock nor the database, and the run still ends as it did", async () => {
 		const o = options();
 		const throwing = (what: string) => async () => {
@@ -541,7 +564,8 @@ describe("startOperate with Arm 1 (registered parts)", () => {
 			final: { kind: "finish", text: "撮影しました。" },
 		});
 		expect(last.captures).toHaveLength(1);
-		expect(last.captures![0]).toMatch(/^[0-9a-f]{8}-1-viewport\.png$/);
+		// The run's part of a capture name is a hash of its id (R13), not its first characters.
+		expect(last.captures![0]).toMatch(/^[0-9a-f]{12}-1-viewport\.png$/);
 		expect(existsSync(join(last.captureDir!, last.captures![0]!))).toBe(true);
 	});
 

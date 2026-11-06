@@ -4,42 +4,28 @@ import { Refusal } from "./errors.ts";
  * Input values a run may type (Eumenes `browser/service/grants.ts`, commit 98b188d2; plan.md §9). A value
  * gets a ref only from the user's approval, or comes from a passage of the request: the core already
  * stops a quote that is not in the request, and the host checks the same thing again before sending because
- * the model's call is not trusted. Nothing a page showed can supply a quote.
+ * the model's call is not trusted (the rules are in `source.ts`). Nothing a page showed can supply a quote.
  */
 
-/** Width, case, spacing and the separators people add to numbers do not change what was asked. */
-const squash = (s: string) =>
-	s
-		.normalize("NFKC")
-		.toLowerCase()
-		.replace(/[\s\-ー‐–—,，、/／]+/g, "");
-
-const QUOTE_MIN = 2;
-const QUOTE_VALUE_FACTOR = 4;
-const QUOTE_VALUE_SLACK = 32;
 const GRANT_MS = 10 * 60_000;
 
-/** The origin of an http(s) page, or null (a value is bound to a site; other pages have none). */
+/** Plain http carries an approved value in clear text: only a loopback host (the lab's fixtures) may use it. */
+const LOOPBACK = /^(localhost|127(\.\d{1,3}){3}|\[::1\])$/;
+
+/**
+ * The origin of an https page, or of an http page on loopback, or null (a value is bound to a site; other pages
+ * have none).
+ */
 export function grantOrigin(raw: string): string | null {
 	try {
 		const url = new URL(raw);
-		return url.protocol === "http:" || url.protocol === "https:"
+		if (url.protocol === "https:") return url.origin;
+		return url.protocol === "http:" && LOOPBACK.test(url.hostname)
 			? url.origin
 			: null;
 	} catch {
 		return null;
 	}
-}
-
-/** A reformatted value is allowed, a value much longer than its passage or a passage too short is not. */
-export function assertQuoted(value: string, quote: string, request: string) {
-	const q = squash(quote);
-	if (
-		q.length < QUOTE_MIN ||
-		value.length > QUOTE_VALUE_FACTOR * q.length + QUOTE_VALUE_SLACK ||
-		!squash(request).includes(q)
-	)
-		throw new Refusal("grant_source_mismatch");
 }
 
 type Grant = { value: string; origin: string; purpose: string; until: number };
@@ -57,12 +43,17 @@ export class InputGrants {
 		const origin = grantOrigin(input.origin);
 		if (!origin || !input.value || input.value.length > 2000)
 			throw new Refusal("grant_invalid", false);
+		// Grants expired for a whole grant period are dropped here, so a long run that approves often does not keep
+		// every past value; a ref used soon after it expired still answers grant_expired, not grant_not_found.
+		const now = this.now();
+		for (const [ref, grant] of this.grants)
+			if (grant.until + GRANT_MS <= now) this.grants.delete(ref);
 		const inputValueRef = this.newRef();
 		this.grants.set(inputValueRef, {
 			value: input.value,
 			origin,
 			purpose: input.purpose.slice(0, 60),
-			until: this.now() + GRANT_MS,
+			until: now + GRANT_MS,
 		});
 		return { inputValueRef, origin, purpose: input.purpose.slice(0, 60) };
 	}

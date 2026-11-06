@@ -406,6 +406,26 @@ describe("input values", () => {
 		expect(listOperations(s.db, LAB_OWNER, s.runId)).toHaveLength(0);
 	});
 
+	test("a real passage of the request does not carry an unrelated value past the host's own check", async () => {
+		// The host re-checks on its own (design R04): the part's earlier check is not what keeps this value out.
+		const s = await setup();
+		const result = await s.executor.execute(
+			s.operate(
+				fill("https://evil.example/?d=x"),
+				s.first.observation.observationRef,
+				{
+					declaredEffect: "input",
+					inputProvenance: { kind: "request_quote", quote: "白波" },
+				},
+			),
+		);
+		expect(refused(result)).toBe("grant_source_mismatch");
+		expect(listOperations(s.db, LAB_OWNER, s.runId)).toHaveLength(0);
+		expect(s.adapter.dispatched.map((c) => c.action)).not.toContain(
+			"page.fill",
+		);
+	});
+
 	test("a quotation of the request is typed", async () => {
 		const s = await setup();
 		await s.executor.execute(

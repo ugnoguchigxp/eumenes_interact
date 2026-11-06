@@ -1,6 +1,6 @@
 # Eumenes統合設計案
 
-2026-11-05。T17の合意用。実装前の提案であり、本体コード・製品DB・稼働サーバーは変更していない。eumenes_interactのmainはGrokbotの92コミットを含むa38f955。追加改善はcodex/quality-80-improvementsで検証中。
+2026-11-05。T17の合意用に書いた設計。2026-11-06に、この設計に沿ってpilotをEumenes mainへ取り込んだ（末尾の「実装結果」）。以下の本文は合意時の設計で、書いた時点のeumenes_interactのmainはGrokbotの92コミットを含むa38f955だった。現在の状態は[README](../README.md)の「現在の状態」を参照する。
 
 ## 利用者に返すもの
 

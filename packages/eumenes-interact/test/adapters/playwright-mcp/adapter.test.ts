@@ -538,6 +538,21 @@ test("observe returns the snapshot body untouched with the page it came from", a
 	expect(existsSync(join(outputDir, "page-1.yml"))).toBe(false);
 });
 
+test("observe refuses a snapshot file above the size bound, without reading it, and still removes it", async () => {
+	const { adapter, fake, workDir } = await opened();
+	const file = join(workDir, "playwright-mcp-output", "page-big.yml");
+	writeFileSync(file, "x".repeat(8 * 1024 * 1024 + 1));
+	fake.onTool = () =>
+		text(
+			`### Page\n- Page URL: https://a.test/\n### Snapshot\n- [Snapshot](.playwright-mcp/page-big.yml)`,
+		);
+	await expect(adapter.observe(NEVER)).rejects.toMatchObject({
+		code: "snapshot_too_large",
+		dispatched: false,
+	});
+	expect(existsSync(file)).toBe(false);
+});
+
 test("observe reports a missing page and fails honestly without a body", async () => {
 	const { adapter, fake } = await opened();
 	fake.onTool = () => text("### Snapshot\n```yaml\n- main [ref=e1]\n```");

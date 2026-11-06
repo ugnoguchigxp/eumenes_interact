@@ -10,6 +10,10 @@
  */
 
 import { originAllowed } from "eumenes-interact";
+import { isPrivateHost, privateIpv4 } from "eumenes-interact/parts";
+
+// The host rules live in the package (design R08); re-exported for the lab's callers and tests.
+export { isPrivateHost, privateIpv4 };
 
 export type UrlVerdict =
 	{ ok: true; url: string } | { ok: false; code: string };
@@ -61,74 +65,6 @@ export function fixturePolicy(baseUrl: string): UrlPolicy {
 			return { ok: false, code: "navigation_out_of_scope" };
 		return { ok: true, url: url.href };
 	};
-}
-
-/** Dotted IPv4 octets of a host (the URL parser has turned `0x7f.1` and `2130706433` into this form). */
-function ipv4Octets(host: string) {
-	const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
-	return m ? m.slice(1).map(Number) : null;
-}
-
-export function privateIpv4([a, b]: number[]) {
-	return (
-		a === 0 ||
-		a === 10 ||
-		a === 127 ||
-		(a === 100 && b! >= 64 && b! <= 127) ||
-		(a === 169 && b === 254) ||
-		(a === 172 && b! >= 16 && b! <= 31) ||
-		(a === 192 && b === 168) ||
-		(a === 192 && b === 0) ||
-		(a === 198 && (b === 18 || b === 19)) ||
-		a! >= 224
-	);
-}
-
-const LOOPBACK_DNS = [
-	"nip.io",
-	"sslip.io",
-	"xip.io",
-	"traefik.me",
-	"localtest.me",
-	"lvh.me",
-	"vcap.me",
-	"localhost.direct",
-];
-
-const PRIVATE_SUFFIXES = [
-	".localhost",
-	".local",
-	".internal",
-	".lan",
-	".home.arpa",
-	".localdomain",
-];
-
-/**
- * Loopback, private and link-local hosts, including names that only resolve on a local network. Ported from
- * Eumenes' `navigation.ts` (commit 98b188d2). Literal addresses and names only: no DNS is asked.
- */
-export function isPrivateHost(hostname: string) {
-	const host = hostname
-		.toLowerCase()
-		.replace(/^\[|\]$/g, "")
-		.replace(/\.$/, "");
-	if (host.includes(":")) {
-		// Only global unicast (2000::/3) is public; mapped, loopback, unique-local and link-local are not.
-		const first = Number.parseInt(host.split(":")[0] || "0", 16);
-		return !(first >= 0x2000 && first <= 0x3fff);
-	}
-	const v4 = ipv4Octets(host);
-	if (v4) return privateIpv4(v4);
-	if (host === "localhost" || PRIVATE_SUFFIXES.some((s) => host.endsWith(s)))
-		return true;
-	// Public wildcard-DNS names that resolve to an address written in the name (127.0.0.1.nip.io) or always to
-	// loopback (lvh.me): no DNS is resolved here, so these are refused by name. Any other name that resolves to
-	// a private address is not caught (a known limit, review 2026-11-04).
-	if (LOOPBACK_DNS.some((d) => host === d || host.endsWith(`.${d}`)))
-		return true;
-	// A one-label name resolves through the local network's search domain.
-	return !host.includes(".");
 }
 
 /**

@@ -19,6 +19,8 @@ export const STORE_ERROR_CODES = [
 	"already_exists",
 	/** The caller's expected revision is not the current one, or the same revision exists with other content. */
 	"revision_conflict",
+	/** A revision upsert changed nothing: the stored revision is already newer than the one offered. */
+	"stale_revision",
 	/** The status change is not in the allowed-transition table. */
 	"invalid_transition",
 	/** A referenced run, operation or candidate belongs to another owner or object. */

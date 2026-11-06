@@ -135,6 +135,12 @@ export type RunTrialInput = {
 	beforeFinish?: (
 		signal: AbortSignal,
 	) => Promise<{ ok: true } | { ok: false; code: string }>;
+	/**
+	 * Keeps the run's saved core state after it ends (`--retain-core-state`). By default a terminal run
+	 * drops it: it holds the request and the pages the model read (plan.md §14). Replaying a failed run
+	 * (`scripts/api-completion-replay.ts`) needs it.
+	 */
+	retainCoreState?: boolean;
 };
 
 export type TrialResult = {
@@ -303,7 +309,11 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 					owner,
 					runId,
 					reason === "deadline" ? "expired" : "cancelled",
-					{ nowIso: nowIso(), reason },
+					{
+						nowIso: nowIso(),
+						reason,
+						...(input.retainCoreState ? { retainCoreState: true } : {}),
+					},
 				),
 			);
 		} catch (error) {
@@ -652,6 +662,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				transitionRun(db, owner, runId, ending.status, {
 					nowIso: nowIso(),
 					...(ending.code ? { reason: ending.code } : {}),
+					...(input.retainCoreState ? { retainCoreState: true } : {}),
 				});
 			if (ending.status === "cancelled" || ending.status === "expired") {
 				for (let i = recorder.events.length - 1; i >= 0; i--)

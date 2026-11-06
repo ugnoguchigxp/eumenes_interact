@@ -1,6 +1,6 @@
 # 改善の進捗
 
-2026-11-05。ブランチはcodex/quality-80-improvements。Grokbotのfeat/collab-agent-integrationはa38f955でmainへマージ・push済み。追加改善はこのブランチで検証する。
+2026-11-05。作業時のブランチはcodex/quality-80-improvements（その後mainへ取り込み済み）。Grokbotのfeat/collab-agent-integrationはa38f955でmainへマージ・push済み。2026-11-06以降の改善は[改善設計書](improvement-design.md)で管理する。
 
 ## 今回の判定範囲
 

@@ -11,6 +11,7 @@ export {
 	type SearchTemplate,
 } from "./search-templates.ts";
 export { assertInteractSchema } from "./schema-check.ts";
+export { isStorableOrigin } from "./validate.ts";
 export {
 	InteractStoreError,
 	STORE_ERROR_CODES,

@@ -12,83 +12,18 @@ import { lookup } from "node:dns/promises";
 import http from "node:http";
 import net from "node:net";
 import type { Duplex } from "node:stream";
-import { isPrivateHost, privateIpv4 } from "./policy.ts";
+import {
+	cidrMatcher,
+	isPrivateAddress,
+	isPrivateHost,
+} from "eumenes-interact/parts";
+
+// The address rules live in the package (design R08); re-exported for the lab's callers and tests.
+export { cidrMatcher, isPrivateAddress };
 
 export type GuardBlock = { host: string; code: string; at: string };
 
-/** Expands an IPv6 literal to eight 16-bit groups; `null` if it is not one. */
-function ipv6Groups(raw: string): number[] | null {
-	let host = raw.replace(/^\[|\]$/g, "").toLowerCase();
-	const zone = host.indexOf("%");
-	if (zone >= 0) host = host.slice(0, zone);
-	if (!host.includes(":")) return null;
-	const v4 = /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
-	if (v4) {
-		const o = v4.slice(1).map(Number);
-		if (o.some((n) => n > 255)) return null;
-		host = `${host.slice(0, v4.index)}${((o[0]! << 8) | o[1]!).toString(16)}:${((o[2]! << 8) | o[3]!).toString(16)}`;
-	}
-	const halves = host.split("::");
-	if (halves.length > 2) return null;
-	const part = (s: string) =>
-		s === ""
-			? []
-			: s
-					.split(":")
-					.map((g) =>
-						/^[0-9a-f]{1,4}$/.test(g) ? Number.parseInt(g, 16) : Number.NaN,
-					);
-	const head = part(halves[0]!);
-	const rest = halves.length === 2 ? part(halves[1]!) : [];
-	const fill = halves.length === 2 ? 8 - head.length - rest.length : 0;
-	if (fill < 0) return null;
-	const groups = [...head, ...Array(fill).fill(0), ...rest];
-	if (groups.length !== 8 || groups.some((g) => Number.isNaN(g))) return null;
-	return groups;
-}
-
-/** Whether a literal address (IPv4 or IPv6) is anything but public unicast. */
-export function isPrivateAddress(address: string): boolean {
-	const v4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(address);
-	if (v4) return privateIpv4(v4.slice(1).map(Number));
-	const g = ipv6Groups(address);
-	if (!g) return true;
-	const embedded = (hi: number, lo: number) =>
-		privateIpv4([hi >> 8, hi & 255, lo >> 8, lo & 255]);
-	// ::ffff:a.b.c.d (mapped), ::a.b.c.d (compatible), 64:ff9b::/96 (NAT64): the IPv4 inside decides.
-	if (g.slice(0, 5).every((x) => x === 0) && (g[5] === 0xffff || g[5] === 0))
-		return g[5] === 0 && g[6] === 0 ? true : embedded(g[6]!, g[7]!);
-	if (g[0] === 0x64 && g[1] === 0xff9b && g.slice(2, 6).every((x) => x === 0))
-		return embedded(g[6]!, g[7]!);
-	// 6to4 (2002::/16) carries an IPv4 in groups 1-2.
-	if (g[0] === 0x2002) return embedded(g[1]!, g[2]!);
-	// Only global unicast 2000::/3 is public (ULA fc00::/7, link-local fe80::/10, multicast ff00::/8 are not).
-	return !(g[0]! >= 0x2000 && g[0]! <= 0x3fff);
-}
-
 export type Resolve = (host: string) => Promise<string[]>;
-
-/** IPv4 CIDR list (`198.18.0.0/15,10.0.0.0/8`) as a membership test; malformed entries are ignored. */
-export function cidrMatcher(list: string): (address: string) => boolean {
-	const nets = list
-		.split(",")
-		.map((e) =>
-			/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/.exec(e.trim()),
-		)
-		.filter((m): m is RegExpExecArray => m !== null)
-		.map((m) => {
-			const bits = Number(m[5]);
-			const base = m.slice(1, 5).reduce((a, o) => a * 256 + Number(o), 0);
-			const size = 2 ** (32 - bits);
-			return { start: base - (base % size), size };
-		});
-	return (address) => {
-		const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(address);
-		if (!m) return false;
-		const n = m.slice(1).reduce((a, o) => a * 256 + Number(o), 0);
-		return nets.some((x) => n >= x.start && n < x.start + x.size);
-	};
-}
 
 /**
  * Some sandboxes answer every name with one fake address of their egress (a "fake-IP" resolver, e.g. every

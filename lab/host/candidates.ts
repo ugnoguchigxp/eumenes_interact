@@ -1,6 +1,7 @@
 import type { Database } from "bun:sqlite";
 import {
 	findSiteObjects,
+	isStorableOrigin,
 	listPageProfiles,
 	type CandidateRecord,
 	type PageProfile,
@@ -178,6 +179,8 @@ export function lookupObject(
 	} catch {
 		return { kind: "undefined", profile: null };
 	}
+	// An origin the store cannot hold (`my_host.example`) has no knowledge; the lookup must not fail the part.
+	if (!isStorableOrigin(origin)) return { kind: "undefined", profile: null };
 	const chain = profileChain(listPageProfiles(db, owner, origin), pageUrl);
 	for (const profile of chain) {
 		const [object] = findSiteObjects(db, owner, {

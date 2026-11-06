@@ -2,7 +2,9 @@
 from pathlib import Path
 import hashlib, json, os, shutil, signal, subprocess, tempfile, time
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'docs/reviews/2026-11-05/implementation/negative-controls'
+# Logs go outside Git by default (design R02); pass a folder to keep them as evidence.
+import sys
+OUT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else ROOT/'lab/data/negative-controls'
 OUT.mkdir(parents=True,exist_ok=True)
 EXCLUDE={'.git','node_modules','dist','docs','.env','.env.local','.env.example','.serena','.claude'}
 def ignore(path,names):
@@ -28,6 +30,10 @@ cases=[
  ('evidence','lab/host/run.ts','(step.basis === "observed"','(false && step.basis === "observed"',['bun','test','lab/test/host/goal-unmet.test.ts']),
  ('step-budget','lab/inference/call-budget.ts','const used = this.scopes.get(scope) ?? 0;','const used = 0;',['bun','test','lab/test/inference/call-budget.test.ts']),
  ('approval','lab/host/executor.ts','approvalNeeded(guard, await inspect(guard))','false',['bun','test','lab/test/host/parts.test.ts','-t','is asked first']),
+ ('choice-source','packages/eumenes-interact/src/host/source.ts','if (!tied) throw new Refusal("grant_source_mismatch");','if (false) throw new Refusal("grant_source_mismatch");',['bun','test','packages/eumenes-interact/test/host/source.test.ts','-t','chooses nothing']),
+ ('core-state-cleared','packages/eumenes-interact/src/sqlite/runs.ts','const clearCoreState = terminal && options.retainCoreState !== true;','const clearCoreState = false;',['bun','test','packages/eumenes-interact/test/sqlite/integrity.test.ts','-t','every terminal status clears it']),
+ ('forget-explicit','packages/eumenes-interact/src/sqlite/runs.ts','db.query("DELETE FROM interact_operations WHERE run_id = ?").run(runId);','',['bun','test','packages/eumenes-interact/test/sqlite/integrity.test.ts','-t','foreign_keys=OFF']),
+ ('write-counted','packages/eumenes-interact/src/sqlite/runs.ts','if (changedRows(db) !== 1) {\n\t\t\tthrow new InteractStoreError("revision_conflict");','if (false) {\n\t\t\tthrow new InteractStoreError("revision_conflict");',['bun','test','packages/eumenes-interact/test/sqlite/integrity.test.ts','-t','saveCoreState reports a revision_conflict']),
  ('skill-integrity','lab/host/collab.ts','if (digest !== manifest.skills.browse.sha256)','if (false && digest !== manifest.skills.browse.sha256)',['bun','-e',"import {loadBrowseSkill} from './lab/host/collab.ts'; let refused=false; try{loadBrowseSkill()}catch(e){refused=e.message==='skill_digest_mismatch:browse'} if(!refused)process.exit(1)"])
 ]
 results=[]

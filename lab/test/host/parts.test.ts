@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { AdapterError, type PartResult } from "eumenes-interact";
@@ -460,6 +461,24 @@ describe("item.open", () => {
 		expect(s.tabs.open()).toHaveLength(2);
 	});
 
+	test("a link with no destination of its own runs page script, so it asks first like a button (R05)", async () => {
+		// The fake Hoshikuzu page lists its links without `/url`, as a script-driven link would be.
+		const s = await setup({
+			start: HOSHI,
+			approver: new FixtureApprover({ decision: "deny" }),
+		});
+		const executed = await s.run(
+			call("item.open", { item: idOf(s.summary.items, "link", "ホーム") }),
+		);
+		expect(executed).toMatchObject({
+			kind: "outcome",
+			outcome: { kind: "stop", code: "approval_denied" },
+		});
+		expect(s.adapter.dispatched.map((c) => c.action)).toEqual([
+			"browser.navigate",
+		]);
+	});
+
 	test("a button needs the user's approval before it is clicked", async () => {
 		const s = await setup({
 			start: HOSHI,
@@ -567,7 +586,7 @@ describe("page.capture", () => {
 		expect(r.status).toBe("completed");
 		const capture = r.capture!;
 		expect(capture.fileName).toBe(
-			`${s.runId.replaceAll("-", "").slice(0, 8)}-1-viewport.png`,
+			`${createHash("sha256").update(s.runId).digest("hex").slice(0, 12)}-1-viewport.png`,
 		);
 		expect(capture.fileName).not.toContain("/");
 		expect(capture).toMatchObject({
@@ -1072,7 +1091,9 @@ describe("review fixes (S2b)", () => {
 			s.adapter.dispatched.filter((c) => c.action === "page.click"),
 		).toHaveLength(0);
 	});
-	test("an explicit original-request quote supports the model's choice of a differently worded label", async () => {
+	// Since 0.2.0 (docs/improvement-design.md R04) a quote must share the label's words: a differently worded
+	// passage (「贈り物」 for 「ギフト包装にする」) is asked of the user instead of trusted as the model's reading.
+	test("a choice's quote must share the label's words; a differently worded passage is asked", async () => {
 		const s = await setup({
 			start: ORDER,
 			request: "贈り物として包装を希望します。",
@@ -1093,12 +1114,32 @@ describe("review fixes (S2b)", () => {
 		expect(
 			s.adapter.dispatched.filter((c) => c.action === "page.click"),
 		).toHaveLength(0);
-		const ok = await s.result(
+		const reworded = await s.result(
 			call("form.fill", { fields: [{ item, value: "on", quote: "贈り物" }] }),
+		);
+		expect(reworded.fill?.[0]).toMatchObject({
+			status: "needs_input",
+			code: "value_source",
+		});
+		expect(
+			s.adapter.dispatched.filter((c) => c.action === "page.click"),
+		).toHaveLength(0);
+		const shared = await setup({
+			start: ORDER,
+			request: "ギフト包装を希望します。",
+		});
+		const again = await shared.result(call("form.inspect", { form: null }));
+		const box = again.form!.fields.find(
+			(f) => f.label === "ギフト包装にする",
+		)!.item;
+		const ok = await shared.result(
+			call("form.fill", {
+				fields: [{ item: box, value: "on", quote: "ギフト包装" }],
+			}),
 		);
 		expect(ok.fill?.[0]?.status).toBe("filled");
 		expect(
-			s.adapter.dispatched.filter((c) => c.action === "page.click"),
+			shared.adapter.dispatched.filter((c) => c.action === "page.click"),
 		).toHaveLength(1);
 	});
 	test("a short literal value needs its original quoted context and cannot be replaced by a page value", async () => {

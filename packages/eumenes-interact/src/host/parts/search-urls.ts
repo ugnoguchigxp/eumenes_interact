@@ -4,6 +4,8 @@
  * URL-encoded. The last resort is a general search engine for "site:<host> <query>", only where the run's URL
  * policy allows it. Add a site here when its search page is stable and needs no login.
  */
+import { compilePattern, DEFAULT_LEXICON } from "../../core/shared/lexicon.ts";
+
 /** The general engine of the last resort (HTML results, no script needed). */
 export const GENERAL_SEARCH = "https://html.duckduckgo.com/html/?q={q}";
 
@@ -26,8 +28,7 @@ export function generalSearchUrl(
  * A bot check instead of the page (Cloudflare and the like). The host never solves or clicks it: it waits once
  * for an automatic pass, then reports `site_blocked`.
  */
-const CHALLENGE =
-	/just a moment|verify(?:ing)? (?:that )?you are (?:a )?human|human verification|performing security verification|review the security of your connection|enable javascript and cookies to continue|checking your browser|attention required|are you a robot|unusual traffic|captcha|ロボットではありません|しばらくお待ちください.{0,20}確認/i;
+const CHALLENGE = compilePattern(DEFAULT_LEXICON.botCheck);
 
 export function isChallenge(title: string | undefined, body: string): boolean {
 	if (title && CHALLENGE.test(title)) return true;

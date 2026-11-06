@@ -552,7 +552,7 @@ describe("applyResult", () => {
 		expect(parseStep(state, done(["r2", "r3", "r4"])).step.kind).toBe("finish");
 	});
 
-	test("an indeterminate part ends the run and never invites a retry", () => {
+	test("an indeterminate part result handed in by a host ends the run and never invites a retry", () => {
 		const out = applied(called(), {
 			status: "indeterminate",
 			code: "transport_lost",

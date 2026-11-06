@@ -5,8 +5,10 @@
  * visible. Experiment tables (cases, trials) belong to the lab, not here.
  *
  * Enum CHECKs repeat contract vocabularies as literals on purpose: a migration body never changes
- * with the TypeScript constants, and the tests compare both. The tables never hold input values,
- * cookies, tokens or authenticated URLs (plan.md §14). Timestamps are UTC ISO 8601 text.
+ * with the TypeScript constants, and the tests compare both. After a run ends the tables hold no
+ * input values, cookies, tokens or authenticated URLs (plan.md §14): a running run's core state is
+ * kept for continuation and cleared when the run reaches a terminal state (`transitionRun`).
+ * Timestamps are UTC ISO 8601 text.
  */
 
 const siteAndRunTables = `

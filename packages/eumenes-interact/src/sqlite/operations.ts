@@ -8,6 +8,7 @@ import {
 } from "../contracts/operation.ts";
 import {
 	assertWritable,
+	changedRows,
 	guarded,
 	readBoolean,
 	readInteger,
@@ -317,13 +318,14 @@ export function markOperationDispatched(
 		throw new InteractStoreError("run_not_running");
 	}
 	assertNoUnsettledOperation(db, operation.runId);
-	guarded(() =>
-		db
-			.query(
-				"UPDATE interact_operations SET status = 'dispatched', dispatched_at = ? WHERE operation_id = ? AND status = 'not_dispatched'",
-			)
-			.run(at, operationId),
-	);
+	guarded(() => {
+		db.query(
+			"UPDATE interact_operations SET status = 'dispatched', dispatched_at = ? WHERE operation_id = ? AND status = 'not_dispatched'",
+		).run(at, operationId);
+		if (changedRows(db) !== 1) {
+			throw new InteractStoreError("invalid_transition");
+		}
+	});
 	return requireOperation(db, owner, operationId);
 }
 
@@ -358,20 +360,21 @@ export function settleOperation(
 	if (!OPERATION_TRANSITIONS[operation.status].includes(input.status)) {
 		throw new InteractStoreError("invalid_transition");
 	}
-	guarded(() =>
-		db
-			.query(
-				"UPDATE interact_operations SET status = ?, result_code = ?, retryable = ?, settled_at = ? WHERE operation_id = ? AND status = ?",
-			)
-			.run(
-				input.status,
-				code,
-				input.retryable ? 1 : 0,
-				at,
-				operationId,
-				operation.status,
-			),
-	);
+	guarded(() => {
+		db.query(
+			"UPDATE interact_operations SET status = ?, result_code = ?, retryable = ?, settled_at = ? WHERE operation_id = ? AND status = ?",
+		).run(
+			input.status,
+			code,
+			input.retryable ? 1 : 0,
+			at,
+			operationId,
+			operation.status,
+		);
+		if (changedRows(db) !== 1) {
+			throw new InteractStoreError("invalid_transition");
+		}
+	});
 	return requireOperation(db, owner, operationId);
 }
 

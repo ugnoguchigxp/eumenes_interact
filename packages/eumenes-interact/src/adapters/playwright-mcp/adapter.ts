@@ -94,16 +94,17 @@ import {
 const TOOL_NAME = "@playwright/mcp";
 const OUTPUT_DIR_NAME = "playwright-mcp-output";
 const CONFIG_FILE_NAME = "playwright-mcp.config.json";
-/**
- * `acceptDownloads: false`: a page that starts a download gets it cancelled, so nothing is written to disk
- * without the host asking (review 2026-11-04 H2; downloads have no approval path yet, so they are refused).
- */
 /** Chromium's documented transport controls; HTTP proxying alone does not cover WebRTC UDP. */
 export const BROWSER_LAUNCH_ARGS = [
 	"--mute-audio",
 	"--disable-quic",
 	"--webrtc-ip-handling-policy=disable_non_proxied_udp",
 ];
+/**
+ * The config file the adapter writes. `acceptDownloads: false`: a page that starts a download gets it
+ * cancelled, so nothing is written to disk without the host asking (review 2026-11-04 H2; downloads have no
+ * approval path yet, so they are refused).
+ */
 const CONFIG = {
 	browser: {
 		launchOptions: { args: BROWSER_LAUNCH_ARGS },
@@ -690,11 +691,19 @@ async function readOutputBytes(directory: string, name: string) {
 	}
 }
 
+/** The most a snapshot file may hold: a page could otherwise make the host read an unbounded file. */
+const SNAPSHOT_FILE_MAX_BYTES = 8 * 1024 * 1024;
+
 /** Links are relative to MCP's workspace or absolute; only the base name is looked up. */
 async function readOutputFile(directory: string, name: string) {
 	try {
-		return await readFile(join(directory, name), "utf8");
-	} catch {
-		throw new AdapterError("snapshot_file_missing", false);
+		const path = join(directory, name);
+		if ((await stat(path)).size > SNAPSHOT_FILE_MAX_BYTES)
+			throw new AdapterError("snapshot_too_large", false);
+		return await readFile(path, "utf8");
+	} catch (error) {
+		throw error instanceof AdapterError
+			? error
+			: new AdapterError("snapshot_file_missing", false);
 	}
 }

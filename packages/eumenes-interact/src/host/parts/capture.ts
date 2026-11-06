@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { realpathSync, statSync } from "node:fs";
 import { mkdir, open, realpath } from "node:fs/promises";
 import { constants } from "node:fs";
@@ -96,7 +97,12 @@ export class CaptureStore {
 			!/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(options.runId)
 		)
 			throw new CaptureError("capture_run_id_invalid");
-		this.short = options.runId.replaceAll("-", "").slice(0, 8);
+		// A hash of the whole id: the first characters of a time-ordered id (UUIDv7) are the same for runs
+		// started close together, and two such runs sharing a directory would meet `capture_exists`.
+		this.short = createHash("sha256")
+			.update(options.runId)
+			.digest("hex")
+			.slice(0, 12);
 		this.defaultRoot =
 			options.dir === undefined ? (options.defaultRoot ?? null) : null;
 		if (options.dir === undefined) {

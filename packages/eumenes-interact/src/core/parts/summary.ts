@@ -7,6 +7,7 @@ import type {
 } from "../../contracts/parts.ts";
 import type { RawObservation } from "../../contracts/observation.ts";
 import { clip, placeOf, parseUrl } from "../shared/text.ts";
+import { compilePattern, DEFAULT_LEXICON } from "../shared/lexicon.ts";
 import { collect, pageItem, type Collected } from "./items.ts";
 import {
 	BLOCK_ROLES,
@@ -453,8 +454,7 @@ function resultLinks(c: Collected, links: LinkItem[]): LinkItem[] {
 		.map(({ l }) => l);
 }
 
-const AD_TEXT =
-	/^(\[?(PR|AD|広告|スポンサー|Sponsored|Ad|Ads|プロモーション)\]?)($|[\s・:：\]])/i;
+const AD_TEXT = compilePattern(DEFAULT_LEXICON.adLabel);
 const AD_URL =
 	/doubleclick\.net|googleadservices|googlesyndication|criteo\.com|\/click\?ad=|adchoices|amazon-adsystem|\/aclk\?/i;
 const CHROME_ROLES = [

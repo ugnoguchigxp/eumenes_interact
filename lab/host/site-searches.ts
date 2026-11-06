@@ -1,5 +1,9 @@
 import type { Database } from "bun:sqlite";
-import { getSearchUrl, putSearchTemplate } from "eumenes-interact/sqlite";
+import {
+	getSearchUrl,
+	isInteractStoreError,
+	putSearchTemplate,
+} from "eumenes-interact/sqlite";
 import catalog from "../config/site-searches.json" with { type: "json" };
 import { write } from "./db.ts";
 
@@ -22,7 +26,16 @@ export function siteSearchUrl(
 	);
 	if (hints.length)
 		write(db, () => {
-			for (const entry of hints) putSearchTemplate(db, owner, entry);
+			for (const entry of hints)
+				try {
+					putSearchTemplate(db, owner, entry);
+				} catch (error) {
+					// The store already holds a newer revision (a DB from a newer lab): the stored hint stays and the
+					// search goes on with it. Since 0.2.0 the store says so instead of ignoring the write (design R09).
+					if (isInteractStoreError(error) && error.code === "stale_revision")
+						continue;
+					throw error;
+				}
 		});
 	return getSearchUrl(db, owner, pageUrl, query, nowIso);
 }

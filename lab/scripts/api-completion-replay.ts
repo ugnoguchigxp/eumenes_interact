@@ -40,9 +40,14 @@ try {
 			(r: { score?: { falseFinish: boolean } }) => r.score?.falseFinish,
 		);
 		if (!failed) throw new Error("replay_case_missing");
-		const state = getRun(db, LAB_OWNER, failed.runId)?.coreState as {
+		const run = getRun(db, LAB_OWNER, failed.runId);
+		const state = run?.coreState as {
 			messages: ChatMessage[];
 		} | null;
+		if (run && run.coreState === null)
+			throw new Error(
+				"replay_state_cleared: a run drops its core state when it ends; make the run to replay with `lab run --retain-core-state`",
+			);
 		if (!state?.messages) throw new Error("replay_state_missing");
 		const done = JSON.parse(failed.calls.at(-1).syntheticOutput);
 		const request = cases.find((c) => c.id === failed.case)!.request;

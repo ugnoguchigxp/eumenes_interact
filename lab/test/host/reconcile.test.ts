@@ -5,6 +5,7 @@ import {
 	getRun,
 	markOperationDispatched,
 	recordOperationIntent,
+	saveCoreState,
 	transitionRun,
 } from "eumenes-interact/sqlite";
 import { write } from "../../host/db.ts";
@@ -78,6 +79,28 @@ describe("restart reconciliation", () => {
 			indeterminateRuns: [],
 			abandonedRuns: [],
 		});
+	});
+
+	test("a run that reconciliation ends drops its saved core state", () => {
+		const db = freshDb();
+		write(db, () => {
+			run(db, "run-sent");
+			operation(db, "run-sent", "op-sent");
+			markOperationDispatched(db, LAB_OWNER, "op-sent", NOW);
+			run(db, "run-idle");
+			for (const runId of ["run-sent", "run-idle"])
+				saveCoreState(db, LAB_OWNER, runId, {
+					state: { formatVersion: 1, arm: "arm1", step: 1 },
+					expectedRevision: 0,
+					nowIso: NOW,
+				});
+		});
+		reconcileOnStartup(db, LAB_OWNER, silentLabLogger, NOW);
+		for (const runId of ["run-sent", "run-idle"])
+			expect(getRun(db, LAB_OWNER, runId)).toMatchObject({
+				coreState: null,
+				coreStateRevision: 1,
+			});
 	});
 
 	test("an intent that was never dispatched is not an unsettled operation", () => {

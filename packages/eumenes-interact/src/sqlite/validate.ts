@@ -104,6 +104,16 @@ export function requireOrigin(value: unknown): string {
 	return value;
 }
 
+/** Whether `requireOrigin` accepts the text: for lookups, where an origin the store cannot hold has no row. */
+export function isStorableOrigin(value: string): boolean {
+	try {
+		requireOrigin(value);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
 /** The origin of an absolute URL without parsing it as a URL, or `null` when it is not http(s). */
 export function originOfUrl(url: string): string | null {
 	const match = /^(https?):\/\/(?:[^/?#@]*@)?([^/?#]+)/i.exec(url);

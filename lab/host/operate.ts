@@ -30,7 +30,7 @@ import {
 import { RunControl } from "./control.ts";
 import { DEFAULT_DB_PATH, openLabDb } from "./db.ts";
 import { larmFactory } from "./larm.ts";
-import { acquireRunLock } from "./lock.ts";
+import { acquireRunLock, type RunLock } from "./lock.ts";
 import { createPinoLogger, type LabLogger } from "./log.ts";
 import {
 	DEFAULT_OBSERVATIONS_DIR,
@@ -227,8 +227,12 @@ export function startOperate(
 		(deps.ensureCredential ?? ensureClaudeCredential)();
 	const dbPath = o.dbPath ?? DEFAULT_DB_PATH;
 	// Taken before the database is touched and held to the end: reconciliation is only right when no other
-	// runner is alive.
-	const lock = acquireRunLock(`${dbPath}.run.lock`);
+	// runner is alive. An in-memory database is never shared with another runner, and the lock's files would
+	// land in the working directory, so none is taken for it.
+	const lock: RunLock =
+		dbPath === ":memory:"
+			? { release() {} }
+			: acquireRunLock(`${dbPath}.run.lock`);
 	let db: Database;
 	let logger: LabLogger;
 	try {

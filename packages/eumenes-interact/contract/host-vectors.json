@@ -1,0 +1,175 @@
+{
+	"formatVersion": 1,
+	"about": "Inputs a host of eumenes-interact must decide as listed (HOST-CONTRACT.md). urls: the navigation policy of a live run with the open web allowed (no DNS). addresses: the network guard's check of a literal or resolved address. values, choices: the provenance re-check before a send. effects: what item.open declares.",
+	"urls": [
+		{
+			"url": "https://user:pass@example.com/",
+			"allow": false,
+			"why": "credentials"
+		},
+		{ "url": "file:///etc/passwd", "allow": false, "why": "scheme" },
+		{ "url": "javascript:alert(1)", "allow": false, "why": "scheme" },
+		{ "url": "data:text/html,x", "allow": false, "why": "scheme" },
+		{ "url": "http://127.0.0.1/", "allow": false, "why": "loopback" },
+		{
+			"url": "http://0x7f.0.0.1/",
+			"allow": false,
+			"why": "loopback spelled in hex (WHATWG reads 127.0.0.1)"
+		},
+		{
+			"url": "http://2130706433/",
+			"allow": false,
+			"why": "loopback spelled as one number"
+		},
+		{ "url": "http://10.0.0.1/", "allow": false, "why": "private" },
+		{ "url": "http://192.168.1.1/", "allow": false, "why": "private" },
+		{
+			"url": "http://169.254.169.254/latest/meta-data/",
+			"allow": false,
+			"why": "link-local (cloud metadata)"
+		},
+		{ "url": "http://100.64.0.1/", "allow": false, "why": "carrier-grade NAT" },
+		{ "url": "http://[::1]/", "allow": false, "why": "IPv6 loopback" },
+		{
+			"url": "http://[::ffff:127.0.0.1]/",
+			"allow": false,
+			"why": "IPv4-mapped loopback"
+		},
+		{ "url": "http://[fd00::1]/", "allow": false, "why": "unique local" },
+		{ "url": "http://[fe80::1]/", "allow": false, "why": "link-local" },
+		{ "url": "http://localhost:3000/", "allow": false, "why": "loopback name" },
+		{
+			"url": "http://printer.local/",
+			"allow": false,
+			"why": "local-network name"
+		},
+		{
+			"url": "http://db.internal/",
+			"allow": false,
+			"why": "local-network name"
+		},
+		{
+			"url": "http://127.0.0.1.nip.io/",
+			"allow": false,
+			"why": "public DNS that answers with the address in the name"
+		},
+		{
+			"url": "http://lvh.me/",
+			"allow": false,
+			"why": "public DNS that always answers loopback"
+		},
+		{
+			"url": "http://intranet/",
+			"allow": false,
+			"why": "one-label name (search domain)"
+		},
+		{ "url": "https://example.com/", "allow": true, "why": "public" },
+		{ "url": "https://例え.jp/", "allow": true, "why": "public IDN" },
+		{
+			"url": "https://shop.example:8443/a?b=c",
+			"allow": true,
+			"why": "public, other port"
+		},
+		{ "url": "about:blank", "allow": true, "why": "blank page" }
+	],
+	"addresses": [
+		{ "address": "127.0.0.1", "private": true },
+		{ "address": "10.1.2.3", "private": true },
+		{ "address": "172.16.0.1", "private": true },
+		{ "address": "192.168.0.1", "private": true },
+		{ "address": "169.254.169.254", "private": true },
+		{ "address": "100.64.0.1", "private": true },
+		{ "address": "0.0.0.0", "private": true },
+		{ "address": "224.0.0.1", "private": true },
+		{ "address": "198.18.0.1", "private": true },
+		{ "address": "::1", "private": true },
+		{ "address": "::", "private": true },
+		{ "address": "::ffff:127.0.0.1", "private": true },
+		{ "address": "::ffff:10.0.0.1", "private": true },
+		{ "address": "64:ff9b::7f00:1", "private": true },
+		{ "address": "2002:7f00:1::", "private": true },
+		{ "address": "fc00::1", "private": true },
+		{ "address": "fe80::1", "private": true },
+		{ "address": "ff02::1", "private": true },
+		{ "address": "93.184.216.34", "private": false },
+		{ "address": "8.8.8.8", "private": false },
+		{ "address": "2606:2800:220:1:248:1893:25c8:1946", "private": false },
+		{ "address": "2002:5db8:d822::", "private": false },
+		{ "address": "64:ff9b::808:808", "private": false }
+	],
+	"values": [
+		{
+			"value": "白波",
+			"quote": "白波",
+			"request": "検索語は白波です。",
+			"accept": true
+		},
+		{
+			"value": "090-1234-5678",
+			"quote": "09012345678",
+			"request": "電話番号は09012345678です。",
+			"accept": true
+		},
+		{
+			"value": "https://evil.example/?d=x",
+			"quote": "白波",
+			"request": "検索語は白波です。",
+			"accept": false
+		},
+		{
+			"value": "黒潮",
+			"quote": "黒潮",
+			"request": "検索語は白波です。",
+			"accept": false
+		},
+		{
+			"value": "白",
+			"quote": "白",
+			"request": "検索語は白波です。",
+			"accept": false
+		}
+	],
+	"choices": [
+		{
+			"label": "11月21日（土）",
+			"quote": "11月21日",
+			"request": "11月21日に予約したい",
+			"accept": true
+		},
+		{
+			"label": "ギフト包装にする",
+			"quote": "ギフト包装",
+			"request": "ギフト包装ありでお願いします。",
+			"accept": true
+		},
+		{
+			"label": "ギフト包装にする",
+			"quote": "贈り物",
+			"request": "贈り物です。",
+			"accept": false
+		},
+		{
+			"label": "I agree to the terms and conditions",
+			"quote": "terms",
+			"request": "what are the terms?",
+			"accept": false
+		},
+		{
+			"label": "Yes",
+			"quote": "yes",
+			"request": "I came yesterday",
+			"accept": false
+		},
+		{ "label": "None", "quote": "no", "request": "no thanks", "accept": false }
+	],
+	"effects": [
+		{ "role": "link", "url": "https://shop.example/a", "effect": "navigation" },
+		{ "role": "link", "effect": "submit" },
+		{ "role": "link", "url": "#", "effect": "submit" },
+		{ "role": "link", "url": "javascript:void(0)", "effect": "submit" },
+		{ "role": "menuitem", "effect": "submit" },
+		{ "role": "menuitem", "url": "/settings", "effect": "navigation" },
+		{ "role": "tab", "effect": "navigation" },
+		{ "role": "button", "url": "/x", "effect": "submit" }
+	]
+}

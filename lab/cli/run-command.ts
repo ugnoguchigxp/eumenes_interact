@@ -54,6 +54,8 @@ export type RunOptions = {
 	approver?: "fixture" | "cli";
 	/** Keep every observation body under `lab/data/observations/` (at most 7 days). */
 	keepObservations: boolean;
+	/** Keep each run's saved core state after it ends (default: a terminal run drops it, plan.md §14). */
+	retainCoreState?: boolean;
 	headed: boolean;
 	/** Default `playwright-mcp`. */
 	platform?: BrowserPlatform;
@@ -181,6 +183,7 @@ export async function runCommand(
 	const inference = inferenceFactory(db, options, logger);
 	// A live run needs no fixture server: it goes to the real site, within the case's allowed origins.
 	const server = live ? null : startFixtureServer();
+	const retention = options.retainCoreState ? { retainCoreState: true } : {};
 	const results: { def: CaseDef; result: TrialResult }[] = [];
 	let current: { cancel(): void } | null = null;
 	const onSigint = () => {
@@ -217,6 +220,7 @@ export async function runCommand(
 			...(options.keepObservations
 				? { observationSink: createObservationSink(DEFAULT_OBSERVATIONS_DIR) }
 				: {}),
+			...retention,
 			onControl: (control) => {
 				current = control;
 			},

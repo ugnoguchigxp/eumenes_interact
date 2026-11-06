@@ -2,6 +2,7 @@ import { PLATFORM_IDS, type PlatformId } from "../contracts/common.ts";
 import type { InteractDb } from "../contracts/db.ts";
 import {
 	assertWritable,
+	changedRows,
 	guarded,
 	isRecord,
 	readBoolean,
@@ -957,23 +958,25 @@ export function writeSiteObject(
 		objectId = readInteger(one(db, "SELECT last_insert_rowid() AS id"), "id");
 	} else {
 		objectId = existing.id;
-		guarded(() =>
-			db
-				.query(
-					`UPDATE interact_site_objects SET role = ?, description = ?, region = ?, important = ?,
-						revision = ?, updated_at = ? WHERE id = ? AND revision = ?`,
-				)
-				.run(
-					role ?? existing.role,
-					description ?? existing.description,
-					region ?? existing.region,
-					(input.important ?? existing.important) ? 1 : 0,
-					revision,
-					at,
-					objectId,
-					existing.revision,
-				),
-		);
+		guarded(() => {
+			db.query(
+				`UPDATE interact_site_objects SET role = ?, description = ?, region = ?, important = ?,
+					revision = ?, updated_at = ? WHERE id = ? AND revision = ?`,
+			).run(
+				role ?? existing.role,
+				description ?? existing.description,
+				region ?? existing.region,
+				(input.important ?? existing.important) ? 1 : 0,
+				revision,
+				at,
+				objectId,
+				existing.revision,
+			);
+			// Lost to a concurrent save of the same object: nothing was written.
+			if (changedRows(db) !== 1) {
+				throw new InteractStoreError("revision_conflict");
+			}
+		});
 	}
 
 	const addedIds = candidates.map(

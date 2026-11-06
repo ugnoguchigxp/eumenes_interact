@@ -26,7 +26,7 @@ const USAGE = `usage: bun lab/cli/main.ts <command> [options]
   run --case <id> | --split dev|holdout|live [--repeat n] [--inference scripted|larm|claude|manual]
       [--model <id>] [--effort low|medium|high|xhigh|max] [--max-tokens <n>] [--approver fixture|cli] [--include-holdout] [--include-live]
       [--arm arm1] [--capture-dir <abs dir>]
-      [--keep-observations] [--headless] [--platform playwright-mcp]
+      [--keep-observations] [--retain-core-state] [--headless] [--platform playwright-mcp]
       [--browser <channel>] [--executable-path <path>]
   task list
   task run <definitionId> --input key=value ... [--json] [--approver stop|cli] [--capture-dir <abs dir>]
@@ -68,6 +68,7 @@ const { values, positionals } = parseArgs({
 		"include-holdout": { type: "boolean" },
 		"include-live": { type: "boolean" },
 		"keep-observations": { type: "boolean" },
+		"retain-core-state": { type: "boolean" },
 		headed: { type: "boolean" },
 		headless: { type: "boolean" },
 		browser: { type: "string" },

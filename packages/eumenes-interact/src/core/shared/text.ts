@@ -43,12 +43,25 @@ export function originOf(raw: string | null | undefined) {
 	}
 }
 
-/** Width, case, spacing and the separators people add to numbers do not change what was written. */
-export const squash = (text: string) =>
+/** Separators people add or drop without changing what was written (spaces, dashes, commas, slashes). */
+const SEPARATORS = /[\s\-‐–—,，、/／]+/g;
+
+/**
+ * Width and case folded. The long vowel mark is a dash only between digits (「090ー1234」 typed through an IME);
+ * inside a word it is part of the word, so 「ビール」 does not become 「ビル」.
+ */
+const folded = (text: string) =>
 	text
 		.normalize("NFKC")
 		.toLowerCase()
-		.replace(/[\s\-ー‐–—,，、/／]+/g, "");
+		.replace(/(?<=\d)ー(?=\d)/g, "-");
+
+/** Width, case, spacing and the separators people add to numbers do not change what was written. */
+export const squash = (text: string) => folded(text).replace(SEPARATORS, "");
+
+/** Width and case folded, separators kept as one space: the form in which word edges can be seen. */
+export const spaced = (text: string) =>
+	folded(text).replace(SEPARATORS, " ").trim();
 
 /** A run this long, shared with a page and not with the request, is not the user's own value. */
 const PAGE_RUN = 8;

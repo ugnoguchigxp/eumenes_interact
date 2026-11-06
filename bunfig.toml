@@ -22,6 +22,8 @@ ignorePatterns = [
 	"**/dist/**",
 	"lab/data/**",
 	"docs/reviews/**/implementation/**",
+	# Generated evidence records (scripts write them with JSON.stringify); their bytes are the record.
+	"docs/integration/*.json",
 	"lab/arm0-golden/golden/**",
 	".serena/**",
 	".claude/**",

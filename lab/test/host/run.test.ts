@@ -4,11 +4,22 @@ import { listOperations } from "eumenes-interact/sqlite";
 import { getRun } from "eumenes-interact/sqlite";
 import { FixtureApprover } from "../../host/approval.ts";
 import { RunControl } from "../../host/control.ts";
-import { LAB_OWNER } from "../../host/run.ts";
+import { LAB_OWNER, runTrial } from "../../host/run.ts";
 import { listTrials } from "../../host/store.ts";
 import { scoreTrial } from "../../scorer/score.ts";
 import { BASE, FakeBrowser } from "./fake-adapter.ts";
-import { devCase, runScripted } from "./harness.ts";
+import {
+	VERSIONS,
+	devCase,
+	freshDb,
+	runScripted,
+	testCaptureRoot,
+} from "./harness.ts";
+import { silentLabLogger } from "../../host/log.ts";
+import {
+	createArm1ScriptedInference,
+	loadArm1Script,
+} from "../../scripted/arm1.ts";
 
 const types = (events: { type: string }[]) => events.map((e) => e.type);
 
@@ -277,6 +288,35 @@ describe("scripted run of a fake search flow", () => {
 		const run = getRun(db, LAB_OWNER, result.runId);
 		expect(run?.status).toBe("completed");
 		expect(run?.coreStateRevision).toBeGreaterThan(0);
+		// The request and page text in the saved state are dropped when the run ends (plan.md §14).
+		expect(run?.coreState).toBeNull();
+	});
+
+	test("retainCoreState keeps the saved state of a finished run, for replaying it", async () => {
+		const def = await devCase("dev-search-base");
+		const db = freshDb();
+		const result = await runTrial({
+			db,
+			def,
+			arm: "arm1",
+			experimentId: "exp-1",
+			repetition: 1,
+			orderIndex: 0,
+			adapter: new FakeBrowser(),
+			inference: createArm1ScriptedInference(
+				await loadArm1Script("dev-search-base"),
+			),
+			inferenceInfo: () => ({ kind: "scripted" }),
+			approver: new FixtureApprover(def.approvalScript),
+			logger: silentLabLogger,
+			versions: VERSIONS,
+			fixtureBaseUrl: BASE,
+			captureRoot: testCaptureRoot(),
+			retainCoreState: true,
+		});
+		const run = getRun(db, LAB_OWNER, result.runId);
+		expect(run?.status).toBe("completed");
+		expect(run?.coreState).not.toBeNull();
 	});
 
 	test("a clarify ends the run as needs_input and is recorded with its text", async () => {

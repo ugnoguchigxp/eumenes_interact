@@ -57,6 +57,8 @@ export type ExperimentInput = {
 	captureDir?: string;
 	/** Where the default capture directories are made (tests). */
 	captureRoot?: string;
+	/** Keep each ended run's core state for replaying a failure (`lab run --retain-core-state`). */
+	retainCoreState?: boolean;
 	now?: () => number;
 	/** Gives the caller the current trial's control (a signal handler cancels through it). */
 	onControl?: (control: RunControl) => void;
@@ -128,6 +130,7 @@ export async function runExperiment(input: ExperimentInput) {
 					: {}),
 				...(input.captureDir ? { captureDir: input.captureDir } : {}),
 				...(input.captureRoot ? { captureRoot: input.captureRoot } : {}),
+				...(input.retainCoreState ? { retainCoreState: true } : {}),
 				now,
 				control,
 			});

@@ -9,3 +9,5 @@ export * from "./host/parts/uri.ts";
 export * from "./host/parts/search-urls.ts";
 export * from "./host/errors.ts";
 export * from "./host/grants.ts";
+export * from "./host/source.ts";
+export * from "./host/addresses.ts";

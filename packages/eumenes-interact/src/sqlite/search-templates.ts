@@ -1,9 +1,10 @@
 import type { InteractDb } from "../contracts/db.ts";
 import { parseUrl } from "../core/shared/text.ts";
-import { assertWritable } from "./db.ts";
+import { assertWritable, changedRows, guarded } from "./db.ts";
 import { InteractStoreError } from "./errors.ts";
 import {
 	invalid,
+	isStorableOrigin,
 	requireOrigin,
 	requireText,
 	requireTimestamp,
@@ -74,19 +75,28 @@ export function putSearchTemplate(
 			previous.expires_at !== input.expiresAt)
 	)
 		throw new InteractStoreError("revision_conflict", "searchTemplate");
-	db.query(
-		`INSERT INTO interact_site_search_templates VALUES(?,?,?,?,?,?,?)
+	// The upsert only replaces a strictly older revision. Writing the same revision with the same
+	// content again is a harmless repeat (checked above); any other no-op means a newer revision is
+	// stored, and reporting success would let the caller believe its template is in use.
+	const repeat = previous?.revision === input.revision;
+	guarded(() => {
+		db.query(
+			`INSERT INTO interact_site_search_templates VALUES(?,?,?,?,?,?,?)
 	 ON CONFLICT(scope_id,path_prefix) DO UPDATE SET template=excluded.template,revision=excluded.revision,source_ref=excluded.source_ref,checked_at=excluded.checked_at,expires_at=excluded.expires_at
 	 WHERE excluded.revision > interact_site_search_templates.revision`,
-	).run(
-		scope.id,
-		input.pathPrefix,
-		input.template,
-		input.revision,
-		input.sourceRef,
-		input.checkedAt,
-		input.expiresAt,
-	);
+		).run(
+			scope.id,
+			input.pathPrefix,
+			input.template,
+			input.revision,
+			input.sourceRef,
+			input.checkedAt,
+			input.expiresAt,
+		);
+		if (changedRows(db) !== 1 && !repeat) {
+			throw new InteractStoreError("stale_revision", "searchTemplate");
+		}
+	});
 }
 
 /** Most specific applicable path. Expiry and revision are host data; URLs still need the execution gate. */
@@ -105,6 +115,9 @@ export function getSearchUrl(
 		return null;
 	}
 	if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+	// A page whose origin the store cannot hold (WHATWG allows `my_host.example`; the store's form does not) has
+	// no template: a lookup answers null rather than failing the part that asked (design R10).
+	if (!isStorableOrigin(url.origin)) return null;
 	const scope = getSiteScope(db, owner, url.origin);
 	if (!scope) return null;
 	const rows = db

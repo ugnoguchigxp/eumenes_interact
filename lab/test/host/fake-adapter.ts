@@ -603,9 +603,13 @@ function site(url: URL, b: FakeBrowser): PageDef | null {
 				title: "みなと市民ホール",
 				lines: [
 					'- navigation "メイン" [ref=e1]:',
-					'  - link "ホーム" [ref=e2]',
-					'  - link "見学の申し込み" [ref=e3]',
-					'  - link "メールマガジン" [ref=e4]',
+					// As in the fixture and a real snapshot: a link with a destination is a navigation (R05).
+					'  - link "ホーム" [ref=e2]:',
+					"    - /url: index.html",
+					'  - link "見学の申し込み" [ref=e3]:',
+					"    - /url: apply.html",
+					'  - link "メールマガジン" [ref=e4]:',
+					"    - /url: mail.html",
 				],
 				click: {
 					e3: () => `${BASE}sites/minato-hall/base/apply.html`,

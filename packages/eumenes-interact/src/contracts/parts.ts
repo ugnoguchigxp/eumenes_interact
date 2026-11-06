@@ -75,7 +75,7 @@ export const partCallSchema = z.discriminatedUnion("part", [
 						.nullable()
 						.optional()
 						.describe(
-							"選択を根拠付ける元の依頼の引用。表示ラベルと依頼の表現が異なるときに提示。不要ならnull。",
+							"選択や入力を根拠付ける元の依頼の引用。表示ラベルと同じ語句を含む部分をそのまま引く。語句が重ならない言い換えは引用にせず尋ねる。不要ならnull。",
 						),
 				}),
 			)
