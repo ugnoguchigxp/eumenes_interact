@@ -75,3 +75,17 @@ plan.md §13.2は「利用者の合意を得てから実装する」、Eumenes�
 固定したソースで新規backend 31件、Web 5件、画面2件の計38件が成功。既存を含む広域verifyは1,800件、最後の変更後の影響領域verifyは1,121件が成功した。試験件数には重複がある。モデルは固定応答を使い、HTTP・隔離Chrome・MCP・WebP処理を実物で検証した。CIは利用者の指示どおり対象外。
 
 追加の有料API呼出しは0件。共通台帳は579件、保守的計上8.024065 USD、未確定11件の予約を保持し、10 USD上限を継続する。今回の統合を単体の81.9点評価の再採点として扱わない。詳しい範囲・根拠・ソースhash・制限は[本体の検証記録](https://github.com/ugnoguchigxp/eumenes/blob/310233cf60f3461749e16245a030d4b8746a6dae/spec/verification/browser-interact-2026-11-06/README.md)に記録した。
+
+## 0.1.2の反映（2026-11-06）
+
+source `32bc0aa` から作った0.1.2（archive SHA-256 `93b6ee06794b516e55badc84797143809170e53ed4f1321ccc3046496bc05291`、158ファイル）を、Eumenesの `vendor/interact` に置き換えた。packはバイト単位で再現し、Node/Bunの空のconsumerで、通常・拒否・承認・改変検出・SQLite・ホスト適合ベクトルを確かめた（[記録](integration/package-consumer-0.1.2.json)）。migrationは0.1.1と同じ。
+
+本体のホストは、0.1.2の義務（`dist/HOST-CONTRACT.md`）に合わせて次を変えた。
+- grantを使うときに、部品が渡す用途（`grantPurpose`）も照合する。
+- `inspectTarget` portを実装し、driverの要素の検査が `<a>`/`<area>` の `href` を返すようにした。
+- `page.open` の承認を宛先のURLに結び付け、承認の画面にURLを出す。観測がないときも承認を省かない。
+- 結果が不明な送出は、これまでどおり再送しない（`recoverable` を認めない）。
+
+Skillのcontext、能力のbundle、system contextのカタログを作り直し、配布物のファイル数を固定していた試験を158件に合わせた。また、migrationの試験は、後から足された `browser/0008-interact-capture-metadata` を除き忘れて、0.1.1の時点から失敗していた。これも直した。
+
+Eumenesで通った検査: 型検査（2,917ファイル）、lint、整形、contextの検査、Skillの同期の照合、interact・browser・capabilities・dialogueの関係する試験316件（実ブラウザのpilotを含む）。Eumenesの `verify --domain browser --domain capabilities` は、試験の一覧の点検（`artifacts/pursuit-integration-20261106/` 配下の試験に実行経路がない）で止まった。これは今回の変更とは関係しない。

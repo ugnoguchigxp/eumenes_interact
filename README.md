@@ -10,7 +10,7 @@ LLMがブラウザ部品を選び、ホストが入力・承認・取消・保�
 | --- | --- |
 | package | 0.1.2（契約version 2、core state format 1、migrationは0.1.xから変更なし）。出所の検査を厳しくし、URLのない操作を承認の対象にし、終端時にcore stateを消す。変更点は[改善設計書](docs/improvement-design.md)の§5 |
 | 単体の技術評価 | 0.1.0（`5bdef97`）で正式81.9点。0.1.2は未評価 |
-| Eumenes本体 | pilotとして0.1.1をEumenes main `310233cf` へ取込済み（通常会話では初期無効）。0.1.2への更新は作業中。詳細は[統合設計](docs/integration-design.md) |
+| Eumenes本体 | pilotとして取込済み（通常会話では初期無効）。0.1.2（archive `93b6ee06…`、source `32bc0aa`）をEumenesへ反映済み。詳細は[統合設計](docs/integration-design.md) |
 | Desktop操作 | 受入前（事前検証のみ。[改善計画](docs/improvement-plan.md)のT23） |
 | CI・git hook | 置かない（利用者の判断）。変更後に `bun run verify` を手動で実行する |
 
