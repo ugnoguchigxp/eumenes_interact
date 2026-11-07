@@ -201,6 +201,24 @@ export function createExecutor(deps: ExecutorDeps) {
 	 * The tab's list-ordering choices by the adapter's fixed `inspectSort` (custom dropdowns out of the
 	 * accessibility tree too). Read-only, like `extract`: nothing in the page changes.
 	 */
+	async function choices(
+		tabRef: string,
+		observationRef: string,
+		targetRef: string | null,
+		offset: number,
+		limit: number,
+	): Promise<InspectionResult> {
+		if (targetRef !== null)
+			tabs.assertActionable(tabRef, observationRef, targetRef);
+		else if (tabs.require(tabRef).observationRef !== observationRef)
+			throw new Refusal("observation_stale");
+		await session.ensureCurrent(tabRef);
+		if (!adapter.choices) throw new Refusal("unsupported", false);
+		return session.readAdapter(() =>
+			adapter.choices!(targetRef, offset, limit, control.signal),
+		);
+	}
+
 	async function sortOptions(tabRef: string): Promise<InspectionResult> {
 		await session.ensureCurrent(tabRef);
 		return session.readAdapter(() =>
@@ -730,6 +748,7 @@ export function createExecutor(deps: ExecutorDeps) {
 		extract,
 		capture,
 		sortOptions,
+		choices,
 		inspectTarget: inspectTargetOf,
 	};
 }

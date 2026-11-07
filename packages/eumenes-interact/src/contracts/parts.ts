@@ -39,15 +39,22 @@ const call = <N extends PartName, A extends z.ZodRawShape>(name: N, args: A) =>
 export const partCallSchema = z.discriminatedUnion("part", [
 	call("page.open", { url: z.string().max(2048) }),
 	call("page.back", {}),
-	call("site.search", { query: z.string().min(1).max(200) }),
+	call("site.search", {
+		query: z.string().min(1).max(200),
+		field: itemIdSchema.nullable().optional(),
+	}),
 	call("page.find", {
 		text: z.string().max(200).nullable(),
 		role: z.string().max(40).nullable(),
+		within: itemIdSchema.nullable().optional(),
+		cursor: z.string().max(200).nullable().optional(),
+		inspect: z.boolean().optional(),
 	}),
 	call("item.open", { item: itemIdSchema }),
 	call("page.wait", {
 		text: z.string().max(200).nullable(),
 		seconds: z.number().min(0.1).max(30).nullable(),
+		condition: z.enum(["ready", "blocked"]).nullable().optional(),
 	}),
 	call("page.read", {
 		target: itemIdSchema.nullable(),
@@ -56,10 +63,16 @@ export const partCallSchema = z.discriminatedUnion("part", [
 	call("page.list", {
 		kind: z.enum(["results", "table", "links"]),
 		limit: z.number().int().min(1).max(50),
+		within: itemIdSchema.nullable().optional(),
+		cursor: z.string().max(200).nullable().optional(),
 	}),
 	call("page.capture", {
 		range: z.enum(["viewport", "full", "item"]),
 		item: itemIdSchema.nullable(),
+		phase: z.enum(["prepare", "save"]).optional(),
+		confirmation: z.string().max(200).nullable().optional(),
+		assessment: z.string().min(1).max(1000).nullable().optional(),
+		offset: z.number().int().min(0).max(2_000_000).optional(),
 	}),
 	call("form.inspect", { form: itemIdSchema.nullable() }),
 	call("form.fill", {
@@ -110,6 +123,13 @@ export type PageItem = {
 	 * `region` already given. Lets the AI see which block holds which element.
 	 */
 	block?: string;
+	/** Nearest observed containing block, by id (labels may repeat). */
+	parent?: string;
+	/** Short text belonging to this observed candidate, without classification. */
+	context?: string;
+	visible?: boolean;
+	/** A stored locator matched this observed element; still only a suggestion. */
+	storedCandidate?: boolean;
 	/**
 	 * For a content block: what it holds, as `role name` (headings, images, tables, controls), bounded and in
 	 * document order with content before controls. Lets the AI choose the smallest block that holds what was asked.
@@ -138,6 +158,7 @@ export type ListEntry = {
 	title: string;
 	url?: string;
 	text?: string;
+	region?: string;
 };
 
 export type FormField = {
@@ -160,6 +181,21 @@ export type PartResult = {
 	resultId: string;
 	page?: PageSummary;
 	candidates?: PageItem[];
+	/** Host-owned continuation, bound to the observation, scope and query. */
+	browse?: { cursor: string | null; total: number; truncated: boolean };
+	/** Known URLs are suggestions for the model, never an automatic fallback. */
+	searchUrls?: string[];
+	/** Read-only preparation. No image exists until a separate save call. */
+	preview?: {
+		confirmation: string;
+		range: "viewport" | "full" | "item";
+		item: string | null;
+		target: string;
+		text: string;
+		truncated: boolean;
+		missing: readonly string[];
+		nextOffset?: number;
+	};
 	list?: {
 		kind: "results" | "table" | "links";
 		entries: ListEntry[];

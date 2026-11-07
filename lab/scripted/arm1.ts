@@ -278,6 +278,7 @@ function partOutput(step: PartStep, messages: ChatMessage[]): string {
 		};
 	};
 	const slot: Partial<Record<PartName, string>> = {
+		"site.search": "field",
 		"item.open": "item",
 		"page.read": "target",
 		"page.capture": "item",
@@ -299,6 +300,16 @@ function partOutput(step: PartStep, messages: ChatMessage[]): string {
 			fields.push({ item: id, value: f.value });
 		}
 		args.fields = fields;
+	}
+	if (step.part === "page.capture" && args.phase === "save") {
+		const last = dataMessages(messages).at(-1);
+		const preview = last && isRecord(last.preview) ? last.preview : null;
+		if (!preview || typeof preview.confirmation !== "string")
+			return ask("Capture preparation is missing.");
+		args.confirmation = preview.confirmation;
+		args.assessment =
+			args.assessment ??
+			"The fixed case specifies this scope; the observed content matches it.";
 	}
 	return JSON.stringify({ part: step.part, args });
 }

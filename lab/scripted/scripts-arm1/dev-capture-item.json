@@ -5,6 +5,9 @@
 			"part": "site.search",
 			"args": {
 				"query": "木のスプーン"
+			},
+			"target": {
+				"role": "searchbox"
 			}
 		},
 		{
@@ -17,7 +20,19 @@
 		{
 			"part": "page.capture",
 			"args": {
-				"range": "item"
+				"range": "item",
+				"phase": "prepare"
+			},
+			"target": {
+				"role": "article",
+				"name": "商品の詳細"
+			}
+		},
+		{
+			"part": "page.capture",
+			"args": {
+				"range": "item",
+				"phase": "save"
 			},
 			"target": {
 				"role": "article",

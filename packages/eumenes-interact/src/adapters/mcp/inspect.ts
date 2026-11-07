@@ -1,5 +1,4 @@
 import { AdapterError } from "../../contracts/adapter.ts";
-import { DEFAULT_LEXICON } from "../../core/shared/lexicon.ts";
 import type { InspectionResult } from "../../contracts/adapter.ts";
 
 /**
@@ -188,46 +187,40 @@ export function parseMediaInspection(
 	};
 }
 
-/**
- * The page's list-ordering choices, also those a custom dropdown keeps hidden or out of the accessibility
- * tree (a `<li onclick>` under "並べ替え："). An element counts when its own short text names an order
- * ("価格の安い順", "Price: low to high") and a sort label ("並べ替え", "表示順", "Sort") is on it or within five
- * ancestors. For each: its text, whether it shows, its link, and the `key=value` pairs its link, handler or
- * data attributes carry (what choosing it would put in the URL). Reading changes nothing. No model input.
- */
-export const INSPECT_SORT_FUNCTION = `() => {
-  const ORDER = new RegExp(${JSON.stringify(DEFAULT_LEXICON.inspectSortChoice.source)}, ${JSON.stringify(DEFAULT_LEXICON.inspectSortChoice.flags)});
-  const LABEL = new RegExp(${JSON.stringify(DEFAULT_LEXICON.inspectSortLabel.source)}, ${JSON.stringify(DEFAULT_LEXICON.inspectSortLabel.flags)});
+/** Fixed, read-only DOM enumeration. Arguments are numeric bounds and an observed root, never code. */
+export function inspectChoicesFunction(
+	offset = 0,
+	limit = 20,
+	scoped = false,
+): string {
+	if (
+		!Number.isSafeInteger(offset) ||
+		offset < 0 ||
+		!Number.isSafeInteger(limit) ||
+		limit < 1 ||
+		limit > 50
+	)
+		throw new Error("invalid_inspection_bounds");
+	return `${scoped ? "(root)" : "()"} => {
+  const scope = ${scoped ? "root" : "document"};
   const PAIR = /([A-Za-z_][\\w.-]{0,30})=([^|&'"\\s;,()<>]{1,100})/g;
-  const own = (el) => {
-    if (el.tagName === 'OPTION' || el.children.length === 0) return el.textContent || '';
-    return [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('');
-  };
-  const labelled = (el) => {
-    for (let p = el, i = 0; p && p.nodeType === 1 && i < 6; p = p.parentElement, i++) {
-      const s = [p.getAttribute('aria-label'), p.id, typeof p.className === 'string' ? p.className : '', p.getAttribute('name')].join(' ');
-      if (LABEL.test(s)) return true;
-      if (i > 0) for (const c of p.children) if (c !== el && c.children.length === 0 && LABEL.test((c.textContent || '').slice(0, 40))) return true;
-    }
-    return false;
-  };
   const out = [];
-  const seen = new Set();
-  for (const el of document.querySelectorAll('a[href], li, option, button, [role=option], [role=menuitem], [role=menuitemradio], [onclick], [data-sort], [data-value]')) {
-    const text = own(el).replace(/\\s+/g, ' ').trim();
-    if (!text || text.length > 24 || !ORDER.test(text) || seen.has(text) || !labelled(el)) continue;
-    seen.add(text);
+  for (const el of scope.querySelectorAll('a[href], li, option, button, [role=option], [role=menuitem], [role=menuitemradio], [onclick], [data-sort], [data-value]')) {
+    const text = (el.getAttribute('aria-label') || el.textContent || '').replace(/\\s+/g, ' ').trim();
+    if (!text) continue;
     const sources = [el.getAttribute('onclick'), ...[...el.attributes].filter((a) => a.name.startsWith('data-')).map((a) => a.value)];
     const select = el.tagName === 'OPTION' ? el.closest('select') : null;
     if (select && select.name && el.value) sources.push(select.name + '=' + el.value);
     const params = [];
     for (const s of sources) if (s) for (const m of String(s).matchAll(PAIR)) params.push([m[1], m[2]]);
     const href = el.tagName === 'A' && /^https?:/.test(el.href) ? el.href : null;
-    out.push({ text, visible: !!(el.offsetParent || el.getClientRects().length), href, params: params.slice(0, 6) });
-    if (out.length >= 8) break;
+    out.push({ text: text.slice(0, 200), visible: !!(el.offsetParent || el.getClientRects().length), href, params: params.slice(0, 6) });
   }
-  return { count: out.length, options: JSON.stringify(out) };
+  return { count: out.length, options: JSON.stringify(out.slice(${offset}, ${offset + limit})) };
 }`;
+}
+/** Legacy inspection name, now uses the same neutral enumeration. */
+export const INSPECT_SORT_FUNCTION = inspectChoicesFunction(0, 8);
 
 /** One ordering choice `inspectSort` found. The text is page text (untrusted), cut short. */
 export type SortOption = {
@@ -258,10 +251,10 @@ export function sortOptionsOf(json: string): SortOption[] {
 	if (!Array.isArray(value)) return [];
 	const str = (x: unknown, n: number) =>
 		typeof x === "string" ? x.slice(0, n) : null;
-	return value.slice(0, 8).flatMap((o): SortOption[] => {
+	return value.slice(0, 50).flatMap((o): SortOption[] => {
 		if (typeof o !== "object" || o === null) return [];
 		const r = o as Record<string, unknown>;
-		const text = str(r.text, 40);
+		const text = str(r.text, 200);
 		if (!text) return [];
 		const params = Array.isArray(r.params)
 			? r.params.flatMap((p): [string, string][] =>

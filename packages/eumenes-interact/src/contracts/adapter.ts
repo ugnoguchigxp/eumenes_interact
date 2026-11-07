@@ -125,6 +125,13 @@ export interface PlatformAdapter {
 		targetRef: string | null,
 		signal: AbortSignal,
 	): Promise<CapturedImage>;
+	/** Neutral, paged DOM choices, scoped by an observed element when supplied. */
+	choices?(
+		targetRef: string | null,
+		offset: number,
+		limit: number,
+		signal: AbortSignal,
+	): Promise<InspectionResult>;
 	/** Read-only. `targetRef` null for `inspectFocused`. Unsupported kinds reject with AdapterError("unsupported"). */
 	inspect(
 		kind: FixedInspection,

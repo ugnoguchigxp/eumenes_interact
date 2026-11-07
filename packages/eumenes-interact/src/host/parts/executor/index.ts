@@ -19,7 +19,6 @@ import {
 import { itemOpen } from "./item.ts";
 import {
 	pageBack,
-	pageCapture,
 	pageFind,
 	pageList,
 	pageOpen,
@@ -28,7 +27,7 @@ import {
 } from "./page.ts";
 import { siteSearch } from "./search.ts";
 import { formFill, formInspect, formSubmit } from "./form.ts";
-import { withHiddenSorts } from "./sort.ts";
+import { pageCapture } from "./capture.ts";
 
 export {
 	SUMMARY_HEADINGS,
@@ -58,25 +57,53 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 	const ctx = createContext(deps);
 
 	async function dispatch(call: PartCall): Promise<Body> {
+		if (
+			ctx.blocked &&
+			["item.open", "form.fill", "form.submit"].includes(call.part)
+		)
+			throw new PartFail("site_blocked");
 		switch (call.part) {
 			case "page.open":
 				return pageOpen(ctx, call.args.url);
 			case "page.back":
 				return pageBack(ctx);
 			case "site.search":
-				return siteSearch(ctx, call.args.query);
+				return siteSearch(ctx, call.args.query, call.args.field);
 			case "page.find":
-				return pageFind(ctx, call.args.text, call.args.role);
+				return pageFind(
+					ctx,
+					call.args.text,
+					call.args.role,
+					call.args.within,
+					call.args.cursor,
+					call.args.inspect,
+				);
 			case "item.open":
 				return itemOpen(ctx, call.args.item);
 			case "page.wait":
+				if (call.args.condition != null)
+					ctx.blocked = call.args.condition === "blocked";
 				return pageWait(ctx, call.args.text, call.args.seconds);
 			case "page.read":
 				return pageRead(ctx, call.args.target, call.args.maxChars);
 			case "page.list":
-				return pageList(ctx, call.args.kind, call.args.limit);
+				return pageList(
+					ctx,
+					call.args.kind,
+					call.args.limit,
+					call.args.within,
+					call.args.cursor,
+				);
 			case "page.capture":
-				return pageCapture(ctx, call.args.range, call.args.item);
+				return pageCapture(
+					ctx,
+					call.args.range,
+					call.args.item,
+					call.args.phase,
+					call.args.confirmation,
+					call.args.assessment,
+					call.args.offset,
+				);
 			case "form.inspect":
 				return formInspect(ctx, call.args.form);
 			case "form.fill":
@@ -106,10 +133,7 @@ export function createPartExecutor(deps: PartExecutorDeps) {
 		let status: PartResult["status"];
 		let code: string | undefined;
 		try {
-			const result = finish(
-				call.part,
-				await withHiddenSorts(ctx, await dispatch(call)),
-			);
+			const result = finish(call.part, await dispatch(call));
 			executed = { kind: "outcome", outcome: { kind: "part", result } };
 			status = result.status;
 			code = result.code;

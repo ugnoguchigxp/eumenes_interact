@@ -32,6 +32,13 @@ export type PartExecutionPort = {
 		targetRef: string | null,
 	): Promise<CapturedImage>;
 	sortOptions?(tabRef: string): Promise<InspectionResult>;
+	choices?(
+		tabRef: string,
+		observationRef: string,
+		targetRef: string | null,
+		offset: number,
+		limit: number,
+	): Promise<InspectionResult>;
 	/**
 	 * The host's fixed, read-only inspection of one observed element (`inspectTarget`). Optional: `item.open` uses
 	 * it only to learn whether an `<a>` the snapshot gave no `/url` has an `href` (design R18). Without it, such an

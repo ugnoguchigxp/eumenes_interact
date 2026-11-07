@@ -7,7 +7,6 @@ import { FixtureApprover } from "../../host/approval.ts";
 import { partsHelpers, type PartsHelpers } from "../../host/parts/core.ts";
 import { captureRangeScore, captureTargetHash } from "../../scorer/captures.ts";
 import { devCase } from "../scorer/builder.ts";
-import { originPolicy } from "../../host/policy.ts";
 import { BASE } from "./fake-adapter.ts";
 import {
 	HOSHI,
@@ -177,229 +176,87 @@ describe("page.open and page.back", () => {
 	});
 });
 
-describe("site.search", () => {
-	const request = "この雑貨店サイトで「麻」を検索してください。";
-
-	test("fills the one search box, submits, and answers with the results and their ids", async () => {
+describe("site.search: model-selected target (F09)", () => {
+	const request = "Search for test";
+	test("discovery never types or navigates and returns every kind of editable field", async () => {
 		const s = await setup({ request });
-		const r = await s.result(call("site.search", { query: "麻" }));
-		expect(r.status).toBe("completed");
-		expect(r.page?.url).toContain("results.html");
-		const names = r.list?.entries.map((e) => e.title);
-		expect(names).toEqual(["麻のふきん", "麻のエプロン"]);
-		expect(r.list?.entries.every((e) => e.item?.startsWith(r.page!.page))).toBe(
-			true,
+		const before = s.adapter.dispatched.length;
+		const r = await s.result(
+			call("site.search", { query: "test", field: null }),
 		);
+		expect(r.code).toBe("target_required");
+		expect(r.candidates?.length).toBeGreaterThan(0);
+		expect(r.searchUrls?.length).toBeGreaterThan(0);
+		expect(s.adapter.dispatched).toHaveLength(before);
+	});
+	test("only the explicitly selected observed field receives the sourced query", async () => {
+		const s = await setup({ request });
+		const field = s.summary.items.find((i) => i.role === "searchbox")!.item;
+		const r = await s.result(call("site.search", { query: "test", field }));
+		expect(r.status).toBe("completed");
 		expect(s.adapter.dispatched.at(-1)).toMatchObject({
 			action: "page.fill",
-			text: "麻",
+			text: "test",
 			submit: true,
 		});
+		expect(r.list).toBeUndefined(); // The model, not the part, judges whether there are results.
 	});
-
-	test("a query the request does not supply is refused and nothing is typed", async () => {
+	test("an unobserved target and unsourced query cannot trigger input", async () => {
 		const s = await setup({ request });
-		const r = await s.result(call("site.search", { query: "ステンレス" }));
-		expect(codes(r)).toEqual(["failed", "query_not_in_request"]);
-		expect(s.adapter.dispatched).toHaveLength(1);
+		const before = s.adapter.dispatched.length;
+		expect(
+			(await s.result(call("site.search", { query: "test", field: "p999.i1" })))
+				.code,
+		).toBeDefined();
+		expect(
+			(await s.result(call("site.search", { query: "outside", field: null })))
+				.code,
+		).toBe("query_not_in_request");
+		expect(s.adapter.dispatched).toHaveLength(before);
 	});
-
-	test("of two search boxes the one in the search region is used, never an arbitrary one (2026-11-04)", async () => {
+	test("two search boxes remain candidates until the model chooses one", async () => {
 		const s = await setup({
 			start: `${BASE}sites/hoshikuzu/duplicate/index.html`,
-			request: "「天野」の本を探してください。",
+			request,
 		});
-		await s.result(call("site.search", { query: "天野" }));
-		const fill = s.adapter.dispatched.find((c) => c.action === "page.fill");
-		expect(fill).toBeDefined();
+		const before = s.adapter.dispatched.length;
+		const r = await s.result(
+			call("site.search", { query: "test", field: null }),
+		);
+		expect(
+			r.candidates!.filter((i) => i.role === "searchbox").length,
+		).toBeGreaterThan(1);
+		expect(s.adapter.dispatched).toHaveLength(before);
 	});
-
-	test("the site knowledge's search.query is used before looking for a box", async () => {
-		const seen: string[] = [];
-		const s = await setup({
-			start: "https://ja.wikipedia.org/",
-			policy: originPolicy(["https://ja.wikipedia.org"]),
-			request: "「機械学習」を調べてください。",
-			core: {
-				...partsHelpers,
-				findItems: (body, pageId, query, limit) => {
-					seen.push(query.role ?? "text");
-					return partsHelpers.findItems(body, pageId, query, limit);
-				},
-			},
-		});
-		// Without knowledge the box is found by role (one searchbox is enough).
-		const before = seen.length;
-		const r = await s.result(call("site.search", { query: "機械学習" }));
-		// The fake page after the search lists no results: the search ran, and says it found none.
-		expect([r.status, r.code]).toEqual(["partial", "zero_results"]);
-		expect(seen.length).toBeGreaterThan(before);
-	});
-	test("a box that takes the text but leaves the page where it was is not reported as results (2026-11-04)", async () => {
+	test("a confirmed input that leaves the same page does not assert search success or try a fallback", async () => {
 		const s = await setup({ request });
-		s.adapter.onDispatch = (command) =>
-			command.action === "page.fill"
+		s.adapter.onDispatch = (c) =>
+			c.action === "page.fill"
 				? { status: "confirmed", retryable: false, url: s.adapter.url }
 				: undefined;
-		const r = await s.result(call("site.search", { query: "麻" }));
-		// No other way is open on this fake site, so the honest answer is that no search happened.
-		expect(codes(r)).toEqual(["failed", "no_search_box"]);
+		const before = s.adapter.dispatched.length;
+		const field = s.summary.items.find((i) => i.role === "searchbox")!.item;
+		const r = await s.result(call("site.search", { query: "test", field }));
+		expect(r.status).toBe("completed");
+		expect(r.list).toBeUndefined();
+		expect(s.adapter.dispatched.slice(before).map((c) => c.action)).toEqual([
+			"page.fill",
+		]);
 	});
-});
-
-describe("site.search: what counts as results (2026-11-04)", () => {
-	const request = "この雑貨店サイトで「麻」を検索してください。";
-	// `named` stands for the links on the page that name the query (none unless a test says so).
-	const listing = (titles: string[], named = false): PartsHelpers => ({
-		...partsHelpers,
-		findItems: (body, pageId, query, limit) =>
-			named || query.role !== "link" || query.text === null
-				? partsHelpers.findItems(body, pageId, query, limit)
-				: [],
-		listEntries: (body, pageId, kind, limit) => {
-			const real = partsHelpers.listEntries(body, pageId, kind, limit);
-			const base = real.entries[0];
-			return {
-				entries: titles.map((title) => ({ ...base!, title })),
-				records: real.records,
-				truncated: false,
-			};
-		},
-	});
-
-	test("a results page with only skip links is zero results, not completed", async () => {
+	test("paging, ads and unfamiliar labels are returned in source order, without semantic classification", async () => {
+		const titles = ["Suivant", "Sponsored", "Unfamiliar", "2", "Item"];
 		const s = await setup({
-			request,
-			core: listing(["Skip to main content", "Skip navigation"]),
-		});
-		const r = await s.result(call("site.search", { query: "麻" }));
-		expect(codes(r)).toEqual(["partial", "zero_results"]);
-	});
-
-	test("script-only links are not results; links naming the query are (live tenki.jp, 2026-11-04)", async () => {
-		const s = await setup({
-			request,
 			core: {
-				...listing(["衛星", "天気図"], true),
-				listEntries: (body, pageId, kind, limit) => {
-					const real = partsHelpers.listEntries(body, pageId, kind, limit);
-					return {
-						entries: ["衛星", "天気図", "2"].map((title) => ({
-							...real.entries[0]!,
-							title,
-							url: "javascript:void(0)",
-						})),
-						records: real.records,
-						truncated: false,
-					};
-				},
+				...partsHelpers,
+				listEntries: () => ({
+					entries: titles.map((title) => ({ title })),
+					records: [],
+					truncated: false,
+				}),
 			},
 		});
-		const r = await s.result(call("site.search", { query: "麻" }));
-		expect(r.status).toBe("completed");
-		const titles = r.list?.entries.map((e) => e.title) ?? [];
-		expect(titles.length).toBeGreaterThan(0);
-		expect(titles.every((t) => t.includes("麻"))).toBe(true);
-	});
-
-	test("page numbers listed above the results go after them; alone they are zero results", async () => {
-		const s = await setup({
-			request,
-			core: listing(["1", "2", "次へ", "麻のふきん"]),
-		});
-		const r = await s.result(call("site.search", { query: "麻" }));
-		expect(r.list?.entries.map((e) => e.title)).toEqual([
-			"麻のふきん",
-			"1",
-			"2",
-			"次へ",
-		]);
-		const t = await setup({ request, core: listing(["1", "2", "次へ"]) });
-		expect(codes(await t.result(call("site.search", { query: "麻" })))).toEqual(
-			["partial", "zero_results"],
-		);
-	});
-});
-
-describe("site.search: paging by structure (design R25)", () => {
-	const request = "この雑貨店サイトで「麻」を検索してください。";
-	// Entries as the page lists them: a paging link is told by its address, whatever words its title uses.
-	const withUrls = (
-		entries: { title: string; url: string }[],
-	): PartsHelpers => ({
-		...partsHelpers,
-		findItems: (body, pageId, query, limit) =>
-			query.role !== "link" || query.text === null
-				? partsHelpers.findItems(body, pageId, query, limit)
-				: [],
-		listEntries: (body, pageId, kind, limit) => {
-			const real = partsHelpers.listEntries(body, pageId, kind, limit);
-			return {
-				entries: entries.map((e) => ({ ...real.entries[0]!, ...e })),
-				records: real.records,
-				truncated: false,
-			};
-		},
-	});
-
-	test("paging links in other languages go after the results by their address, with no word in the lexicon", async () => {
-		const s = await setup({
-			request,
-			core: withUrls([
-				{ title: "Página siguiente", url: "results.html?q=%E9%BA%BB&p=2" },
-				{ title: "Seite 3", url: "results.html?q=%E9%BA%BB&p=3" },
-				{ title: "麻のふきん", url: "product.html?id=1" },
-			]),
-		});
-		const r = await s.result(call("site.search", { query: "麻" }));
-		expect(r.list?.entries.map((e) => e.title)).toEqual([
-			"麻のふきん",
-			"Página siguiente",
-			"Seite 3",
-		]);
-	});
-
-	test("a page of only such links is zero results, not a list of results", async () => {
-		const s = await setup({
-			request,
-			core: withUrls([
-				{ title: "Suivant", url: "results.html?q=%E9%BA%BB&offset=20" },
-				{ title: "다음", url: "results.html?q=%E9%BA%BB&offset=40" },
-			]),
-		});
-		expect(codes(await s.result(call("site.search", { query: "麻" })))).toEqual(
-			["partial", "zero_results"],
-		);
-	});
-
-	test("page.list puts such paging links after the results, keeping each group's order", async () => {
-		const s = await setup({
-			start: `${KAEDE}results.html?q=%E9%BA%BB`,
-			request,
-			core: withUrls([
-				{ title: "Siguiente", url: "results.html?q=%E9%BA%BB&p=2" },
-				{ title: "麻のふきん", url: "product.html?id=1" },
-				{ title: "麻のエプロン", url: "product.html?id=4" },
-			]),
-		});
 		const r = await s.result(call("page.list", { kind: "results", limit: 10 }));
-		expect(r.list?.entries.map((e) => e.title)).toEqual([
-			"麻のふきん",
-			"麻のエプロン",
-			"Siguiente",
-		]);
-	});
-
-	test("a link to another path, or one changing a non-numeric parameter, is still a result", async () => {
-		const s = await setup({
-			request,
-			core: withUrls([
-				{ title: "Details", url: "catalog.html?q=%E9%BA%BB&p=2" },
-				{ title: "Sorted", url: "results.html?q=%E9%BA%BB&order=asc" },
-			]),
-		});
-		const r = await s.result(call("site.search", { query: "麻" }));
-		expect(r.list?.entries.map((e) => e.title)).toEqual(["Details", "Sorted"]);
+		expect(r.list?.entries.map((e) => e.title)).toEqual(titles);
 	});
 });
 
@@ -766,8 +623,19 @@ describe("page.read and page.list", () => {
 
 	test("lists results with their ids; an empty page has no entries", async () => {
 		const s = await setup({ request: "「麻」を検索" });
-		await s.result(call("site.search", { query: "麻" }));
-		const r = await s.result(call("page.list", { kind: "results", limit: 10 }));
+		const searched = await s.result(
+			call("site.search", {
+				query: "麻",
+				field: s.summary.items.find((i) => i.role === "searchbox")!.item,
+			}),
+		);
+		const r = await s.result(
+			call("page.list", {
+				kind: "results",
+				limit: 10,
+				within: searched.page!.items.find((i) => i.role === "main")!.item,
+			}),
+		);
 		expect(r.status).toBe("completed");
 		expect(r.list?.entries.map((e) => e.title)).toEqual([
 			"麻のふきん",
@@ -1516,17 +1384,29 @@ describe("review fixes (S2b)", () => {
 	});
 });
 
-describe("a page that became a bot check after it was opened", () => {
-	test("page.find and page.list report site_blocked instead of reading it", async () => {
+describe("model-classified waiting pages (F09)", () => {
+	test("a title alone cannot block reading; the model can block inputs while retaining observation tools", async () => {
 		const s = await setup({ start: `${KAEDE}catalog.html` });
-		// A late redirect or an adopted tab: the current tab now shows a challenge.
 		(s.adapter as unknown as { tabs: { title: string }[] }).tabs[0]!.title =
 			"Just a moment...";
 		expect(
-			codes(await s.result(call("page.find", { text: "麻", role: null }))),
-		).toEqual(["failed", "site_blocked"]);
+			(await s.result(call("page.list", { kind: "links", limit: 5 }))).status,
+		).toBe("completed");
+		await s.result(
+			call("page.wait", { text: null, seconds: 0.1, condition: "blocked" }),
+		);
+		const item = s.summary.items.find((i) => i.role === "link")!.item;
+		expect((await s.result(call("item.open", { item }))).code).toBe(
+			"site_blocked",
+		);
 		expect(
-			codes(await s.result(call("page.list", { kind: "links", limit: 5 }))),
-		).toEqual(["failed", "site_blocked"]);
+			(await s.result(call("page.find", { text: null, role: "link" }))).status,
+		).toBe("completed");
+		await s.result(
+			call("page.wait", { text: null, seconds: 0.1, condition: "ready" }),
+		);
+		expect((await s.result(call("item.open", { item }))).code).not.toBe(
+			"site_blocked",
+		);
 	});
 });

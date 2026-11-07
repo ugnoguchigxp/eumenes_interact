@@ -132,6 +132,15 @@ type Issue = { path: string; code: string };
 /** The item ids a part call names, with where they sit. */
 function itemsOf(part: PartCall): { path: string; item: string }[] {
 	switch (part.part) {
+		case "site.search":
+			return part.args.field
+				? [{ path: "args.field", item: part.args.field }]
+				: [];
+		case "page.find":
+		case "page.list":
+			return part.args.within
+				? [{ path: "args.within", item: part.args.within }]
+				: [];
 		case "item.open":
 			return [{ path: "args.item", item: part.args.item }];
 		case "page.read":
@@ -173,8 +182,6 @@ function checkPart(
 			issues: [{ path: "part", code: "part_not_offered" }],
 		};
 	const missing: Issue[] = [];
-	if (part.part === "page.find" && !part.args.text && !part.args.role)
-		missing.push({ path: "args", code: "text_or_role_required" });
 	if (
 		part.part === "page.wait" &&
 		!part.args.text &&
@@ -353,6 +360,8 @@ const PAGE_MEMBERS = [
 	"list",
 	"read",
 	"capture",
+	"preview",
+	"searchUrls",
 	"form",
 	"approval",
 ] as const;
@@ -364,7 +373,7 @@ const PAGE_MEMBERS = [
  */
 function resultMessage(result: PartResult, callsLeft: number): ChatMessage {
 	const marked = (member: (typeof PAGE_MEMBERS)[number]) =>
-		member !== "candidates" && result[member]
+		!Array.isArray(result[member]) && result[member]
 			? { [member]: { untrusted: true, ...result[member] } }
 			: {};
 	const present = PAGE_MEMBERS.filter((member) => result[member] !== undefined);

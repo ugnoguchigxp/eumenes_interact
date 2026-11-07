@@ -1,11 +1,6 @@
-import { findText, type ItemRecord } from "../../../index.ts";
-import { CAPTURE_HOLDS, held } from "../../../core/parts/items.ts";
+import { findText } from "../../../index.ts";
 import { fromPage, urlPayload } from "../../../core/shared/text.ts";
 import { toUri } from "../uri.ts";
-import { captureTargetHash } from "../capture-hash.ts";
-import { CaptureError } from "../capture.ts";
-import { isChallenge } from "../search-urls.ts";
-import { isPagingEntry } from "./paging.ts";
 import {
 	activeTab,
 	afterSending,
@@ -25,6 +20,9 @@ import {
 	type Body,
 	type ExecutorContext,
 } from "./context.ts";
+
+import { continuation, contextualItem, observedItems } from "./browse.ts";
+import { inspectChoices } from "./sort.ts";
 
 const FIND_LIMIT = 20;
 
@@ -92,11 +90,51 @@ export async function pageFind(
 	ctx: ExecutorContext,
 	text: string | null,
 	role: string | null,
+	within?: string | null,
+	cursor?: string | null,
+	inspect = false,
 ): Promise<Body> {
-	if (text === null && role === null) throw new PartFail("invalid_args");
 	const observation = await observeFresh(ctx);
-	if (isChallenge(observation.title, observation.body))
-		throw new PartFail("site_blocked", { page: summarize(ctx, observation) });
+
+	if (inspect) return inspectChoices(ctx, observation, within, cursor);
+	const paging = continuation(
+		ctx,
+		observation,
+		["find", text, role, within ?? null],
+		cursor,
+	);
+	const all = observedItems(ctx, observation, within);
+	const fold = (v: string) => v.normalize("NFKC").toLowerCase();
+	const matching = all.records.filter(
+		(r) =>
+			(!role || role === "any" || r.role === role) &&
+			(!text || fold(r.name).includes(fold(text))),
+	);
+	if (matching.length || !text || within || cursor) {
+		const shown = matching.slice(paging.offset, paging.offset + FIND_LIMIT);
+		const hits = text
+			? batch(ctx, observation, (pageId) =>
+					findText(observation.body, pageId, text, FIND_LIMIT),
+				).hits
+			: [];
+		const content = hits
+			.map((h) => (h.item ? `[${h.item}] ${h.text}` : h.text))
+			.join("\n");
+		return {
+			status: "completed",
+			candidates: shown.map((r) => contextualItem(observation, r)),
+			browse: paging.finish(matching.length, paging.offset + shown.length),
+			...(content
+				? {
+						read: {
+							text: content,
+							charCount: content.length,
+							truncated: false,
+						},
+					}
+				: {}),
+		};
+	}
 	const { records } = batch(ctx, observation, (pageId) => ({
 		records: ctx.core.findItems(
 			observation.body,
@@ -226,8 +264,6 @@ export async function pageRead(
 	notePage(ctx, content.text);
 	// A page that turned into a bot check after it was opened (a late redirect, an adopted tab) is never
 	// read as content: it is reported, not passed.
-	if (itemId === null && isChallenge(content.title, content.text))
-		throw new PartFail("site_blocked");
 	// A link or cell read on its own says only its name ("Japan"); the value sits beside it (the row). The
 	// page's text around each place the name stands alone is returned instead, so no second read is needed.
 	if (name.length > 0 && content.text.trim() === name) {
@@ -267,121 +303,34 @@ export async function pageList(
 	ctx: ExecutorContext,
 	kind: "results" | "table" | "links",
 	limit: number,
+	within?: string | null,
+	cursor?: string | null,
 ): Promise<Body> {
 	const observation = await observeFresh(ctx);
-	if (isChallenge(observation.title, observation.body))
-		throw new PartFail("site_blocked", { page: summarize(ctx, observation) });
-	const listed = batch(ctx, observation, (pageId) =>
-		ctx.core.listEntries(observation.body, pageId, kind, limit),
+	const paging = continuation(
+		ctx,
+		observation,
+		["list", kind, within ?? null, limit],
+		cursor,
 	);
-	if (listed.entries.length === 0)
+	const scope = observedItems(ctx, observation, within);
+	const allowed = new Set(scope.records.map((r) => r.item));
+	const listed = batch(ctx, observation, (pageId) =>
+		ctx.core.listEntries(observation.body, pageId, kind, 100_000),
+	);
+	const entries = listed.entries.filter(
+		(e) => !within || (e.item !== undefined && allowed.has(e.item)),
+	);
+	const shown = entries.slice(paging.offset, paging.offset + limit);
+	if (!shown.length && !cursor)
 		throw new PartFail("no_entries", {
 			list: { kind, entries: [], truncated: false },
 		});
-	// Page numbers and next/previous links go after the entries that are results (design R25: by structure
-	// first, the lexicon only as a fallback); their order is kept.
-	const entries =
-		kind === "results"
-			? [
-					...listed.entries.filter(
-						(e) => !isPagingEntry(ctx, e, observation.url),
-					),
-					...listed.entries.filter((e) =>
-						isPagingEntry(ctx, e, observation.url),
-					),
-				]
-			: listed.entries;
+	const browse = paging.finish(entries.length, paging.offset + shown.length);
 	return {
 		status: "completed",
-		list: { kind, entries, truncated: listed.truncated },
-	};
-}
-
-export async function pageCapture(
-	ctx: ExecutorContext,
-	range: "viewport" | "full" | "item",
-	itemId: string | null,
-): Promise<Body> {
-	let ref: string | null = null;
-	let observationRef: string | undefined;
-	let target: ItemRecord | undefined;
-	let seen: ItemRecord | undefined;
-	if (range === "item") {
-		if (itemId === null) throw new PartFail("item_required");
-		const observation = await observeFresh(ctx);
-		const found = resolve(ctx, itemId, observation);
-		ref = found.ref;
-		target = found.record;
-		observationRef = observation.observationRef;
-		// What the captured block holds, read from the observation it was found in (not issuing page ids).
-		seen = ctx.core
-			.summarizePage(
-				{
-					body: observation.body,
-					truncated: observation.truncated,
-					missing: observation.missing,
-				},
-				{ pageId: "p0", maxItems: 1, maxHeadings: 0 },
-			)
-			.records.find((r) => r.ref === found.ref);
-	}
-	const tabRef = await activeTab(ctx);
-	const image = await guard(ctx, () =>
-		ctx.executor.capture(tabRef, observationRef, range, ref),
-	);
-	let saved;
-	try {
-		saved = await ctx.captures.save(range, image);
-	} catch (error) {
-		throw new PartFail(
-			error instanceof CaptureError ? error.code : "capture_write_failed",
-		);
-	}
-	ctx.recorder.captureSaved({
-		...saved,
-		...(target
-			? {
-					target: {
-						role: target.role,
-						nameHash: captureTargetHash(target.name),
-					},
-					...(seen?.holds?.length
-						? {
-								holds: seen.holds.slice(0, CAPTURE_HOLDS).map((label) => {
-									const at = label.indexOf(" ");
-									return {
-										role: at < 0 ? label : label.slice(0, at),
-										nameHash: captureTargetHash(
-											at < 0 ? "" : label.slice(at + 1),
-										),
-									};
-								}),
-								...(seen.holdsCount !== undefined &&
-								seen.holdsCount > seen.holds.length
-									? { holdsCount: seen.holdsCount }
-									: {}),
-							}
-						: {}),
-				}
-			: {}),
-	});
-	ctx.deps.events.event("capture.saved", {});
-	return {
-		status: "completed",
-		capture: {
-			captureId: saved.captureId,
-			width: saved.width,
-			height: saved.height,
-			fileName: saved.fileName,
-			mediaType: saved.mediaType,
-			...(target
-				? {
-						target: `${target.role} ${target.name}`.trim().slice(0, 80),
-						...(seen?.block ? { block: seen.block } : {}),
-						...(seen?.holds?.length ? held(seen, CAPTURE_HOLDS) : {}),
-					}
-				: {}),
-		},
+		list: { kind, entries: shown, truncated: browse.truncated },
+		browse,
 	};
 }
 

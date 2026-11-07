@@ -43,8 +43,11 @@ describe("hidden sort controls (2026-11-05)", () => {
 		expect(packageSortOptions("not json")).toEqual([]);
 	});
 
-	test("only order words become options", () => {
-		expect(sortOptionsOf(KAKAKU).map((o) => o.text)).toEqual(["価格の安い順"]);
+	test("choices remain available regardless of their wording", () => {
+		expect(sortOptionsOf(KAKAKU).map((o) => o.text)).toEqual([
+			"価格の安い順",
+			"Newest Arrivals",
+		]);
 		expect(sortOptionsOf(null)).toEqual([]);
 	});
 
@@ -85,12 +88,12 @@ describe("hidden sort controls (2026-11-05)", () => {
 	});
 });
 
-test("a name with 'sort' inside a word (Resort) is no sort control", () => {
+test("an unfamiliar label remains a candidate for the model to classify", () => {
 	expect(
 		sortOptionsOf(
 			JSON.stringify([{ text: "Sports Resort", href: null, params: [] }]),
 		),
-	).toEqual([]);
+	).toEqual([{ text: "Sports Resort", href: null, params: [] }]);
 });
 
 test("a page sorted by script, its address unchanged, is told by its own links", () => {

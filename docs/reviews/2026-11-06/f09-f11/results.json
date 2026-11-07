@@ -1,0 +1,49 @@
+{
+	"date": "2026-11-06",
+	"package": "0.1.3",
+	"contractVersion": 3,
+	"sourceTreeSha256": "fda6b0d06ec721919ceddcde6339e95b6f94037d803ec49b8283ae811e9d4a99",
+	"archiveSha256": "be8c07de742be96572c1a727e68acf94caafdeb24645d4e377c67dd58c328af5",
+	"checks": {
+		"verify": {
+			"pass": 1349,
+			"skipped": 2,
+			"fail": 0
+		},
+		"networkChrome": {
+			"pass": 2,
+			"fail": 0
+		},
+		"dev20Chrome": {
+			"pass": 20,
+			"fail": 0
+		},
+		"Eumenes": {
+			"pass": 379,
+			"fail": 0
+		},
+		"NodeBunPackage": {
+			"filesVerified": 162,
+			"normal": true,
+			"refusal": true,
+			"approval": true,
+			"tamper": true,
+			"sqlite": true,
+			"conformance": true
+		}
+	},
+	"api": {
+		"callsAdded": 0,
+		"callsUsed": 596,
+		"maxCalls": 600,
+		"accountedUpperUsd": 8.066335,
+		"capUsd": 10,
+		"status": "awaiting_user_decision_on_call_limit"
+	},
+	"limitations": [
+		"Eumenes verify inventory stops on existing artifacts/pursuit-integration-20261106 test copies without execution routes.",
+		"Fixed-response checks validate execution and boundaries, not LLM semantic accuracy.",
+		"The existing operator skill revision 1 is retained; revision 2 uses the canonical updated instructions.",
+		"No live service was restarted; unrelated Eumenes router/agency/pipeline changes were retained."
+	]
+}

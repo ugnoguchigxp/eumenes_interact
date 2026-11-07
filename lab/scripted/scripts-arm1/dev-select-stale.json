@@ -5,6 +5,9 @@
 			"part": "site.search",
 			"args": {
 				"query": "潮風"
+			},
+			"target": {
+				"role": "searchbox"
 			}
 		},
 		{

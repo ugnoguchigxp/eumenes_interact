@@ -5,12 +5,23 @@
 			"part": "site.search",
 			"args": {
 				"query": "麻"
+			},
+			"target": {
+				"role": "searchbox"
 			}
 		},
 		{
 			"part": "page.capture",
 			"args": {
-				"range": "viewport"
+				"range": "viewport",
+				"phase": "prepare"
+			}
+		},
+		{
+			"part": "page.capture",
+			"args": {
+				"range": "viewport",
+				"phase": "save"
 			}
 		},
 		{

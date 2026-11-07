@@ -103,7 +103,7 @@ const manifest = {
 	formatVersion: 1,
 	package: pkg.name,
 	version: pkg.version,
-	contractVersion: 2,
+	contractVersion: 3,
 	coreFormatVersion: 1,
 	commit,
 	sourceTreeSha256: sourceHash,

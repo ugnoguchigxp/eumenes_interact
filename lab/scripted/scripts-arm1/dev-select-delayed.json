@@ -5,6 +5,9 @@
 			"part": "site.search",
 			"args": {
 				"query": "月影の図書館"
+			},
+			"target": {
+				"role": "searchbox"
 			}
 		},
 		{

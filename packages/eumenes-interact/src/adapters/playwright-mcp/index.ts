@@ -8,6 +8,8 @@ export {
 	INSPECT_LOCATOR_FUNCTION,
 	INSPECT_TARGET_FUNCTION,
 	LOCATOR_VALUE_MAX,
+	inspectChoicesFunction,
+	parseSortInspection as parseChoicesInspection,
 } from "../mcp/inspect.ts";
 export { ALLOWED_MCP_TOOLS } from "./tools.ts";
 export type { McpToolName } from "./tools.ts";

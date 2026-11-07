@@ -15,7 +15,7 @@ describe("surrounding", () => {
 });
 
 describe("withSortControls", () => {
-	test("puts sort links the cap left out at the head of the items", () => {
+	test("does not classify or prioritize candidates by wording", () => {
 		const summary = {
 			page: "p2",
 			url: "https://x/",
@@ -31,7 +31,7 @@ describe("withSortControls", () => {
 		];
 		// biome-ignore lint/suspicious/noExplicitAny: minimal shapes for the test
 		const out = withSortControls(summary as any, records as any);
-		expect(out.items.map((i) => i.item)).toEqual(["p2.i40", "p2.i1"]);
+		expect(out.items.map((i) => i.item)).toEqual(["p2.i1"]);
 		// biome-ignore lint/suspicious/noExplicitAny: minimal shapes for the test
 		expect(withSortControls(summary as any, records.slice(0, 1) as any)).toBe(
 			// biome-ignore lint/suspicious/noExplicitAny: minimal shapes for the test

@@ -89,3 +89,11 @@ source `32bc0aa` から作った0.1.2（archive SHA-256 `93b6ee06794b516e55badc8
 Skillのcontext、能力のbundle、system contextのカタログを作り直し、配布物のファイル数を固定していた試験を158件に合わせた。また、migrationの試験は、後から足された `browser/0008-interact-capture-metadata` を除き忘れて、0.1.1の時点から失敗していた。これも直した。
 
 Eumenesで通った検査: 型検査（2,917ファイル）、lint、整形、contextの検査、Skillの同期の照合、interact・browser・capabilities・dialogueの関係する試験316件（実ブラウザのpilotを含む）。Eumenesの `verify --domain browser --domain capabilities` は、試験の一覧の点検（`artifacts/pursuit-integration-20261106/` 配下の試験に実行経路がない）で止まった。これは今回の変更とは関係しない。
+
+## 0.1.3の反映（2026-11-06、F09・F11）
+
+候補の追加閲覧・検索先の明示指定・撮影のprepare/saveを契約3として接続した。archive SHA-256は `be8c07de742be96572c1a727e68acf94caafdeb24645d4e377c67dd58c328af5`。未commitの作業ツリーから生成したため、正確なsource tree hashと再現用の製品ソース差分patchをprovenanceへ記録した。
+
+本体の読取りportは同じ観測・取消・所有者検査を使い、保存承認はsaveだけに適用する。operatorの旧revision 1は保持し、revision 2を追加した。型・lint・context・Skill同期と、実ChromeのHTTP pilotを含む関連379試験が成功した。広域verifyのinventoryは上記と同じ既存の試験コピーで停止した。稼働中のサーバー・製品DBは変更していない。
+
+[改修と検証の詳細](f09-f11-design.md)を参照。実APIの精度再測定は、共有の回数上限に関する利用者回答待ちである。

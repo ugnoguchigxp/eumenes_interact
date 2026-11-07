@@ -94,6 +94,9 @@ export function collect(body: string, pageId: string): Collected {
 		const held = BLOCK_ROLES.includes(node.role)
 			? holdsOf(nodes, node)
 			: undefined;
+		const parent = ancestors(nodes, node).find(
+			(n) => isItemNode(n) && BLOCK_ROLES.includes(n.role),
+		);
 		const base = {
 			item: `${pageId}.i${i + 1}`,
 			role: node.role,
@@ -103,6 +106,9 @@ export function collect(body: string, pageId: string): Collected {
 				? { url: clip(node.url, URL_CHARS) }
 				: {}),
 			...(block ? { block } : {}),
+			...(parent
+				? { parent: `${pageId}.i${itemNodes.indexOf(parent) + 1}` }
+				: {}),
 			...(held && held.count > 0
 				? { holds: held.holds, holdsCount: held.count }
 				: {}),
@@ -124,6 +130,8 @@ export const pageItem = (r: ItemRecord): PageItem => ({
 	...(r.region ? { region: r.region } : {}),
 	...(r.url ? { url: r.url } : {}),
 	...(r.block ? { block: r.block } : {}),
+	...(r.parent ? { parent: r.parent } : {}),
+	...(r.context ? { context: r.context } : {}),
 	...(r.holds?.length ? held(r, HOLDS_SHOWN) : {}),
 });
 

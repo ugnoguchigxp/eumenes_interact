@@ -316,6 +316,7 @@ function kaede(url: URL, b: FakeBrowser): PageDef | null {
 					`  - article "商品の詳細" [ref=e9]:`,
 					`    - heading "${p?.name ?? ""}" [level=1] [ref=e10]`,
 					'    - img "商品の写真" [ref=e11]',
+					...(id === "2" ? ["    - paragraph [ref=e121]: Price: 660"] : []),
 					`    - paragraph [ref=e12]: 素材: ${p?.material ?? ""}`,
 					'  - complementary "おすすめ" [ref=e13]:',
 					'    - heading "こちらもどうぞ" [level=2] [ref=e14]',

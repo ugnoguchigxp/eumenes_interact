@@ -223,7 +223,7 @@ describe("the fixed-response acceptance of Arm 1, on the fake browser", () => {
 			result.transcript.events.flatMap((e) =>
 				e.type === "part.call" ? [e.part] : [],
 			),
-		).toEqual(["site.search", "page.capture"]);
+		).toEqual(["site.search", "page.capture", "page.capture"]);
 	});
 
 	test("run and operate print the parts called and the screenshots saved", async () => {
@@ -231,7 +231,9 @@ describe("the fixed-response acceptance of Arm 1, on the fake browser", () => {
 			arm: "arm1",
 		});
 		const lines = summaryLines(result);
-		expect(lines).toContain("  parts: site.search > page.capture");
+		expect(lines).toContain(
+			"  parts: site.search > page.capture > page.capture",
+		);
 		expect(lines.find((l) => l.startsWith("  captures: 1 in "))).toContain(
 			result.captureDir,
 		);

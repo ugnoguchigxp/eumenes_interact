@@ -11,6 +11,8 @@
 5. **遷移先を検査する。** 資格情報付きのURL、http(s)以外のscheme、private、loopback、link-localのhostを拒否します（`isPrivateHost`）。研究用fixtureのloopbackだけは、明示した一つのoriginに限って許してかまいません。
 6. **通信の経路を閉じる。** ブラウザは `BROWSER_LAUNCH_ARGS` で起動し、QUICと、proxyを通らないUDPを止めます。HTTPはproxyで検査し、名前を解決した後の全addressを `isPrivateAddress` で確かめてから接続します。
 7. **保存の範囲を守る。** 終端したrunのcore stateは、`transitionRun` によって消えます。研究のために残す場合だけ `retainCoreState: true` を明示します。`forgetRun` は外部キーの設定に依存しません。
+8. **確認と保存を区別する（契約3）。** `page.capture` のprepareは観測だけで、画像保存の承認を求めません。saveだけに既存の保存承認・取消・期限・所有者検査を適用します。部品の確認参照は同じrun内でだけ有効で、観測・対象・範囲に結び付きます。再起動や観測変更後に古いsaveを自動再送しません。モデルのassessmentは意味判断の結果であり、権限の根拠ではありません。
+9. **追加の観測も同じ境界で行う。** `PartExecutionPort.choices` は、指定tabと最新のobservationRef、対象ref、数値の取得範囲を検査して、固定の読取り専用関数を呼びます。モデルからコードやselectorを受け取りません。結果はページ由来のデータです。候補の意味・検索先・ページ送り・広告・並べ替え・確認待ちの判定は呼出し元のLLMが担い、固定語句の検査をホストに復活させません。
 
 ## 適合ベクトル
 

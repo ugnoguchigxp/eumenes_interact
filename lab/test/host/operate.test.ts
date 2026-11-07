@@ -540,7 +540,14 @@ describe("startOperate", () => {
 
 describe("startOperate with Arm 1 (registered parts)", () => {
 	const steps = [
-		{ part: "page.capture" as const, args: { range: "viewport" } },
+		{
+			part: "page.capture" as const,
+			args: { range: "viewport", phase: "prepare" },
+		},
+		{
+			part: "page.capture" as const,
+			args: { range: "viewport", phase: "save" },
+		},
 		{ done: "撮影しました。" },
 	];
 	const arm1 = (over: Partial<OperateOptions> = {}) =>
@@ -559,7 +566,7 @@ describe("startOperate with Arm 1 (registered parts)", () => {
 		expect(last).toMatchObject({
 			status: "completed",
 			arm: "arm1",
-			parts: ["page.capture"],
+			parts: ["page.capture", "page.capture"],
 			captureDir: join(capturesRoot, handle.runId),
 			final: { kind: "finish", text: "撮影しました。" },
 		});

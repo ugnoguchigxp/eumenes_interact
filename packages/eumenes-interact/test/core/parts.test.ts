@@ -93,6 +93,7 @@ describe("summarizePage (Playwright MCP)", () => {
 			{
 				item: "p3.i7",
 				role: "link",
+				parent: "p3.i6",
 				name: "電気ケトル 1.0L",
 				region: "main",
 				url: "/items/kettle-10",
@@ -465,7 +466,7 @@ describe("findItems", () => {
 });
 
 describe("listEntries", () => {
-	test("results are the named links of list items in main, with their short text", () => {
+	test("result candidates include all regions in document order, with their short text", () => {
 		const { entries, records, truncated } = listEntries(
 			RESULTS,
 			"p3",
@@ -474,26 +475,39 @@ describe("listEntries", () => {
 		);
 		expect(truncated).toBe(false);
 		expect(entries.map((e) => [e.item, e.title, e.url, e.text])).toEqual([
+			["p3.i1", "ほしくず商店", "/", undefined],
+			["p3.i2", "ホーム", "/", undefined],
+			["p3.i3", "ヘルプ", "/help", undefined],
 			["p3.i7", "電気ケトル 1.0L", "/items/kettle-10", "¥3,980"],
 			["p3.i8", "電気ケトル 0.8L", "/items/kettle-08", "¥2,980"],
 			["p3.i9", "詳細", "/items/a", undefined],
 			["p3.i10", "詳細", "/items/b", undefined],
+			["p3.i11", "利用規約", "/terms", undefined],
 		]);
-		expect(records.map((r) => r.ref)).toEqual(["e15", "e17", "e19", "e20"]);
+		expect(records.map((r) => r.ref)).toEqual([
+			"e3",
+			"e5",
+			"e6",
+			"e15",
+			"e17",
+			"e19",
+			"e20",
+			"e22",
+		]);
 	});
 
-	test("navigation and the footer are not results", () => {
+	test("navigation and footer remain available for the model to classify", () => {
 		const titles = listEntries(RESULTS, "p3", "results", 10).entries.map(
 			(e) => e.title,
 		);
-		expect(titles).not.toContain("ホーム");
-		expect(titles).not.toContain("利用規約");
+		expect(titles).toContain("ホーム");
+		expect(titles).toContain("利用規約");
 	});
 
 	test("a compact tree falls back to the named links of main", () => {
 		expect(
 			listEntries(COMPACT, "p3", "results", 10).entries.map((e) => e.title),
-		).toEqual(["寄付"]);
+		).toEqual(["Wikipedia", "寄付"]);
 	});
 
 	test("a link with an empty name is named by its inner text, else its URL (MDN results, 2026-11-04)", () => {
@@ -900,11 +914,11 @@ describe("result order and inline code (2026-11-04)", () => {
 			(e) => e.title,
 		);
 		expect(titles).toEqual([
+			"動画タブ",
+			"家電",
+			"スポンサー商品",
 			"電気ケトル A",
 			"電気ケトル B",
-			"家電",
-			"動画タブ",
-			"スポンサー商品",
 		]);
 	});
 
@@ -959,10 +973,10 @@ describe("result order and inline code (2026-11-04)", () => {
 		expect(
 			listEntries(body, "p1", "results", 10).entries.map((e) => e.title),
 		).toEqual([
-			"ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]",
-			"利用規約",
 			"ゲーム機本体 (561)",
 			"[PR] 何かの広告",
+			"ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]",
+			"利用規約",
 		]);
 	});
 
@@ -986,7 +1000,7 @@ describe("result order and inline code (2026-11-04)", () => {
 			'      - img "マリオカート ワールド"',
 		].join("\n");
 		expect(listEntries(body, "p1", "results", 10).entries[0]?.title).toBe(
-			"マリオカート ワールド",
+			"Nintendo Switch 2 ゼルダの伝説 関連ワード検索",
 		);
 	});
 });
@@ -1011,9 +1025,9 @@ describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
 		expect(
 			listEntries(body, "p1", "results", 10).entries.map((e) => e.title),
 		).toEqual([
-			"ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]",
 			"掲載情報のご利用にあたって",
 			"価格.com",
+			"ゼルダの伝説 時のオカリナ [Nintendo Switch 2 専用]",
 		]);
 	});
 
@@ -1029,7 +1043,7 @@ describe("result chrome and entry text cleanup (2026-11-05 review)", () => {
 			"    - /url: /@3Blue1BrownJapan",
 		].join("\n");
 		expect(listEntries(body, "p1", "results", 10).entries[0]?.title).toBe(
-			"GPT解説2 アテンションの仕組み",
+			"26:05 Now playing",
 		);
 	});
 

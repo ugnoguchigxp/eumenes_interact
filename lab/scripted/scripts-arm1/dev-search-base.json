@@ -5,6 +5,9 @@
 			"part": "site.search",
 			"args": {
 				"query": "白波"
+			},
+			"target": {
+				"role": "searchbox"
 			}
 		},
 		{

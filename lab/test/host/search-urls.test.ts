@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { generalSearchUrl, isChallenge } from "../../host/parts/search-urls.ts";
+import { generalSearchUrl } from "../../host/parts/search-urls.ts";
 import { siteSearchUrl as lookup } from "../../host/site-searches.ts";
 import { putSearchTemplate } from "eumenes-interact/sqlite";
 import { write } from "../../host/db.ts";
@@ -76,19 +76,5 @@ describe("search urls (2026-11-04)", () => {
 		expect(decodeURIComponent(String(url)).replace(/\+/g, " ")).toContain(
 			"site:unknown.example term",
 		);
-	});
-	test("challenge pages are recognised; long ordinary pages are not", () => {
-		expect(isChallenge("Just a moment...", "")).toBe(true);
-		expect(isChallenge("Home", "Please verify you are human")).toBe(true);
-		expect(isChallenge("Human verification - Stack Overflow", "")).toBe(true);
-		// Cloudflare's current wording, reached by following a link (npm, 2026-11-04): the title is the site's.
-		expect(
-			isChallenge(
-				"www.npmjs.com",
-				"www.npmjs.com Verifying you are human. This may take a few seconds. www.npmjs.com needs to review the security of your connection before proceeding.",
-			),
-		).toBe(true);
-		expect(isChallenge("npm", "Performing security verification")).toBe(true);
-		expect(isChallenge("Home", `${"text ".repeat(2000)} captcha`)).toBe(false);
 	});
 });

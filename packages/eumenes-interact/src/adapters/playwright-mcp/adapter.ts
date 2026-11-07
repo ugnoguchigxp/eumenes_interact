@@ -33,6 +33,7 @@ import {
 import {
 	INSPECT_MEDIA_FUNCTION,
 	INSPECT_SORT_FUNCTION,
+	inspectChoicesFunction,
 	INSPECT_FOCUSED_FUNCTION,
 	INSPECT_LOCATOR_FUNCTION,
 	INSPECT_TARGET_FUNCTION,
@@ -570,6 +571,19 @@ export function createPlaywrightMcpAdapter(
 					durationMs: Date.now() - started,
 				});
 			return result;
+		},
+		async choices(targetRef, offset, limit, signal) {
+			return parseSortInspection(
+				await inspectCall(
+					{
+						function: inspectChoicesFunction(offset, limit, targetRef !== null),
+						...(targetRef !== null
+							? { target: refOf(targetRef), element: "observed choices" }
+							: {}),
+					},
+					signal,
+				),
+			);
 		},
 		async inspect(kind: FixedInspection, targetRef, signal) {
 			if (signal.aborted) throw new AdapterError("cancelled", false);

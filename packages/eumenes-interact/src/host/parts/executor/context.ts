@@ -21,23 +21,18 @@ import type { InputGrants } from "../../grants.ts";
 import { Refusal, RunEnd } from "../../errors.ts";
 import type { CaptureStore } from "../capture.ts";
 import { partsHelpers, type PartsHelpers } from "../core.ts";
-import { isChallenge } from "../search-urls.ts";
-import {
-	compilePattern,
-	DEFAULT_LEXICON,
-	type Lexicon,
-} from "../../../core/shared/lexicon.ts";
 import { pageItem } from "../../../core/parts/items.ts";
 import { squash } from "../../../core/shared/text.ts";
 import { ItemRegistry, pageKey } from "../registry.ts";
-import { withSortControls, type HiddenSort } from "./sort.ts";
+import type { HiddenSort } from "./sort.ts";
+import type { Continuation } from "./browse.ts";
+import type { PreparedCapture } from "./capture.ts";
 
 /** Size bounds of what the model is shown (the summary says when it cut). */
 export const SUMMARY_ITEMS = 40;
 export const SUMMARY_HEADINGS = 8;
 const CANDIDATES = 10;
 /** Seconds a bot check is given to pass by itself, once. */
-const CHALLENGE_WAIT_S = 8;
 
 /** The run ends or stops: what the run loop is to be given as is. */
 export class Halt extends Error {
@@ -94,8 +89,6 @@ export type PartExecutorDeps = {
 	goal?: string;
 	/** Defaults to the package's helpers. */
 	core?: PartsHelpers;
-	/** The words looked for on pages (paging, search fields, sorting); defaults to the package's (design R12). */
-	lexicon?: Lexicon;
 };
 
 export type Target = { record: ItemRecord; ref: string };
@@ -113,11 +106,10 @@ export type ExecutorContext = {
 	readonly captures: Pick<CaptureStore, "save">;
 	readonly grants: Pick<InputGrants, "find">;
 	readonly core: PartsHelpers;
-	/** The lexicon's patterns, compiled once per executor. */
-	readonly sortName: RegExp;
-	readonly sortLabel: RegExp;
-	readonly paging: RegExp;
-	readonly searchName: RegExp;
+	readonly continuations: Map<string, Continuation>;
+	preparedCapture: PreparedCapture | null;
+	blocked: boolean;
+	nextChoiceId: number;
 	readonly registry: ItemRegistry;
 	active: string | null;
 	results: number;
@@ -191,7 +183,6 @@ export function noteObservation(ctx: ExecutorContext, o: ObservationEnvelope) {
 }
 
 export function createContext(deps: PartExecutorDeps): ExecutorContext {
-	const lexicon = deps.lexicon ?? DEFAULT_LEXICON;
 	return {
 		deps,
 		executor: deps.executor,
@@ -200,10 +191,10 @@ export function createContext(deps: PartExecutorDeps): ExecutorContext {
 		captures: deps.captures,
 		grants: deps.grants,
 		core: deps.core ?? partsHelpers,
-		sortName: compilePattern(lexicon.sortChoice),
-		sortLabel: compilePattern(lexicon.sortLabel),
-		paging: compilePattern(lexicon.paging),
-		searchName: compilePattern(lexicon.searchField),
+		continuations: new Map(),
+		preparedCapture: null,
+		blocked: false,
+		nextChoiceId: 90000,
 		registry: new ItemRegistry(),
 		active: null,
 		results: 0,
@@ -342,7 +333,7 @@ export function summarize(
 			{ pageId, maxItems: SUMMARY_ITEMS, maxHeadings: SUMMARY_HEADINGS },
 		),
 	);
-	return withSortControls(made.summary, made.records, ctx.sortName);
+	return made.summary;
 }
 
 /** Items similar to a record that is gone or ambiguous: what the model may choose from instead. */
@@ -478,22 +469,10 @@ export async function operate(
 	);
 }
 
-/**
- * A bot check (Cloudflare and the like) is waited out once, a few seconds, without clicking anything; one
- * that stays is `site_blocked`. It is never solved or bypassed.
- */
+/** Classification belongs to the caller's model; navigation never guesses a challenge from words. */
 export async function passChallenge(
-	ctx: ExecutorContext,
+	_ctx: ExecutorContext,
 	observation: ObservationEnvelope,
 ): Promise<ObservationEnvelope> {
-	if (!isChallenge(observation.title, observation.body)) return observation;
-	await operate(
-		ctx,
-		{ action: "page.wait", seconds: CHALLENGE_WAIT_S },
-		"none",
-	);
-	const again = await observeFresh(ctx);
-	if (isChallenge(again.title, again.body))
-		throw new PartFail("site_blocked", { page: summarize(ctx, again) });
-	return again;
+	return observation;
 }

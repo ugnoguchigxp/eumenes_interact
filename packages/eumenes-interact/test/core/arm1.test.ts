@@ -198,15 +198,12 @@ describe("parseStep: rejections", () => {
 		).toBe("schema_violation");
 	});
 
-	test("page.find needs text or role", () => {
+	test("page.find can enumerate all candidates without guessing a label", () => {
 		const out = reject(call("page.find", { text: null, role: null }));
-		expect(out.record).toEqual({ accepted: false, rejection: "action_fields" });
-		expect(issues(out.state)).toEqual([
-			{ path: "args", code: "text_or_role_required" },
-		]);
+		expect(out.record).toEqual({ accepted: true });
 		expect(
 			reject(call("page.find", { text: "", role: null })).record.accepted,
-		).toBe(false);
+		).toBe(true);
 		expect(
 			reject(call("page.find", { text: null, role: "button" })).record.accepted,
 		).toBe(true);

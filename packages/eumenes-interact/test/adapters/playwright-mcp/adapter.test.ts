@@ -830,6 +830,7 @@ test("only allowlisted tools are ever sent, and the unsafe code tool is not on t
 	expect(Object.keys(adapter).sort()).toEqual(
 		[
 			"capture",
+			"choices",
 			"catalog",
 			"close",
 			"dispatch",

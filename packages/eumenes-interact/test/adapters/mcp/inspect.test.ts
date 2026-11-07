@@ -48,3 +48,31 @@ describe("parseTargetInspection", () => {
 		);
 	});
 });
+
+describe("neutral DOM choices (F09)", () => {
+	test("unfamiliar labels and hidden choices remain reachable, with scope and pagination", async () => {
+		const { inspectChoicesFunction } =
+			await import("../../../src/adapters/mcp/inspect.ts");
+		const elements = Array.from({ length: 35 }, (_, i) => ({
+			tagName: "LI",
+			textContent: `  Unknown   ${i}  `,
+			offsetParent: i % 2 ? {} : null,
+			attributes: [],
+			getAttribute: () => null,
+			getClientRects: () => [],
+			closest: () => null,
+		}));
+		const root = { querySelectorAll: () => elements };
+		const run = new Function(
+			`return (${inspectChoicesFunction(20, 10, true)})`,
+		)();
+		const result = run(root);
+		expect(result.count).toBe(35);
+		expect(
+			JSON.parse(result.options).map((o: { text: string }) => o.text),
+		).toEqual(Array.from({ length: 10 }, (_, i) => `Unknown ${i + 20}`));
+		expect(JSON.parse(result.options)[0].visible).toBe(false);
+		expect(() => inspectChoicesFunction(-1)).toThrow();
+		expect(() => inspectChoicesFunction(0, 51)).toThrow();
+	});
+});

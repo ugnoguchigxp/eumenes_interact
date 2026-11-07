@@ -126,6 +126,32 @@ export async function setupParts(
 		summary,
 		/** The part's result; fails the test when the part ended the run or stopped for approval instead. */
 		async result(part: PartCall): Promise<PartResult> {
+			// Fixture shorthand for a checked save. Gate tests use run() or an explicit phase.
+			if (part.part === "page.capture" && part.args.phase === undefined) {
+				const prepared = await parts.run({
+					...part,
+					args: { ...part.args, phase: "prepare" },
+				});
+				if (
+					prepared.kind === "outcome" &&
+					prepared.outcome.kind === "part" &&
+					prepared.outcome.result.preview
+				) {
+					part = {
+						...part,
+						args: {
+							...part.args,
+							phase: "save",
+							confirmation: prepared.outcome.result.preview.confirmation,
+							assessment: "Fixture specifies the expected scope and content.",
+						},
+					};
+				} else if (
+					prepared.kind === "outcome" &&
+					prepared.outcome.kind === "part"
+				)
+					return prepared.outcome.result;
+			}
 			const executed = await parts.run(part);
 			if (executed.kind !== "outcome" || executed.outcome.kind !== "part")
 				throw new Error(`not a part result: ${JSON.stringify(executed)}`);

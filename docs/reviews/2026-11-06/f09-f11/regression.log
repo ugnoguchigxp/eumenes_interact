@@ -1,0 +1,20 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/f09-f11.test.ts:
+(pass) F11: prepare, inspect, choose again, save > preparing a broad range exposes unwanted content without writing an image; a narrower range can then be saved [13.82ms]
+(pass) F11: prepare, inspect, choose again, save > preparing a child also offers the observed parent for a broader selection [7.72ms]
+(pass) F11: prepare, inspect, choose again, save > save without preparation, with another run's token, or without an assessment never captures [11.60ms]
+(pass) F11: prepare, inspect, choose again, save > changing the selected range invalidates a confirmation [6.06ms]
+(pass) F11: prepare, inspect, choose again, save > a confirmation is single use even on the same unchanged page [7.34ms]
+(pass) F11: prepare, inspect, choose again, save > an observed content change before save requires a fresh decision [5.40ms]
+(pass) F11: prepare, inspect, choose again, save > a change while capturing is detected before anything is saved [5.75ms]
+(pass) F09: scoped, paged neutral candidates > all candidates beyond the summary limit are reachable in exact document order [21.27ms]
+(pass) F09: scoped, paged neutral candidates > a changed page or query cannot reuse a continuation [6.62ms]
+(pass) F09: scoped, paged neutral candidates > scope uses observed identity even when two blocks share a label [4.53ms]
+(pass) F09: scoped, paged neutral candidates > opening an inspected link reports navigation without inferring a sort result [7.01ms]
+(pass) F09: scoped, paged neutral candidates > unknown field wording is kept without adding a lexicon entry [5.31ms]
+
+ 12 pass
+ 0 fail
+ 37 expect() calls
+Ran 12 tests across 1 file. [169.00ms]
