@@ -208,7 +208,7 @@ for (const p of ["claude", "openai"] as const) {
 		repetitions,
 		arms: ["arm1"],
 		budget: {
-			combinedUsd: 10,
+			combinedUsd: Number(process.env.LAB_SPEND_LIMIT_USD ?? 15),
 			maxHttpAttempts: Number(process.env.LAB_SPEND_MAX_ATTEMPTS ?? 796),
 			maxOutputTokens: 2048,
 			retries: 0,

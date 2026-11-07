@@ -8,8 +8,8 @@ LLMがブラウザ部品を選び、ホストが入力・承認・取消・保�
 
 | 対象 | 状態 |
 | --- | --- |
-| package | 0.1.3（契約version 3、core state format 1、migrationは変更なし）。候補の追加閲覧、検索先の明示指定、撮影のprepare/save。[設計と検証](docs/f09-f11-design.md) |
-| 単体の技術評価 | 0.1.0（`5bdef97`）で正式81.9点。0.1.3は未評価 |
+| package | 0.1.4（契約version 3、core state format 1、migrationは変更なし）。構造候補の取得を索引化し、共通スキーマのAPI上限を修正。[設計と検証](docs/f09-f11-design.md) |
+| 単体の技術評価 | 0.1.0（`5bdef97`）で正式81.9点。0.1.4は未評価 |
 | Eumenes本体 | pilotとして取込済み（通常会話では初期無効）。0.1.3（archive `be8c07de…`、source digest `fda6b0d0`）をEumenesへ反映済み。詳細は[統合設計](docs/integration-design.md) |
 | Desktop操作 | 受入前（事前検証のみ。[改善計画](docs/improvement-plan.md)のT23） |
 | CI・git hook | 置かない（利用者の判断）。変更後に `bun run verify` を手動で実行する |
@@ -39,7 +39,7 @@ bun run lab run --case dev-search-base --inference openai --model gpt-6-luna --b
 
 有料のブラウザ実行は、ClaudeとLunaの両方で完了を確認します。両方のAPIキーをログイン環境へ設定してください。確認2回も通常の推論回数上限に含め、どちらかが未達・不明を返した場合は完了として採用しません。
 
-有料呼出しは、両provider共通の `lab/data/api-spend.sqlite` で最大10USDまで送信前に費用枠を確保します。出力上限を守り、自動retryを行いません。応答や使用量が不明な呼出しを無料として扱いません。検証途中に台帳を消したり、別の台帳へ切り替えたりしないでください。実行結果・失敗・確保額は[検証記録](docs/reviews/2026-11-05/implementation/)に残します。
+有料呼出しは、両provider共通の `lab/data/api-spend.sqlite` で最大15USDまで送信前に費用枠を確保します（2026-11-07の利用者承認。今回の追加200回、累計796回まで）。出力上限を守り、自動retryを行いません。応答や使用量が不明な呼出しを無料として扱いません。検証途中に台帳を消したり、別の台帳へ切り替えたりしないでください。実行結果・失敗・確保額は[検証記録](docs/reviews/2026-11-07/implementation/)に残します。
 
 ## 公開パッケージ
 

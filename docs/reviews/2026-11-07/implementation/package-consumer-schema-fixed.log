@@ -1,0 +1,6 @@
+$ cd packages/eumenes-interact && bun run build
+$ rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/distribution-manifest.mjs
+distribution manifest: 162 files, source a5216a7d4f3413c8945078aaf9a9ad774c736a269df08642b7ddae3bb6143750
+(node:93605) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"archiveSha256":"b30b776eff78eed42607d4e75149f92b582bc2b63637d2331abfed00194c9fe8","runs":[{"runtime":"node v24.11.1","package":"0.1.4","filesVerified":162,"normal":true,"refusal":true,"approval":true,"tamperDetected":true,"sqlite":true,"conformance":true},{"runtime":"bun 1.4.4","package":"0.1.4","filesVerified":162,"normal":true,"refusal":true,"approval":true,"tamperDetected":true,"sqlite":true,"conformance":true}],"report":"docs/reviews/2026-11-07/implementation/package-consumer-final.json"}

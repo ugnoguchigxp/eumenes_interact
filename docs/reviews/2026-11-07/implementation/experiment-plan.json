@@ -55,10 +55,11 @@
     "startCalls": 596,
     "maxCalls": 796,
     "maxAdditional": 200,
-    "totalUsd": 10,
+    "totalUsd": 15,
     "unknownReservations": "retain",
     "autoRetries": 0,
-    "outputTokens": 2048
+    "outputTokens": 2048,
+    "activeAuthorization": "2026-11-07 user authorized USD 15; cumulative 796 calls unchanged. Prior USD 10 stage and failures preserved."
   },
   "metrics": [
     "existing success and all contract counters",
@@ -92,6 +93,17 @@
       ],
       "regressionPolicy": "Original browser cases are now development/regression evidence. Preserve the failed initial trial and all Luna successes; do not call a later matched run fresh independent holdout.",
       "paidStatus": "657 cumulative calls, accounted upper USD 9.46546, 13 unknown calls retained. No more paid calls under the current USD 10 cap because a Claude call requires USD 0.63012 reservation."
+    },
+    {
+      "at": "2026-11-07",
+      "authorization": "User raised total to USD 15. Keep additional 200 calls, cumulative 796; all 13 unknown calls retain reservations.",
+      "regression": "Repeat the same 4 cases, both providers, 2 repetitions, unchanged expectations and per-trial budget 10. No automatic retries. Stop on hard global cap even if trials remain.",
+      "spendBeforeResumption": {
+        "calls": 657,
+        "upperUsd": 9.46546,
+        "unknownCalls": 13
+      },
+      "measurementScope": "Matched regression after wire-schema repair; original observations and failures remain separately recorded."
     }
   ]
 }

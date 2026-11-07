@@ -5,6 +5,25 @@ import { join } from "node:path";
 import { SpendLedger, budgetedInference } from "../../inference/spend.ts";
 import { Database } from "bun:sqlite";
 
+test("the authorized 15 USD ceiling does not disable the attempt cap or unknown reservations", () => {
+	expect(() => new SpendLedger(":memory:", 15.01)).toThrow(
+		"invalid_spend_limit",
+	);
+	const ledger = new SpendLedger(":memory:", 15, 1);
+	try {
+		ledger.reserve("claude-haiku-5-5", 2048);
+		expect(ledger.summary()).toMatchObject({
+			limitUsd: 15,
+			maxAttempts: 1,
+			attempts: 1,
+			unknownCalls: 1,
+		});
+		expect(() => ledger.reserve("gpt-6-luna", 2048)).toThrow("spend_exhausted");
+	} finally {
+		ledger.close();
+	}
+});
+
 test("legacy bounds can tighten to official model maxima without inventing usage or erasing the old bound", () => {
 	const dir = mkdtempSync(join(tmpdir(), "spend-bounds-"));
 	const path = join(dir, "spend.sqlite");

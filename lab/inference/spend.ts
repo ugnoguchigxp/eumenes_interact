@@ -31,7 +31,7 @@ export class SpendLedger {
 		readonly maxAttempts = 600,
 	) {
 		if (
-			!(limitUsd > 0 && limitUsd <= 10) ||
+			!(limitUsd > 0 && limitUsd <= 15) ||
 			!Number.isSafeInteger(maxAttempts) ||
 			maxAttempts < 1
 		)

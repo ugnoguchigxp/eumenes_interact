@@ -1,0 +1,158 @@
+{
+  "at": "2026-11-07T12:58:09.094204+00:00",
+  "sourceCommit": "b9b85da37009af8b6b0c3e2821dafe9341ea193a",
+  "status": "code and credential-free acceptance passed; fixed-schema two-provider API acceptance awaits spend-cap decision",
+  "package": "0.1.4",
+  "contractVersion": 3,
+  "coreFormatVersion": 1,
+  "sourceTreeSha256": "a5216a7d4f3413c8945078aaf9a9ad774c736a269df08642b7ddae3bb6143750",
+  "archiveSha256": "b30b776eff78eed42607d4e75149f92b582bc2b63637d2331abfed00194c9fe8",
+  "checks": {
+    "verify": {
+      "pass": 1354,
+      "skipped": 2,
+      "fail": 0
+    },
+    "networkChrome": {
+      "pass": 2,
+      "fail": 0
+    },
+    "scriptedChrome": {
+      "pass": 20,
+      "fail": 0
+    },
+    "consumer": {
+      "node": "24.11.1",
+      "bun": "1.4.4",
+      "filesVerified": 162,
+      "normal": true,
+      "refusal": true,
+      "approval": true,
+      "tamper": true,
+      "sqlite": true,
+      "conformance": true
+    },
+    "benchmark": {
+      "conditions": 54,
+      "withinBudget": 54,
+      "iterations": 30,
+      "nodes": [
+        100,
+        1000,
+        10000
+      ],
+      "shapes": [
+        "flat",
+        "listitems",
+        "cards"
+      ],
+      "coreAndHostP95BudgetMs": 500
+    }
+  },
+  "candidateComparison": {
+    "sourceCommit": "74b44174387cebdb5a5b69ba2c9579629d5184d6",
+    "trials": 24,
+    "legacy": {
+      "selectedCorrect": 8,
+      "total": 12,
+      "expectedAvailable": 8
+    },
+    "structural": {
+      "selectedCorrect": 12,
+      "total": 12,
+      "expectedAvailable": 12
+    },
+    "scope": "3 pages, 2 providers, 2 repetitions. Candidate selection only. Extraction code unchanged by the subsequent wire-schema fix. Not a statistical superiority claim."
+  },
+  "initialBrowserApi": {
+    "sourceCommit": "74b44174387cebdb5a5b69ba2c9579629d5184d6",
+    "claude": {
+      "executed": 1,
+      "success": 0,
+      "apiError": 1,
+      "skippedAfterError": 7
+    },
+    "luna": {
+      "executed": 8,
+      "success": 8,
+      "completed": 6,
+      "needsInput": 2,
+      "goalStateAchieved": 6,
+      "goalStateTrials": 6,
+      "wrongTarget": 0,
+      "captureScopeErrors": 0,
+      "unneededClarify": 0,
+      "excessPartial": 0,
+      "falseFinish": 0
+    },
+    "scope": "Author-created and author-run; retained pre-fix development evidence, not fixed-schema acceptance."
+  },
+  "imageCheck": {
+    "file": "capture-orbit-luna.png",
+    "sha256": "5e3a15fa8f452f84f093e25fdcdc992130e3157676f35b95f398564ccbc72441",
+    "verifiedBy": "Author visual inspection; repeated capture is byte-identical",
+    "included": [
+      "Nebula Field Guide heading",
+      "Orbit diagram",
+      "complete field note text"
+    ],
+    "excluded": [
+      "Recommended observations"
+    ]
+  },
+  "budget": {
+    "initialCalls": 596,
+    "calls": 657,
+    "additionalCalls": 61,
+    "maxCalls": 796,
+    "maxAdditional": 200,
+    "capUsd": 10,
+    "accountedUpperUsd": 9.46546,
+    "unknownCalls": 13,
+    "reservationsPreserved": true,
+    "requiredNextClaudeReservationUsd": 0.63012,
+    "awaiting": "User decision on cap USD 10 -> 11. No further paid call before authorization."
+  },
+  "remaining": [
+    "Run matched browser regression with both providers after shared-schema and envelope fix, within authorized budget.",
+    "Bind resulting API record to immutable source and retain failed initial trials."
+  ],
+  "logs": {
+    "verify": {
+      "path": "docs/reviews/2026-11-07/implementation/verify-schema-fixed.log",
+      "rawSha256": "4a4e94daf008afc362dd79d1deefb4db3dd4c1c58e200e7541d63a59d4b0bcd9",
+      "savedSha256": "ee65372eb8d1d135b9c24948d131bdd311579d7c991c525604ef4e7a685a39ad",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/schema-final."
+    },
+    "benchmark": {
+      "path": "docs/reviews/2026-11-07/implementation/benchmark-schema-fixed.log",
+      "rawSha256": "6e7a6dd0f52233088fc70b60413b214063291f78b379c91c79519ec2cd790ffc",
+      "savedSha256": "6e7a6dd0f52233088fc70b60413b214063291f78b379c91c79519ec2cd790ffc",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/schema-final."
+    },
+    "network-chrome": {
+      "path": "docs/reviews/2026-11-07/implementation/network-chrome-schema-fixed.log",
+      "rawSha256": "084dd257edf712969e19625b5f69bfb0bc1ac1c2024526dbbd6c581ac1672978",
+      "savedSha256": "084dd257edf712969e19625b5f69bfb0bc1ac1c2024526dbbd6c581ac1672978",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/schema-final."
+    },
+    "chrome-dev20": {
+      "path": "docs/reviews/2026-11-07/implementation/chrome-dev20-schema-fixed.log",
+      "rawSha256": "a81adcab0f49c916eecea7581bf7912ca188b93624a05b60335e181a2e4b890b",
+      "savedSha256": "a81adcab0f49c916eecea7581bf7912ca188b93624a05b60335e181a2e4b890b",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/schema-final."
+    },
+    "package-consumer": {
+      "path": "docs/reviews/2026-11-07/implementation/package-consumer-schema-fixed.log",
+      "rawSha256": "2ce3c1b417a2bc910175bcb46afafe2579d769ce8a4832ae2208d8fdc9ef45bd",
+      "savedSha256": "2ce3c1b417a2bc910175bcb46afafe2579d769ce8a4832ae2208d8fdc9ef45bd",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/schema-final."
+    }
+  },
+  "limitations": [
+    "No independent user acceptance or noninferiority claim.",
+    "Real-site requests are read-only and limited to Python/SQLite documentation.",
+    "No Eumenes deployment change; Eumenes remains on previously recorded 0.1.3.",
+    "No site-specific product branch or semantic heuristic added."
+  ]
+}

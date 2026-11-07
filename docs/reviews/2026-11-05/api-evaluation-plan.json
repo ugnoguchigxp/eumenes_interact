@@ -167,7 +167,7 @@
 		}
 	],
 	"execution_budget": {
-		"combinedUsd": 10,
+		"combinedUsd": 15,
 		"perProvider": "shared combined cap; no independent extra allocation",
 		"httpAttemptCap": 796,
 		"httpRetries": 0,
@@ -181,6 +181,14 @@
 		},
 		"completionReview": "Claude and Luna fresh-context review; both must approve; reserve two calls inside existing per-run allowance",
 		"attemptCapChange": "500 to 600 historical; on 2026-11-07 user authorized at most 200 additional calls from 596, cumulative cap 796. Keep 10 USD and all charges/reservations. Audited in docs/reviews/2026-11-07/implementation/budget-authorization.json.",
-		"acceptanceTruth": "Fixture state / independent scorer remain acceptance truth. Dual LLM agreement is a product publication gate, not the acceptance oracle."
+		"acceptanceTruth": "Fixture state / independent scorer remain acceptance truth. Dual LLM agreement is a product publication gate, not the acceptance oracle.",
+		"authorized_budget_2026_11_07": {
+			"combinedUsd": 15,
+			"httpAttemptCap": 796,
+			"initialCalls": 596,
+			"additionalCalls": 200,
+			"priorChargesAndReservations": "unchanged",
+			"audit": "docs/reviews/2026-11-07/implementation/budget-authorization-15usd.json"
+		}
 	}
 }

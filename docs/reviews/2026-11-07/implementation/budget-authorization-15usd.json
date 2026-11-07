@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-07T13:00:46.862Z",
+  "before": {
+    "cap": 10000000,
+    "attempts": 796
+  },
+  "after": {
+    "cap": 15000000,
+    "attempts": 796
+  },
+  "calls": 657,
+  "unknownCalls": 13,
+  "callsSha256": "85a857900f6608556434fdb5d7ffdd56f43cebcae9fa59193dde3fca4b9a8c6a",
+  "chargesAndReservationsUnchanged": true,
+  "authority": "User: 15USDまで予算上げて良い",
+  "additionalCallsAuthorized": 200,
+  "startCalls": 596,
+  "maxCalls": 796
+}

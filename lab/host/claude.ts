@@ -17,7 +17,7 @@ export function paidLedger() {
 	return new SpendLedger(
 		process.env.LAB_SPEND_DB ??
 			fileURLToPath(new URL("../data/api-spend.sqlite", import.meta.url)),
-		Number(process.env.LAB_SPEND_LIMIT_USD ?? 10),
+		Number(process.env.LAB_SPEND_LIMIT_USD ?? 15),
 		Number(process.env.LAB_SPEND_MAX_ATTEMPTS ?? 796),
 	);
 }

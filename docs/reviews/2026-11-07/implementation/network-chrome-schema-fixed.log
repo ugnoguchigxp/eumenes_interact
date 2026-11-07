@@ -1,0 +1,10 @@
+bun test v1.4.4 (38afee6c8)
+
+lab/test/host/net-guard.browser.test.ts:
+(pass) net guard in Chrome > subresources, iframes, redirect hops and downloads to private targets never reach them [2306.08ms]
+(pass) net guard in Chrome > WebRTC sends no direct STUN UDP; removing the policy reaches the independent receiver [5170.27ms]
+
+ 2 pass
+ 0 fail
+ 5 expect() calls
+Ran 2 tests across 1 file. [7.53s]
