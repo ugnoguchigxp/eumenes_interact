@@ -128,6 +128,7 @@ export function collaborationSchema(
 		},
 		required: ["action", "tool", "arguments", "text"],
 		additionalProperties: false,
+		...(parts.$defs ? { $defs: structuredClone(parts.$defs) } : {}),
 	};
 }
 

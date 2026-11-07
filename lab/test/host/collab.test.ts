@@ -1,5 +1,54 @@
 import { describe, expect, test } from "bun:test";
-import { collaborationSchema } from "../../host/collab.ts";
+import { collaborationSchema, collabAgentPort } from "../../host/collab.ts";
+import { partCallJsonSchema } from "eumenes-interact";
+
+test("the actual provider envelope retains all local definitions and stays inside the union limit", async () => {
+	let checked = false;
+	const port = collabAgentPort({
+		complete: async (request) => {
+			const schema = request.outputSchema!;
+			const definitions = schema.$defs as Record<string, unknown>;
+			let unions = 0;
+			let refs = 0;
+			const check = (value: unknown): void => {
+				if (Array.isArray(value)) {
+					value.forEach(check);
+					return;
+				}
+				if (!value || typeof value !== "object") return;
+				const obj = value as Record<string, unknown>;
+				if (obj.anyOf || Array.isArray(obj.type)) unions++;
+				if (typeof obj.$ref === "string") {
+					refs++;
+					expect(definitions[obj.$ref.slice("#/$defs/".length)]).toBeDefined();
+				}
+				Object.values(obj).forEach(check);
+			};
+			check(schema);
+			expect(refs).toBeGreaterThan(0);
+			expect(unions).toBeLessThanOrEqual(16);
+			checked = true;
+			return {
+				kind: "text",
+				text: JSON.stringify({
+					action: "reply",
+					tool: null,
+					arguments: null,
+					text: "Which item?",
+				}),
+				usage: { inputTokens: 0, outputTokens: 0 },
+				latencyMs: 0,
+			};
+		},
+	});
+	await port.complete({
+		messages: [{ role: "system", content: "Contract test" }],
+		outputSchema: partCallJsonSchema(),
+		maxOutputTokens: 2048,
+		signal: AbortSignal.timeout(1000),
+	});
+	expect(checked).toBe(true);
+});
 
 test("the provider wire contract has closed objects, all required keys and explicit optional nulls", () => {
 	const check = (v: unknown) => {

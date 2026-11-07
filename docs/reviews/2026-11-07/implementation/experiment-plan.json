@@ -80,5 +80,18 @@
       "source": "https://nodejs.org/api/net.html#socketconnectoptions-connectlistener",
       "independence": "No model has seen these cases in this experiment."
     }
+  ],
+  "postInferenceAmendments": [
+    {
+      "at": "2026-11-07",
+      "failure": "Claude browser HTTP 400. The core schema contained 17 unions; the collaboration envelope added two. A bounded diagnostic then exposed a missing $defs forwarding in the initial factoring change.",
+      "change": "Factor identical primitive unions into local non-recursive definitions and forward them through the collaboration envelope. Preserve all accepted values, cases, budgets per trial and expectations.",
+      "sources": [
+        "https://platform.claude.com/docs/en/build-with-claude/structured-outputs#schema-complexity-limits",
+        "https://developers.openai.com/api/docs/guides/structured-outputs#definitions-are-supported"
+      ],
+      "regressionPolicy": "Original browser cases are now development/regression evidence. Preserve the failed initial trial and all Luna successes; do not call a later matched run fresh independent holdout.",
+      "paidStatus": "657 cumulative calls, accounted upper USD 9.46546, 13 unknown calls retained. No more paid calls under the current USD 10 cap because a Claude call requires USD 0.63012 reservation."
+    }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "at": "2026-11-07T12:48:55.559Z",
+  "diagnostic": {
+    "type": "Error",
+    "message": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"output_config.format.schema: Invalid schema: Reference to non-existent definition: #/$defs/shared0\"},\"request_id\":\"req_011CgobSrBdeNGxtnznV35bP\"}"
+  },
+  "kind": "error",
+  "budget": {
+    "limitUsd": 10,
+    "maxAttempts": 796,
+    "attempts": 657,
+    "accountedUpperUsd": 9.46546,
+    "unknownCalls": 13
+  }
+}

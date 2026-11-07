@@ -5,7 +5,8 @@ import { partCallSchema } from "../../contracts/parts.ts";
  * The structured-output JSON Schema of a part call: what Claude's `output_config.format` accepts. Objects stay
  * closed (`additionalProperties: false`), a union is `anyOf`, and the keywords the API does not support
  * (string, number and array constraints, `pattern`) are left out; zod still checks every one of them in
- * `parseStep`. The schema has no `$ref`, so nothing is recursive.
+ * `parseStep`. Repeated primitive unions use non-recursive local definitions, keeping the provider's
+ * union-type limit without changing the values accepted by the schema.
  */
 const UNSUPPORTED = new Set([
 	"$schema",
@@ -41,6 +42,60 @@ const branches = (
 	sanitize(z.toJSONSchema(partCallSchema)) as { anyOf: Branch[] }
 ).anyOf;
 
+/** Both providers support local definitions. Factor identical primitive unions (Claude permits 16). */
+function compactUnions(
+	schema: Record<string, unknown>,
+): Record<string, unknown> {
+	const counts = new Map<string, number>();
+	const primitiveUnion = (node: Record<string, unknown>) =>
+		Array.isArray(node.anyOf) &&
+		node.anyOf.every(
+			(n) =>
+				n &&
+				typeof n === "object" &&
+				typeof n.type === "string" &&
+				!["object", "array"].includes(n.type),
+		);
+	const count = (node: unknown): void => {
+		if (Array.isArray(node)) {
+			node.forEach(count);
+			return;
+		}
+		if (!node || typeof node !== "object") return;
+		const obj = node as Record<string, unknown>;
+		if (primitiveUnion(obj)) {
+			const key = JSON.stringify(obj);
+			counts.set(key, (counts.get(key) ?? 0) + 1);
+		}
+		Object.values(obj).forEach(count);
+	};
+	count(schema);
+	const names = new Map<string, string>();
+	const definitions: Record<string, unknown> = {};
+	const replace = (node: unknown): unknown => {
+		if (Array.isArray(node)) return node.map(replace);
+		if (!node || typeof node !== "object") return node;
+		const obj = node as Record<string, unknown>;
+		const key = JSON.stringify(obj);
+		if (primitiveUnion(obj) && (counts.get(key) ?? 0) > 1) {
+			let name = names.get(key);
+			if (!name) {
+				name = `shared${names.size}`;
+				names.set(key, name);
+				definitions[name] = obj;
+			}
+			return { $ref: `#/$defs/${name}` };
+		}
+		return Object.fromEntries(
+			Object.entries(obj).map(([k, v]) => [k, replace(v)]),
+		);
+	};
+	const result = replace(schema) as Record<string, unknown>;
+	return Object.keys(definitions).length
+		? { ...result, $defs: definitions }
+		: result;
+}
+
 /**
  * The schema of the part calls whose names are in `parts` (all of them when absent). The root is one object
  * `{part, args}`: `part` is an enum of the names and `args` is the union of the offered parts' closed argument
@@ -56,19 +111,21 @@ export function partCallJsonSchemaFor(
 	const args = new Map<string, unknown>();
 	for (const b of offered)
 		args.set(JSON.stringify(b.properties.args), b.properties.args);
-	return JSON.parse(
-		JSON.stringify({
-			type: "object",
-			properties: {
-				part: {
-					type: "string",
-					enum: offered.map((b) => b.properties.part.const),
+	return compactUnions(
+		JSON.parse(
+			JSON.stringify({
+				type: "object",
+				properties: {
+					part: {
+						type: "string",
+						enum: offered.map((b) => b.properties.part.const),
+					},
+					args: { anyOf: [...args.values()] },
 				},
-				args: { anyOf: [...args.values()] },
-			},
-			required: ["part", "args"],
-			additionalProperties: false,
-		}),
+				required: ["part", "args"],
+				additionalProperties: false,
+			}),
+		),
 	);
 }
 

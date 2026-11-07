@@ -1,0 +1,792 @@
+{
+  "at": "2026-11-07T12:42:33.002Z",
+  "candidateCommit": "74b44174387cebdb5a5b69ba2c9579629d5184d6",
+  "planSha256": "5450206b258c5276761c9bbbfc8d788b0bb9a47adf51f40d3cce1ff376a6010c",
+  "baseline": "/tmp/eumenes-baseline-1c3b8a6-20261107/packages/eumenes-interact/src/index.ts",
+  "scope": "Paired candidate selection only, not browser task success; same saved-in-memory observation, page, prompt, provider, limit and repetitions. Public page bodies are not persisted.",
+  "snapshots": [
+    {
+      "url": "https://www.sqlite.org/docs.html",
+      "sha256": "52c8021211a8ccdf78da33a7be05664ab079fcd705da0c55e59397366e1e066c",
+      "truncated": false,
+      "missing": []
+    },
+    {
+      "url": "https://docs.python.org/3/library/",
+      "sha256": "dc8748a82f50f4b2c281e1dfa500b1e80638f6639aaa127ebba676397f030936",
+      "truncated": false,
+      "missing": []
+    },
+    {
+      "url": "https://www.sqlite.org/quickstart.html",
+      "sha256": "cee56f76f86439eda579ef8c951fd3cfefa9f937882eed13a25e98816523f4b3",
+      "truncated": false,
+      "missing": []
+    }
+  ],
+  "rows": [
+    {
+      "provider": "claude",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoavWoy9e4AVj3q6X8bu",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 1437
+      },
+      "latencyMs": 1463.1280420000003,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "claude",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "structural-document-order",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011Cgoavd22F4N4TH8EgBhwR",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 1437
+      },
+      "latencyMs": 857.5014159999992,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_0d2f4fa828403e4c016aef1c9e70d487d0aa997fd361606f71",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 770,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 1226.480125,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "structural-document-order",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_08a9c0a12fa9c8a1016aef1c9f736887d0a3f9e3c8295e36a4",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 770,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 789.4775829999999,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "claude",
+      "repetition": 1,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "structural-document-order",
+      "candidates": 50,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i37",
+      "selectedUrl": "https://docs.python.org/3/library/collections.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoavqphvhKxnbk334nwB",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 3239
+      },
+      "latencyMs": 1082.285749999999,
+      "promptBytes": 9146
+    },
+    {
+      "provider": "claude",
+      "repetition": 1,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "legacy-ranked-results",
+      "candidates": 50,
+      "expectedAvailable": false,
+      "selectedItem": "p1.i33",
+      "selectedUrl": "https://docs.python.org/3/library/datatypes.html",
+      "validSelection": true,
+      "success": false,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoavvLKjegSFmv4gFUNb",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 176,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 4301
+      },
+      "latencyMs": 1520.358666,
+      "promptBytes": 12238
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "structural-document-order",
+      "candidates": 50,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i37",
+      "selectedUrl": "https://docs.python.org/3/library/collections.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_0e870d7f4c177d4f016aef1ca2f16c87d09a0329a82e520ca1",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 1882,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 969.5125829999997,
+      "promptBytes": 9146
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "legacy-ranked-results",
+      "candidates": 50,
+      "expectedAvailable": false,
+      "selectedItem": "p1.i33",
+      "selectedUrl": "https://docs.python.org/3/library/datatypes.html",
+      "validSelection": true,
+      "success": false,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_02481d1bfb1046ff016aef1ca3f80887d0a4ac5d9edc813aae",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 2411,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 1108.6846670000014,
+      "promptBytes": 12238
+    },
+    {
+      "provider": "claude",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoawC6rP87BrQR1D6EmT",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 174,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 1549
+      },
+      "latencyMs": 1613.5072089999994,
+      "promptBytes": 4036
+    },
+    {
+      "provider": "claude",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "structural-document-order",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoawK8Hh1PFk2kkqrUqU",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 123,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 1549
+      },
+      "latencyMs": 1311.849707999998,
+      "promptBytes": 4036
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_006ecbaf7c1bb0f6016aef1ca8141087d0a6f674bde7080f18",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 914,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 1116.2632919999996,
+      "promptBytes": 4036
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "structural-document-order",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_008cd19fc392d970016aef1ca9348087d0b291d0a9abeebeff",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 914,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 987.1357500000013,
+      "promptBytes": 4036
+    },
+    {
+      "provider": "claude",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "structural-document-order",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011Cgoawa3UMWeNiwtJzteWN",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 1437,
+        "cacheCreationInputTokens": 0
+      },
+      "latencyMs": 794.2201669999995,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "claude",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoawdX4dsZKEyy3N5rag",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 1437,
+        "cacheCreationInputTokens": 0
+      },
+      "latencyMs": 776.737041999997,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "structural-document-order",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_019028de4c7c0aa9016aef1cabdd6887d0a15430ae3bb72310",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 770,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 1104.2280839999985,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/docs.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 34,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i6",
+      "selectedUrl": "https://www.sqlite.org/copyright.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_04c82a9688b6cccf016aef1cacf66c87d08155791e1f569937",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 770,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 813.5514999999978,
+      "promptBytes": 3160
+    },
+    {
+      "provider": "claude",
+      "repetition": 2,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "legacy-ranked-results",
+      "candidates": 50,
+      "expectedAvailable": false,
+      "selectedItem": "p1.i33",
+      "selectedUrl": "https://docs.python.org/3/library/datatypes.html",
+      "validSelection": true,
+      "success": false,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoawqPCYQn6ZtW5ShhNx",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 189,
+        "cacheReadInputTokens": 4301,
+        "cacheCreationInputTokens": 0
+      },
+      "latencyMs": 1866.722249999999,
+      "promptBytes": 12238
+    },
+    {
+      "provider": "claude",
+      "repetition": 2,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "structural-document-order",
+      "candidates": 50,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i37",
+      "selectedUrl": "https://docs.python.org/3/library/collections.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoawyQQRmQcLMbLR1Vjp",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 3239,
+        "cacheCreationInputTokens": 0
+      },
+      "latencyMs": 750.5735830000012,
+      "promptBytes": 9146
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "legacy-ranked-results",
+      "candidates": 50,
+      "expectedAvailable": false,
+      "selectedItem": "p1.i33",
+      "selectedUrl": "https://docs.python.org/3/library/datatypes.html",
+      "validSelection": true,
+      "success": false,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_02cd263dd40de21c016aef1cb078b887d0b787106563bb54a3",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 3,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 2408,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 1934.0563340000008,
+      "promptBytes": 12238
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "page": "https://docs.python.org/3/library/",
+      "treatment": "structural-document-order",
+      "candidates": 50,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i37",
+      "selectedUrl": "https://docs.python.org/3/library/collections.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_0060134e95e01fab016aef1cb276f887d08e54d61b13ebe995",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 3,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 1879,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 1797.4595840000002,
+      "promptBytes": 9146
+    },
+    {
+      "provider": "claude",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "structural-document-order",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoaxK5popAGcX4JE2EHZ",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 176,
+        "cacheReadInputTokens": 1549,
+        "cacheCreationInputTokens": 0
+      },
+      "latencyMs": 1483.5979589999952,
+      "promptBytes": 4036
+    },
+    {
+      "provider": "claude",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "anthropic",
+        "requestedModel": "claude-haiku-5-5",
+        "requestedEffort": "low",
+        "returnedModel": "claude-haiku-5-5",
+        "responseId": "msg_011CgoaxRQaYD3Lk3MFSq25j",
+        "serviceTier": "standard",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 4,
+        "outputTokens": 207,
+        "cacheReadInputTokens": 1549,
+        "cacheCreationInputTokens": 0
+      },
+      "latencyMs": 1492.1759170000005,
+      "promptBytes": 4036
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "structural-document-order",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_09169fcaed8f6c8c016aef1cb742d487d0ad69dc1e6bd80f44",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 914,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 921.3371659999975,
+      "promptBytes": 4036
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "page": "https://www.sqlite.org/quickstart.html",
+      "treatment": "legacy-ranked-results",
+      "candidates": 22,
+      "expectedAvailable": true,
+      "selectedItem": "p1.i18",
+      "selectedUrl": "https://www.sqlite.org/c3ref/intro.html",
+      "validSelection": true,
+      "success": true,
+      "outcome": "text",
+      "code": null,
+      "metadata": {
+        "provider": "openai",
+        "requestedModel": "gpt-6-luna",
+        "requestedEffort": "low",
+        "returnedModel": "gpt-6-luna",
+        "responseId": "resp_00809338f4c145cb016aef1cb8337087d0b1c5a782603ddb49",
+        "serviceTier": "default",
+        "httpAttempts": 1
+      },
+      "usage": {
+        "inputTokens": 914,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "reasoningTokens": 0
+      },
+      "latencyMs": 936.2895830000052,
+      "promptBytes": 4036
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "maxAttempts": 796,
+    "attempts": 620,
+    "accountedUpperUsd": 8.093889,
+    "unknownCalls": 11
+  }
+}

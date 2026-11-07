@@ -694,8 +694,6 @@ describe("partCallJsonSchema", () => {
 		"pattern",
 		"minItems",
 		"maxItems",
-		"$ref",
-		"$defs",
 		"$schema",
 		"oneOf",
 		"format",
@@ -736,6 +734,31 @@ describe("partCallJsonSchema", () => {
 	test("contains no keyword the structured-output subset lacks", () => {
 		walk(schema, (n) => {
 			for (const key of UNSUPPORTED) expect(Object.keys(n)).not.toContain(key);
+		});
+	});
+	test("stays inside the union limit with only non-recursive local definitions", () => {
+		const defs = (schema as unknown as { $defs: Record<string, unknown> })
+			.$defs;
+		let unions = 0;
+		let references = 0;
+		walk(schema, (n) => {
+			if (n.anyOf || Array.isArray(n.type)) unions++;
+			if (typeof n.$ref === "string") {
+				references++;
+				expect(n.$ref.startsWith("#/$defs/")).toBe(true);
+				const definition = defs[n.$ref.slice("#/$defs/".length)];
+				expect(definition).toBeDefined();
+				walk(definition, (d) => expect(d.$ref).toBeUndefined());
+			}
+		});
+		expect(references).toBeGreaterThan(1);
+		expect(unions).toBeLessThanOrEqual(16);
+		// Nullable string arguments keep both original alternatives after reference expansion.
+		const find = schema.properties.args.anyOf.find(
+			(a) => !!(a as { properties: Record<string, unknown> }).properties.role,
+		) as { properties: Record<string, { $ref: string }> };
+		expect(defs[find.properties.role!.$ref.slice("#/$defs/".length)]).toEqual({
+			anyOf: [{ type: "string" }, { type: "null" }],
 		});
 	});
 

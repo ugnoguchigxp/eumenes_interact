@@ -1,0 +1,3199 @@
+{
+  "at": "2026-11-07T12:43:12.413Z",
+  "scope": "Custom preregistered cases; author-created and author-run, repetitions recorded; all cases retained; not independent user acceptance or a noninferiority study",
+  "snapshot": {
+    "baseCommit": "74b44174387cebdb5a5b69ba2c9579629d5184d6",
+    "sourceSha256": "6f867168ed65e8aabb31236f67e1d0e975f45d2f19556912165daaae9ecadcc6",
+    "fileCount": 320,
+    "dirty": false
+  },
+  "developmentRegression": false,
+  "caseFileSha256": "7c4c7e70468c87fc2ed9a1bcc37dbfc2bdd9733d5069c638eb7d8a01a1324d72",
+  "cases": [
+    "fresh-orbit-capture",
+    "fresh-archive-ambiguity",
+    "fresh-live-sqlite-copyright",
+    "fresh-live-python-counter"
+  ],
+  "conditions": {
+    "repetitions": 2,
+    "browser": "chrome",
+    "headless": true,
+    "effort": "low",
+    "maxOutputTokens": 2048,
+    "httpRetries": 0,
+    "completionReview": "Claude + Luna; both must approve, inside the original per-run call budget"
+  },
+  "rows": [
+    {
+      "provider": "claude",
+      "repetition": 1,
+      "case": "fresh-orbit-capture",
+      "runId": "0ba570f5-b794-4d61-bfd8-4cc5e8758468",
+      "status": "failed",
+      "code": "inference_error",
+      "success": false,
+      "score": {
+        "trialId": "48c3c5a3-2632-4a42-899b-b46b6cdc01b5",
+        "caseId": "fresh-orbit-capture",
+        "arm": "arm1",
+        "success": false,
+        "failures": [
+          "capture_missing"
+        ],
+        "terminal": "failed",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": false,
+          "answerSatisfied": true,
+          "excessPartial": false
+        },
+        "captures": {
+          "matching": 0,
+          "invalid": 0,
+          "wrongRange": 0,
+          "wrongTarget": 0,
+          "contentMismatch": 0,
+          "unconfirmed": 0
+        },
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 1644,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": null,
+          "outputTokens": null,
+          "cacheReadTokens": null,
+          "cacheWriteTokens": null,
+          "promptTokens": null
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 1
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "48c3c5a3-2632-4a42-899b-b46b6cdc01b5",
+        "caseId": "fresh-orbit-capture",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:58649/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/0ba570f5-b794-4d61-bfd8-4cc5e8758468",
+        "startedAt": "2026-11-07T12:43:12.437Z",
+        "timings": {
+          "adapterOpenMs": 573,
+          "totalMs": 1644
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 644,
+            "observationRef": "72a25c0b-8a62-48ef-822c-d9d5f4bd1a5f",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": null,
+              "responseId": null,
+              "serviceTier": null,
+              "httpAttempts": 1
+            },
+            "at": 2290,
+            "durationMs": 1644,
+            "outcome": "error",
+            "tokens": {
+              "input": null,
+              "output": null,
+              "cacheRead": null,
+              "cacheWrite": null
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 2290,
+            "kind": "failed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "error",
+          "code": "http_400",
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "cacheReadInputTokens": null,
+            "cacheCreationInputTokens": null
+          },
+          "latencyMs": 1641,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": null,
+            "responseId": null,
+            "serviceTier": null,
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "case": "fresh-orbit-capture",
+      "runId": "99d972f4-d5bd-459d-84f8-5623a4b2c584",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "79bfb7c5-90d1-49f1-9e21-63b61741990c",
+        "caseId": "fresh-orbit-capture",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": true,
+          "answerSatisfied": true,
+          "excessPartial": false
+        },
+        "captures": {
+          "matching": 1,
+          "invalid": 0,
+          "wrongRange": 0,
+          "wrongTarget": 0,
+          "contentMismatch": 0,
+          "unconfirmed": 0
+        },
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 9244,
+          "operations": 0,
+          "observations": 5,
+          "modelCalls": 5,
+          "inputTokens": 6558,
+          "outputTokens": 514,
+          "cacheReadTokens": 9803,
+          "cacheWriteTokens": 2565,
+          "promptTokens": 18926
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "79bfb7c5-90d1-49f1-9e21-63b61741990c",
+        "caseId": "fresh-orbit-capture",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:58649/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/99d972f4-d5bd-459d-84f8-5623a4b2c584",
+        "startedAt": "2026-11-07T12:43:14.893Z",
+        "timings": {
+          "adapterOpenMs": 621,
+          "totalMs": 9244
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 671,
+            "observationRef": "7675d615-930c-4177-b1e2-7d3b549393e3",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_03ffdd3164f6e5f4016aef1ce3c66087d0ae42f6ef64f55ee1",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2344,
+            "durationMs": 1672,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4754,
+              "output": 69,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2345,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2345,
+            "part": "page.capture",
+            "args": [
+              "range",
+              "item",
+              "phase",
+              "confirmation",
+              "assessment",
+              "offset"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2351,
+            "observationRef": "a5de0ba4-4763-48e1-8085-595d884adf04",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "part.result",
+            "at": 2352,
+            "part": "page.capture",
+            "status": "completed",
+            "code": "capture_prepared"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0261d09dacd09108016aef1ce56bb087d0abeaed817004e3d5",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 4480,
+            "durationMs": 2128,
+            "outcome": "ok",
+            "tokens": {
+              "input": 304,
+              "output": 111,
+              "cacheRead": 4751,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 4480,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 4481,
+            "part": "page.capture",
+            "args": [
+              "range",
+              "item",
+              "phase",
+              "confirmation",
+              "assessment",
+              "offset"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 4485,
+            "observationRef": "24ba33df-c777-458d-93f4-fa5cb30e0021",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "observation",
+            "at": 4489,
+            "observationRef": "077af8bc-dfc1-4e75-a8f2-b8313005fa3f",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "observation",
+            "at": 4589,
+            "observationRef": "2a5f487e-2590-49ea-848c-53157fef14d1",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "capture.saved",
+            "at": 4592,
+            "captureId": "c1",
+            "fileName": "d3b961c96d48-1-item.png",
+            "width": 850,
+            "height": 313,
+            "bytes": 13995,
+            "mediaType": "image/png",
+            "range": "item",
+            "target": {
+              "role": "article",
+              "nameHash": "f2c8e617c529972d"
+            },
+            "holds": [
+              {
+                "role": "heading",
+                "nameHash": "ab0f20622f050b21"
+              },
+              {
+                "role": "img",
+                "nameHash": "24c853531df873af"
+              }
+            ]
+          },
+          {
+            "type": "part.result",
+            "at": 4592,
+            "part": "page.capture",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0f98e3712b060b24016aef1ce7a54c87d0ae93b19247f2477a",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 6155,
+            "durationMs": 1563,
+            "outcome": "ok",
+            "tokens": {
+              "input": 192,
+              "output": 79,
+              "cacheRead": 5052,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6156,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011Cgob2DKAk7UefcqmP7qiP",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 8301,
+            "durationMs": 2144,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 185,
+              "cacheRead": 0,
+              "cacheWrite": 2565
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_09fd66b426398d98016aef1ceb52e487d09d87ddc8f1dceeb8",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 9801,
+            "durationMs": 1500,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1304,
+              "output": 70,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 9916,
+            "kind": "finish",
+            "text": "Nebula Field Guide の見出しと Orbit diagram を含む Nebula field note 全体を画像として保存しました。Recommended observations は含まれていません。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4754,
+            "outputTokens": 69,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 16
+          },
+          "latencyMs": 1669,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_03ffdd3164f6e5f4016aef1ce3c66087d0ae42f6ef64f55ee1",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.capture\",\"arguments\":{\"range\":\"item\",\"item\":\"p1.i2\",\"phase\":\"prepare\",\"confirmation\":null,\"assessment\":null,\"offset\":0},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 304,
+            "outputTokens": 111,
+            "cacheReadInputTokens": 4751,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 8
+          },
+          "latencyMs": 2126,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0261d09dacd09108016aef1ce56bb087d0abeaed817004e3d5",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.capture\",\"arguments\":{\"range\":\"item\",\"item\":\"p1.i2\",\"phase\":\"save\",\"confirmation\":\"6943282e-6754-4038-afd2-5547685458c9\",\"assessment\":\"記事 Nebula field note 全体に見出し Nebula Field Guide と Orbit diagram が含まれ、Recommended observations は範囲外です。\",\"offset\":0},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 192,
+            "outputTokens": 79,
+            "cacheReadInputTokens": 5052,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1560,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0f98e3712b060b24016aef1ce7a54c87d0ae93b19247f2477a",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r1\",\"r2\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"Nebula Field Guide の見出しと Orbit diagram を含む Nebula field note 全体を画像として保存しました。Recommended observations は含まれていません。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 185,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 2565
+          },
+          "latencyMs": 2143,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgob2DKAk7UefcqmP7qiP",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"The trace shows a completed page.capture prepare step (r1) targeting article 'Nebula field note' (p1.i2), whose preview contains the heading 'Nebula Field Guide' and 'Orbit diagram' and excludes 'Recommended observations'. The save step (r2) completed with captureId c1 for the same target, holding the heading and Orbit diagram. This matches the request: one image of the complete note with heading and diagram, without the recommended observations. The answer's claim is supported by the recorded results.\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1304,
+            "outputTokens": 70,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1496,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_09fd66b426398d98016aef1ceb52e487d09d87ddc8f1dceeb8",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"完了記録では、対象「article Nebula field note」（p1.i2）の画像が1点保存されています。対象には見出し「Nebula Field Guide」と Orbit diagram が含まれ、Recommended observations は対象外です。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "case": "fresh-archive-ambiguity",
+      "runId": "3b9bbd9e-ef39-4a2e-9ffe-f61fdcf4a0dc",
+      "status": "needs_input",
+      "code": "clarify",
+      "success": true,
+      "score": {
+        "trialId": "d4b00a11-eb94-4a4d-a04a-1ab7379c528c",
+        "caseId": "fresh-archive-ambiguity",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "clarify",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": null,
+          "answerSatisfied": null,
+          "excessPartial": false
+        },
+        "captures": null,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 1658,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": 496,
+          "outputTokens": 59,
+          "cacheReadTokens": 4249,
+          "cacheWriteTokens": 0,
+          "promptTokens": 4745
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 1,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "d4b00a11-eb94-4a4d-a04a-1ab7379c528c",
+        "caseId": "fresh-archive-ambiguity",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:58649/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/3b9bbd9e-ef39-4a2e-9ffe-f61fdcf4a0dc",
+        "startedAt": "2026-11-07T12:43:24.822Z",
+        "timings": {
+          "adapterOpenMs": 719,
+          "totalMs": 1658
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 770,
+            "observationRef": "180a23ca-5e39-444f-878d-caf756d09126",
+            "url": "http://127.0.0.1:58649/sites/civic-archive/base/index.html",
+            "title": "Civic Archive",
+            "refCount": 8,
+            "bodyBytes": 401,
+            "shapedBytes": 401
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0414abc9a67bacf3016aef1cedc6f087d0b10f774c89e252db",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2428,
+            "durationMs": 1658,
+            "outcome": "ok",
+            "tokens": {
+              "input": 496,
+              "output": 59,
+              "cacheRead": 4249,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2428,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 2428,
+            "kind": "clarify",
+            "text": "どのレポートを開きますか？Transport report または Housing report"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 496,
+            "outputTokens": 59,
+            "cacheReadInputTokens": 4249,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 16
+          },
+          "latencyMs": 1656,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0414abc9a67bacf3016aef1cedc6f087d0b10f774c89e252db",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"reply\",\"tool\":null,\"arguments\":null,\"text\":\"どのレポートを開きますか？Transport report または Housing report\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "case": "fresh-live-sqlite-copyright",
+      "runId": "060e8ab4-5997-422c-b5e1-570e49536e6f",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "477ec073-60ff-49ee-950e-1ff243638669",
+        "caseId": "fresh-live-sqlite-copyright",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": true,
+          "answerSatisfied": true,
+          "excessPartial": false
+        },
+        "captures": null,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 17003,
+          "operations": 1,
+          "observations": 5,
+          "modelCalls": 7,
+          "inputTokens": 6497,
+          "outputTokens": 1019,
+          "cacheReadTokens": 28747,
+          "cacheWriteTokens": 6750,
+          "promptTokens": 41994
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "477ec073-60ff-49ee-950e-1ff243638669",
+        "caseId": "fresh-live-sqlite-copyright",
+        "arm": "arm1",
+        "fixtureBaseUrl": "https://www.sqlite.org/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/060e8ab4-5997-422c-b5e1-570e49536e6f",
+        "startedAt": "2026-11-07T12:43:27.421Z",
+        "timings": {
+          "adapterOpenMs": 671,
+          "totalMs": 17003
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 2408,
+            "observationRef": "dee776ca-2ae6-43db-aa6d-66f8a2ee65e4",
+            "url": "https://www.sqlite.org/docs.html",
+            "title": null,
+            "refCount": 107,
+            "bodyBytes": 6145,
+            "shapedBytes": 6145
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0369d5fd24ee94b8016aef1cf1fc8c87d0ab7046324a400edc",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 3922,
+            "durationMs": 1514,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1184,
+              "output": 48,
+              "cacheRead": 4249,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 3923,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 3923,
+            "part": "item.open",
+            "args": [
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 3942,
+            "observationRef": "88b22d91-b936-4bac-8da4-c087342ea37b",
+            "url": "https://www.sqlite.org/docs.html",
+            "title": null,
+            "refCount": 107,
+            "bodyBytes": 6145,
+            "shapedBytes": 6145
+          },
+          {
+            "type": "operation.requested",
+            "at": 4472,
+            "operationId": "58c877aa-80e0-4895-acca-ce8e7d353c29",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e16",
+              "element": ""
+            },
+            "declaredEffect": "navigation",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 4472,
+            "operationId": "58c877aa-80e0-4895-acca-ce8e7d353c29"
+          },
+          {
+            "type": "operation.result",
+            "at": 5210,
+            "operationId": "58c877aa-80e0-4895-acca-ce8e7d353c29",
+            "status": "confirmed",
+            "url": "https://www.sqlite.org/copyright.html",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 5216,
+            "observationRef": "e931558d-cea6-4316-92a9-0afb84f19519",
+            "url": "https://www.sqlite.org/copyright.html",
+            "title": null,
+            "refCount": 49,
+            "bodyBytes": 6439,
+            "shapedBytes": 6439
+          },
+          {
+            "type": "part.result",
+            "at": 5216,
+            "part": "item.open",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_079c22da589f45ac016aef1cf4ca8887d09ce9dcf0557a4e26",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 6870,
+            "durationMs": 1654,
+            "outcome": "ok",
+            "tokens": {
+              "input": 465,
+              "output": 44,
+              "cacheRead": 5430,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6871,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 6871,
+            "part": "page.read",
+            "args": [
+              "target",
+              "maxChars"
+            ]
+          },
+          {
+            "type": "part.result",
+            "at": 7388,
+            "part": "page.read",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_00ffc22a667683ac016aef1cf7016c87d0988e2914ab3c8158",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 9204,
+            "durationMs": 1815,
+            "outcome": "ok",
+            "tokens": {
+              "input": 133,
+              "output": 67,
+              "cacheRead": 5892,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 9204,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 9204,
+            "part": "page.find",
+            "args": [
+              "text",
+              "role",
+              "within",
+              "cursor",
+              "inspect"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 9212,
+            "observationRef": "92d34933-d8a8-4989-98fe-611836bce27c",
+            "url": "https://www.sqlite.org/copyright.html",
+            "title": null,
+            "refCount": 49,
+            "bodyBytes": 6439,
+            "shapedBytes": 6439
+          },
+          {
+            "type": "part.result",
+            "at": 9214,
+            "part": "page.find",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_07a553f2b973ae6d016aef1cf8cb2487d0aae917d47a22b870",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 10710,
+            "durationMs": 1496,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1135,
+              "output": 55,
+              "cacheRead": 6022,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 10711,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 10711,
+            "part": "page.read",
+            "args": [
+              "target",
+              "maxChars"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 10724,
+            "observationRef": "6ece6b5b-0455-4d3a-b332-d5bc2ca55813",
+            "url": "https://www.sqlite.org/copyright.html",
+            "title": null,
+            "refCount": 49,
+            "bodyBytes": 6439,
+            "shapedBytes": 6439
+          },
+          {
+            "type": "part.result",
+            "at": 11758,
+            "part": "page.read",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0015d699bab69238016aef1cfb538887d0bafb95085219c813",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 13458,
+            "durationMs": 1700,
+            "outcome": "ok",
+            "tokens": {
+              "input": 103,
+              "output": 77,
+              "cacheRead": 7154,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 13459,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011Cgob3g43VHXZWscQu15bo",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 17114,
+            "durationMs": 3655,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 566,
+              "cacheRead": 0,
+              "cacheWrite": 6750
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0fc6f6d5fc0c6387016aef1d00aa3087d0b2d73732948a7e78",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 19314,
+            "durationMs": 2199,
+            "outcome": "ok",
+            "tokens": {
+              "input": 3473,
+              "output": 162,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 19411,
+            "kind": "finish",
+            "textLength": 70
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1184,
+            "outputTokens": 48,
+            "cacheReadInputTokens": 4249,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 14
+          },
+          "latencyMs": 1510,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0369d5fd24ee94b8016aef1cf1fc8c87d0ab7046324a400edc",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 465,
+            "outputTokens": 44,
+            "cacheReadInputTokens": 5430,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 8
+          },
+          "latencyMs": 1651,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_079c22da589f45ac016aef1cf4ca8887d09ce9dcf0557a4e26",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 133,
+            "outputTokens": 67,
+            "cacheReadInputTokens": 5892,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 18
+          },
+          "latencyMs": 1814,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_00ffc22a667683ac016aef1cf7016c87d0988e2914ab3c8158",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1135,
+            "outputTokens": 55,
+            "cacheReadInputTokens": 6022,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 16
+          },
+          "latencyMs": 1492,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_07a553f2b973ae6d016aef1cf8cb2487d0aae917d47a22b870",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 103,
+            "outputTokens": 77,
+            "cacheReadInputTokens": 7154,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1696,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0015d699bab69238016aef1cfb538887d0bafb95085219c813",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 566,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 6750
+          },
+          "latencyMs": 3651,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgob3g43VHXZWscQu15bo",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 3473,
+            "outputTokens": 162,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 75
+          },
+          "latencyMs": 2197,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0fc6f6d5fc0c6387016aef1d00aa3087d0b2d73732948a7e78",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 1,
+      "case": "fresh-live-python-counter",
+      "runId": "f3e2b520-d5d5-4219-a532-44347d9faa5d",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "1370d745-7be3-4dc7-af9f-5a6cf4a0513c",
+        "caseId": "fresh-live-python-counter",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": true,
+          "answerSatisfied": true,
+          "excessPartial": false
+        },
+        "captures": null,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 9130,
+          "operations": 1,
+          "observations": 4,
+          "modelCalls": 5,
+          "inputTokens": 9043,
+          "outputTokens": 442,
+          "cacheReadTokens": 17592,
+          "cacheWriteTokens": 9708,
+          "promptTokens": 36343
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "1370d745-7be3-4dc7-af9f-5a6cf4a0513c",
+        "caseId": "fresh-live-python-counter",
+        "arm": "arm1",
+        "fixtureBaseUrl": "https://docs.python.org/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/f3e2b520-d5d5-4219-a532-44347d9faa5d",
+        "startedAt": "2026-11-07T12:43:46.845Z",
+        "timings": {
+          "adapterOpenMs": 522,
+          "totalMs": 9130
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 755,
+            "observationRef": "0d70750f-33d5-4771-afcd-c99be16c3b62",
+            "url": "https://docs.python.org/3/library/",
+            "title": null,
+            "refCount": 933,
+            "bodyBytes": 74317,
+            "shapedBytes": 74317
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_01961e69766b6bda016aef1d03c4e887d08a49a3c33c858506",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2188,
+            "durationMs": 1428,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1615,
+              "output": 45,
+              "cacheRead": 4249,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2189,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2189,
+            "part": "item.open",
+            "args": [
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2236,
+            "observationRef": "5a018218-c0eb-415b-a341-3e193e6661ab",
+            "url": "https://docs.python.org/3/library/",
+            "title": null,
+            "refCount": 933,
+            "bodyBytes": 74317,
+            "shapedBytes": 74317
+          },
+          {
+            "type": "operation.requested",
+            "at": 2767,
+            "operationId": "3773560d-2564-4086-a045-a90812b7f774",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e106",
+              "element": ""
+            },
+            "declaredEffect": "navigation",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 2767,
+            "operationId": "3773560d-2564-4086-a045-a90812b7f774"
+          },
+          {
+            "type": "operation.result",
+            "at": 3402,
+            "operationId": "3773560d-2564-4086-a045-a90812b7f774",
+            "status": "confirmed",
+            "url": "https://docs.python.org/3/library/collections.html",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3455,
+            "observationRef": "1932c142-9da5-432e-b5f2-90afb2ac9ca7",
+            "url": "https://docs.python.org/3/library/collections.html",
+            "title": null,
+            "refCount": 1524,
+            "bodyBytes": 142012,
+            "shapedBytes": 142012
+          },
+          {
+            "type": "part.result",
+            "at": 3461,
+            "part": "item.open",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0f420577c5dfd4e6016aef1d06792487d0abc023eaddd01255",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 4955,
+            "durationMs": 1494,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1624,
+              "output": 59,
+              "cacheRead": 5861,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 4956,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 4956,
+            "part": "page.find",
+            "args": [
+              "text",
+              "role",
+              "within",
+              "cursor",
+              "inspect"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 5035,
+            "observationRef": "ca86145a-ef2c-4f68-8085-0649bd526892",
+            "url": "https://docs.python.org/3/library/collections.html",
+            "title": null,
+            "refCount": 1524,
+            "bodyBytes": 142012,
+            "shapedBytes": 142012
+          },
+          {
+            "type": "part.result",
+            "at": 5047,
+            "part": "page.find",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0da23965d53173cf016aef1d080bb487d0b8f0c16f19c379ce",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 6802,
+            "durationMs": 1755,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1007,
+              "output": 79,
+              "cacheRead": 7482,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6803,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011Cgob4cdwKfWej9DgCuu5w",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 8437,
+            "durationMs": 1634,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 175,
+              "cacheRead": 0,
+              "cacheWrite": 9708
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_031b03ab42df8895016aef1d0b680887d0a51a5439ccb14915",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 9789,
+            "durationMs": 1351,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4793,
+              "output": 84,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 9890,
+            "kind": "finish",
+            "textLength": 88
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1615,
+            "outputTokens": 45,
+            "cacheReadInputTokens": 4249,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 11
+          },
+          "latencyMs": 1424,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_01961e69766b6bda016aef1d03c4e887d08a49a3c33c858506",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1624,
+            "outputTokens": 59,
+            "cacheReadInputTokens": 5861,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 13
+          },
+          "latencyMs": 1490,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0f420577c5dfd4e6016aef1d06792487d0abc023eaddd01255",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1007,
+            "outputTokens": 79,
+            "cacheReadInputTokens": 7482,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1752,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0da23965d53173cf016aef1d080bb487d0b8f0c16f19c379ce",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 175,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 9708
+          },
+          "latencyMs": 1630,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgob4cdwKfWej9DgCuu5w",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4793,
+            "outputTokens": 84,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1348,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_031b03ab42df8895016aef1d0b680887d0a51a5439ccb14915",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "case": "fresh-orbit-capture",
+      "runId": "d07ea6d0-1a53-40ac-9515-b744c6509826",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "9482d6bb-c984-470b-be40-7be987ee7f9d",
+        "caseId": "fresh-orbit-capture",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": true,
+          "answerSatisfied": true,
+          "excessPartial": false
+        },
+        "captures": {
+          "matching": 1,
+          "invalid": 0,
+          "wrongRange": 0,
+          "wrongTarget": 0,
+          "contentMismatch": 0,
+          "unconfirmed": 0
+        },
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 9421,
+          "operations": 0,
+          "observations": 5,
+          "modelCalls": 5,
+          "inputTokens": 2299,
+          "outputTokens": 687,
+          "cacheReadTokens": 14054,
+          "cacheWriteTokens": 2570,
+          "promptTokens": 18923
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "9482d6bb-c984-470b-be40-7be987ee7f9d",
+        "caseId": "fresh-orbit-capture",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:58649/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/d07ea6d0-1a53-40ac-9515-b744c6509826",
+        "startedAt": "2026-11-07T12:43:56.746Z",
+        "timings": {
+          "adapterOpenMs": 617,
+          "totalMs": 9421
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 679,
+            "observationRef": "7b0b72de-e732-4c02-a8e4-7dd680c51d69",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_027efc324d792a19016aef1d0d981c87d0979a849dddde613d",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2134,
+            "durationMs": 1454,
+            "outcome": "ok",
+            "tokens": {
+              "input": 504,
+              "output": 64,
+              "cacheRead": 4249,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2134,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2135,
+            "part": "page.capture",
+            "args": [
+              "range",
+              "item",
+              "phase",
+              "confirmation",
+              "assessment",
+              "offset"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2140,
+            "observationRef": "fae7f808-5e18-494b-bbf0-8408add54318",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "part.result",
+            "at": 2140,
+            "part": "page.capture",
+            "status": "completed",
+            "code": "capture_prepared"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_07666871b275350f016aef1d0f09a087d08ccc5357d2704020",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 4001,
+            "durationMs": 1861,
+            "outcome": "ok",
+            "tokens": {
+              "input": 308,
+              "output": 103,
+              "cacheRead": 4750,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 4001,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 4001,
+            "part": "page.capture",
+            "args": [
+              "range",
+              "item",
+              "phase",
+              "confirmation",
+              "assessment",
+              "offset"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 4005,
+            "observationRef": "9f63e348-4907-45ca-aab2-0599d2f3e14f",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "observation",
+            "at": 4008,
+            "observationRef": "5115fa0c-3e7f-417c-8449-ad6115a89afe",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "observation",
+            "at": 4075,
+            "observationRef": "ab3c6cfd-1aa6-40e6-9591-b19a31e03f29",
+            "url": "http://127.0.0.1:58649/sites/orbit-notes/base/index.html",
+            "title": "Orbit Notes",
+            "refCount": 11,
+            "bodyBytes": 560,
+            "shapedBytes": 560
+          },
+          {
+            "type": "capture.saved",
+            "at": 4075,
+            "captureId": "c1",
+            "fileName": "15e482eef1d2-1-item.png",
+            "width": 850,
+            "height": 313,
+            "bytes": 13995,
+            "mediaType": "image/png",
+            "range": "item",
+            "target": {
+              "role": "article",
+              "nameHash": "f2c8e617c529972d"
+            },
+            "holds": [
+              {
+                "role": "heading",
+                "nameHash": "ab0f20622f050b21"
+              },
+              {
+                "role": "img",
+                "nameHash": "24c853531df873af"
+              }
+            ]
+          },
+          {
+            "type": "part.result",
+            "at": 4075,
+            "part": "page.capture",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_00dfe26e006ad5bc016aef1d10fa0087d0bb4f22ade5a0e08d",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 6154,
+            "durationMs": 2078,
+            "outcome": "ok",
+            "tokens": {
+              "input": 183,
+              "output": 79,
+              "cacheRead": 5055,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6154,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011Cgob5JFB3oEEzsrVkAcpX",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 8511,
+            "durationMs": 2357,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 350,
+              "cacheRead": 0,
+              "cacheWrite": 2570
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_06ebf1550e279473016aef1d1566e887d09cfd30e3cb7ae36d",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 10017,
+            "durationMs": 1506,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1300,
+              "output": 91,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 10101,
+            "kind": "finish",
+            "text": "Nebula Field Guide の見出しと Orbit diagram を含むフィールドノート全体を画像として保存しました。Recommended observations は含まれていません。"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 504,
+            "outputTokens": 64,
+            "cacheReadInputTokens": 4249,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 11
+          },
+          "latencyMs": 1453,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_027efc324d792a19016aef1d0d981c87d0979a849dddde613d",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.capture\",\"arguments\":{\"range\":\"item\",\"item\":\"p1.i2\",\"phase\":\"prepare\",\"confirmation\":null,\"assessment\":null,\"offset\":0},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 308,
+            "outputTokens": 103,
+            "cacheReadInputTokens": 4750,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 8
+          },
+          "latencyMs": 1862,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_07666871b275350f016aef1d0f09a087d08ccc5357d2704020",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"page.capture\",\"arguments\":{\"range\":\"item\",\"item\":\"p1.i2\",\"phase\":\"save\",\"confirmation\":\"3d8e0418-1da0-4632-9b19-88fcbc9fa458\",\"assessment\":\"Complete Nebula Field Guide note including its heading and Orbit diagram; excludes the separate Recommended observations complementary region.\",\"offset\":0},\"text\":null}"
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 183,
+            "outputTokens": 79,
+            "cacheReadInputTokens": 5055,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 2082,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_00dfe26e006ad5bc016aef1d10fa0087d0bb4f22ade5a0e08d",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"invoke\",\"tool\":\"done\",\"arguments\":{\"evidence\":[\"r1\",\"r2\"],\"outcome\":\"achieved\",\"basis\":\"observed\"},\"text\":\"Nebula Field Guide の見出しと Orbit diagram を含むフィールドノート全体を画像として保存しました。Recommended observations は含まれていません。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 350,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 2570
+          },
+          "latencyMs": 2360,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgob5JFB3oEEzsrVkAcpX",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"trace の r1 で article Nebula field note(p1.i2)を対象に capture を準備し、r2 で同じ対象の画像を保存しています(captureId c1, target article Nebula field note)。保存対象の holds には heading Nebula Field Guide と img Orbit diagram が含まれ、Recommended observations は complementary Other observations として別領域にあり、保存対象に含まれていません。依頼の対象・範囲・除外条件と一致します。\"}"
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1300,
+            "outputTokens": 91,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1507,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_06ebf1550e279473016aef1d1566e887d09cfd30e3cb7ae36d",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"outcome\":\"achieved\",\"explanation\":\"完了結果 r2 は、Nebula Field Guide の見出しと Orbit diagram を含む記事「Nebula field note」を対象に、PNG画像を1点保存したことを示しています。記事は Recommended observations を含む別の complementary 領域の外にあるため、依頼された範囲と一致します。\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "case": "fresh-archive-ambiguity",
+      "runId": "fbe120ae-8113-404b-b1a1-a1828ec4cbfa",
+      "status": "needs_input",
+      "code": "clarify",
+      "success": true,
+      "score": {
+        "trialId": "310a07b2-c109-4f86-b12f-f9e0cdb0fbe4",
+        "caseId": "fresh-archive-ambiguity",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "clarify",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": null,
+          "answerSatisfied": null,
+          "excessPartial": false
+        },
+        "captures": null,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 1658,
+          "operations": 0,
+          "observations": 1,
+          "modelCalls": 1,
+          "inputTokens": 493,
+          "outputTokens": 61,
+          "cacheReadTokens": 4249,
+          "cacheWriteTokens": 0,
+          "promptTokens": 4742
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 1,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "310a07b2-c109-4f86-b12f-f9e0cdb0fbe4",
+        "caseId": "fresh-archive-ambiguity",
+        "arm": "arm1",
+        "fixtureBaseUrl": "http://127.0.0.1:58649/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/fbe120ae-8113-404b-b1a1-a1828ec4cbfa",
+        "startedAt": "2026-11-07T12:44:06.857Z",
+        "timings": {
+          "adapterOpenMs": 529,
+          "totalMs": 1658
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 580,
+            "observationRef": "10e6e342-02b2-4b22-b53e-ec63cbd78eb2",
+            "url": "http://127.0.0.1:58649/sites/civic-archive/base/index.html",
+            "title": "Civic Archive",
+            "refCount": 8,
+            "bodyBytes": 401,
+            "shapedBytes": 401
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_069ac66f9871e5cd016aef1d17a01087d08d04bbb8d42d35bc",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2238,
+            "durationMs": 1658,
+            "outcome": "ok",
+            "tokens": {
+              "input": 493,
+              "output": 61,
+              "cacheRead": 4249,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2238,
+            "accepted": true
+          },
+          {
+            "type": "step.final",
+            "at": 2238,
+            "kind": "clarify",
+            "text": "どのレポートを開きますか？Transport report と Housing report のどちらですか？"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 493,
+            "outputTokens": 61,
+            "cacheReadInputTokens": 4249,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 13
+          },
+          "latencyMs": 1658,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_069ac66f9871e5cd016aef1d17a01087d08d04bbb8d42d35bc",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": "{\"action\":\"reply\",\"tool\":null,\"arguments\":null,\"text\":\"どのレポートを開きますか？Transport report と Housing report のどちらですか？\"}"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "case": "fresh-live-sqlite-copyright",
+      "runId": "307311fb-7b01-4fac-9f6d-d20d745868d6",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "fa489701-50eb-4d45-8d8d-1ec943c03761",
+        "caseId": "fresh-live-sqlite-copyright",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": true,
+          "answerSatisfied": true,
+          "excessPartial": false
+        },
+        "captures": null,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 13778,
+          "operations": 1,
+          "observations": 4,
+          "modelCalls": 6,
+          "inputTokens": 6283,
+          "outputTokens": 825,
+          "cacheReadTokens": 21590,
+          "cacheWriteTokens": 6518,
+          "promptTokens": 34391
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "fa489701-50eb-4d45-8d8d-1ec943c03761",
+        "caseId": "fresh-live-sqlite-copyright",
+        "arm": "arm1",
+        "fixtureBaseUrl": "https://www.sqlite.org/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/307311fb-7b01-4fac-9f6d-d20d745868d6",
+        "startedAt": "2026-11-07T12:44:09.216Z",
+        "timings": {
+          "adapterOpenMs": 542,
+          "totalMs": 13778
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 2203,
+            "observationRef": "63a48f65-236c-43c0-a466-e64d901c26f7",
+            "url": "https://www.sqlite.org/docs.html",
+            "title": null,
+            "refCount": 107,
+            "bodyBytes": 6145,
+            "shapedBytes": 6145
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0edfb08ce1951e58016aef1d1ba35487d0b5c2b11877ba6183",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 3767,
+            "durationMs": 1563,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1183,
+              "output": 48,
+              "cacheRead": 4249,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 3767,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 3767,
+            "part": "item.open",
+            "args": [
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 3786,
+            "observationRef": "a1dc6295-df90-4132-a953-e3a5559784c2",
+            "url": "https://www.sqlite.org/docs.html",
+            "title": null,
+            "refCount": 107,
+            "bodyBytes": 6145,
+            "shapedBytes": 6145
+          },
+          {
+            "type": "operation.requested",
+            "at": 4307,
+            "operationId": "3c20c4df-58ec-4fc3-8d95-29d92cb818e5",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e16",
+              "element": ""
+            },
+            "declaredEffect": "navigation",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 4307,
+            "operationId": "3c20c4df-58ec-4fc3-8d95-29d92cb818e5"
+          },
+          {
+            "type": "operation.result",
+            "at": 5051,
+            "operationId": "3c20c4df-58ec-4fc3-8d95-29d92cb818e5",
+            "status": "confirmed",
+            "url": "https://www.sqlite.org/copyright.html",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 5058,
+            "observationRef": "7ec7fd6f-789e-4140-9102-4601a358ade8",
+            "url": "https://www.sqlite.org/copyright.html",
+            "title": null,
+            "refCount": 49,
+            "bodyBytes": 6439,
+            "shapedBytes": 6439
+          },
+          {
+            "type": "part.result",
+            "at": 5058,
+            "part": "item.open",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0029eddf23524668016aef1d1e768887d0a47d09fefcd1aa37",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 6204,
+            "durationMs": 1146,
+            "outcome": "ok",
+            "tokens": {
+              "input": 465,
+              "output": 44,
+              "cacheRead": 5429,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 6204,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 6204,
+            "part": "page.read",
+            "args": [
+              "target",
+              "maxChars"
+            ]
+          },
+          {
+            "type": "part.result",
+            "at": 6722,
+            "part": "page.read",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_01c0b349d4c30648016aef1d201d8c87d084b68b147c5f9785",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 8149,
+            "durationMs": 1426,
+            "outcome": "ok",
+            "tokens": {
+              "input": 133,
+              "output": 64,
+              "cacheRead": 5891,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 8149,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 8149,
+            "part": "page.find",
+            "args": [
+              "text",
+              "role",
+              "within",
+              "cursor",
+              "inspect"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 8154,
+            "observationRef": "2b4d9129-756f-44df-8c12-7738e1eeaa10",
+            "url": "https://www.sqlite.org/copyright.html",
+            "title": null,
+            "refCount": 49,
+            "bodyBytes": 6439,
+            "shapedBytes": 6439
+          },
+          {
+            "type": "part.result",
+            "at": 8155,
+            "part": "page.find",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_004bb8543cb79c1d016aef1d218c6487d0b57dcd35d3212150",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 10509,
+            "durationMs": 2354,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1135,
+              "output": 77,
+              "cacheRead": 6021,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 10509,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011Cgob6YGYqmTgo4gT9ZBnc",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 13300,
+            "durationMs": 2790,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 469,
+              "cacheRead": 0,
+              "cacheWrite": 6518
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0a21a2880177cd2b016aef1d26aedc87d0a67cc43b82fd423a",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 15879,
+            "durationMs": 2579,
+            "outcome": "ok",
+            "tokens": {
+              "input": 3363,
+              "output": 123,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 15982,
+            "kind": "finish",
+            "textLength": 74
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1183,
+            "outputTokens": 48,
+            "cacheReadInputTokens": 4249,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 14
+          },
+          "latencyMs": 1562,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0edfb08ce1951e58016aef1d1ba35487d0b5c2b11877ba6183",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 465,
+            "outputTokens": 44,
+            "cacheReadInputTokens": 5429,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 8
+          },
+          "latencyMs": 1143,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0029eddf23524668016aef1d1e768887d0a47d09fefcd1aa37",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 133,
+            "outputTokens": 64,
+            "cacheReadInputTokens": 5891,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 15
+          },
+          "latencyMs": 1424,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_01c0b349d4c30648016aef1d201d8c87d084b68b147c5f9785",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1135,
+            "outputTokens": 77,
+            "cacheReadInputTokens": 6021,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 2353,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_004bb8543cb79c1d016aef1d218c6487d0b57dcd35d3212150",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 469,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 6518
+          },
+          "latencyMs": 2789,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgob6YGYqmTgo4gT9ZBnc",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 3363,
+            "outputTokens": 123,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 43
+          },
+          "latencyMs": 2577,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0a21a2880177cd2b016aef1d26aedc87d0a67cc43b82fd423a",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "repetition": 2,
+      "case": "fresh-live-python-counter",
+      "runId": "f05c168e-4b44-4901-84e2-756c110b0028",
+      "status": "completed",
+      "code": null,
+      "success": true,
+      "score": {
+        "trialId": "bb6d98e7-0eaf-48a7-9e72-a65c39a9074c",
+        "caseId": "fresh-live-python-counter",
+        "arm": "arm1",
+        "success": true,
+        "failures": [],
+        "terminal": "finish",
+        "falseFinish": false,
+        "completion": {
+          "goalStateAchieved": true,
+          "answerSatisfied": true,
+          "excessPartial": false
+        },
+        "captures": null,
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": false,
+          "recovered": false
+        },
+        "efficiency": {
+          "totalMs": 9946,
+          "operations": 1,
+          "observations": 4,
+          "modelCalls": 5,
+          "inputTokens": 13623,
+          "outputTokens": 433,
+          "cacheReadTokens": 17580,
+          "cacheWriteTokens": 13342,
+          "promptTokens": 44545
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 0,
+          "unneededClarify": false,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        }
+      },
+      "transcript": {
+        "trialId": "bb6d98e7-0eaf-48a7-9e72-a65c39a9074c",
+        "caseId": "fresh-live-python-counter",
+        "arm": "arm1",
+        "fixtureBaseUrl": "https://docs.python.org/",
+        "captureDir": "/Users/y.noguchi/Code/eumenes_interact/lab/data/captures/f05c168e-4b44-4901-84e2-756c110b0028",
+        "startedAt": "2026-11-07T12:44:25.210Z",
+        "timings": {
+          "adapterOpenMs": 529,
+          "totalMs": 9946
+        },
+        "events": [
+          {
+            "type": "observation",
+            "at": 801,
+            "observationRef": "81fc2090-d34d-4da9-a8b3-f4804999008a",
+            "url": "https://docs.python.org/3/library/",
+            "title": null,
+            "refCount": 933,
+            "bodyBytes": 74317,
+            "shapedBytes": 74317
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0252438a492dba3b016aef1d2a330487d0ba3f9f30c0dd61c4",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 2006,
+            "durationMs": 1202,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1609,
+              "output": 45,
+              "cacheRead": 4249,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 2006,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 2006,
+            "part": "item.open",
+            "args": [
+              "item"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 2038,
+            "observationRef": "d12001e6-221c-48ea-9167-094baf9474f3",
+            "url": "https://docs.python.org/3/library/",
+            "title": null,
+            "refCount": 933,
+            "bodyBytes": 74317,
+            "shapedBytes": 74317
+          },
+          {
+            "type": "operation.requested",
+            "at": 2565,
+            "operationId": "ab00f6b2-d7f1-4533-ab68-e6469103ed9f",
+            "command": {
+              "action": "page.click",
+              "targetRef": "e106",
+              "element": ""
+            },
+            "declaredEffect": "navigation",
+            "requiresApproval": false
+          },
+          {
+            "type": "operation.dispatched",
+            "at": 2565,
+            "operationId": "ab00f6b2-d7f1-4533-ab68-e6469103ed9f"
+          },
+          {
+            "type": "operation.result",
+            "at": 3204,
+            "operationId": "ab00f6b2-d7f1-4533-ab68-e6469103ed9f",
+            "status": "confirmed",
+            "url": "https://docs.python.org/3/library/collections.html",
+            "adopted": true
+          },
+          {
+            "type": "observation",
+            "at": 3256,
+            "observationRef": "58a6d258-fdac-4b1a-9666-4462dc8d60ef",
+            "url": "https://docs.python.org/3/library/collections.html",
+            "title": null,
+            "refCount": 1524,
+            "bodyBytes": 142012,
+            "shapedBytes": 142012
+          },
+          {
+            "type": "part.result",
+            "at": 3261,
+            "part": "item.open",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_0e6207dc64f1752c016aef1d2cb04487d08e1af130257f8475",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 4858,
+            "durationMs": 1597,
+            "outcome": "ok",
+            "tokens": {
+              "input": 1624,
+              "output": 47,
+              "cacheRead": 5855,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 4858,
+            "accepted": true
+          },
+          {
+            "type": "part.call",
+            "at": 4858,
+            "part": "page.read",
+            "args": [
+              "target",
+              "maxChars"
+            ]
+          },
+          {
+            "type": "observation",
+            "at": 4937,
+            "observationRef": "d49a2893-d35d-468c-ab97-dd4e499f725e",
+            "url": "https://docs.python.org/3/library/collections.html",
+            "title": null,
+            "refCount": 1524,
+            "bodyBytes": 142012,
+            "shapedBytes": 142012
+          },
+          {
+            "type": "part.result",
+            "at": 5479,
+            "part": "page.read",
+            "status": "completed"
+          },
+          {
+            "type": "model.call",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_01880e30b223a662016aef1d2ee73887d0923dc62d33fed679",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 7312,
+            "durationMs": 1832,
+            "outcome": "ok",
+            "tokens": {
+              "input": 3207,
+              "output": 83,
+              "cacheRead": 7476,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.parse",
+            "at": 7312,
+            "accepted": true
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "anthropic",
+              "requestedModel": "claude-haiku-5-5",
+              "requestedEffort": "low",
+              "returnedModel": "claude-haiku-5-5",
+              "responseId": "msg_011Cgob7V2sJq2vuMzWzcq6y",
+              "serviceTier": "standard",
+              "httpAttempts": 1
+            },
+            "at": 8883,
+            "durationMs": 1570,
+            "outcome": "ok",
+            "tokens": {
+              "input": 4,
+              "output": 174,
+              "cacheRead": 0,
+              "cacheWrite": 13342
+            }
+          },
+          {
+            "type": "model.call",
+            "purpose": "completion_review",
+            "inference": {
+              "provider": "openai",
+              "requestedModel": "gpt-6-luna",
+              "requestedEffort": "low",
+              "returnedModel": "gpt-6-luna",
+              "responseId": "resp_01462cb618b20e3d016aef1d3248a087d09f0e23e4fbef64c2",
+              "serviceTier": "default",
+              "httpAttempts": 1
+            },
+            "at": 10631,
+            "durationMs": 1747,
+            "outcome": "ok",
+            "tokens": {
+              "input": 7179,
+              "output": 84,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          },
+          {
+            "type": "step.final",
+            "at": 10750,
+            "kind": "finish",
+            "textLength": 84
+          }
+        ]
+      },
+      "calls": [
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1609,
+            "outputTokens": 45,
+            "cacheReadInputTokens": 4249,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 11
+          },
+          "latencyMs": 1200,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0252438a492dba3b016aef1d2a330487d0ba3f9f30c0dd61c4",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 1624,
+            "outputTokens": 47,
+            "cacheReadInputTokens": 5855,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 8
+          },
+          "latencyMs": 1594,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_0e6207dc64f1752c016aef1d2cb04487d08e1af130257f8475",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "execution",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 3207,
+            "outputTokens": 83,
+            "cacheReadInputTokens": 7476,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1828,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_01880e30b223a662016aef1d2ee73887d0923dc62d33fed679",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 4,
+            "outputTokens": 174,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 13342
+          },
+          "latencyMs": 1567,
+          "metadata": {
+            "provider": "anthropic",
+            "requestedModel": "claude-haiku-5-5",
+            "requestedEffort": "low",
+            "returnedModel": "claude-haiku-5-5",
+            "responseId": "msg_011Cgob7V2sJq2vuMzWzcq6y",
+            "serviceTier": "standard",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        },
+        {
+          "purpose": "completion_review",
+          "kind": "text",
+          "usage": {
+            "inputTokens": 7179,
+            "outputTokens": 84,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "reasoningTokens": 0
+          },
+          "latencyMs": 1743,
+          "metadata": {
+            "provider": "openai",
+            "requestedModel": "gpt-6-luna",
+            "requestedEffort": "low",
+            "returnedModel": "gpt-6-luna",
+            "responseId": "resp_01462cb618b20e3d016aef1d3248a087d09f0e23e4fbef64c2",
+            "serviceTier": "default",
+            "httpAttempts": 1
+          },
+          "syntheticOutput": null
+        }
+      ]
+    }
+  ],
+  "budget": {
+    "limitUsd": 10,
+    "maxAttempts": 796,
+    "attempts": 656,
+    "accountedUpperUsd": 8.8379,
+    "unknownCalls": 12
+  }
+}

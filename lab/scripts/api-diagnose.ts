@@ -65,7 +65,8 @@ try {
 		budget: ledger.summary(),
 	};
 	writeFileSync(
-		`docs/reviews/2026-11-05/implementation/api-diagnostic-${Date.now()}.json`,
+		process.env.LAB_DIAGNOSTIC_OUT ??
+			`lab/data/api-diagnostic-${Date.now()}.json`,
 		JSON.stringify(report, null, 2) + "\n",
 	);
 	console.log(JSON.stringify(report));
