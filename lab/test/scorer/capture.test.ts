@@ -122,6 +122,8 @@ describe("scoreTrial: captures", () => {
 			b.capture({ fileName: "a.png", range: "item" }),
 		);
 		expect(other.failures).toEqual(["capture_missing"]);
+		expect(other.captures?.wrongRange).toBe(1);
+		expect(other.wrongTarget.operations).toBe(0);
 	});
 
 	test("the right page without a capture still fails, and a capture on the wrong page still fails", async () => {

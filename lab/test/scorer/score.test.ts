@@ -6,6 +6,34 @@ const HK = "sites/hoshikuzu";
 const MH = "sites/minato-hall";
 
 describe("scoreTrial: end state", () => {
+	test("state achievement, missing answers and excess partial are separate from accepted completion", async () => {
+		const def = await devCase("dev-update-base");
+		const score = (text: string, url = `${HK}/base/book.html?id=4#stock`) =>
+			scoreTrial(
+				def,
+				new TranscriptBuilder()
+					.observe(fixtureUrl(url))
+					.final("partial", text)
+					.build(def.id),
+			);
+		const achieved = score("在庫は2冊です");
+		expect(achieved.success).toBe(false);
+		expect(achieved.failures).toContain("answer_missing");
+		expect(achieved.completion).toEqual({
+			goalStateAchieved: true,
+			answerSatisfied: true,
+			excessPartial: true,
+		});
+		expect(score("確認できません").completion).toEqual({
+			goalStateAchieved: true,
+			answerSatisfied: false,
+			excessPartial: false,
+		});
+		expect(
+			score("在庫は2冊です", `${HK}/base/book.html?id=4`).completion
+				?.excessPartial,
+		).toBe(false);
+	});
 	test("success is read from the final URL, with efficiency counts", async () => {
 		const def = await devCase("dev-search-base");
 		const t = new TranscriptBuilder()

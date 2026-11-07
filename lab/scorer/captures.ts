@@ -163,6 +163,10 @@ export type CaptureCheck = {
 	matching: number;
 	/** Capture events, of any range, whose file failed a check. */
 	invalid: number;
+	wrongRange: number;
+	wrongTarget: number;
+	contentMismatch: number;
+	unconfirmed: number;
 };
 
 export function checkCaptures(
@@ -178,6 +182,13 @@ export function checkCaptures(
 			: [range as CaptureRange];
 	const hash =
 		target === undefined ? undefined : captureTargetHash(target.name);
+	const rangeMatches = (e: CaptureEvent) =>
+		ranges === undefined || ranges.includes(e.range);
+	const targetMatches = (e: CaptureEvent) =>
+		target === undefined ||
+		(e.target?.role === target.role && e.target.nameHash === hash);
+	const content =
+		holds === undefined ? [] : events.map((e) => captureRangeScore(e, holds));
 	return {
 		matching: events.filter(
 			(e) =>
@@ -188,5 +199,11 @@ export function checkCaptures(
 		).length,
 		invalid: events.filter((e) => captureProblem(e, captureDir) !== null)
 			.length,
+		wrongRange: events.filter((e) => !rangeMatches(e)).length,
+		wrongTarget: events.filter((e) => !targetMatches(e)).length,
+		contentMismatch: content.filter(
+			(s) => s.missing.length > 0 || s.extra.length > 0,
+		).length,
+		unconfirmed: content.filter((s) => s.unconfirmed).length,
 	};
 }

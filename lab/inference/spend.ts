@@ -63,6 +63,7 @@ export class SpendLedger {
 			.get() as { attempts: number; accounted: number; unknown: number };
 		return {
 			limitUsd: this.limitUsd,
+			maxAttempts: this.maxAttempts,
 			attempts: row.attempts,
 			accountedUpperUsd: row.accounted / 1_000_000,
 			unknownCalls: row.unknown,

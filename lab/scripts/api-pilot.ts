@@ -39,20 +39,59 @@ if (
 )
 	throw new Error("invalid_evaluation_split");
 const customCaseFile = process.env.LAB_EVAL_CASE_FILE;
-const customJson = customCaseFile
+const customInput = customCaseFile
 	? JSON.parse(readFileSync(customCaseFile, "utf8"))
 	: null;
+const customJson = Array.isArray(customInput)
+	? customInput
+	: customInput?.cases;
+if (
+	customCaseFile &&
+	(!Array.isArray(customJson) ||
+		customJson.some(
+			(c) =>
+				c === null ||
+				typeof c !== "object" ||
+				!["dev", "live"].includes(c.split),
+		))
+)
+	throw new Error("custom_cases_require_dev_or_live_split");
+const repetitions = Number(process.env.LAB_PILOT_REPETITIONS ?? 1);
+if (!Number.isSafeInteger(repetitions) || repetitions < 1 || repetitions > 3)
+	throw new Error("invalid_repetitions");
 const cases = customCaseFile
-	? parseCases(Array.isArray(customJson) ? customJson : customJson.cases, "dev")
+	? (["dev", "live"] as const).flatMap((split) =>
+			parseCases(
+				(Array.isArray(customJson) ? customJson : customJson.cases).filter(
+					(c: { split: string }) => c.split === split,
+				),
+				split,
+			),
+		)
 	: await loadCases({ includeHoldout: evaluationSplit === "holdout" });
 const available = evaluationSplit
 	? cases.filter((c) => c.split === evaluationSplit).map((c) => c.id)
-	: ALL_IDS;
+	: customCaseFile
+		? cases.map((c) => c.id)
+		: ALL_IDS;
 if (selected?.some((id) => !available.includes(id)))
 	throw new Error("unknown_evaluation_case");
 const IDS = selected
 	? available.filter((id) => selected.includes(id))
 	: available;
+if (process.env.LAB_PILOT_DRY_RUN === "1") {
+	console.log(
+		JSON.stringify({
+			cases: IDS,
+			repetitions,
+			trials: IDS.length * 2 * repetitions,
+			maxModelCalls: cases
+				.filter((c) => IDS.includes(c.id))
+				.reduce((sum, c) => sum + c.budget.maxModelCalls * 2 * repetitions, 0),
+		}),
+	);
+	process.exit(0);
+}
 const files = [
 	...new Set(
 		Bun.spawnSync(["git", "ls-files", "-c", "-o", "--exclude-standard", "-z"])
@@ -61,7 +100,7 @@ const files = [
 	),
 ]
 	.filter((p) =>
-		/^(lab\/(host|cli|inference|scorer|scripted|config|cases|fixtures)\/|packages\/eumenes-interact\/(src\/|package.json)|skills\/|vendor\/|bun.lock$|package.json$|tsconfig.json$)/.test(
+		/^(lab\/(host|cli|inference|scorer|scripted|config|cases|fixtures|evaluation|scripts)\/|packages\/eumenes-interact\/(src\/|contract\/|tsconfig|package.json)|scripts\/|skills\/|vendor\/|bun.lock$|package.json$|tsconfig.json$)/.test(
 			p,
 		),
 	)
@@ -99,10 +138,12 @@ const plans = [
 	},
 ];
 const at = new Date().toISOString();
-const output = `docs/reviews/2026-11-05/implementation/api-pilot-${at.replaceAll(":", "-")}.json`;
+const output =
+	process.env.LAB_PILOT_OUT ??
+	`lab/data/api-pilot-${at.replaceAll(":", "-")}.json`;
 mkdirSync("lab/data", { recursive: true });
-const db = openLabDb("lab/data/api-pilot.sqlite");
-const server = startFixtureServer();
+const db = openLabDb(process.env.LAB_PILOT_DB ?? "lab/data/api-pilot.sqlite");
+const server = startFixtureServer(process.env.LAB_EVAL_FIXTURE_ROOT);
 ensureClaudeCredential();
 const rows: unknown[] = [];
 const blockedProviders = new Set<string>();
@@ -121,7 +162,7 @@ const save = () => {
 			{
 				at,
 				scope: customCaseFile
-					? "Independently authored fixture requests; author-run execution, one repetition; all cases retained; not a noninferiority study"
+					? "Custom preregistered cases; author-created and author-run, repetitions recorded; all cases retained; not independent user acceptance or a noninferiority study"
 					: evaluationSplit
 						? `author-run ${evaluationSplit} measurement, one repetition; not independent acceptance or a noninferiority study`
 						: "author-run development pilot, not holdout or independent acceptance",
@@ -134,7 +175,7 @@ const save = () => {
 					: null,
 				cases: IDS,
 				conditions: {
-					repetitions: 1,
+					repetitions,
 					browser: "chrome",
 					headless: true,
 					effort: "low",
@@ -164,11 +205,11 @@ for (const p of ["claude", "openai"] as const) {
 			.update(JSON.stringify(cases.filter((c) => IDS.includes(c.id))))
 			.digest("hex"),
 		includesHoldout: evaluationSplit === "holdout",
-		repetitions: 1,
+		repetitions,
 		arms: ["arm1"],
 		budget: {
 			combinedUsd: 10,
-			maxHttpAttempts: 600,
+			maxHttpAttempts: Number(process.env.LAB_SPEND_MAX_ATTEMPTS ?? 796),
 			maxOutputTokens: 2048,
 			retries: 0,
 		},
@@ -177,85 +218,89 @@ for (const p of ["claude", "openai"] as const) {
 	});
 }
 try {
-	for (const [index, id] of (phase === "plans" ? [] : IDS).entries()) {
-		const def = cases.find((c) => c.id === id)!;
-		for (const p of (index % 2
-			? ["openai", "claude"]
-			: ["claude", "openai"]) as ("claude" | "openai")[]) {
-			if (blockedProviders.has(p)) continue;
-			const inference =
-				p === "claude"
-					? startClaude(
-							{ model: "claude-haiku-5-5", effort: "low" },
-							silentLabLogger,
-							id,
-						)
-					: startLuna();
-			const browser = await createSession(
-				{ headed: false, browser: "chrome" },
-				silentLabLogger,
-			);
-			const calls: unknown[] = [];
-			try {
-				const record = (
-					inner: Pick<InferencePort, "complete">,
-					purpose: string,
-				): InferencePort => ({
-					complete: async (r) => {
-						const out = await inner.complete(r);
-						calls.push({
-							purpose,
-							...meta(out),
-							syntheticOutput: out.kind === "text" ? out.text : null,
-						});
-						if (out.kind === "error") blockedProviders.add(p);
-						return out;
-					},
-				});
-				const port = asCollabAgent(record(inference.raw, "execution"), {
-					completionVerifiers: (inference.port.completionVerifiers ?? []).map(
-						(v) => record(v, "completion_review"),
-					),
-				});
-				const result = await runTrial({
-					db,
-					def,
-					arm: "arm1",
-					experimentId: experiments.get(p)!,
-					repetition: 1,
-					orderIndex: index,
-					adapter: browser.adapter,
-					inference: port,
-					inferenceInfo: inference.info,
-					approver: new FixtureApprover(def.approvalScript),
-					logger: silentLabLogger,
-					versions: collectVersions({
-						browser: {
-							channel: "chrome",
-							customExecutable: false,
-							headless: true,
-						},
-					}),
-					fixtureBaseUrl: server.baseUrl,
-				});
-				rows.push({
-					provider: p,
-					case: id,
-					runId: result.runId,
-					status: result.status,
-					code: result.code,
-					success: result.score.success,
-					score: result.score,
-					transcript: result.transcript,
-					calls,
-				});
-				console.log(
-					`${p}\t${id}\t${result.status}\t${result.score.success ? "pass" : "FAIL"}`,
+	for (let repetition = 1; repetition <= repetitions; repetition++) {
+		for (const [index, id] of (phase === "plans" ? [] : IDS).entries()) {
+			const def = cases.find((c) => c.id === id)!;
+			for (const p of ((index + repetition - 1) % 2
+				? ["openai", "claude"]
+				: ["claude", "openai"]) as ("claude" | "openai")[]) {
+				if (blockedProviders.has(p)) continue;
+				const inference =
+					p === "claude"
+						? startClaude(
+								{ model: "claude-haiku-5-5", effort: "low" },
+								silentLabLogger,
+								id,
+							)
+						: startLuna();
+				const browser = await createSession(
+					{ headed: false, browser: "chrome", netGuard: def.split === "live" },
+					silentLabLogger,
 				);
-			} finally {
-				await browser.dispose();
-				await inference.dispose();
-				save();
+				const calls: unknown[] = [];
+				try {
+					const record = (
+						inner: Pick<InferencePort, "complete">,
+						purpose: string,
+					): InferencePort => ({
+						complete: async (r) => {
+							const out = await inner.complete(r);
+							calls.push({
+								purpose,
+								...meta(out),
+								syntheticOutput:
+									out.kind === "text" && def.split !== "live" ? out.text : null,
+							});
+							if (out.kind === "error") blockedProviders.add(p);
+							return out;
+						},
+					});
+					const port = asCollabAgent(record(inference.raw, "execution"), {
+						completionVerifiers: (inference.port.completionVerifiers ?? []).map(
+							(v) => record(v, "completion_review"),
+						),
+					});
+					const result = await runTrial({
+						db,
+						def,
+						arm: "arm1",
+						experimentId: experiments.get(p)!,
+						repetition,
+						orderIndex: index,
+						adapter: browser.adapter,
+						inference: port,
+						inferenceInfo: inference.info,
+						approver: new FixtureApprover(def.approvalScript),
+						logger: silentLabLogger,
+						versions: collectVersions({
+							browser: {
+								channel: "chrome",
+								customExecutable: false,
+								headless: true,
+							},
+						}),
+						fixtureBaseUrl: server.baseUrl,
+					});
+					rows.push({
+						provider: p,
+						repetition,
+						case: id,
+						runId: result.runId,
+						status: result.status,
+						code: result.code,
+						success: result.score.success,
+						score: result.score,
+						transcript: result.transcript,
+						calls,
+					});
+					console.log(
+						`${p}\t${id}\t${result.status}\t${result.score.success ? "pass" : "FAIL"}`,
+					);
+				} finally {
+					await browser.dispose();
+					await inference.dispose();
+					save();
+				}
 			}
 		}
 	}

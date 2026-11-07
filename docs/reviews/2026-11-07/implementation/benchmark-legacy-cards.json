@@ -1,0 +1,57 @@
+{
+  "at": "2026-11-07T12:26:07.727Z",
+  "target": "/tmp/eumenes-baseline-1c3b8a6-20261107/packages/eumenes-interact/src/index.ts",
+  "commit": "3148f702784ee93044b5b4d7213a0162548f9ded",
+  "runtime": {
+    "bun": "1.4.4",
+    "node": "v26.3.0",
+    "os": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M4"
+  },
+  "scope": "Exact node counts, three structures; core and host with FakeBrowser. Host includes observation/ledger IO, not real browser latency. Sampled RSS is not peak RSS or a production SLO.",
+  "budgets": {
+    "maxNodes": 10000,
+    "maxInputBytes": 1000000,
+    "coreP95Ms": 500,
+    "hostP95Ms": 500,
+    "sampledRssBytes": 536870912,
+    "iterations": 1
+  },
+  "rows": [
+    {
+      "size": 10000,
+      "shape": "cards",
+      "kind": "results",
+      "bytes": 453796,
+      "workloadSha256": "e73c3ccc8c70cfc2a127fcc3f7b24a1bab628e2e708898f5aac3b8c1e241fa31",
+      "p50Ms": 69.006292,
+      "p95Ms": 69.006292,
+      "maxMs": 69.006292,
+      "sampledRssBytes": 62161664,
+      "cpuMicros": {
+        "user": 109590,
+        "system": 5472
+      },
+      "withinBudget": true
+    }
+  ],
+  "resourceUsage": {
+    "userCPUTime": 155167,
+    "systemCPUTime": 48175,
+    "maxRSS": 61744,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 5564,
+    "majorPageFault": 62,
+    "swappedOut": 0,
+    "fsRead": 0,
+    "fsWrite": 0,
+    "ipcSent": 0,
+    "ipcReceived": 1,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 0,
+    "involuntaryContextSwitches": 1835
+  }
+}

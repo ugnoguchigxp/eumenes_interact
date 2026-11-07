@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-07T12:27:23.597Z",
+  "before": {
+    "cap": 10000000,
+    "attempts": 600
+  },
+  "after": {
+    "cap": 10000000,
+    "attempts": 796
+  },
+  "startAttempts": 596,
+  "additionalCallsAuthorized": 200,
+  "ledger": "lab/data/api-spend.sqlite",
+  "unknownReservationsPreserved": true,
+  "pricingCheckedAt": "2026-11-07",
+  "sources": [
+    "https://developers.openai.com/api/docs/pricing",
+    "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "https://platform.claude.com/docs/en/models/haiku-5-5/overview"
+  ],
+  "ratesChanged": false
+}

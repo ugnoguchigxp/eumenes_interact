@@ -87,6 +87,7 @@ function holdsOf(nodes: readonly Node[], block: Node) {
 export function collect(body: string, pageId: string): Collected {
 	const nodes = parseNodes(body);
 	const itemNodes = nodes.filter(isItemNode);
+	const itemIndexes = new Map(itemNodes.map((node, i) => [node.index, i]));
 	const seen = new Map<string, number>();
 	const records = itemNodes.map((node, i): ItemRecord => {
 		const region = regionOf(nodes, node);
@@ -107,7 +108,7 @@ export function collect(body: string, pageId: string): Collected {
 				: {}),
 			...(block ? { block } : {}),
 			...(parent
-				? { parent: `${pageId}.i${itemNodes.indexOf(parent) + 1}` }
+				? { parent: `${pageId}.i${itemIndexes.get(parent.index)! + 1}` }
 				: {}),
 			...(held && held.count > 0
 				? { holds: held.holds, holdsCount: held.count }

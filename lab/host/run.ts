@@ -454,6 +454,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				case "continue":
 					continue;
 				case "finish": {
+					proposedAnswer = step.text;
 					if (control.signal.aborted) return cancelEnding();
 					if (step.outcome !== "achieved") {
 						recorder.final(
@@ -605,6 +606,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 	}
 
 	let completedText: string | undefined;
+	let proposedAnswer: string | undefined;
 	let ending: Ending;
 	let unexpected: unknown;
 	try {
@@ -686,6 +688,7 @@ export async function runTrial(input: RunTrialInput): Promise<TrialResult> {
 				inference: input.inferenceInfo(),
 				nowIso: nowIso(),
 				finalText: recorder.finalText,
+				proposedAnswer,
 			});
 			return { transcript, score, scored };
 		});

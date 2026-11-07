@@ -1,0 +1,75 @@
+{
+  "createdAt": "2026-11-07",
+  "baseline": "1c3b8a6df183ab96bd59e7540e1f3977ab4f19c0",
+  "candidateBase": "3148f702784ee93044b5b4d7213a0162548f9ded",
+  "authorship": "Author-created and author-run; new requests/sites to this experiment, not independently authored holdout or statistical noninferiority acceptance.",
+  "browser": {
+    "cases": [
+      "fresh-orbit-capture",
+      "fresh-archive-ambiguity",
+      "fresh-live-sqlite-copyright",
+      "fresh-live-python-counter"
+    ],
+    "repetitions": 2,
+    "providers": [
+      "claude-haiku-5-5",
+      "gpt-6-luna"
+    ],
+    "maxCallsPerTrial": 10,
+    "maxTotalCalls": 160,
+    "completionReview": "Both providers; included in the 10-call bound.",
+    "ordering": "Alternate providers by case and repetition; fresh isolated Chrome per trial; no outcome-dependent retries."
+  },
+  "candidateComparison": {
+    "pages": [
+      {
+        "url": "https://www.sqlite.org/docs.html",
+        "request": "Choose the link that explains SQLite copyright and public-domain status.",
+        "expectedUrl": "https://www.sqlite.org/copyright.html"
+      },
+      {
+        "url": "https://docs.python.org/3/library/",
+        "request": "Choose the documentation for the collections module.",
+        "expectedUrl": "https://docs.python.org/3/library/collections.html"
+      },
+      {
+        "url": "https://www.sqlite.org/quickstart.html",
+        "request": "Choose the documentation of the C/C++ API reference.",
+        "expectedUrl": "https://www.sqlite.org/c3ref/intro.html"
+      }
+    ],
+    "treatments": [
+      "legacy-ranked-results",
+      "structural-document-order"
+    ],
+    "limit": 50,
+    "repetitions": 2,
+    "providers": [
+      "claude-haiku-5-5",
+      "gpt-6-luna"
+    ],
+    "maxTotalCalls": 24,
+    "truth": "Expected destination fixed before inference and never shown to the model. Recall and selected candidate separately. No actual navigation by the selector."
+  },
+  "budget": {
+    "startCalls": 596,
+    "maxCalls": 796,
+    "maxAdditional": 200,
+    "totalUsd": 10,
+    "unknownReservations": "retain",
+    "autoRetries": 0,
+    "outputTokens": 2048
+  },
+  "metrics": [
+    "existing success and all contract counters",
+    "goal state independently of terminal status",
+    "answer satisfied",
+    "excess partial only when state and requested answer are established",
+    "wrong-target navigation",
+    "capture range, target, content mismatch and unconfirmed content",
+    "unneeded clarification and approvals",
+    "false completion",
+    "all calls, errors, usage, duration and model metadata"
+  ],
+  "stopping": "Stop a provider on API error; stop all paid work on budget exhaustion. Do not edit product code while the registered run is in flight. Preserve every trial. Any failed case used for changes becomes development data and needs new holdout for generalization claims."
+}

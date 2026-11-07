@@ -1,0 +1,26 @@
+{
+  "commit": "1c3b8a6df183ab96bd59e7540e1f3977ab4f19c0",
+  "singleColdSample": true,
+  "workloadDeadlineSeconds": 30,
+  "note": "A timeout is a lower bound, not a measured p95. No automatic retry.",
+  "rows": [
+    {
+      "shape": "flat",
+      "exit": 1,
+      "timeout": false,
+      "elapsedSeconds": 0.96031125
+    },
+    {
+      "shape": "listitems",
+      "exit": null,
+      "timeout": true,
+      "elapsedSeconds": 30.005050708000002
+    },
+    {
+      "shape": "cards",
+      "exit": 0,
+      "timeout": false,
+      "elapsedSeconds": 0.1437948339999977
+    }
+  ]
+}

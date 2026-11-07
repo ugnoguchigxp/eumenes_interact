@@ -1,6 +1,10 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { ObservationEnvelope, ItemRecord } from "../../../index.ts";
-import { collect, pageItem } from "../../../core/parts/items.ts";
+import {
+	collect,
+	pageItem,
+	type Collected,
+} from "../../../core/parts/items.ts";
 import { textOf } from "../../../core/parts/summary.ts";
 import { PartFail, batch, resolve, type ExecutorContext } from "./context.ts";
 
@@ -72,19 +76,25 @@ export function observedItems(
 	const ref = within ? resolve(ctx, within, o).ref : null;
 	return batch(ctx, o, (pageId) => {
 		const c = collect(o.body, pageId);
-		const root = ref === null ? undefined : c.nodes.find((n) => n.ref === ref);
+		const nodesByRef = new Map<string, Collected["nodes"][number]>();
+		for (const node of c.nodes) {
+			if (node.ref !== null && !nodesByRef.has(node.ref))
+				nodesByRef.set(node.ref, node);
+		}
+		const root = ref === null ? undefined : nodesByRef.get(ref);
 		const made = ctx.core.summarizePage(
 			{ body: o.body, truncated: o.truncated, missing: o.missing },
 			{ pageId, maxItems: 100_000, maxHeadings: 0 },
 		);
 		const records = made.records.filter((r) => {
-			const node = c.nodes.find((n) => n.ref === r.ref);
+			const node = nodesByRef.get(r.ref);
 			return (
 				!root || (!!node && node.index >= root.index && node.index < root.end)
 			);
 		});
 		return {
 			...c,
+			nodesByRef,
 			records,
 			scopeText: (root ? c.nodes.slice(root.index, root.end) : c.nodes)
 				.map((n) => n.name || n.text)
@@ -94,9 +104,13 @@ export function observedItems(
 	});
 }
 
-export function contextualItem(o: ObservationEnvelope, r: ItemRecord) {
-	const c = collect(o.body, "p0");
-	const node = c.nodes.find((n) => n.ref === r.ref);
+export function contextualItem(
+	c: Collected & {
+		nodesByRef: ReadonlyMap<string, Collected["nodes"][number]>;
+	},
+	r: ItemRecord,
+) {
+	const node = c.nodesByRef.get(r.ref);
 	const context = node ? textOf(c.nodes, node).slice(0, 320) : "";
 	return { ...pageItem(r), ...(context ? { context } : {}) };
 }

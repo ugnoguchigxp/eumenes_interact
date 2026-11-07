@@ -49,7 +49,7 @@ export async function siteSearch(
 			code: "target_required",
 			page: summarize(ctx, observation),
 			candidates: fields.slice(0, 20).map((r) => ({
-				...contextualItem(observation, r),
+				...contextualItem(all, r),
 				...(known?.ref === r.ref ? { storedCandidate: true } : {}),
 			})),
 			...(urls.length ? { searchUrls: urls } : {}),

@@ -1,6 +1,10 @@
 import { originAllowed, type AdapterCommand } from "eumenes-interact";
 import type { CaseDef } from "../cases/schema.ts";
-import { type CaptureEvent, checkCaptures } from "./captures.ts";
+import {
+	type CaptureEvent,
+	type CaptureCheck,
+	checkCaptures,
+} from "./captures.ts";
 import type {
 	FinalKind,
 	TranscriptEvent,
@@ -34,6 +38,13 @@ export type TrialScore = {
 	terminal: FinalKind | null;
 	/** The model reported finish but the end state is not a success. */
 	falseFinish: boolean;
+	/** Additional axes; absent in historical scores, null for cases without the respective expectation. */
+	completion?: {
+		goalStateAchieved: boolean | null;
+		answerSatisfied: boolean | null;
+		excessPartial: boolean;
+	};
+	captures?: CaptureCheck | null;
 	wrongTarget: {
 		/** Dispatched operations that arrived on a forbidden or wrong-target page. */
 		operations: number;
@@ -134,7 +145,7 @@ export function scoreTrial(
 	def: CaseDef,
 	transcript: TrialTranscript,
 	/** The final text as written, when the transcript keeps only its length (a scrubbed live run). */
-	options: { finalText?: string } = {},
+	options: { finalText?: string; proposedAnswer?: string } = {},
 ): TrialScore {
 	const { expect } = def;
 	// The trial's base: the fixture server's, or a live case's start origin. Live cases may also visit the other
@@ -333,6 +344,7 @@ export function scoreTrial(
 	).length;
 
 	const failures: SuccessFailure[] = [];
+	let captures: CaptureCheck | null = null;
 	if (counts.modelCalls > def.budget.maxModelCalls)
 		failures.push("over_budget");
 	if (forbiddenVisited) failures.push("forbidden_visited");
@@ -359,6 +371,7 @@ export function scoreTrial(
 				expect.captures.target,
 				expect.captures.holds,
 			);
+			captures = check;
 			if (check.matching < expect.captures.min)
 				failures.push("capture_missing");
 			if (check.invalid > 0) failures.push("capture_invalid");
@@ -372,6 +385,17 @@ export function scoreTrial(
 	}
 	const success = failures.length === 0;
 	const disrupted = wrongOps.length > 0 || failedOperations > 0;
+	const goalStateAchieved =
+		expect.kind === "reach"
+			? failures.every((f) => f === "answer_missing")
+			: null;
+	const answerSatisfied =
+		expect.kind === "reach"
+			? includesAllFacts(
+					options.proposedAnswer ?? finalText,
+					expect.answerIncludes,
+				)
+			: null;
 
 	return {
 		trialId: transcript.trialId,
@@ -381,6 +405,15 @@ export function scoreTrial(
 		failures,
 		terminal,
 		falseFinish: terminal === "finish" && !success,
+		completion: {
+			goalStateAchieved,
+			answerSatisfied,
+			excessPartial:
+				terminal === "partial" &&
+				goalStateAchieved === true &&
+				answerSatisfied === true,
+		},
+		captures,
 		wrongTarget: {
 			operations: wrongOps.length,
 			onApprovalRequiring: wrongOnApproval,

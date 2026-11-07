@@ -1,0 +1,132 @@
+[
+	{
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "deny"
+		},
+		"id": "fresh-orbit-capture",
+		"split": "dev",
+		"category": "screenshot",
+		"variant": "base",
+		"note": "New author-created fixture, not an independent holdout. No previous model trial.",
+		"request": "Save one image of the complete Nebula Field Guide note, including its heading and Orbit diagram. Leave out the recommended observations.",
+		"start": "sites/orbit-notes/base/index.html",
+		"expect": {
+			"kind": "reach",
+			"final": [
+				{
+					"path": "sites/orbit-notes/base/index.html"
+				}
+			],
+			"approval": "none",
+			"captures": {
+				"min": 1,
+				"range": "item",
+				"target": {
+					"role": "article",
+					"name": "Nebula field note"
+				},
+				"holds": {
+					"includes": [
+						{
+							"role": "heading",
+							"name": "Nebula Field Guide"
+						},
+						{
+							"role": "img",
+							"name": "Orbit diagram"
+						}
+					],
+					"excludes": [
+						{
+							"role": "complementary",
+							"name": "Other observations"
+						}
+					]
+				}
+			}
+		}
+	},
+	{
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "deny"
+		},
+		"id": "fresh-archive-ambiguity",
+		"split": "dev",
+		"category": "ambiguous",
+		"variant": "duplicate",
+		"note": "New author-created fixture; neither report has been specified.",
+		"request": "Open the report for me.",
+		"start": "sites/civic-archive/base/index.html",
+		"expect": {
+			"kind": "clarify",
+			"approval": "none",
+			"effectful": [],
+			"forbidden": [
+				{
+					"path": "sites/civic-archive/base/transport.html"
+				},
+				{
+					"path": "sites/civic-archive/base/housing.html"
+				}
+			]
+		}
+	},
+	{
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "deny"
+		},
+		"id": "fresh-live-sqlite-copyright",
+		"split": "live",
+		"category": "live",
+		"variant": "live",
+		"note": "Read-only public site. Source: https://www.sqlite.org/copyright.html. No prior trial of this request.",
+		"request": "From the SQLite documentation page, open its copyright information. Tell me whether the code is public domain; include the phrase public domain if the page says so.",
+		"start": "https://www.sqlite.org/docs.html",
+		"allowedOrigins": ["https://www.sqlite.org"],
+		"expect": {
+			"kind": "reach",
+			"approval": "none",
+			"final": [
+				{
+					"path": "/copyright.html"
+				}
+			],
+			"answerIncludes": ["public domain"]
+		}
+	},
+	{
+		"budget": {
+			"maxModelCalls": 10
+		},
+		"approvalScript": {
+			"decision": "deny"
+		},
+		"id": "fresh-live-python-counter",
+		"split": "live",
+		"category": "live",
+		"variant": "live",
+		"note": "Read-only public site. Source: https://docs.python.org/3/library/collections.html. No prior trial of this request.",
+		"request": "Starting from the Python standard library index, open the collections documentation. Which Counter method lists the most common elements? Include the class and method names in your answer after checking the page.",
+		"start": "https://docs.python.org/3/library/",
+		"allowedOrigins": ["https://docs.python.org"],
+		"expect": {
+			"kind": "reach",
+			"approval": "none",
+			"final": [
+				{
+					"path": "/3/library/collections.html"
+				}
+			],
+			"answerIncludes": ["Counter", "most_common"]
+		}
+	}
+]

@@ -1,0 +1,1 @@
+{"size":10000,"shape":"cards","kind":"results","bytes":453796,"workloadSha256":"e73c3ccc8c70cfc2a127fcc3f7b24a1bab628e2e708898f5aac3b8c1e241fa31","p50Ms":69.006292,"p95Ms":69.006292,"maxMs":69.006292,"sampledRssBytes":62161664,"cpuMicros":{"user":109590,"system":5472},"withinBudget":true}

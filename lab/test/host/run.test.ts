@@ -122,6 +122,8 @@ for (const outcome of ["achieved", "partial", "invalid"] as const)
 		expect(result.status).toBe(
 			outcome === "achieved" ? "completed" : "partial",
 		);
+		expect(result.score.completion?.goalStateAchieved).toBe(true);
+		expect(result.score.completion?.excessPartial).toBe(outcome !== "achieved");
 		expect(getRun(db, LAB_OWNER, result.runId)?.status).toBe(result.status);
 		expect(
 			result.transcript.events.some(

@@ -56,6 +56,18 @@ export type Aggregate = {
 	};
 	recovery: { disrupted: number; recovered: number; rate: number | null };
 	falseFinish: number;
+	completion: {
+		assessed: number;
+		goalStateAchieved: number;
+		excessPartial: number;
+	};
+	captures: {
+		assessed: number;
+		wrongRange: number;
+		wrongTarget: number;
+		contentMismatch: number;
+		unconfirmed: number;
+	};
 	outputFaults: {
 		parseRejections: number;
 		inferenceRefused: number;
@@ -132,6 +144,24 @@ export function aggregateScores(scores: readonly TrialScore[]): Aggregate {
 			rate: disrupted === 0 ? null : recovered / disrupted,
 		},
 		falseFinish: scores.filter((s) => s.falseFinish).length,
+		completion: {
+			assessed: scores.filter(
+				(s) =>
+					s.completion?.goalStateAchieved !== undefined &&
+					s.completion.goalStateAchieved !== null,
+			).length,
+			goalStateAchieved: scores.filter(
+				(s) => s.completion?.goalStateAchieved === true,
+			).length,
+			excessPartial: scores.filter((s) => s.completion?.excessPartial).length,
+		},
+		captures: {
+			assessed: scores.filter((s) => s.captures != null).length,
+			wrongRange: per((s) => s.captures?.wrongRange ?? 0),
+			wrongTarget: per((s) => s.captures?.wrongTarget ?? 0),
+			contentMismatch: per((s) => s.captures?.contentMismatch ?? 0),
+			unconfirmed: per((s) => s.captures?.unconfirmed ?? 0),
+		},
 		outputFaults: {
 			parseRejections: per((s) => s.outputFaults.parseRejections),
 			inferenceRefused: per((s) => s.outputFaults.inferenceRefused),

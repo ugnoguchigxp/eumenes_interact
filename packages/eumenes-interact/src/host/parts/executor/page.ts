@@ -122,7 +122,7 @@ export async function pageFind(
 			.join("\n");
 		return {
 			status: "completed",
-			candidates: shown.map((r) => contextualItem(observation, r)),
+			candidates: shown.map((r) => contextualItem(all, r)),
 			browse: paging.finish(matching.length, paging.offset + shown.length),
 			...(content
 				? {

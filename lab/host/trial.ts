@@ -290,15 +290,17 @@ export function scoreAndStore(
 		nowIso: string;
 		/** The unscrubbed final text (a live run's record keeps only its length); never stored. */
 		finalText?: string | undefined;
+		/** Candidate answer before the publication review; evaluated in memory, never stored. */
+		proposedAnswer?: string | undefined;
 	},
 ): { score: TrialScore; scored: boolean } {
 	const scored = def.expect !== undefined;
 	const score = scoreTrial(
 		{ ...def, expect: def.expect ?? NEUTRAL } as CaseDef,
 		transcript,
-		end.finalText === undefined ? {} : { finalText: end.finalText },
+		{ finalText: end.finalText, proposedAnswer: end.proposedAnswer },
 	);
-	const { finalText: _text, ...stored } = end;
+	const { finalText: _text, proposedAnswer: _proposal, ...stored } = end;
 	finishTrial(db, transcript.trialId, {
 		...stored,
 		transcript,

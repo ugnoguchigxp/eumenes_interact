@@ -87,5 +87,11 @@ describe("aggregateScores", () => {
 		expect(agg.successRate).toBeNull();
 		expect(agg.medians.totalMs).toBeNull();
 		expect(agg.recovery.rate).toBeNull();
+		expect(agg.completion).toEqual({
+			assessed: 0,
+			goalStateAchieved: 0,
+			excessPartial: 0,
+		});
+		expect(agg.captures.assessed).toBe(0);
 	});
 });
