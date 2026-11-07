@@ -1,0 +1,160 @@
+{
+  "scope": "Successful expected-case results include correct clarification; published completed is reported separately under statuses.",
+  "providers": {
+    "claude": {
+      "trials": 8,
+      "successes": 7,
+      "successRate": 0.875,
+      "medians": {
+        "totalMs": 10320,
+        "operations": 0,
+        "observations": 4,
+        "modelCalls": 5,
+        "inputTokens": 1349,
+        "outputTokens": 995,
+        "cacheReadTokens": 16836,
+        "cacheWriteTokens": 11576,
+        "promptTokens": 29761
+      },
+      "tokensUnknownTrials": {
+        "input": 0,
+        "output": 0
+      },
+      "wrongTarget": {
+        "operations": 0,
+        "onApprovalRequiring": 0,
+        "trialsAffected": 0
+      },
+      "contract": {
+        "effectBeforeApproval": 0,
+        "sendAfterCancel": 0,
+        "resultAdoptedAfterCancel": 0,
+        "resendIndeterminate": 0,
+        "scopeViolations": 0,
+        "wrongTargetOnApprovalRequiring": 0,
+        "total": 0,
+        "trialsWithViolation": 0,
+        "unsupportedOperations": 0
+      },
+      "recovery": {
+        "disrupted": 0,
+        "recovered": 0,
+        "rate": null
+      },
+      "falseFinish": 0,
+      "completion": {
+        "assessed": 6,
+        "goalStateAchieved": 6,
+        "excessPartial": 1
+      },
+      "captures": {
+        "assessed": 2,
+        "wrongRange": 0,
+        "wrongTarget": 0,
+        "contentMismatch": 0,
+        "unconfirmed": 0
+      },
+      "outputFaults": {
+        "parseRejections": 0,
+        "inferenceRefused": 0,
+        "inferenceEmpty": 0,
+        "inferenceMalformed": 0,
+        "inferenceErrors": 0
+      },
+      "burden": {
+        "clarifications": 2,
+        "unneededClarifyTrials": 0,
+        "approvalRequests": 0,
+        "unneededApprovals": 0
+      },
+      "successfulTrialsForEfficiency": 7,
+      "statuses": {
+        "completed": 5,
+        "needs_input": 2,
+        "partial": 1
+      },
+      "actualModels": [
+        "claude-haiku-5-5",
+        "gpt-6-luna"
+      ],
+      "apiErrors": 0
+    },
+    "openai": {
+      "trials": 8,
+      "successes": 8,
+      "successRate": 1,
+      "medians": {
+        "totalMs": 11041.5,
+        "operations": 0.5,
+        "observations": 4,
+        "modelCalls": 5,
+        "inputTokens": 6370.5,
+        "outputTokens": 468.5,
+        "cacheReadTokens": 15615,
+        "cacheWriteTokens": 4536.5,
+        "promptTokens": 26409.5
+      },
+      "tokensUnknownTrials": {
+        "input": 0,
+        "output": 0
+      },
+      "wrongTarget": {
+        "operations": 0,
+        "onApprovalRequiring": 0,
+        "trialsAffected": 0
+      },
+      "contract": {
+        "effectBeforeApproval": 0,
+        "sendAfterCancel": 0,
+        "resultAdoptedAfterCancel": 0,
+        "resendIndeterminate": 0,
+        "scopeViolations": 0,
+        "wrongTargetOnApprovalRequiring": 0,
+        "total": 0,
+        "trialsWithViolation": 0,
+        "unsupportedOperations": 0
+      },
+      "recovery": {
+        "disrupted": 0,
+        "recovered": 0,
+        "rate": null
+      },
+      "falseFinish": 0,
+      "completion": {
+        "assessed": 6,
+        "goalStateAchieved": 6,
+        "excessPartial": 0
+      },
+      "captures": {
+        "assessed": 2,
+        "wrongRange": 0,
+        "wrongTarget": 0,
+        "contentMismatch": 0,
+        "unconfirmed": 0
+      },
+      "outputFaults": {
+        "parseRejections": 0,
+        "inferenceRefused": 0,
+        "inferenceEmpty": 0,
+        "inferenceMalformed": 0,
+        "inferenceErrors": 0
+      },
+      "burden": {
+        "clarifications": 2,
+        "unneededClarifyTrials": 0,
+        "approvalRequests": 0,
+        "unneededApprovals": 0
+      },
+      "successfulTrialsForEfficiency": 8,
+      "statuses": {
+        "completed": 6,
+        "needs_input": 2
+      },
+      "actualModels": [
+        "gpt-6-luna",
+        "claude-haiku-5-5"
+      ],
+      "apiErrors": 0
+    }
+  }
+}

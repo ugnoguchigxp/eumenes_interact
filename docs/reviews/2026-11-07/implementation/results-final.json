@@ -1,0 +1,417 @@
+{
+  "at": "2026-11-07T13:16:47.756808+00:00",
+  "sourceCommit": "cdd7bdff5184bc0396fbdf1cbdd7e8d3763b75c1",
+  "package": "0.1.4",
+  "contractVersion": 3,
+  "coreFormatVersion": 1,
+  "runtimeAndTestSha256": "c8bc9064c9fa9918936c3d3152b9e7a7e726aa429d21c1f4b7c24db4db01f15b",
+  "runtimeAndTestFileCount": 445,
+  "packageSourceSha256": "a5216a7d4f3413c8945078aaf9a9ad774c736a269df08642b7ddae3bb6143750",
+  "archiveSha256": "dbe6f4d415970dd9f7e48425f47fc7d0e044673c08f05ea9c64b3ec6bc8b5c25",
+  "archiveLocal": "/Users/y.noguchi/Code/eumenes_interact/lab/data/releases/0.1.4-cdd7bdf/eumenes-interact-0.1.4.tgz",
+  "status": "Credential-free release gates passed; two-provider development measurement completed with one retained partial publication. Not full independent or statistical LLM acceptance.",
+  "checks": {
+    "verify": {
+      "pass": 1355,
+      "skipped": 2,
+      "fail": 0,
+      "exit": 0
+    },
+    "networkChrome": {
+      "pass": 2,
+      "fail": 0,
+      "exit": 0
+    },
+    "scriptedChrome": {
+      "pass": 20,
+      "fail": 0,
+      "exit": 0
+    },
+    "NodeBunConsumer": {
+      "exit": 0,
+      "archiveReproduced": true,
+      "runs": [
+        {
+          "runtime": "node v24.11.1",
+          "package": "0.1.4",
+          "filesVerified": 162,
+          "normal": true,
+          "refusal": true,
+          "approval": true,
+          "tamperDetected": true,
+          "sqlite": true,
+          "conformance": true
+        },
+        {
+          "runtime": "bun 1.4.4",
+          "package": "0.1.4",
+          "filesVerified": 162,
+          "normal": true,
+          "refusal": true,
+          "approval": true,
+          "tamperDetected": true,
+          "sqlite": true,
+          "conformance": true
+        }
+      ]
+    },
+    "benchmark": {
+      "exit": 0,
+      "conditions": 54,
+      "withinBudget": 54,
+      "iterations": 30
+    }
+  },
+  "candidateComparison": {
+    "file": "candidate-comparison.json",
+    "legacyCorrect": 8,
+    "legacyTotal": 12,
+    "structuralCorrect": 12,
+    "structuralTotal": 12,
+    "legacyExpectedAvailable": 8,
+    "structuralExpectedAvailable": 12,
+    "sourceCommit": "74b44174387cebdb5a5b69ba2c9579629d5184d6",
+    "applicability": "Candidate extraction implementation unchanged through the final source commit. Same 3 observed pages, 50-candidate cap, 2 providers, 2 repetitions. Selection only; no statistical superiority claim."
+  },
+  "performance": [
+    {
+      "shape": "flat",
+      "kind": "host.find",
+      "beforeP95Ms": 886.6057079999991,
+      "afterP95Ms": 164.73720800000046,
+      "speedup": 5.3819396283564345
+    },
+    {
+      "shape": "flat",
+      "kind": "host.results",
+      "beforeP95Ms": 471.49299999999494,
+      "afterP95Ms": 152.0620830000007,
+      "speedup": 3.100661195072494
+    },
+    {
+      "shape": "listitems",
+      "kind": "host.find",
+      "beforeP95Ms": 381.17795900000056,
+      "afterP95Ms": 148.55841599999985,
+      "speedup": 2.565845606485202
+    },
+    {
+      "shape": "listitems",
+      "kind": "host.results",
+      "beforeP95Ms": 155.4315839999981,
+      "afterP95Ms": 120.71583300000202,
+      "speedup": 1.2875824167985943
+    },
+    {
+      "shape": "cards",
+      "kind": "host.find",
+      "beforeP95Ms": 576.2167500000069,
+      "afterP95Ms": 101.07333300000028,
+      "speedup": 5.700977032191125
+    },
+    {
+      "shape": "cards",
+      "kind": "host.results",
+      "beforeP95Ms": 200.05666600000404,
+      "afterP95Ms": 150.4308749999982,
+      "speedup": 1.329890994784192
+    }
+  ],
+  "realLlm": {
+    "file": "api-browser-final.json",
+    "commandExit": 1,
+    "trials": 16,
+    "expectedCaseSuccesses": 15,
+    "goalStateChecks": {
+      "success": 12,
+      "total": 12
+    },
+    "expectedClarifications": {
+      "success": 4,
+      "total": 4
+    },
+    "providers": {
+      "claude": {
+        "trials": 8,
+        "successes": 7,
+        "successRate": 0.875,
+        "medians": {
+          "totalMs": 10320,
+          "operations": 0,
+          "observations": 4,
+          "modelCalls": 5,
+          "inputTokens": 1349,
+          "outputTokens": 995,
+          "cacheReadTokens": 16836,
+          "cacheWriteTokens": 11576,
+          "promptTokens": 29761
+        },
+        "tokensUnknownTrials": {
+          "input": 0,
+          "output": 0
+        },
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0,
+          "trialsAffected": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "wrongTargetOnApprovalRequiring": 0,
+          "total": 0,
+          "trialsWithViolation": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": 0,
+          "recovered": 0,
+          "rate": null
+        },
+        "falseFinish": 0,
+        "completion": {
+          "assessed": 6,
+          "goalStateAchieved": 6,
+          "excessPartial": 1
+        },
+        "captures": {
+          "assessed": 2,
+          "wrongRange": 0,
+          "wrongTarget": 0,
+          "contentMismatch": 0,
+          "unconfirmed": 0
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 2,
+          "unneededClarifyTrials": 0,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        },
+        "successfulTrialsForEfficiency": 7,
+        "statuses": {
+          "completed": 5,
+          "needs_input": 2,
+          "partial": 1
+        },
+        "actualModels": [
+          "claude-haiku-5-5",
+          "gpt-6-luna"
+        ],
+        "apiErrors": 0
+      },
+      "openai": {
+        "trials": 8,
+        "successes": 8,
+        "successRate": 1,
+        "medians": {
+          "totalMs": 11041.5,
+          "operations": 0.5,
+          "observations": 4,
+          "modelCalls": 5,
+          "inputTokens": 6370.5,
+          "outputTokens": 468.5,
+          "cacheReadTokens": 15615,
+          "cacheWriteTokens": 4536.5,
+          "promptTokens": 26409.5
+        },
+        "tokensUnknownTrials": {
+          "input": 0,
+          "output": 0
+        },
+        "wrongTarget": {
+          "operations": 0,
+          "onApprovalRequiring": 0,
+          "trialsAffected": 0
+        },
+        "contract": {
+          "effectBeforeApproval": 0,
+          "sendAfterCancel": 0,
+          "resultAdoptedAfterCancel": 0,
+          "resendIndeterminate": 0,
+          "scopeViolations": 0,
+          "wrongTargetOnApprovalRequiring": 0,
+          "total": 0,
+          "trialsWithViolation": 0,
+          "unsupportedOperations": 0
+        },
+        "recovery": {
+          "disrupted": 0,
+          "recovered": 0,
+          "rate": null
+        },
+        "falseFinish": 0,
+        "completion": {
+          "assessed": 6,
+          "goalStateAchieved": 6,
+          "excessPartial": 0
+        },
+        "captures": {
+          "assessed": 2,
+          "wrongRange": 0,
+          "wrongTarget": 0,
+          "contentMismatch": 0,
+          "unconfirmed": 0
+        },
+        "outputFaults": {
+          "parseRejections": 0,
+          "inferenceRefused": 0,
+          "inferenceEmpty": 0,
+          "inferenceMalformed": 0,
+          "inferenceErrors": 0
+        },
+        "burden": {
+          "clarifications": 2,
+          "unneededClarifyTrials": 0,
+          "approvalRequests": 0,
+          "unneededApprovals": 0
+        },
+        "successfulTrialsForEfficiency": 8,
+        "statuses": {
+          "completed": 6,
+          "needs_input": 2
+        },
+        "actualModels": [
+          "gpt-6-luna",
+          "claude-haiku-5-5"
+        ],
+        "apiErrors": 0
+      }
+    },
+    "retainedPartials": [
+      {
+        "operator": "claude",
+        "case": "fresh-live-sqlite-copyright",
+        "repetition": 1,
+        "code": "completion_review_partial",
+        "goalStateAchieved": true,
+        "requestedFactsSatisfied": true,
+        "lastReviewer": "gpt-6-luna",
+        "attribution": "The host stops at the first non-achieved review, so the last reviewer declined. Review prose for live pages is not persisted."
+      }
+    ],
+    "captureImages": [
+      {
+        "provider": "claude",
+        "repetition": 1,
+        "captureId": "c1",
+        "sha256": "5e3a15fa8f452f84f093e25fdcdc992130e3157676f35b95f398564ccbc72441",
+        "matchesVisuallyCheckedImage": true
+      },
+      {
+        "provider": "openai",
+        "repetition": 1,
+        "captureId": "c1",
+        "sha256": "5e3a15fa8f452f84f093e25fdcdc992130e3157676f35b95f398564ccbc72441",
+        "matchesVisuallyCheckedImage": true
+      },
+      {
+        "provider": "openai",
+        "repetition": 2,
+        "captureId": "c1",
+        "sha256": "5e3a15fa8f452f84f093e25fdcdc992130e3157676f35b95f398564ccbc72441",
+        "matchesVisuallyCheckedImage": true
+      },
+      {
+        "provider": "claude",
+        "repetition": 2,
+        "captureId": "c1",
+        "sha256": "5e3a15fa8f452f84f093e25fdcdc992130e3157676f35b95f398564ccbc72441",
+        "matchesVisuallyCheckedImage": true
+      }
+    ],
+    "conditions": {
+      "repetitions": 2,
+      "browser": "chrome",
+      "headless": true,
+      "effort": "low",
+      "maxOutputTokens": 2048,
+      "httpRetries": 0,
+      "completionReview": "Claude + Luna; both must approve, inside the original per-run call budget"
+    },
+    "scope": "Same fixed expectations and per-trial call bounds. Matched author-created/author-run regression after schema repair, not a fresh independent holdout.",
+    "priorFailures": "api-browser-before-schema-fix.json and schema-diagnostic-failed.json retained; not replaced by the successful later API calls."
+  },
+  "budget": {
+    "calls": 727,
+    "accountedUpperUsd": 9.76578,
+    "unknownCalls": 13,
+    "limitUsd": 15,
+    "maxAttempts": 796,
+    "priorCallsVerified": 657,
+    "priorCallsSha256": "85a857900f6608556434fdb5d7ffdd56f43cebcae9fa59193dde3fca4b9a8c6a",
+    "priorReservationsUnchanged": true,
+    "additionalCalls": 131,
+    "additionalAuthorized": 200
+  },
+  "llmNativeReview": {
+    "siteSpecificProductBranchesAdded": false,
+    "meaningJudgmentMovedToCode": false,
+    "changes": "Observation index reuse; standard JSON Schema definition factoring and envelope forwarding; native socket family selection restricted to checked addresses; independent evaluation counters.",
+    "externalContractEvidence": [
+      "https://platform.claude.com/docs/en/build-with-claude/structured-outputs#schema-complexity-limits",
+      "https://developers.openai.com/api/docs/guides/structured-outputs#definitions-are-supported",
+      "https://nodejs.org/api/net.html#socketconnectoptions-connectlistener"
+    ]
+  },
+  "limitations": [
+    "One state-and-fact-satisfied trial ended partial in the dual completion check; it remains a failed strict publication, not reclassified as success.",
+    "The excessPartial flag uses fixture/URL/capture/fact checks, not independent semantic assessment of every live answer.",
+    "Only two public sites and two new local fixtures; small author-run sample does not establish general site success rate or statistical noninferiority.",
+    "No Eumenes deployment or CI change. Eumenes remains on previously recorded 0.1.3.",
+    "RSS is sampled benchmark-process RSS; no browser-process-tree peak or production SLO claim."
+  ],
+  "logs": {
+    "verify": {
+      "file": "verify-release.log",
+      "rawSha256": "525a8f956fbbbefe500a0006e76e215afc31e7efdda046d02c41614921396240",
+      "savedSha256": "bed758ca1b40ac3aa19d6f9daf00e0134e2bfe6b20f936ef93c26478f6432bc1",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/final15."
+    },
+    "benchmark": {
+      "file": "benchmark-release.log",
+      "rawSha256": "93b71cb3849c0bb91c0735522befbf410347e3f61424b0d1697dfdd552f99edd",
+      "savedSha256": "93b71cb3849c0bb91c0735522befbf410347e3f61424b0d1697dfdd552f99edd",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/final15."
+    },
+    "network-chrome": {
+      "file": "network-chrome-release.log",
+      "rawSha256": "0190a261b6d0ba1537f11f692da34d928ef6c09efe28cbf62b038952ea1e3c0c",
+      "savedSha256": "0190a261b6d0ba1537f11f692da34d928ef6c09efe28cbf62b038952ea1e3c0c",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/final15."
+    },
+    "chrome-dev20": {
+      "file": "chrome-dev20-release.log",
+      "rawSha256": "9553a9061d4456e481cd77903bb3441bf5f920077b78f2d568fedc22a73d50c3",
+      "savedSha256": "9553a9061d4456e481cd77903bb3441bf5f920077b78f2d568fedc22a73d50c3",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/final15."
+    },
+    "package-consumer": {
+      "file": "package-consumer-release.log",
+      "rawSha256": "ef1d28b6010e593ef5feab988ef1da1acd4e7aee3c38bc4cb949468a1df8c295",
+      "savedSha256": "ef1d28b6010e593ef5feab988ef1da1acd4e7aee3c38bc4cb949468a1df8c295",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/final15."
+    },
+    "api-browser": {
+      "file": "api-browser-release.log",
+      "rawSha256": "089e9cbd00a85da0a636ff48c1b73f6fd7760c6089a664cd6d3e064987e0ff7e",
+      "savedSha256": "089e9cbd00a85da0a636ff48c1b73f6fd7760c6089a664cd6d3e064987e0ff7e",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/final15."
+    },
+    "archive": {
+      "file": "archive-release.log",
+      "rawSha256": "ffd4dd6467e25fb0cde9b0f69a3c81e4e963c75a785d881a006b2edaa7108e08",
+      "savedSha256": "ffd4dd6467e25fb0cde9b0f69a3c81e4e963c75a785d881a006b2edaa7108e08",
+      "normalization": "Trailing whitespace only; raw output retained under lab/data/acceptance-20261107/final15."
+    }
+  }
+}

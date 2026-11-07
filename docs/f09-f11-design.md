@@ -68,6 +68,38 @@
 
 固定版でverifyは1354件成功・失敗0、既定の省略2件は別の実Chrome通信試験で2件成功、Scripted実Chromeは20/20、Node/Bunの空Consumerは162ファイル・全適合項目が成功した。配布source SHA-256は `a5216a7d4f3413c8945078aaf9a9ad774c736a269df08642b7ddae3bb6143750`、archiveは `b30b776eff78eed42607d4e75149f92b582bc2b63637d2331abfed00194c9fe8`。Host、試験、fixture、Skill、設定も含む445ファイルの別の指紋を保存した。[受入記録](reviews/2026-11-07/implementation/results-schema-fixed.json)
 
-修正後の両モデルAPI再検証は、当初の金額上限で一時停止した。追加200回の承認に合わせ、596回から累計796回までを上限とした。現在657回、保守的計上9.46546/10 USD、未確定13回の予約を維持している。次のClaude呼出しに必要な0.63012 USDを残枠で確保できないため、それ以上は送信していない。修正に使った初回ケースを独立holdoutとは呼ばず、再実行はmatched回帰として全試行を残す。
+修正後の両モデルAPI再検証は、当初の金額上限で一時停止した。追加200回の承認に合わせ、596回から累計796回までを上限とした。一時停止時点は657回、保守的計上9.46546/10 USD、未確定13回の予約を維持した。次のClaude呼出しに必要な0.63012 USDを残枠で確保できないため、追加承認までは送信しなかった。修正に使った初回ケースを独立holdoutとは呼ばず、再実行はmatched回帰として全試行を残す。
 
-その後、利用者から総額15USDまでの承認を得た。累計796回の上限と全未確定分の予約を維持して、同じ期待値のmatched回帰を進める。[予算変更の監査記録](reviews/2026-11-07/implementation/budget-authorization-15usd.json)
+その後、利用者から総額15USDまでの承認を得た。累計796回の上限と全未確定分の予約を維持して、同じ期待値のmatched回帰を実施した。[予算変更の監査記録](reviews/2026-11-07/implementation/budget-authorization-15usd.json)
+
+### 最終の固定版と結果
+
+最終の実装・実行指示・評価器・fixtureは `cdd7bdff5184bc0396fbdf1cbdd7e8d3763b75c1` で固定した。その後の変更はREADMEと検証記録だけで、445ファイルの指紋 `c8bc9064c9fa9918936c3d3152b9e7a7e726aa429d21c1f4b7c24db4db01f15b` と照合する。[最終集計](reviews/2026-11-07/implementation/results-final.json)、[ソース全体の指紋](reviews/2026-11-07/implementation/source-snapshot-final.json)
+
+| 最終ソースでの対象 | 結果 |
+| --- | --- |
+| `bun run verify` | 1355件成功、失敗0、省略2。型・lint・整形・配布検査を含む |
+| 実Chromeの通信境界 | 別実行で2件成功 |
+| Scripted実Chrome | dev 20/20成功 |
+| Node/Bun空Consumer | 両方で162ファイル・通常・拒否・承認・改変拒否・SQLite・適合検査が成功 |
+| 100〜10,000ノードの性能 | 3構造×3規模×6経路、各30回の54条件が目安内 |
+| 実LLM | 両モデル、4ケース×2回、計16試行。到達条件12/12、必要な確認4/4。厳密な結果は15/16 |
+
+[最終の性能値](reviews/2026-11-07/implementation/benchmark-final.json)で、10,000ノードのHost findのp95は平坦なリンク886.61→164.74ms、カード型576.22→101.07ms。Host resultsは平坦なリンク471.49→152.06ms。中間版の測定も保存しており、都合のよい計測だけを最終値に選んでいない。これは採取RSSと限定した構造の計測で、本番SLOや任意の深い木の計算量の保証ではない。
+
+[APIの最終記録](reviews/2026-11-07/implementation/api-browser-final.json)と[担当ごとの集計](reviews/2026-11-07/implementation/api-summary-final.json):
+
+| 操作担当 | ケース成功 | 到達条件 | completed / partial / needs_input | 誤対象・不要確認・誤完了 |
+| --- | --- | --- | --- | --- |
+| Claude | 7/8 | 6/6 | 5 / 1 / 2 | 各0 |
+| Luna | 8/8 | 6/6 | 6 / 0 / 2 | 各0 |
+
+撮影は4/4で対象・範囲・必要要素が一致し、不要な領域を含まない。4枚は[目視確認した画像](reviews/2026-11-07/implementation/capture-orbit-luna.png)とバイト単位で一致した。最終APIのHTTPエラーと必須契約違反も0。
+
+ただし、Claudeが操作したSQLiteの1試行は、到達条件と指定した回答語句を満たした後に、二者確認のLuna側がpartialと判断した。`completion_review_partial` の失敗を残し、完了へ変更していない。`excessPartial` は到達条件・撮影・必要語句が満たされたpartialを検出する指標であり、ライブ回答全体の意味を独立した人が正しいと認定したものではない。この1件の完了精度は残課題とする。同条件の再試行で成功記録に置き換えたり、この例に合わせた製品分岐を加えたりしていない。
+
+初回のAPI失敗と中継の診断失敗も保持した。修正に使ったケースの再測定なので、独立holdout・統計的非劣性・一般サイト成功率の認定には使わない。通常会話への本体有効化と0.1.4の本体反映は今回の対象外のまま。
+
+配布source SHA-256は `a5216a7d4f3413c8945078aaf9a9ad774c736a269df08642b7ddae3bb6143750`、最終archiveは `dbe6f4d415970dd9f7e48425f47fc7d0e044673c08f05ea9c64b3ec6bc8b5c25`。[Consumer記録](reviews/2026-11-07/implementation/package-consumer-release.json)と保存したtgzのhashが一致し、同じcommitから同じarchiveを再生成できた。
+
+今回の追加は131/200呼出し、累計727/796回。未確定13回の予約を含む保守的計上は9.76578/15 USD。予算変更前の657回分の全行のhashが最終時点でも一致し、過去の課金・予約を変更していない。[最終予算照合](reviews/2026-11-07/implementation/budget-final.json)

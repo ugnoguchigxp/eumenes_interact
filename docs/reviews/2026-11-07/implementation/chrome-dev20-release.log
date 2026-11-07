@@ -1,0 +1,106 @@
+$ bun lab/cli/main.ts run --split dev --inference scripted --browser chrome --headless --db "lab/data/acceptance-20261107/final15/dev20.sqlite"
+dev-search-base	completed	success	-
+dev-search-duplicate	completed	success	-
+dev-select-base	completed	success	-
+dev-select-delayed	completed	success	-
+dev-select-stale	completed	success	-
+dev-update-base	completed	success	-
+dev-update-relabel	completed	success	-
+dev-tab-base	completed	success	-
+dev-tab-restructure	completed	success	-
+dev-form-base	completed	success	-
+dev-form-duplicate	completed	success	-
+dev-form-delayed	completed	success	-
+dev-approval-deny	needs_input	success	-
+dev-clarify-form	needs_input	success	-
+dev-capture-results	completed	success	-
+dev-capture-item	completed	success	-
+dev-capture-full	completed	success	-
+dev-form-multifield	completed	success	-
+dev-form-multifield-ask	needs_input	success	-
+dev-read-table	completed	success	-
+experiment	c49de189-949d-44c5-b36f-bc4f3b4c9106
+trial	dev-search-base	completed	success
+  final step: finish 「白波」の検索結果の一覧を表示しました。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/base/results.html?q=%E7%99%BD%E6%B3%A2
+  parts: site.search
+trial	dev-search-duplicate	completed	success
+  final step: finish 「天野」の検索結果を表示しました。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/duplicate/results.html?q=%E5%A4%A9%E9%87%8E
+  parts: form.fill > item.open
+trial	dev-select-base	completed	success
+  final step: finish 『潮風と灯台』の詳細ページを開きました。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/base/book.html?id=5
+  parts: site.search > item.open
+trial	dev-select-delayed	completed	success
+  final step: finish 『月影の図書館 外伝』のページを開きました。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/delayed/book.html?id=2
+  parts: site.search > page.wait > item.open
+trial	dev-select-stale	completed	success
+  final step: finish 『潮風と灯台』の詳細ページを開きました。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/stale/book.html?id=5
+  parts: site.search > item.open
+trial	dev-update-base	completed	success
+  final step: finish 『潮風レシピ帖』の在庫は2冊です。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/base/book.html?id=4#stock
+  parts: item.open
+trial	dev-update-relabel	completed	success
+  final step: finish この本をカートに入れました。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/relabel/book.html?id=1#cart
+  parts: item.open
+trial	dev-tab-base	completed	success
+  final step: finish 送料は5000円以上のご注文で無料になります。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/base/guide.html
+  parts: item.open
+trial	dev-tab-restructure	completed	success
+  final step: finish 店舗の地図のページを開きました。
+  final url: http://127.0.0.1:55533/sites/hoshikuzu/restructure/map.html
+  parts: item.open
+trial	dev-form-base	completed	success
+  final step: finish 見学の申し込みを送信しました。
+  final url: http://127.0.0.1:55533/sites/minato-hall/base/done.html?fullname=%E5%B1%B1%E7%94%B0%E8%8A%B1%E5%AD%90&email=hanako%40example.com&date=2026-11-21&people=2&note=
+  parts: form.fill > form.submit
+trial	dev-form-duplicate	completed	success
+  final step: finish 見学の申し込みを送信しました。
+  final url: http://127.0.0.1:55533/sites/minato-hall/duplicate/done.html?fullname=%E4%BD%90%E8%97%A4%E5%A4%AA%E9%83%8E&email=taro%40example.com&date=2026-11-14&people=3&note=
+  parts: form.fill > form.submit
+trial	dev-form-delayed	completed	success
+  final step: finish 見学の申し込みを送信しました。
+  final url: http://127.0.0.1:55533/sites/minato-hall/delayed/done.html?fullname=%E9%AB%98%E6%A9%8B%E6%AC%A1%E9%83%8E&email=jiro%40example.com&date=2026-11-28&people=1&note=
+  parts: form.fill > page.wait > form.submit
+trial	dev-approval-deny	needs_input(approval_denied)	success
+  final step: stopped http://127.0.0.1:55533/sites/minato-hall/base/mail.htmlで「button "配信を停止する"」をクリックします（送信・確定の操作）。承認されなかったため実行していません。
+  final url: http://127.0.0.1:55533/sites/minato-hall/base/mail.html
+  parts: item.open > form.submit(needs_approval:approval_denied)
+trial	dev-clarify-form	needs_input(clarify)	success
+  final step: clarify 見学の申し込みに必要な、お名前・メールアドレス・希望日・人数を教えてください。
+  final url: http://127.0.0.1:55533/sites/minato-hall/base/index.html
+trial	dev-capture-results	completed	success
+  final step: finish 「麻」の検索結果ページを撮影しました。
+  final url: http://127.0.0.1:55533/sites/kaede-shop/base/results.html?q=%E9%BA%BB
+  parts: site.search > page.capture > page.capture
+  captures: 1 in /Users/y.noguchi/Code/eumenes_interact/lab/data/captures/40666fe7-9325-4005-9b21-a1d3c3e8f55c
+    6bb32c10525a-1-viewport.png
+trial	dev-capture-item	completed	success
+  final step: finish 『木のスプーン』の商品の部分を撮影しました。
+  final url: http://127.0.0.1:55533/sites/kaede-shop/base/product.html?id=2
+  parts: site.search > item.open > page.capture > page.capture
+  captures: 1 in /Users/y.noguchi/Code/eumenes_interact/lab/data/captures/092546bf-2617-4b2f-8d1a-4ab9b641bde3
+    b354d04dd67c-1-item.png
+trial	dev-capture-full	completed	success
+  final step: finish 全商品のページ全体を撮影しました。
+  final url: http://127.0.0.1:55533/sites/kaede-shop/base/catalog.html
+  parts: item.open > page.capture > page.capture
+  captures: 1 in /Users/y.noguchi/Code/eumenes_interact/lab/data/captures/ec416f06-01ce-4936-8525-8c30e373c803
+    6c8af48f27e8-1-full.png
+trial	dev-form-multifield	completed	success
+  final step: finish ご注文を送信しました。
+  final url: http://127.0.0.1:55533/sites/kaede-shop/base/ordered.html?fullname=%E4%B8%AD%E6%9D%91%E7%BE%8E%E5%92%B2&email=misaki%40example.com&item=spoon&gift=1&delivery=express
+  parts: form.fill > form.submit
+trial	dev-form-multifield-ask	needs_input(clarify)	success
+  final step: clarify お届け方法は通常便とお急ぎ便のどちらにしますか。
+  final url: http://127.0.0.1:55533/sites/kaede-shop/base/order.html
+trial	dev-read-table	completed	success
+  final step: finish 麻のふきんは手洗いで、洗うときの水温の上限は30度です。
+  final url: http://127.0.0.1:55533/sites/kaede-shop/base/care.html
+  parts: item.open > page.read

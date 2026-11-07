@@ -9,6 +9,7 @@ LLMがブラウザ部品を選び、ホストが入力・承認・取消・保�
 | 対象 | 状態 |
 | --- | --- |
 | package | 0.1.4（契約version 3、core state format 1、migrationは変更なし）。構造候補の取得を索引化し、共通スキーマのAPI上限を修正。[設計と検証](docs/f09-f11-design.md) |
+| 0.1.4の受入 | source `cdd7bdf` でverify・実Chrome通信・Scripted 20件・Node/Bun Consumerが成功。実LLMは到達条件12/12、必要な確認4/4、厳密な完了結果15/16（partial 1件を保持）。[最終記録](docs/reviews/2026-11-07/implementation/results-final.json) |
 | 単体の技術評価 | 0.1.0（`5bdef97`）で正式81.9点。0.1.4は未評価 |
 | Eumenes本体 | pilotとして取込済み（通常会話では初期無効）。0.1.3（archive `be8c07de…`、source digest `fda6b0d0`）をEumenesへ反映済み。詳細は[統合設計](docs/integration-design.md) |
 | Desktop操作 | 受入前（事前検証のみ。[改善計画](docs/improvement-plan.md)のT23） |

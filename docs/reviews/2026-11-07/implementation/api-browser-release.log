@@ -1,0 +1,17 @@
+claude	fresh-orbit-capture	completed	pass
+openai	fresh-orbit-capture	completed	pass
+openai	fresh-archive-ambiguity	needs_input	pass
+claude	fresh-archive-ambiguity	needs_input	pass
+claude	fresh-live-sqlite-copyright	partial	FAIL
+openai	fresh-live-sqlite-copyright	completed	pass
+openai	fresh-live-python-counter	completed	pass
+claude	fresh-live-python-counter	completed	pass
+openai	fresh-orbit-capture	completed	pass
+claude	fresh-orbit-capture	completed	pass
+claude	fresh-archive-ambiguity	needs_input	pass
+openai	fresh-archive-ambiguity	needs_input	pass
+openai	fresh-live-sqlite-copyright	completed	pass
+claude	fresh-live-sqlite-copyright	completed	pass
+claude	fresh-live-python-counter	completed	pass
+openai	fresh-live-python-counter	completed	pass
+lab/data/acceptance-20261107/final15/api-browser.json

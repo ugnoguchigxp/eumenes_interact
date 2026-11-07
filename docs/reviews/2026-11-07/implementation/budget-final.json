@@ -1,0 +1,12 @@
+{
+  "calls": 727,
+  "accountedUpperUsd": 9.76578,
+  "unknownCalls": 13,
+  "limitUsd": 15,
+  "maxAttempts": 796,
+  "priorCallsVerified": 657,
+  "priorCallsSha256": "85a857900f6608556434fdb5d7ffdd56f43cebcae9fa59193dde3fca4b9a8c6a",
+  "priorReservationsUnchanged": true,
+  "additionalCalls": 131,
+  "additionalAuthorized": 200
+}
