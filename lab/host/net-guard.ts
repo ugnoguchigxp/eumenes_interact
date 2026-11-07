@@ -45,11 +45,20 @@ export async function resolvePublic(
 	resolve: Resolve = systemResolve,
 	egress: (address: string) => boolean = envEgress,
 ): Promise<{ ok: true; address: string } | { ok: false; code: string }> {
+	const result = await resolveAddresses(hostname, resolve, egress);
+	return result.ok ? { ok: true, address: result.addresses[0]! } : result;
+}
+
+async function resolveAddresses(
+	hostname: string,
+	resolve: Resolve = systemResolve,
+	egress: (address: string) => boolean = envEgress,
+): Promise<{ ok: true; addresses: string[] } | { ok: false; code: string }> {
 	const host = hostname.replace(/^\[|\]$/g, "").replace(/\.$/, "");
 	if (net.isIP(host))
 		return isPrivateAddress(host)
 			? { ok: false, code: "navigation_private_blocked" }
-			: { ok: true, address: host };
+			: { ok: true, addresses: [host] };
 	if (isPrivateHost(host))
 		return { ok: false, code: "navigation_private_blocked" };
 	let addresses: string[];
@@ -62,7 +71,20 @@ export async function resolvePublic(
 		return { ok: false, code: "navigation_dns_failed" };
 	if (addresses.some((a) => isPrivateAddress(a) && !egress(a)))
 		return { ok: false, code: "navigation_private_resolved" };
-	return { ok: true, address: addresses[0]! };
+	return { ok: true, addresses };
+}
+
+/** Pin native family selection to the whole checked answer, never a second DNS lookup. */
+function checkedLookup(addresses: string[]): net.LookupFunction {
+	return (_host, options, callback) => {
+		const records = addresses
+			.map((address) => ({ address, family: net.isIP(address) }))
+			.filter((r) => !options.family || r.family === options.family);
+		if (!records.length)
+			return callback(new Error("checked_address_family_unavailable"), []);
+		if (options.all) callback(null, records);
+		else callback(null, records[0]!.address, records[0]!.family);
+	};
 }
 
 const HOP_HEADERS = [
@@ -96,7 +118,7 @@ export async function startNetGuard(
 		options.onBlock?.(b);
 	};
 	const check = (host: string) =>
-		resolvePublic(host, options.resolve, options.egress);
+		resolveAddresses(host, options.resolve, options.egress);
 	const server = http.createServer(async (req, res) => {
 		let url: URL;
 		try {
@@ -122,7 +144,12 @@ export async function startNetGuard(
 		for (const h of HOP_HEADERS) delete headers[h];
 		const upstream = http.request(
 			{
-				host: verdict.address,
+				host: url.hostname,
+				agent: new http.Agent({
+					keepAlive: false,
+					lookup: checkedLookup(verdict.addresses),
+					autoSelectFamily: true,
+				}),
 				port: url.port || 80,
 				method: req.method,
 				path: `${url.pathname}${url.search}`,
@@ -157,12 +184,20 @@ export async function startNetGuard(
 				client.end("HTTP/1.1 403 Forbidden\r\n\r\n");
 				return;
 			}
-			const up = net.connect(port, verdict.address, () => {
-				client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
-				if (head.length) up.write(head);
-				up.pipe(client);
-				client.pipe(up);
-			});
+			const up = net.connect(
+				{
+					port,
+					host,
+					lookup: checkedLookup(verdict.addresses),
+					autoSelectFamily: true,
+				},
+				() => {
+					client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
+					if (head.length) up.write(head);
+					up.pipe(client);
+					client.pipe(up);
+				},
+			);
 			up.on("error", () => client.end("HTTP/1.1 502 Bad Gateway\r\n\r\n"));
 			client.on("close", () => up.destroy());
 		},

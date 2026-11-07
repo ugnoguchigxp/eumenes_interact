@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-07",
+  "sourceCommit": "7d16b977851ba8bc9945e86c9a8d8442e28b7d3f",
+  "stage": "candidate snapshot acquisition, before inference",
+  "exit": 1,
+  "error": "snapshot_navigation_not_confirmed",
+  "paidCallsAdded": 0,
+  "diagnosis": {
+    "dnsFirst": "2600:3c02::f03c:95ff:fe07:695",
+    "dnsSecond": "194.195.208.62",
+    "directFetchStatus": 200,
+    "previousGuard": "Connected only to the first checked DNS address; no family fallback.",
+    "regression": "Both HTTP and CONNECT with an unavailable first address return 502 before the fix; a reachable second checked address must work without another DNS resolution."
+  },
+  "resolution": "Use native family selection with a lookup pinned to all checked addresses. All-address private checks remain required. No site-specific path or DNS override."
+}

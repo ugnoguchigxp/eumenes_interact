@@ -89,6 +89,61 @@ describe("resolvePublic", () => {
 });
 
 describe("startNetGuard", () => {
+	test.each(["http", "connect"])(
+		"%s can use the second checked address without resolving again",
+		async (protocol) => {
+			const target = http.createServer((_q, r) =>
+				r.end("public test endpoint"),
+			);
+			await new Promise<void>((ok) => target.listen(0, "127.0.0.1", ok));
+			const port = (target.address() as net.AddressInfo).port;
+			let resolutions = 0;
+			const guard = await startNetGuard({
+				resolve: async () => {
+					resolutions++;
+					return ["::1", "127.0.0.1"];
+				},
+				egress: (address) => address === "::1" || address === "127.0.0.1",
+			});
+			try {
+				const proxyPort = Number(new URL(guard.url).port);
+				const status =
+					protocol === "http"
+						? await new Promise<number>((ok, fail) => {
+								http
+									.get(
+										{
+											host: "127.0.0.1",
+											port: proxyPort,
+											path: `http://dualstack.example:${port}/`,
+										},
+										(r) => {
+											r.resume();
+											ok(r.statusCode ?? 0);
+										},
+									)
+									.on("error", fail);
+							})
+						: await new Promise<number>((ok, fail) => {
+								const c = net.connect(proxyPort, "127.0.0.1", () =>
+									c.write(`CONNECT dualstack.example:${port} HTTP/1.1\r\n\r\n`),
+								);
+								c.on("error", fail);
+								c.on("data", (data) => {
+									ok(Number(String(data).split(" ")[1]));
+									c.destroy();
+								});
+							});
+				expect(status).toBe(200);
+				expect(resolutions).toBe(1);
+				expect(guard.blocked).toEqual([]);
+			} finally {
+				target.closeAllConnections();
+				target.close();
+				await guard.close();
+			}
+		},
+	);
 	test("CONNECT and plain HTTP to a private resolution are refused before connecting", async () => {
 		let hits = 0;
 		const target = http.createServer((_q, r) => {

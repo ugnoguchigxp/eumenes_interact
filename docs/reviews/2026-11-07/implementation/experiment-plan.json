@@ -71,5 +71,14 @@
     "false completion",
     "all calls, errors, usage, duration and model metadata"
   ],
-  "stopping": "Stop a provider on API error; stop all paid work on budget exhaustion. Do not edit product code while the registered run is in flight. Preserve every trial. Any failed case used for changes becomes development data and needs new holdout for generalization claims."
+  "stopping": "Stop a provider on API error; stop all paid work on budget exhaustion. Do not edit product code while the registered run is in flight. Preserve every trial. Any failed case used for changes becomes development data and needs new holdout for generalization claims.",
+  "preInferenceAmendments": [
+    {
+      "at": "2026-11-07",
+      "reason": "Initial public snapshot failed before any paid call. Repair shared checked-address family selection, preserving the page/request/expectation/repetition/order/budget.",
+      "failureRecord": "candidate-initial-failure.json",
+      "source": "https://nodejs.org/api/net.html#socketconnectoptions-connectlistener",
+      "independence": "No model has seen these cases in this experiment."
+    }
+  ]
 }
