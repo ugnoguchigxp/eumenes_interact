@@ -1,4 +1,4 @@
-import { utf8Length } from "./text.ts";
+import { utf8Length } from "./utf8-length.ts";
 
 /**
  * What the host lets the model see of one snapshot (Eumenes `api/domains/browser/contracts/index.ts`, spec

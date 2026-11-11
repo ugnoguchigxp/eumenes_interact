@@ -1,11 +1,12 @@
 /**
- * `bun run check:stack` (plan.md §3.4): reads Eumenes' package.json, tsconfig.json, bunfig.toml [fmt] and
- * .oxlintrc.json read-only and fails when this project's stack differs. Node's version is deliberately
+ * `bun run check:stack` (plan.md §3.4): reads Eumenes' package.json, adopted Interact package metadata,
+ * tsconfig.json, bunfig.toml [fmt] and .oxlintrc.json. Node's version is deliberately
  * not compared (user decision 2026-11-03).
  *
  * Eumenes location: $EUMENES_DIR, default ../eumenes next to this repository.
  */
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
@@ -68,6 +69,15 @@ same("packageManager", ourRoot.packageManager, theirPkg.packageManager);
 same("type", ourRoot.type, theirPkg.type);
 
 const theirDeps = dependencies(theirPkg);
+const theirJsonrepair =
+	theirDeps.jsonrepair ??
+	dependencies(
+		json(
+			createRequire(join(eumenes, "package.json")).resolve(
+				"eumenes-interact/package.json",
+			),
+		),
+	).jsonrepair;
 const ourPackages = [
 	join(root, "package.json"),
 	join(root, "packages/eumenes-interact/package.json"),
@@ -99,7 +109,11 @@ for (const file of ourPackages) {
 				version === "4.6.6" &&
 				theirDeps[name] === "4.4.3"
 			))
-				same(`dependency ${name}`, version, theirDeps[name]);
+				same(
+					`dependency ${name}`,
+					version,
+					name === "jsonrepair" ? theirJsonrepair : theirDeps[name],
+				);
 	}
 }
 const shipped = dependencies(

@@ -1,9 +1,9 @@
 // Ported from Eumenes `api/infrastructure/llm-json.ts` (commit 98b188d2): the logger is dropped and the byte
 // length is counted without `Buffer`; the accept/reject decisions are unchanged.
 import { jsonrepair } from "jsonrepair";
-import { utf8Length } from "./text.ts";
+import { utf8Length } from "./utf8-length.ts";
 
-class LlmJsonError extends Error {
+export class LlmJsonError extends Error {
 	constructor(public readonly code: string) {
 		super(code);
 	}
@@ -123,7 +123,7 @@ function bodyOf(text: string) {
 /** One syntax correction at the LLM-output boundary. Callers own schema,
  * authority and retry validation. HTTP envelopes and stored JSON stay strict.
  */
-export function parseLlmJson(input: unknown, limit = 65536): unknown {
+export function decodeLlmJson(input: unknown, limit = 65536) {
 	if (typeof input !== "string") reject("llm_json_non_text");
 	if (utf8Length(input) > limit) reject("llm_json_too_large");
 	const body = bodyOf(input);
@@ -135,7 +135,7 @@ export function parseLlmJson(input: unknown, limit = 65536): unknown {
 	} catch {}
 	const original = tokens(body);
 	checkStructure(original);
-	if (parsed) return value;
+	if (parsed) return { value, repaired: false };
 	let corrected: string;
 	try {
 		corrected = jsonrepair(body);
@@ -154,5 +154,5 @@ export function parseLlmJson(input: unknown, limit = 65536): unknown {
 		before.some((token, i) => token.value !== after[i]?.value)
 	)
 		reject();
-	return value;
+	return { value, repaired: true };
 }

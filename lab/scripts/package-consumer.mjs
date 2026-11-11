@@ -4,6 +4,7 @@ import { createRequire } from "node:module";
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import * as core from "eumenes-interact";
+import { decodeLlmJson, LlmJsonError } from "eumenes-interact/llm-json";
 import * as sqlite from "eumenes-interact/sqlite";
 import * as adapter from "eumenes-interact/adapters/playwright-mcp";
 import {
@@ -32,6 +33,29 @@ verify();
 assert.equal(typeof core.startRun, "function");
 assert.equal(typeof sqlite.createRun, "function");
 assert.equal(typeof adapter.createPlaywrightMcpAdapter, "function");
+const start = () =>
+	core.startRun({
+		arm: "arm1",
+		request: "Read the guide.",
+		policy: { maxModelCalls: 3, retries: { default: 0 } },
+		reference: {},
+		nowMs: 0,
+	});
+const repairable = "{part:'page.back',args:{},}";
+assert.deepEqual(decodeLlmJson(repairable), {
+	value: { part: "page.back", args: {} },
+	repaired: true,
+});
+assert.equal(core.parseStep(start(), repairable).step.kind, "call");
+const incomplete = '{"part":"page.back","args":{}';
+assert.throws(
+	() => decodeLlmJson(incomplete),
+	(error) =>
+		error instanceof LlmJsonError && error.code === "llm_json_incomplete",
+);
+const rejected = core.parseStep(start(), incomplete);
+assert.equal(rejected.record.rejection, "unparsable_json");
+assert.equal(rejected.step.kind, "continue");
 // Exercise the structural SQLite contract with the actual runtime's database.
 const connection = process.versions.bun
 	? new (await import("bun:sqlite")).Database(":memory:")

@@ -23,6 +23,10 @@
 			"types": "./dist/sqlite.d.ts",
 			"default": "./dist/sqlite.js"
 		},
+		"./llm-json": {
+			"types": "./dist/core/shared/json.d.ts",
+			"default": "./dist/core/shared/json.js"
+		},
 		"./adapters/playwright-mcp": {
 			"types": "./dist/adapters/playwright-mcp.d.ts",
 			"default": "./dist/adapters/playwright-mcp.js"

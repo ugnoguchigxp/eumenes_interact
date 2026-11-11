@@ -15,7 +15,7 @@ import {
 	type PartCall,
 	type PartResult,
 } from "../../contracts/parts.ts";
-import { parseLlmJson } from "../shared/json.ts";
+import { decodeLlmJson } from "../shared/json.ts";
 import { promptTime } from "../shared/text.ts";
 import { partCallJsonSchemaFor } from "../parts/schema.ts";
 import { BLOCK_ROLES } from "../parts/snapshot.ts";
@@ -260,7 +260,7 @@ export function parseStep(
 	let part: PartCall | null = null;
 	let value: unknown;
 	try {
-		value = parseLlmJson(raw);
+		value = decodeLlmJson(raw).value;
 	} catch {
 		rejected = {
 			code: "unparsable_json",
